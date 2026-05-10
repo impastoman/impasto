@@ -11,6 +11,10 @@ struct BakeLog: Identifiable, Codable {
     var ballCount: Int
     var ballWeight: Double
     var finalHydration: Double
+    var plannedStageDurations: [String: TimeInterval] = [:]
+    var actualStageDurations: [String: TimeInterval] = [:]
+    var roomTempC: Double = 20
+    var prefermentPH: String = ""
 }
 
 enum CrustTag: String, Codable, CaseIterable {

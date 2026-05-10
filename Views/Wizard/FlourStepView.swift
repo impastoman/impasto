@@ -3,7 +3,7 @@ import SwiftUI
 struct FlourStepView: View {
     var body: some View {
         List {
-            Section { WizardProgressView(step: 1, total: 5) }
+            Section { WizardProgressView(step: 2, total: 7) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
@@ -14,8 +14,7 @@ struct FlourStepView: View {
                         Text("00, bread flour, all-purpose").font(.caption).foregroundColor(.secondary)
                     }
                     Spacer()
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
                 }
                 .padding(.vertical, 2)
 

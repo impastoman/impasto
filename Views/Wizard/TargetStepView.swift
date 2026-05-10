@@ -8,12 +8,12 @@ struct TargetStepView: View {
 
     var body: some View {
         List {
-            Section { WizardProgressView(step: 3, total: 5) }
+            Section { WizardProgressView(step: 5, total: 7) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
             Section("How many balls?") {
-                Stepper("\(ballCount) balls", value: $ballCount, in: 1...20)
+                Stepper("\(ballCount) balls", value: $ballCount, in: 1...99)
             }
 
             Section("Size per ball") {
@@ -23,9 +23,7 @@ struct TargetStepView: View {
                             Text("\(Int(weight))g")
                                 .font(.system(size: 16, design: .monospaced))
                                 .fontWeight(ballWeight == weight ? .semibold : .regular)
-                            Text(size)
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
+                            Text(size).font(.caption2).foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)

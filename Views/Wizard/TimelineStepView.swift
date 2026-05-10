@@ -2,27 +2,45 @@ import SwiftUI
 
 struct TimelineStepView: View {
     @Binding var selected: Timeline
+    let method: PrefermentMethod
+    let now: Date = Date()
 
     var body: some View {
         List {
-            Section { WizardProgressView(step: 2, total: 5) }
+            Section { WizardProgressView(step: 3, total: 7) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
             Section("How long do you have?") {
                 ForEach(Timeline.allCases, id: \.self) { option in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(option.rawValue).font(.headline)
-                            Text(option.hours).font(.caption).foregroundColor(.secondary)
+                    let warning = option.warning(for: method, from: now)
+                    let target  = option.targetDate(from: now)
+
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(option.rawValue).font(.headline)
+                                Text(option.hours).font(.caption).foregroundColor(.secondary)
+                            }
+                            Text("Ready by \(target.formatted(date: .abbreviated, time: .shortened))")
+                                .font(.caption)
+                                .foregroundColor(warning != nil ? .yellow : Color(hex: "D2B96A").opacity(0.7))
+                            if let w = warning {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "exclamationmark.triangle.fill").font(.caption2)
+                                    Text(w).font(.caption2)
+                                }
+                                .foregroundColor(.yellow)
+                            }
                         }
                         Spacer()
                         if selected == option {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(Color(hex: "D2B96A"))
+                                .padding(.top, 2)
                         }
                     }
-                    .padding(.vertical, 2)
+                    .padding(.vertical, 4)
                     .contentShape(Rectangle())
                     .onTapGesture { selected = option }
                 }
@@ -40,7 +58,7 @@ struct TimelineStepView: View {
                         .foregroundColor(.orange)
                         .cornerRadius(4)
                 }
-                .padding(.vertical, 2)
+                .padding(.vertical, 4)
                 .opacity(0.45)
             }
         }

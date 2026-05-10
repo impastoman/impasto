@@ -3,10 +3,18 @@ import SwiftUI
 struct RecipeDetailView: View {
     @EnvironmentObject var store: RecipeStore
     @State var recipe: Recipe
-    @State private var showSession = false
+    @State private var showPreFlight = false
 
     var body: some View {
         List {
+            Section("Style & Method") {
+                row("Style",    recipe.style.rawValue)
+                row("Method",   recipe.method.rawValue)
+                row("Mixer",    recipe.mixerType.rawValue)
+                row("Autolyse", recipe.autolyse ? "\(recipe.autolyseMinutes) min" : "None")
+                row("Timeline", "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
+            }
+
             Section("Formula") {
                 row("Biga hydration",  "\(Int(recipe.bigaHydration * 100))%")
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
@@ -20,10 +28,12 @@ struct RecipeDetailView: View {
                 row("Total dough", "\(Int(recipe.totalDoughWeight))g")
             }
 
-            Section("① Biga") {
-                row("Flour", "\(Int(recipe.bigaFlour))g")
-                row("Water", "\(Int(recipe.bigaWater))g")
-                row("Yeast", String(format: "%.1fg", recipe.bigaYeast))
+            if recipe.method != .direct {
+                Section("① \(recipe.method.rawValue)") {
+                    row("Flour", "\(Int(recipe.bigaFlour))g")
+                    row("Water", "\(Int(recipe.bigaWater))g")
+                    row("Yeast", String(format: "%.1fg", recipe.bigaYeast))
+                }
             }
 
             Section("② Final dough add-ins") {
@@ -33,14 +43,14 @@ struct RecipeDetailView: View {
             }
 
             Section {
-                Button("▶  Start Session") { showSession = true }
+                Button("▶  Start Session") { showPreFlight = true }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundColor(Color(hex: "D2B96A"))
             }
         }
         .navigationTitle(recipe.name)
-        .fullScreenCover(isPresented: $showSession) {
-            LiveSessionView(recipe: recipe)
+        .fullScreenCover(isPresented: $showPreFlight) {
+            PreFlightView(recipe: recipe)
                 .environmentObject(store)
         }
     }

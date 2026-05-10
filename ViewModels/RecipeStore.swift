@@ -1,11 +1,11 @@
-import Foundation
+import SwiftUI
 import Combine
 
 class RecipeStore: ObservableObject {
     @Published var recipes: [Recipe] = []
     @Published var activeRecipeId: UUID?
 
-    private let saveKey = "impasto_recipes"
+    private let saveKey = "impasto_recipes_v2"
 
     init() { load() }
 

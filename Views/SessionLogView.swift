@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SessionLogView: View {
+    @ObservedObject var vm: SessionViewModel
     let recipe: Recipe
     @EnvironmentObject var store: RecipeStore
     @Environment(\.dismiss) private var dismiss
@@ -25,26 +26,20 @@ struct SessionLogView: View {
                     .padding(.vertical, 4)
                 }
 
+                stageReportSection
+
                 Section("Crust") {
-                    HStack(spacing: 8) {
-                        ForEach(CrustTag.allCases, id: \.self) { tag in
-                            TagChip(label: tag.rawValue, selected: crustTags.contains(tag)) {
-                                if crustTags.contains(tag) { crustTags.remove(tag) } else { crustTags.insert(tag) }
-                            }
-                        }
-                    }
-                    .padding(.vertical, 4)
+                    FlowTagRow(tags: CrustTag.allCases, selected: $crustTags)
+                        .padding(.vertical, 4)
                 }
 
                 Section("Crumb") {
-                    HStack(spacing: 8) {
-                        ForEach(CrumbTag.allCases, id: \.self) { tag in
-                            TagChip(label: tag.rawValue, selected: crumbTags.contains(tag)) {
-                                if crumbTags.contains(tag) { crumbTags.remove(tag) } else { crumbTags.insert(tag) }
-                            }
-                        }
-                    }
-                    .padding(.vertical, 4)
+                    FlowTagRow(tags: CrumbTag.allCases, selected: $crumbTags)
+                        .padding(.vertical, 4)
+                }
+
+                if !vm.preFlight.prefermentPH.isEmpty || vm.pHReadings.count > 0 {
+                    fermentSection
                 }
 
                 Section("Notes") {
@@ -60,22 +55,106 @@ struct SessionLogView: View {
             }
             .navigationTitle("How'd it go?")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+    }
+
+    var stageReportSection: some View {
+        Section {
+            ForEach(SessionStage.allCases, id: \.self) { stage in
+                let planned = stage.defaultDuration
+                let actual  = vm.actualStageDurations[stage]
+                HStack {
+                    Text(stage.title)
+                        .font(.system(size: 13, design: .monospaced))
+                        .frame(width: 100, alignment: .leading)
+                    Spacer()
+                    if let actual {
+                        let delta = actual - planned
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(shortTime(actual))
+                                .font(.system(size: 13, design: .monospaced))
+                                .foregroundColor(.primary)
+                            Text(deltaString(delta))
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundColor(deltaColor(delta))
+                        }
+                    } else {
+                        Text("—")
+                            .font(.system(size: 13, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        } header: {
+            Text("Stage times  ·  planned vs. actual")
+        }
+    }
+
+    var fermentSection: some View {
+        Section("Fermentation") {
+            if !vm.preFlight.prefermentPH.isEmpty {
+                LabeledContent("Pre-flight pH", value: vm.preFlight.prefermentPH)
+                    .font(.system(.body, design: .monospaced))
+            }
+            if !vm.pHReadings.isEmpty {
+                LabeledContent("Logged pH", value: vm.pHReadings.map { String(format: "%.1f", $0) }.joined(separator: "  "))
+                    .font(.system(.body, design: .monospaced))
+            }
+            LabeledContent("Room temp", value: String(format: "%.0f°C", vm.preFlight.roomTempC))
+                .font(.system(.body, design: .monospaced))
         }
     }
 
     func save() {
-        let log = BakeLog(
-            recipeId: recipe.id,
+        let log = vm.buildBakeLog(
             rating: rating,
             crustTags: Array(crustTags),
             crumbTags: Array(crumbTags),
-            notes: notes,
-            ballCount: recipe.ballCount,
-            ballWeight: recipe.ballWeight,
-            finalHydration: recipe.finalHydration
+            notes: notes
         )
         store.addBakeLog(log, to: recipe.id)
         dismiss()
+    }
+
+    func shortTime(_ t: TimeInterval) -> String {
+        let h = Int(t) / 3600
+        let m = (Int(t) % 3600) / 60
+        if h > 0 { return String(format: "%dh %02dm", h, m) }
+        return String(format: "%dm", m)
+    }
+
+    func deltaString(_ delta: TimeInterval) -> String {
+        let abs = Int(abs(delta))
+        let h = abs / 3600
+        let m = (abs % 3600) / 60
+        let sign = delta >= 0 ? "+" : "-"
+        if h > 0 { return "\(sign)\(h)h \(m)m" }
+        return "\(sign)\(m)m"
+    }
+
+    func deltaColor(_ delta: TimeInterval) -> Color {
+        if abs(delta) < 300 { return .secondary }
+        return delta > 0 ? .orange : Color(hex: "D2B96A")
+    }
+}
+
+struct FlowTagRow<T: RawRepresentable & Hashable & CaseIterable>: View where T.RawValue == String {
+    let tags: [T]
+    @Binding var selected: Set<T>
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(Array(tags), id: \.self) { tag in
+                TagChip(label: tag.rawValue, selected: selected.contains(tag)) {
+                    if selected.contains(tag) { selected.remove(tag) } else { selected.insert(tag) }
+                }
+            }
+        }
     }
 }
 
