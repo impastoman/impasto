@@ -1,0 +1,54 @@
+import SwiftUI
+
+struct HistoryView: View {
+    @EnvironmentObject var store: RecipeStore
+
+    var allLogs: [(BakeLog, Recipe)] {
+        store.recipes
+            .flatMap { recipe in recipe.bakeLogs.map { ($0, recipe) } }
+            .sorted { $0.0.date > $1.0.date }
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(allLogs, id: \.0.id) { log, recipe in
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack {
+                            Text(recipe.name).font(.headline)
+                            Spacer()
+                            HStack(spacing: 2) {
+                                ForEach(1...5, id: \.self) { i in
+                                    Image(systemName: i <= log.rating ? "star.fill" : "star")
+                                        .font(.caption2)
+                                        .foregroundColor(Color(hex: "D2B96A"))
+                                }
+                            }
+                        }
+                        Text(log.date.formatted(date: .abbreviated, time: .omitted)
+                             + " · \(log.ballCount) balls · \(Int(log.finalHydration * 100))% hydration")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        if !log.crustTags.isEmpty || !log.crumbTags.isEmpty {
+                            HStack(spacing: 4) {
+                                ForEach(log.crustTags, id: \.self) { tag in
+                                    Text(tag.rawValue).font(.caption2).foregroundColor(.secondary)
+                                }
+                                ForEach(log.crumbTags, id: \.self) { tag in
+                                    Text(tag.rawValue).font(.caption2).foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            .navigationTitle("History")
+            .overlay {
+                if allLogs.isEmpty {
+                    ContentUnavailableView("No bakes yet", systemImage: "clock", description: Text("Complete a session to see your history."))
+                }
+            }
+        }
+    }
+}
