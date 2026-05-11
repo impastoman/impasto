@@ -3,12 +3,13 @@ import SwiftUI
 struct TechniqueStepView: View {
     @Binding var mixerType: MixerType
     @Binding var autolyse: Bool
+    @Binding var bassinage: Bool
     let style: PizzaStyle
     let finalHydration: Double
 
     var body: some View {
         List {
-            Section { WizardProgressView(step: 4, total: 7) }
+            Section { WizardProgressView(step: 4, total: 9) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
@@ -59,6 +60,27 @@ struct TechniqueStepView: View {
                 if autolyse {
                     LabeledContent("Suggested rest", value: style == .neapolitan ? "20 min" : "30 min")
                         .font(.system(.caption, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Section {
+                Toggle(isOn: $bassinage) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Bassinage")
+                            .font(.headline)
+                        Text("Reserve a portion of water and add gradually during kneading. Controls temperature and improves extensibility.")
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                }
+                .tint(Color(hex: "D2B96A"))
+
+                if bassinage {
+                    LabeledContent("Default reserve", value: "10% of total water")
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundColor(.secondary)
+                    Text("Adjustable per process step in the next screen.")
+                        .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }

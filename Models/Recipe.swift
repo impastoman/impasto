@@ -5,8 +5,11 @@ struct Recipe: Identifiable, Codable {
     var name: String
     var style: PizzaStyle
     var method: PrefermentMethod
+    var prefermentHydration: Double
     var mixerType: MixerType
     var autolyse: Bool
+    var bassinage: Bool
+    var bassinageReservePct: Double
     var timeline: Timeline
     var bigaHydration: Double
     var finalHydration: Double
@@ -15,6 +18,10 @@ struct Recipe: Identifiable, Codable {
     var yeastPct: Double
     var ballCount: Int
     var ballWeight: Double
+    var buffer: Double
+    var flourBlend: FlourBlend
+    var processCards: [ProcessCard]
+    var bakeSetups: [BakeSetup]
     var notes: String
     var bakeLogs: [BakeLog]
 
@@ -24,9 +31,11 @@ struct Recipe: Identifiable, Codable {
         method: PrefermentMethod = .biga,
         mixerType: MixerType = .hand,
         autolyse: Bool = false,
+        bassinage: Bool = false,
         timeline: Timeline = .overnight,
         ballCount: Int = 6,
-        ballWeight: Double = 250
+        ballWeight: Double = 250,
+        buffer: Double = 0.02
     ) {
         self.id = UUID()
         self.name = name
@@ -34,9 +43,13 @@ struct Recipe: Identifiable, Codable {
         self.method = method
         self.mixerType = mixerType
         self.autolyse = autolyse
+        self.bassinage = bassinage
+        self.bassinageReservePct = 0.10
         self.timeline = timeline
         self.ballCount = ballCount
         self.ballWeight = ballWeight
+        self.buffer = buffer
+        self.prefermentHydration = method == .poolish ? 1.0 : 0.50
         self.bigaHydration = method == .poolish ? 1.0 : 0.50
         self.finalHydration = style.defaultFinalHydration
         self.bigaRatio = method == .direct ? 0 : style.defaultBigaRatio
@@ -44,30 +57,41 @@ struct Recipe: Identifiable, Codable {
         self.yeastPct = 0.001
         self.notes = ""
         self.bakeLogs = []
+        self.flourBlend = FlourBlend()
+        self.bakeSetups = []
+        self.processCards = ProcessCard.defaultCards(autolyse: autolyse, bassinage: bassinage)
     }
 
-    // Handles decoding older saved recipes that lack new fields
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        id            = try c.decode(UUID.self, forKey: .id)
-        name          = try c.decode(String.self, forKey: .name)
-        style         = try c.decode(PizzaStyle.self, forKey: .style)
-        method        = (try? c.decode(PrefermentMethod.self, forKey: .method)) ?? .biga
-        mixerType     = (try? c.decode(MixerType.self, forKey: .mixerType)) ?? .hand
-        autolyse      = (try? c.decode(Bool.self, forKey: .autolyse)) ?? false
-        timeline      = try c.decode(Timeline.self, forKey: .timeline)
-        bigaHydration = try c.decode(Double.self, forKey: .bigaHydration)
-        finalHydration = try c.decode(Double.self, forKey: .finalHydration)
-        bigaRatio     = try c.decode(Double.self, forKey: .bigaRatio)
-        saltPct       = try c.decode(Double.self, forKey: .saltPct)
-        yeastPct      = try c.decode(Double.self, forKey: .yeastPct)
-        ballCount     = try c.decode(Int.self, forKey: .ballCount)
-        ballWeight    = try c.decode(Double.self, forKey: .ballWeight)
-        notes         = try c.decode(String.self, forKey: .notes)
-        bakeLogs      = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
+        id                  = try c.decode(UUID.self, forKey: .id)
+        name                = try c.decode(String.self, forKey: .name)
+        style               = try c.decode(PizzaStyle.self, forKey: .style)
+        method              = (try? c.decode(PrefermentMethod.self, forKey: .method)) ?? .biga
+        mixerType           = (try? c.decode(MixerType.self, forKey: .mixerType)) ?? .hand
+        autolyse            = (try? c.decode(Bool.self, forKey: .autolyse)) ?? false
+        bassinage           = (try? c.decode(Bool.self, forKey: .bassinage)) ?? false
+        bassinageReservePct = (try? c.decode(Double.self, forKey: .bassinageReservePct)) ?? 0.10
+        timeline            = try c.decode(Timeline.self, forKey: .timeline)
+        bigaHydration       = try c.decode(Double.self, forKey: .bigaHydration)
+        prefermentHydration = (try? c.decode(Double.self, forKey: .prefermentHydration)) ?? bigaHydration
+        finalHydration      = try c.decode(Double.self, forKey: .finalHydration)
+        bigaRatio           = try c.decode(Double.self, forKey: .bigaRatio)
+        saltPct             = try c.decode(Double.self, forKey: .saltPct)
+        yeastPct            = try c.decode(Double.self, forKey: .yeastPct)
+        ballCount           = try c.decode(Int.self, forKey: .ballCount)
+        ballWeight          = try c.decode(Double.self, forKey: .ballWeight)
+        buffer              = (try? c.decode(Double.self, forKey: .buffer)) ?? 0.02
+        notes               = try c.decode(String.self, forKey: .notes)
+        bakeLogs            = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
+        flourBlend          = (try? c.decode(FlourBlend.self, forKey: .flourBlend)) ?? FlourBlend()
+        bakeSetups          = (try? c.decode([BakeSetup].self, forKey: .bakeSetups)) ?? []
+        let savedCards      = try? c.decode([ProcessCard].self, forKey: .processCards)
+        processCards        = savedCards ?? ProcessCard.defaultCards(autolyse: autolyse, bassinage: bassinage)
     }
 
-    var totalDoughWeight: Double  { Double(ballCount) * ballWeight }
+    // Total dough weight including buffer
+    var totalDoughWeight: Double  { Double(ballCount) * ballWeight * (1 + buffer) }
     var totalFlour: Double        { totalDoughWeight / (1 + finalHydration + saltPct) }
     var totalWater: Double        { totalFlour * finalHydration }
     var totalSalt: Double         { totalFlour * saltPct }
@@ -76,6 +100,12 @@ struct Recipe: Identifiable, Codable {
     var bigaYeast: Double         { bigaFlour * yeastPct }
     var additionalFlour: Double   { totalFlour - bigaFlour }
     var additionalWater: Double   { totalWater - bigaWater }
+    var bassinageReserveGrams: Double { totalWater * bassinageReservePct }
+
+    var bigaPercentage: Double {
+        get { bigaRatio }
+        set { bigaRatio = newValue }
+    }
 
     var estimatedKneadingMinutes: Int {
         switch mixerType {
@@ -198,9 +228,9 @@ enum Timeline: String, Codable, CaseIterable {
     func targetDate(from now: Date = Date()) -> Date {
         switch self {
         case .tonight:
-            var c = Calendar.current.dateComponents([.year, .month, .day], from: now)
-            c.hour = 23; c.minute = 0
-            return Calendar.current.date(from: c) ?? now.addingTimeInterval(7 * 3600)
+            var comp = Calendar.current.dateComponents([.year, .month, .day], from: now)
+            comp.hour = 23; comp.minute = 0
+            return Calendar.current.date(from: comp) ?? now.addingTimeInterval(7 * 3600)
         case .overnight:     return now.addingTimeInterval(20 * 3600)
         case .twoDays:       return now.addingTimeInterval(48 * 3600)
         case .longColdProof: return now.addingTimeInterval(60 * 3600)

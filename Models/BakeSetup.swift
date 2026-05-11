@@ -1,0 +1,56 @@
+import Foundation
+
+enum BakeMethod: String, Codable, CaseIterable {
+    case homeOven      = "Home Oven"
+    case pizzaOven     = "Dedicated Pizza Oven"
+    case portableOven  = "Portable Pizza Oven"
+    case grill         = "Grill"
+    case other         = "Other"
+
+    var subMethods: [String] {
+        switch self {
+        case .homeOven:     return ["Baking Steel", "Baking Stone", "Baking Pan", "Broiler Method"]
+        case .pizzaOven:    return ["Wood-Fired", "Gas-Fired", "Multi-Fuel"]
+        case .portableOven: return ["Ooni", "Gozney", "Other Portable"]
+        case .grill:        return ["Gas", "Charcoal"]
+        case .other:        return []
+        }
+    }
+
+    var hasSurfaceTemp: Bool {
+        switch self {
+        case .homeOven:  return true
+        case .pizzaOven: return true
+        case .portableOven: return true
+        default: return false
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .homeOven:     return "oven"
+        case .pizzaOven:    return "flame"
+        case .portableOven: return "flame.fill"
+        case .grill:        return "smoke"
+        case .other:        return "questionmark.circle"
+        }
+    }
+}
+
+struct BakeSetup: Identifiable, Codable {
+    var id: UUID = UUID()
+    var method: BakeMethod = .homeOven
+    var subMethod: String = ""
+    var ovenTempMin: Double = 260
+    var ovenTempMax: Double = 290
+    var surfaceTemp: Double? = nil
+    var preheatMinutes: Int = 45
+    var useCelsius: Bool = false
+    var notes: String = ""
+
+    var tempUnit: String { useCelsius ? "°C" : "°F" }
+
+    var ovenTempDisplay: String {
+        "\(Int(ovenTempMin))–\(Int(ovenTempMax))\(tempUnit)"
+    }
+}
