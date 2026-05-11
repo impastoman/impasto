@@ -23,6 +23,8 @@ struct Recipe: Identifiable, Codable {
     var processCards: [ProcessCard]
     var bakeSetups: [BakeSetup]
     var yeastType: YeastType
+    var customMixerName: String
+    var mixingNotes: String
     var customStyleName: String
     var notes: String
     var bakeLogs: [BakeLog]
@@ -58,6 +60,8 @@ struct Recipe: Identifiable, Codable {
         self.saltPct = 0.03
         self.yeastPct = 0.001
         self.yeastType = .instantDry
+        self.customMixerName = ""
+        self.mixingNotes = ""
         self.customStyleName = ""
         self.notes = ""
         self.bakeLogs = []
@@ -87,6 +91,8 @@ struct Recipe: Identifiable, Codable {
         ballWeight          = try c.decode(Double.self, forKey: .ballWeight)
         buffer              = (try? c.decode(Double.self, forKey: .buffer)) ?? 0.02
         yeastType           = (try? c.decode(YeastType.self, forKey: .yeastType)) ?? .instantDry
+        customMixerName     = (try? c.decode(String.self, forKey: .customMixerName)) ?? ""
+        mixingNotes         = (try? c.decode(String.self, forKey: .mixingNotes)) ?? ""
         customStyleName     = (try? c.decode(String.self, forKey: .customStyleName)) ?? ""
         notes               = try c.decode(String.self, forKey: .notes)
         bakeLogs            = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
@@ -182,7 +188,7 @@ enum MixerType: String, Codable, CaseIterable {
     var note: String {
         switch self {
         case .hand:       return "Slap & fold works well above 68%"
-        case .standMixer: return "Dough hook, medium speed"
+        case .standMixer: return "Generally set to the lowest possible speed"
         case .spiral:     return "Bowl rotates, fastest gluten development"
         case .other:      return ""
         }

@@ -5,6 +5,8 @@ struct MethodStepView: View {
     @Binding var prefermentHydration: Double
     @Binding var method: PrefermentMethod
 
+    @State private var hydrationText: String = ""
+
     var body: some View {
         List {
             Section { WizardProgressView(step: 5, total: 10) }
@@ -28,15 +30,29 @@ struct MethodStepView: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color(hex: "D2B96A"))
                             Spacer()
-                            Text("\(Int(prefermentHydration * 100))%")
-                                .font(.system(size: 15, design: .monospaced))
-                                .foregroundColor(.secondary)
+                            HStack(spacing: 2) {
+                                TextField("\(Int(prefermentHydration * 100))", text: $hydrationText)
+                                    .keyboardType(.numberPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 44)
+                                    .font(.system(size: 15, design: .monospaced))
+                                    .onChange(of: hydrationText) { _, val in
+                                        if let d = Double(val), d >= 40, d <= 120 {
+                                            prefermentHydration = d / 100
+                                            method = derivedMethod
+                                        }
+                                    }
+                                Text("%")
+                                    .font(.system(size: 15, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                            }
                         }
 
                         Slider(value: $prefermentHydration, in: 0.40...1.20, step: 0.01)
                             .tint(Color(hex: "D2B96A"))
-                            .onChange(of: prefermentHydration) { _, _ in
+                            .onChange(of: prefermentHydration) { _, val in
                                 method = derivedMethod
+                                hydrationText = "\(Int(val * 100))"
                             }
 
                         Text(prefermentNote)

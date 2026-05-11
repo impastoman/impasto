@@ -4,6 +4,9 @@ struct TechniqueStepView: View {
     @Binding var mixerType: MixerType
     @Binding var autolyse: Bool
     @Binding var bassinage: Bool
+    @Binding var autolyseMinutes: Int
+    @Binding var customMixerName: String
+    @Binding var mixingNotes: String
     let style: PizzaStyle
     let finalHydration: Double
 
@@ -32,6 +35,12 @@ struct TechniqueStepView: View {
                     .contentShape(Rectangle())
                     .onTapGesture { mixerType = mixer }
                 }
+
+                if mixerType == .other {
+                    TextField("Describe your mixer", text: $customMixerName)
+                        .font(.system(.body, design: .monospaced))
+                        .padding(.top, 2)
+                }
             }
 
             if finalHydration > 0.70 && mixerType == .hand {
@@ -49,8 +58,7 @@ struct TechniqueStepView: View {
             Section {
                 Toggle(isOn: $autolyse) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Autolyse")
-                            .font(.headline)
+                        Text("Autolyse").font(.headline)
                         Text("Rest flour + water before adding salt and yeast. Improves extensibility.")
                             .font(.caption).foregroundColor(.secondary)
                     }
@@ -58,17 +66,31 @@ struct TechniqueStepView: View {
                 .tint(Color(hex: "D2B96A"))
 
                 if autolyse {
-                    LabeledContent("Suggested rest", value: style == .neapolitan ? "20 min" : "30 min")
-                        .font(.system(.caption, design: .monospaced))
-                        .foregroundColor(.secondary)
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Rest time")
+                                .font(.system(.body, design: .monospaced))
+                            Text("suggested: \(style == .neapolitan ? 20 : 30) min")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        TextField("\(style == .neapolitan ? 20 : 30)",
+                                  value: $autolyseMinutes,
+                                  format: .number)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 52)
+                            .font(.system(.body, design: .monospaced))
+                        Text("min").foregroundColor(.secondary)
+                    }
                 }
             }
 
             Section {
                 Toggle(isOn: $bassinage) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Bassinage")
-                            .font(.headline)
+                        Text("Bassinage").font(.headline)
                         Text("Reserve a portion of water and add gradually during kneading. Controls temperature and improves extensibility.")
                             .font(.caption).foregroundColor(.secondary)
                     }
@@ -83,6 +105,12 @@ struct TechniqueStepView: View {
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
+            }
+
+            Section("Mixing notes") {
+                TextField("Any notes for this stage...", text: $mixingNotes, axis: .vertical)
+                    .font(.system(size: 13, design: .monospaced))
+                    .lineLimit(3...)
             }
         }
     }

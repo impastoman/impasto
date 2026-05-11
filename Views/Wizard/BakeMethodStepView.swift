@@ -53,7 +53,15 @@ private struct BakeSetupDetailSection: View {
 
     var body: some View {
         Section {
-            if !setup.method.subMethods.isEmpty {
+            if setup.method == .portableOven {
+                HStack {
+                    Text("Setup")
+                    Spacer()
+                    TextField("Oven brand & model", text: $setup.subMethod)
+                        .multilineTextAlignment(.trailing)
+                        .font(.system(.body, design: .monospaced))
+                }
+            } else if !setup.method.subMethods.isEmpty {
                 Picker("Setup", selection: $setup.subMethod) {
                     Text("Select…").tag("")
                     ForEach(setup.method.subMethods, id: \.self) { s in
@@ -104,9 +112,11 @@ private struct BakeSetupDetailSection: View {
                 }
             }
 
-            Toggle("\(setup.useCelsius ? "°C" : "°F")  —  tap to switch", isOn: $setup.useCelsius)
-                .font(.system(size: 13, design: .monospaced))
-                .tint(Color(hex: "D2B96A"))
+            Picker("Temperature unit", selection: $setup.useCelsius) {
+                Text("°F  Fahrenheit").tag(false)
+                Text("°C  Celsius").tag(true)
+            }
+            .font(.system(size: 13, design: .monospaced))
 
             TextField("Notes", text: $setup.notes, axis: .vertical)
                 .font(.system(size: 13, design: .monospaced))

@@ -21,11 +21,12 @@ enum ProcessCardType: String, Codable, CaseIterable {
     case bassinage
     case kneading
     case bulkFermentation
-    case dividing
+    case divide
     case preShape
     case benchRest
     case finalProof
     case bake
+    case freeform
 
     var title: String {
         switch self {
@@ -35,11 +36,12 @@ enum ProcessCardType: String, Codable, CaseIterable {
         case .bassinage:         return "Bassinage"
         case .kneading:          return "Kneading"
         case .bulkFermentation:  return "Bulk fermentation"
-        case .dividing:          return "Divide & pre-shape"
+        case .divide:            return "Divide"
         case .preShape:          return "Pre-shape"
         case .benchRest:         return "Bench rest"
         case .finalProof:        return "Final proof"
         case .bake:              return "Bake"
+        case .freeform:          return "Custom step"
         }
     }
 
@@ -51,11 +53,12 @@ enum ProcessCardType: String, Codable, CaseIterable {
         case .bassinage:         return "gradual water addition"
         case .kneading:          return "gluten development"
         case .bulkFermentation:  return "with stretch & fold intervals"
-        case .dividing:          return "scale and portion"
+        case .divide:            return "scale and portion"
         case .preShape:          return "rough ball, surface tension"
         case .benchRest:         return "gluten relaxation"
         case .finalProof:        return "ball proof"
         case .bake:              return "oven"
+        case .freeform:          return ""
         }
     }
 
@@ -67,21 +70,22 @@ enum ProcessCardType: String, Codable, CaseIterable {
         case .bassinage:         return 0
         case .kneading:          return 12 * 60
         case .bulkFermentation:  return 4 * 3600
-        case .dividing:          return 0
+        case .divide:            return 0
         case .preShape:          return 0
         case .benchRest:         return 20 * 60
         case .finalProof:        return 30 * 60
         case .bake:              return 0
+        case .freeform:          return 0
         }
     }
 
     var isTimed: Bool {
-        defaultDuration > 0 || self == .bake
+        defaultDuration > 0 || self == .bake || self == .freeform
     }
 
     var isActionOnly: Bool {
         switch self {
-        case .incorporateYeast, .incorporateSalt, .bassinage, .dividing, .preShape:
+        case .incorporateYeast, .incorporateSalt, .bassinage, .divide, .preShape:
             return true
         default:
             return false
@@ -104,6 +108,7 @@ struct ProcessCard: Identifiable, Codable {
     var isEnabled: Bool = true
     var sortOrder: Int = 0
     var customDuration: TimeInterval? = nil
+    var customTitle: String? = nil
     var recipeNote: String = ""
 
     // Autolyse-specific
@@ -112,7 +117,7 @@ struct ProcessCard: Identifiable, Codable {
     // Bassinage-specific
     var bassinageReservePct: Double = 0.10
 
-    var title: String { type.title }
+    var title: String { customTitle ?? type.title }
     var subtitle: String { type.subtitle }
     var duration: TimeInterval { customDuration ?? type.defaultDuration }
 
@@ -130,7 +135,7 @@ struct ProcessCard: Identifiable, Codable {
         }
         cards.append(ProcessCard(type: .kneading, sortOrder: order)); order += 1
         cards.append(ProcessCard(type: .bulkFermentation, sortOrder: order)); order += 1
-        cards.append(ProcessCard(type: .dividing, sortOrder: order)); order += 1
+        cards.append(ProcessCard(type: .divide, sortOrder: order)); order += 1
         cards.append(ProcessCard(type: .preShape, sortOrder: order)); order += 1
         cards.append(ProcessCard(type: .benchRest, sortOrder: order)); order += 1
         cards.append(ProcessCard(type: .finalProof, sortOrder: order)); order += 1

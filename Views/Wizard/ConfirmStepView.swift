@@ -5,6 +5,7 @@ struct ConfirmStepView: View {
     let style: PizzaStyle
     let customStyleName: String
     let method: PrefermentMethod
+    let onJumpTo: (Int) -> Void
     let mixerType: MixerType
     let autolyse: Bool
     let bassinage: Bool
@@ -26,9 +27,9 @@ struct ConfirmStepView: View {
 
     var kneadingMinutes: Int {
         switch mixerType {
-        case .hand:       return style.defaultFinalHydration > 0.70 ? 15 : 10
-        case .standMixer: return style.defaultFinalHydration > 0.70 ? 10 : 8
-        case .spiral:     return style.defaultFinalHydration > 0.70 ? 6 : 5
+        case .hand:       return finalHydration > 0.70 ? 15 : 10
+        case .standMixer: return finalHydration > 0.70 ? 10 : 8
+        case .spiral:     return finalHydration > 0.70 ? 6 : 5
         case .other:      return 10
         }
     }
@@ -44,53 +45,48 @@ struct ConfirmStepView: View {
                     .font(.system(.body, design: .monospaced))
             }
 
-            Section("Summary") {
-                LabeledContent("Style",    value: styleLabel)
-                LabeledContent("Method",   value: method.rawValue)
-                LabeledContent("Mixer",    value: mixerType.rawValue)
-                LabeledContent("Autolyse", value: autolyse ? "Yes — \(style == .neapolitan ? 20 : 30) min" : "No")
-                LabeledContent("Bassinage",value: bassinage ? "Yes" : "No")
-                LabeledContent("Timeline", value: "\(timeline.rawValue)  ·  \(timeline.hours)")
-                LabeledContent("Balls",    value: "\(ballCount) × \(Int(ballWeight))g")
-                LabeledContent("Buffer",   value: "\(Int(buffer * 100))%")
-            }
+            Section {
+                LabeledContent("Style",           value: styleLabel)
+                LabeledContent("Preferment used", value: method == .direct ? "Not used" : method.rawValue)
+                LabeledContent("Mixer",           value: mixerType.rawValue)
+                LabeledContent("Autolyse",        value: autolyse ? "Yes — \(style == .neapolitan ? 20 : 30) min" : "No")
+                LabeledContent("Bassinage",       value: bassinage ? "Yes" : "No")
+                LabeledContent("Timeline",        value: "\(timeline.rawValue)  ·  \(timeline.hours)")
+                LabeledContent("Balls",           value: "\(ballCount) × \(Int(ballWeight))g")
+                LabeledContent("Buffer",          value: "\(Int(buffer * 100))%")
+            } header: { sectionHeader("Summary", step: 0) }
 
             if !flourBlend.components.isEmpty {
-                Section("Flour blend") {
+                Section {
                     ForEach(flourBlend.components) { c in
                         LabeledContent(c.type.rawValue, value: "\(Int(c.percentage))%")
                     }
-                    if !flourBlend.additives.isEmpty {
-                        ForEach(flourBlend.additives) { a in
-                            LabeledContent(a.type.rawValue, value: "\(a.percentage)%")
-                                .foregroundColor(.secondary)
-                        }
+                    ForEach(flourBlend.additives) { a in
+                        LabeledContent(a.type.rawValue, value: "\(a.percentage)%")
+                            .foregroundColor(.secondary)
                     }
-                }
+                } header: { sectionHeader("Flour blend", step: 3) }
                 .font(.system(.body, design: .monospaced))
             }
 
-            Section("Process script") {
-                ForEach(processCards.filter { $0.isEnabled }.sorted { $0.sortOrder < $1.sortOrder }) { card in
+            Section {
+                ForEach(processCards.sorted { $0.sortOrder < $1.sortOrder }) { card in
                     HStack {
-                        Text(card.title)
-                            .font(.system(size: 13, design: .monospaced))
+                        Text(card.title).font(.system(size: 13, design: .monospaced))
                         Spacer()
                         if card.type.isTimed {
                             Text(shortDuration(card.duration))
-                                .font(.system(size: 12, design: .monospaced))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                         } else {
                             Text("action")
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
                         }
                     }
                 }
-            }
+            } header: { sectionHeader("Process", step: 7) }
 
             if !bakeSetups.isEmpty {
-                Section("Bake setups") {
+                Section {
                     ForEach(bakeSetups) { setup in
                         HStack {
                             Text(setup.method.rawValue)
@@ -101,25 +97,30 @@ struct ConfirmStepView: View {
                         }
                         .font(.system(size: 13, design: .monospaced))
                     }
-                }
+                } header: { sectionHeader("Bake setups", step: 8) }
             }
 
             Section {
-                LabeledContent("Hydration",        value: "\(Int(finalHydration * 100))%")
-                    .foregroundColor(.secondary)
-                LabeledContent("Salt",             value: String(format: "%.1f%%", saltPct * 100))
-                    .foregroundColor(.secondary)
-                LabeledContent("Yeast",            value: "\(yeastType.rawValue)  ·  \(String(format: "%.2f%%", yeastPct * 100))")
-                    .foregroundColor(.secondary)
-                LabeledContent("Biga percentage",  value: method == .direct ? "N/A" : "\(Int(style.defaultBigaRatio * 100))%")
-                    .foregroundColor(.secondary)
-                LabeledContent("Est. kneading",    value: "~\(kneadingMinutes) min")
-                    .foregroundColor(.secondary)
+                LabeledContent("Hydration",       value: "\(Int(finalHydration * 100))%").foregroundColor(.secondary)
+                LabeledContent("Salt",            value: String(format: "%.1f%%", saltPct * 100)).foregroundColor(.secondary)
+                LabeledContent("Yeast",           value: "\(yeastType.rawValue)  ·  \(String(format: "%.2f%%", yeastPct * 100))").foregroundColor(.secondary)
+                LabeledContent("Biga percentage", value: method == .direct ? "N/A" : "\(Int(style.defaultBigaRatio * 100))%").foregroundColor(.secondary)
+                LabeledContent("Est. kneading",   value: "~\(kneadingMinutes) min").foregroundColor(.secondary)
             } header: {
                 Text(style == .custom ? "Balanced defaults (no style preset)" : "Auto-set from style + method")
             } footer: {
                 Text("All values adjustable in Recipe Detail after saving.")
             }
+        }
+    }
+
+    func sectionHeader(_ title: String, step: Int) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Button("Edit") { onJumpTo(step) }
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundColor(Color(hex: "D2B96A"))
         }
     }
 

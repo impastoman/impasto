@@ -3,6 +3,8 @@ import SwiftUI
 struct ProcessScriptStepView: View {
     @Binding var processCards: [ProcessCard]
 
+    @State private var showAddSheet = false
+
     var body: some View {
         List {
             Section { WizardProgressView(step: 7, total: 10) }
@@ -10,119 +12,125 @@ struct ProcessScriptStepView: View {
                 .listRowInsets(.init())
 
             Section {
-                ForEach($processCards) { $card in
-                    ProcessCardRow(card: $card)
+                ForEach(processCards.indices, id: \.self) { idx in
+                    ProcessCardRow(
+                        card: $processCards[idx],
+                        position: positionLabel(for: idx),
+                        isLocked: processCards[idx].type == .bake,
+                        onRemove: {
+                            processCards.remove(at: idx)
+                            for i in processCards.indices { processCards[i].sortOrder = i }
+                        }
+                    )
                 }
                 .onMove { from, to in
-                    processCards.move(fromOffsets: from, toOffset: to)
+                    let bakeIdx = processCards.indices.last(where: { processCards[$0].type == .bake })
+                    if let bake = bakeIdx, from.contains(bake) { return }
+                    let safeTo = bakeIdx.map { min(to, $0) } ?? to
+                    processCards.move(fromOffsets: from, toOffset: safeTo)
                     for i in processCards.indices { processCards[i].sortOrder = i }
                 }
-            } header: {
-                HStack {
-                    Text("Process")
-                    Spacer()
-                    EditButton()
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(Color(hex: "D2B96A"))
-                }
-            } footer: {
-                Text("Hold and drag to reorder · toggle to enable/disable steps · tap to add a note")
-                    .font(.system(size: 11, design: .monospaced))
-            }
 
-            warningSection
-        }
-    }
-
-    @ViewBuilder
-    var warningSection: some View {
-        let warnings = orderWarnings()
-        if !warnings.isEmpty {
-            Section {
-                ForEach(warnings, id: \.self) { w in
+                Button {
+                    showAddSheet = true
+                } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                        Text(w)
-                            .font(.system(size: 12, design: .monospaced))
-                            .foregroundColor(.orange)
+                        Image(systemName: "plus.circle")
+                            .foregroundColor(Color(hex: "D2B96A"))
+                        Text("Add step")
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(Color(hex: "D2B96A"))
                     }
                 }
             } header: {
-                Text("Order warnings")
-            } footer: {
-                Text("You can still proceed — warnings are advisory only. Tap 'Auto-order' to reset.")
-                    .font(.system(size: 11, design: .monospaced))
+                Text("Process")
             }
-            .listRowBackground(Color.orange.opacity(0.06))
-
-            Section {
-                Button("Reset to default order") {
-                    let auto = processCards.contains { $0.type == .autolyse && $0.isEnabled }
-                    let bass = processCards.contains { $0.type == .bassinage && $0.isEnabled }
-                    processCards = ProcessCard.defaultCards(autolyse: auto, bassinage: bass)
+        }
+        .environment(\.editMode, .constant(.active))
+        .sheet(isPresented: $showAddSheet) {
+            AddStepSheet { newCard in
+                if let bakeIdx = processCards.lastIndex(where: { $0.type == .bake }) {
+                    processCards.insert(newCard, at: bakeIdx)
+                } else {
+                    processCards.append(newCard)
                 }
-                .foregroundColor(Color(hex: "D2B96A"))
-                .font(.system(.body, design: .monospaced))
+                for i in processCards.indices { processCards[i].sortOrder = i }
             }
         }
     }
 
-    func orderWarnings() -> [String] {
-        let enabled = processCards.filter { $0.isEnabled }
-        var warnings: [String] = []
-        for (i, card) in enabled.enumerated() {
-            let preceding = Set(enabled.prefix(i).map { $0.type })
-            for problematic in card.type.warningIfPlacedAfter {
-                if !preceding.contains(problematic) && enabled.contains(where: { $0.type == problematic }) {
-                    warnings.append("\"\(card.title)\" should come after \"\(problematic.title)\"")
-                }
-            }
-        }
-        return warnings
+    func positionLabel(for idx: Int) -> String {
+        if processCards[idx].type == .bake { return "🔒" }
+        let pos = processCards[0..<idx].filter { $0.type != .bake }.count + 1
+        return "\(pos)"
     }
 }
 
 private struct ProcessCardRow: View {
     @Binding var card: ProcessCard
+    let position: String
+    let isLocked: Bool
+    let onRemove: () -> Void
+
     @State private var expanded = false
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Toggle("", isOn: $card.isEnabled)
-                    .labelsHidden()
-                    .tint(Color(hex: "D2B96A"))
-                    .scaleEffect(0.8)
+            HStack(spacing: 10) {
+                Text(position)
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(isLocked ? .secondary : Color(hex: "D2B96A"))
+                    .frame(width: 22, alignment: .center)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(card.title)
+                    if card.type == .freeform {
+                        TextField("Step name", text: Binding(
+                            get: { card.customTitle ?? "" },
+                            set: { card.customTitle = $0.isEmpty ? nil : $0 }
+                        ))
                         .font(.system(.body, design: .monospaced))
-                        .foregroundColor(card.isEnabled ? .primary : .secondary)
-                    Text(card.subtitle)
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(.secondary)
+                    } else {
+                        Text(card.title)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(isLocked ? .secondary : .primary)
+                    }
+                    if !card.subtitle.isEmpty {
+                        Text(card.subtitle)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Spacer()
 
-                if card.type.isTimed && card.isEnabled {
+                if card.type.isTimed && card.duration > 0 {
                     Text(shortDuration(card.duration))
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
 
-                Button {
-                    withAnimation { expanded.toggle() }
-                } label: {
-                    Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                if !isLocked {
+                    Button {
+                        withAnimation { expanded.toggle() }
+                    } label: {
+                        Image(systemName: expanded ? "chevron.up" : "chevron.down")
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(role: .destructive) {
+                        withAnimation { onRemove() }
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(.caption)
+                            .foregroundColor(.red.opacity(0.7))
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
             .padding(.vertical, 6)
 
-            if expanded && card.isEnabled {
+            if expanded && !isLocked {
                 VStack(spacing: 10) {
                     Divider()
 
@@ -171,8 +179,7 @@ private struct ProcessCardRow: View {
                     }
 
                     HStack(alignment: .top) {
-                        Image(systemName: "note.text")
-                            .font(.caption).foregroundColor(.secondary)
+                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary)
                         TextField("Add a note for this step...", text: $card.recipeNote, axis: .vertical)
                             .font(.system(size: 13, design: .monospaced))
                             .lineLimit(2...)
@@ -184,9 +191,49 @@ private struct ProcessCardRow: View {
     }
 
     func shortDuration(_ t: TimeInterval) -> String {
-        let h = Int(t) / 3600
-        let m = (Int(t) % 3600) / 60
+        let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60
         if h > 0 { return "\(h)h \(m)m" }
         return "\(m)m"
+    }
+}
+
+private struct AddStepSheet: View {
+    let onAdd: (ProcessCard) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var addableTypes: [ProcessCardType] {
+        ProcessCardType.allCases.filter { $0 != .bake }
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("Add a process step") {
+                    ForEach(addableTypes, id: \.self) { type in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(type.title).font(.headline)
+                                if !type.subtitle.isEmpty {
+                                    Text(type.subtitle).font(.caption).foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onAdd(ProcessCard(type: type))
+                            dismiss()
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Add step")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
     }
 }
