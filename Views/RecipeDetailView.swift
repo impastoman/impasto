@@ -5,10 +5,16 @@ struct RecipeDetailView: View {
     @State var recipe: Recipe
     @State private var showPreFlight = false
 
+    var styleLabel: String {
+        recipe.style == .custom && !recipe.customStyleName.isEmpty
+            ? recipe.customStyleName
+            : recipe.style.rawValue
+    }
+
     var body: some View {
         List {
             Section("Style & Method") {
-                row("Style",    recipe.style.rawValue)
+                row("Style",    styleLabel)
                 row("Method",   recipe.method.rawValue)
                 row("Mixer",    recipe.mixerType.rawValue)
                 row("Autolyse", recipe.autolyse ? "\(recipe.autolyseMinutes) min" : "None")
@@ -16,11 +22,26 @@ struct RecipeDetailView: View {
             }
 
             Section("Formula") {
-                row("Biga hydration",  "\(Int(recipe.bigaHydration * 100))%")
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
-                row("Biga ratio",      "\(Int(recipe.bigaRatio * 100))%")
-                row("Salt",            String(format: "%.1f%%", recipe.saltPct * 100))
-                row("Yeast",           String(format: "%.2f%%", recipe.yeastPct * 100))
+                if recipe.bigaRatio > 0 {
+                    row("Biga hydration",  "\(Int(recipe.bigaHydration * 100))%")
+                    row("Biga percentage", "\(Int(recipe.bigaRatio * 100))%")
+                }
+                row("Salt",  String(format: "%.1f%%", recipe.saltPct * 100))
+                row("Yeast", "\(recipe.yeastType.rawValue)  ·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
+            }
+
+            if !recipe.flourBlend.components.isEmpty {
+                Section("Flour blend") {
+                    ForEach(recipe.flourBlend.components) { c in
+                        row(c.type.rawValue, "\(Int(c.percentage))%")
+                    }
+                    ForEach(recipe.flourBlend.additives) { a in
+                        row(a.type.rawValue, "\(a.percentage)%")
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .font(.system(.body, design: .monospaced))
             }
 
             Section("Target") {
@@ -36,7 +57,7 @@ struct RecipeDetailView: View {
                 }
             }
 
-            Section("② Final dough add-ins") {
+            Section(recipe.method != .direct ? "② Final dough" : "Dough") {
                 row("Flour", "\(Int(recipe.additionalFlour))g")
                 row("Water", "\(Int(recipe.additionalWater))g")
                 row("Salt",  "\(Int(recipe.totalSalt))g")

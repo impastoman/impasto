@@ -90,11 +90,10 @@ enum ProcessCardType: String, Codable, CaseIterable {
 
     var warningIfPlacedAfter: [ProcessCardType] {
         switch self {
-        case .benchRest:        return [.autolyse, .incorporateYeast, .incorporateSalt]
-        case .finalProof:       return [.autolyse, .kneading]
-        case .bake:             return [.autolyse, .kneading, .bulkFermentation]
-        case .incorporateSalt:  return [.kneading, .bulkFermentation]
-        default:                return []
+        case .benchRest:  return [.autolyse, .incorporateYeast, .incorporateSalt, .kneading]
+        case .finalProof: return [.autolyse, .kneading, .bulkFermentation]
+        case .bake:       return [.autolyse, .kneading, .bulkFermentation, .finalProof]
+        default:          return []
         }
     }
 }

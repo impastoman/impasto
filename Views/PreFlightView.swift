@@ -154,7 +154,7 @@ struct PreFlightView: View {
             HStack {
                 Text("Ball weight")
                 Spacer()
-                TextField("\(Int(recipe.ballWeight))g", value: $data.overrideBallWeight, format: .number)
+                TextField("\(Int(recipe.ballWeight))", value: $data.overrideBallWeight, format: .number)
                     .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 60)
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(data.overrideBallWeight != nil ? Color(hex: "D2B96A") : .primary)
@@ -163,7 +163,7 @@ struct PreFlightView: View {
             HStack {
                 Text("Buffer")
                 Spacer()
-                TextField("\(Int(recipe.buffer * 100))%", value: Binding(
+                TextField("\(Int(recipe.buffer * 100))", value: Binding(
                     get: { data.overrideBuffer.map { Int($0 * 100) } },
                     set: { data.overrideBuffer = $0.map { Double($0) / 100 } }
                 ), format: .number)

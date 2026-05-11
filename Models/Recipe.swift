@@ -228,7 +228,7 @@ enum PizzaStyle: String, Codable, CaseIterable {
 }
 
 enum Timeline: String, Codable, CaseIterable {
-    case tonight       = "Tonight"
+    case tonight       = "Less than a day"
     case overnight     = "Overnight"
     case twoDays       = "Two Days"
     case longColdProof = "Long Cold Proof"
@@ -253,10 +253,7 @@ enum Timeline: String, Codable, CaseIterable {
 
     func targetDate(from now: Date = Date()) -> Date {
         switch self {
-        case .tonight:
-            var comp = Calendar.current.dateComponents([.year, .month, .day], from: now)
-            comp.hour = 23; comp.minute = 0
-            return Calendar.current.date(from: comp) ?? now.addingTimeInterval(7 * 3600)
+        case .tonight:       return now.addingTimeInterval(8 * 3600)
         case .overnight:     return now.addingTimeInterval(20 * 3600)
         case .twoDays:       return now.addingTimeInterval(48 * 3600)
         case .longColdProof: return now.addingTimeInterval(60 * 3600)

@@ -60,7 +60,7 @@ struct StyleStepView: View {
                     TextField("My Style", text: $customStyleName)
                         .font(.system(.body, design: .monospaced))
                         .padding(.horizontal, 10).padding(.vertical, 7)
-                        .background(Color(hex: "1A1B18"))
+                        .background(Color(.secondarySystemFill))
                         .cornerRadius(6)
 
                     Text("No style presets — balanced defaults are applied. Adjust hydration, ratios, and process after saving.")

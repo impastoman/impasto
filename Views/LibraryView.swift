@@ -36,15 +36,22 @@ struct LibraryView: View {
 struct RecipeRowView: View {
     let recipe: Recipe
 
+    var styleLabel: String {
+        recipe.style == .custom && !recipe.customStyleName.isEmpty
+            ? recipe.customStyleName
+            : recipe.style.rawValue
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(recipe.name).font(.headline)
                 Spacer()
-                Text(recipe.style.rawValue)
+                Text(styleLabel)
                     .font(.caption2)
                     .padding(.horizontal, 7).padding(.vertical, 2)
-                    .background(Color(hex: "1A1B18"))
+                    .background(Color(hex: "D2B96A").opacity(0.15))
+                    .foregroundColor(Color(hex: "D2B96A"))
                     .cornerRadius(4)
             }
             Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")

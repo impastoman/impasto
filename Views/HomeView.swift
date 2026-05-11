@@ -6,7 +6,7 @@ struct HomeView: View {
     @State private var showMainApp = false
     @State private var showStartDough = false
 
-    private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.3"
+    private let appVersion = "0.4"
 
     var body: some View {
         if showMainApp {
