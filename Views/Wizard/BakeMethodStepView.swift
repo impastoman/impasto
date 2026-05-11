@@ -5,7 +5,7 @@ struct BakeMethodStepView: View {
 
     var body: some View {
         List {
-            Section { WizardProgressView(step: 7, total: 9) }
+            Section { WizardProgressView(step: 8, total: 10) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 

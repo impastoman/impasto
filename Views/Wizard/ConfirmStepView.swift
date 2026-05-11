@@ -8,6 +8,10 @@ struct ConfirmStepView: View {
     let mixerType: MixerType
     let autolyse: Bool
     let bassinage: Bool
+    let finalHydration: Double
+    let saltPct: Double
+    let yeastPct: Double
+    let yeastType: YeastType
     let timeline: Timeline
     let ballCount: Int
     let ballWeight: Double
@@ -31,7 +35,7 @@ struct ConfirmStepView: View {
 
     var body: some View {
         List {
-            Section { WizardProgressView(step: 8, total: 9) }
+            Section { WizardProgressView(step: 9, total: 10) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
@@ -101,11 +105,15 @@ struct ConfirmStepView: View {
             }
 
             Section {
-                LabeledContent("Hydration",      value: "\(Int(style.defaultFinalHydration * 100))%")
+                LabeledContent("Hydration",        value: "\(Int(finalHydration * 100))%")
                     .foregroundColor(.secondary)
-                LabeledContent("Biga percentage", value: method == .direct ? "N/A" : "\(Int(style.defaultBigaRatio * 100))%")
+                LabeledContent("Salt",             value: String(format: "%.1f%%", saltPct * 100))
                     .foregroundColor(.secondary)
-                LabeledContent("Est. kneading",   value: "~\(kneadingMinutes) min")
+                LabeledContent("Yeast",            value: "\(yeastType.rawValue)  ·  \(String(format: "%.2f%%", yeastPct * 100))")
+                    .foregroundColor(.secondary)
+                LabeledContent("Biga percentage",  value: method == .direct ? "N/A" : "\(Int(style.defaultBigaRatio * 100))%")
+                    .foregroundColor(.secondary)
+                LabeledContent("Est. kneading",    value: "~\(kneadingMinutes) min")
                     .foregroundColor(.secondary)
             } header: {
                 Text(style == .custom ? "Balanced defaults (no style preset)" : "Auto-set from style + method")

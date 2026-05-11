@@ -7,7 +7,7 @@ struct MethodStepView: View {
 
     var body: some View {
         List {
-            Section { WizardProgressView(step: 1, total: 9) }
+            Section { WizardProgressView(step: 5, total: 10) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 

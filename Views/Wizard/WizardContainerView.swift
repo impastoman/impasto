@@ -11,6 +11,10 @@ struct WizardContainerView: View {
     @State private var prefermentHydration: Double = 0.50
     @State private var method: PrefermentMethod = .biga
     @State private var flourBlend: FlourBlend = FlourBlend()
+    @State private var finalHydration: Double = PizzaStyle.neapolitan.defaultFinalHydration
+    @State private var saltPct: Double = 0.028
+    @State private var yeastPct: Double = 0.001
+    @State private var yeastType: YeastType = .instantDry
     @State private var timeline: Timeline = .overnight
     @State private var mixerType: MixerType = .hand
     @State private var autolyse: Bool = false
@@ -22,21 +26,45 @@ struct WizardContainerView: View {
     @State private var bakeSetups: [BakeSetup] = []
     @State private var name = ""
 
-    let totalSteps = 9
+    let totalSteps = 10
 
     var body: some View {
         NavigationStack {
             Group {
                 switch step {
                 case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
-                case 1: MethodStepView(usePreferment: $usePreferment, prefermentHydration: $prefermentHydration, method: $method)
-                case 2: FlourBlendStepView(flourBlend: $flourBlend)
-                case 3: TimelineStepView(selected: $timeline, method: method)
-                case 4: TechniqueStepView(mixerType: $mixerType, autolyse: $autolyse, bassinage: $bassinage, style: style, finalHydration: style.defaultFinalHydration)
-                case 5: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight, buffer: $buffer)
-                case 6: ProcessScriptStepView(processCards: $processCards)
-                case 7: BakeMethodStepView(bakeSetups: $bakeSetups)
-                case 8: ConfirmStepView(name: $name, style: style, customStyleName: customStyleName, method: method, mixerType: mixerType, autolyse: autolyse, bassinage: bassinage, timeline: timeline, ballCount: ballCount, ballWeight: ballWeight, buffer: buffer, flourBlend: flourBlend, bakeSetups: bakeSetups, processCards: processCards)
+                case 1: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight, buffer: $buffer)
+                case 2: TimelineStepView(selected: $timeline, method: method)
+                case 3: FlourBlendStepView(flourBlend: $flourBlend)
+                case 4: WaterSaltYeastStepView(
+                            finalHydration: $finalHydration,
+                            saltPct: $saltPct,
+                            yeastPct: $yeastPct,
+                            yeastType: $yeastType,
+                            styleDefault: style.defaultFinalHydration)
+                case 5: MethodStepView(usePreferment: $usePreferment, prefermentHydration: $prefermentHydration, method: $method)
+                case 6: TechniqueStepView(mixerType: $mixerType, autolyse: $autolyse, bassinage: $bassinage, style: style, finalHydration: finalHydration)
+                case 7: ProcessScriptStepView(processCards: $processCards)
+                case 8: BakeMethodStepView(bakeSetups: $bakeSetups)
+                case 9: ConfirmStepView(
+                            name: $name,
+                            style: style,
+                            customStyleName: customStyleName,
+                            method: method,
+                            mixerType: mixerType,
+                            autolyse: autolyse,
+                            bassinage: bassinage,
+                            finalHydration: finalHydration,
+                            saltPct: saltPct,
+                            yeastPct: yeastPct,
+                            yeastType: yeastType,
+                            timeline: timeline,
+                            ballCount: ballCount,
+                            ballWeight: ballWeight,
+                            buffer: buffer,
+                            flourBlend: flourBlend,
+                            bakeSetups: bakeSetups,
+                            processCards: processCards)
                 default: EmptyView()
                 }
             }
@@ -48,9 +76,11 @@ struct WizardContainerView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) { navBar }
-            .onChange(of: autolyse) { _, val in regenerateCards(autolyse: val, bassinage: bassinage) }
+            .onChange(of: autolyse)  { _, val in regenerateCards(autolyse: val, bassinage: bassinage) }
             .onChange(of: bassinage) { _, val in regenerateCards(autolyse: autolyse, bassinage: val) }
+            .onChange(of: style)     { _, val in finalHydration = val.defaultFinalHydration }
         }
+        .interactiveDismissDisabled(step > 0)
     }
 
     var navBar: some View {
@@ -90,12 +120,16 @@ struct WizardContainerView: View {
             ballWeight: ballWeight,
             buffer: buffer
         )
-        recipe.customStyleName = customStyleName
-        recipe.prefermentHydration = prefermentHydration
-        recipe.bigaHydration = prefermentHydration
-        recipe.flourBlend = flourBlend
-        recipe.processCards = processCards
-        recipe.bakeSetups = bakeSetups
+        recipe.customStyleName      = customStyleName
+        recipe.finalHydration       = finalHydration
+        recipe.saltPct              = saltPct
+        recipe.yeastPct             = yeastPct
+        recipe.yeastType            = yeastType
+        recipe.prefermentHydration  = prefermentHydration
+        recipe.bigaHydration        = prefermentHydration
+        recipe.flourBlend           = flourBlend
+        recipe.processCards         = processCards
+        recipe.bakeSetups           = bakeSetups
         onComplete(recipe)
     }
 }

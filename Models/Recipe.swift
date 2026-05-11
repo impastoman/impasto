@@ -22,6 +22,7 @@ struct Recipe: Identifiable, Codable {
     var flourBlend: FlourBlend
     var processCards: [ProcessCard]
     var bakeSetups: [BakeSetup]
+    var yeastType: YeastType
     var customStyleName: String
     var notes: String
     var bakeLogs: [BakeLog]
@@ -56,6 +57,7 @@ struct Recipe: Identifiable, Codable {
         self.bigaRatio = method == .direct ? 0 : style.defaultBigaRatio
         self.saltPct = 0.03
         self.yeastPct = 0.001
+        self.yeastType = .instantDry
         self.customStyleName = ""
         self.notes = ""
         self.bakeLogs = []
@@ -84,6 +86,7 @@ struct Recipe: Identifiable, Codable {
         ballCount           = try c.decode(Int.self, forKey: .ballCount)
         ballWeight          = try c.decode(Double.self, forKey: .ballWeight)
         buffer              = (try? c.decode(Double.self, forKey: .buffer)) ?? 0.02
+        yeastType           = (try? c.decode(YeastType.self, forKey: .yeastType)) ?? .instantDry
         customStyleName     = (try? c.decode(String.self, forKey: .customStyleName)) ?? ""
         notes               = try c.decode(String.self, forKey: .notes)
         bakeLogs            = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
@@ -121,6 +124,22 @@ struct Recipe: Identifiable, Codable {
 
     var autolyseMinutes: Int {
         autolyse ? (style == .neapolitan ? 20 : 30) : 0
+    }
+}
+
+enum YeastType: String, Codable, CaseIterable {
+    case instantDry = "Instant dry"
+    case activeDry  = "Active dry"
+    case fresh      = "Fresh"
+    case other      = "Other"
+
+    var typicalRange: String {
+        switch self {
+        case .instantDry: return "0.05–0.5% of flour · less for cold ferment"
+        case .activeDry:  return "0.1–0.6% of flour · proof in warm water first"
+        case .fresh:      return "0.15–1.5% of flour · ~3× the instant dry amount"
+        case .other:      return "refer to your yeast's packaging"
+        }
     }
 }
 

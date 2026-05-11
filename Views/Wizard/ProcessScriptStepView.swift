@@ -5,7 +5,7 @@ struct ProcessScriptStepView: View {
 
     var body: some View {
         List {
-            Section { WizardProgressView(step: 6, total: 9) }
+            Section { WizardProgressView(step: 7, total: 10) }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
@@ -19,7 +19,7 @@ struct ProcessScriptStepView: View {
                 }
             } header: {
                 HStack {
-                    Text("Process script")
+                    Text("Process")
                     Spacer()
                     EditButton()
                         .font(.system(size: 12, design: .monospaced))
