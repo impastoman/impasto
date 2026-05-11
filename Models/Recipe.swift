@@ -22,6 +22,7 @@ struct Recipe: Identifiable, Codable {
     var flourBlend: FlourBlend
     var processCards: [ProcessCard]
     var bakeSetups: [BakeSetup]
+    var customStyleName: String
     var notes: String
     var bakeLogs: [BakeLog]
 
@@ -55,6 +56,7 @@ struct Recipe: Identifiable, Codable {
         self.bigaRatio = method == .direct ? 0 : style.defaultBigaRatio
         self.saltPct = 0.03
         self.yeastPct = 0.001
+        self.customStyleName = ""
         self.notes = ""
         self.bakeLogs = []
         self.flourBlend = FlourBlend()
@@ -82,6 +84,7 @@ struct Recipe: Identifiable, Codable {
         ballCount           = try c.decode(Int.self, forKey: .ballCount)
         ballWeight          = try c.decode(Double.self, forKey: .ballWeight)
         buffer              = (try? c.decode(Double.self, forKey: .buffer)) ?? 0.02
+        customStyleName     = (try? c.decode(String.self, forKey: .customStyleName)) ?? ""
         notes               = try c.decode(String.self, forKey: .notes)
         bakeLogs            = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
         flourBlend          = (try? c.decode(FlourBlend.self, forKey: .flourBlend)) ?? FlourBlend()
@@ -172,6 +175,7 @@ enum PizzaStyle: String, Codable, CaseIterable {
     case newYork    = "New York"
     case detroit    = "Detroit"
     case sicilian   = "Sicilian"
+    case custom     = "Custom"
 
     var description: String {
         switch self {
@@ -179,6 +183,7 @@ enum PizzaStyle: String, Codable, CaseIterable {
         case .newYork:    return "Foldable · chew · crisp edge"
         case .detroit:    return "Thick · caramelised crust"
         case .sicilian:   return "Square · light · focaccia-like"
+        case .custom:     return "Your rules · your ratios"
         }
     }
 
@@ -188,6 +193,7 @@ enum PizzaStyle: String, Codable, CaseIterable {
         case .newYork:    return 0.62
         case .detroit:    return 0.72
         case .sicilian:   return 0.70
+        case .custom:     return 0.65
         }
     }
 
@@ -197,6 +203,7 @@ enum PizzaStyle: String, Codable, CaseIterable {
         case .newYork:    return 0.30
         case .detroit:    return 0.40
         case .sicilian:   return 0.35
+        case .custom:     return 0.30
         }
     }
 }

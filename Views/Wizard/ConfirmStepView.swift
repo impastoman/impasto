@@ -3,6 +3,7 @@ import SwiftUI
 struct ConfirmStepView: View {
     @Binding var name: String
     let style: PizzaStyle
+    let customStyleName: String
     let method: PrefermentMethod
     let mixerType: MixerType
     let autolyse: Bool
@@ -14,6 +15,10 @@ struct ConfirmStepView: View {
     let flourBlend: FlourBlend
     let bakeSetups: [BakeSetup]
     let processCards: [ProcessCard]
+
+    var styleLabel: String {
+        style == .custom ? (customStyleName.isEmpty ? "My Style" : customStyleName) : style.rawValue
+    }
 
     var kneadingMinutes: Int {
         switch mixerType {
@@ -36,7 +41,7 @@ struct ConfirmStepView: View {
             }
 
             Section("Summary") {
-                LabeledContent("Style",    value: style.rawValue)
+                LabeledContent("Style",    value: styleLabel)
                 LabeledContent("Method",   value: method.rawValue)
                 LabeledContent("Mixer",    value: mixerType.rawValue)
                 LabeledContent("Autolyse", value: autolyse ? "Yes — \(style == .neapolitan ? 20 : 30) min" : "No")
@@ -103,7 +108,7 @@ struct ConfirmStepView: View {
                 LabeledContent("Est. kneading",   value: "~\(kneadingMinutes) min")
                     .foregroundColor(.secondary)
             } header: {
-                Text("Auto-set from style + method")
+                Text(style == .custom ? "Balanced defaults (no style preset)" : "Auto-set from style + method")
             } footer: {
                 Text("All values adjustable in Recipe Detail after saving.")
             }

@@ -6,6 +6,7 @@ struct WizardContainerView: View {
 
     @State private var step = 0
     @State private var style: PizzaStyle = .neapolitan
+    @State private var customStyleName: String = ""
     @State private var usePreferment: Bool = true
     @State private var prefermentHydration: Double = 0.50
     @State private var method: PrefermentMethod = .biga
@@ -27,7 +28,7 @@ struct WizardContainerView: View {
         NavigationStack {
             Group {
                 switch step {
-                case 0: StyleStepView(selected: $style)
+                case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
                 case 1: MethodStepView(usePreferment: $usePreferment, prefermentHydration: $prefermentHydration, method: $method)
                 case 2: FlourBlendStepView(flourBlend: $flourBlend)
                 case 3: TimelineStepView(selected: $timeline, method: method)
@@ -35,7 +36,7 @@ struct WizardContainerView: View {
                 case 5: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight, buffer: $buffer)
                 case 6: ProcessScriptStepView(processCards: $processCards)
                 case 7: BakeMethodStepView(bakeSetups: $bakeSetups)
-                case 8: ConfirmStepView(name: $name, style: style, method: method, mixerType: mixerType, autolyse: autolyse, bassinage: bassinage, timeline: timeline, ballCount: ballCount, ballWeight: ballWeight, buffer: buffer, flourBlend: flourBlend, bakeSetups: bakeSetups, processCards: processCards)
+                case 8: ConfirmStepView(name: $name, style: style, customStyleName: customStyleName, method: method, mixerType: mixerType, autolyse: autolyse, bassinage: bassinage, timeline: timeline, ballCount: ballCount, ballWeight: ballWeight, buffer: buffer, flourBlend: flourBlend, bakeSetups: bakeSetups, processCards: processCards)
                 default: EmptyView()
                 }
             }
@@ -76,8 +77,9 @@ struct WizardContainerView: View {
     }
 
     func save() {
+        let styleName = style == .custom ? (customStyleName.isEmpty ? "My Style" : customStyleName) : style.rawValue
         var recipe = Recipe(
-            name: name.isEmpty ? "\(style.rawValue) — \(method.rawValue)" : name,
+            name: name.isEmpty ? "\(styleName) — \(method.rawValue)" : name,
             style: style,
             method: method,
             mixerType: mixerType,
@@ -88,6 +90,7 @@ struct WizardContainerView: View {
             ballWeight: ballWeight,
             buffer: buffer
         )
+        recipe.customStyleName = customStyleName
         recipe.prefermentHydration = prefermentHydration
         recipe.bigaHydration = prefermentHydration
         recipe.flourBlend = flourBlend
