@@ -107,44 +107,107 @@ A record of what's been built, why, and the decisions that shaped it.
 
 ---
 
-## v0.4 — In Progress
-*40-item feedback pass from first real use session*
+## v0.4 — Shipped + Queued
+*40-item feedback pass from first real use session, plus continued design sessions*
 
-**Structural change (Phase 1 — do first):**
-- Wizard reorder + new step count (9 → 10): balls and timeline move earlier, new Water/Salt/Yeast step added, "Process Script" renamed to "Process"
+### Phase 1 — Structural skeleton (shipped)
+- Wizard reordered and expanded: 9 → 10 steps
+- New step order: Style → Target → Timeline → Flour Blend → Water/Salt/Yeast → Method → Technique → Process → Bake Method → Confirm
+- New Water/Salt/Yeast step: hydration slider with zone labels, salt %, yeast type picker + quantity
+- "Process Script" renamed to "Process"
+- `.interactiveDismissDisabled` prevents accidental wizard dismiss after step 0
 
-**Bug fixes queued (Phase 2):**
-- "My Style" and Library "Style" badge: dark text on dark background
-- "Tonight" timeline shows past time if already evening — renamed "Less than a day", time logic fixed
-- Version shows v1.0 instead of v0.3 — needs Xcode target version set correctly
-- Progress bar drops to 7 lines on certain steps
-- "Reset to default order" does nothing
-- Pre-flight buffer shows double unit (2% %)
-- Flour additives not displaying in recipe view
-- "(2)Final Dough Add-ins" section title/content incorrect
+### Phase 2 — Bug fixes (shipped)
+- "My Style" field and Library Style badge: dark-on-dark fixed → adaptive `secondarySystemFill` background
+- "Tonight" timeline showed past time after 11pm → renamed "Less than a day", logic fixed to `now + 8h`
+- Version showing v1.0 → hardcoded v0.4 (Xcode MARKETING_VERSION was stale)
+- `incorporateSalt.warningIfPlacedAfter` was triggering on default order → fixed to `[]`
+- Pre-flight buffer double unit (2% %) → stripped % from placeholder
+- Flour additives not displaying in recipe view → fixed
+- "(2) Final Dough Add-ins" → renamed correctly per method
 
-**Wizard improvements queued (Phase 3 — screen by screen):**
-- Balls: linked weight/diameter fields, style-aware diameter estimate, unit selection (g / oz / lb)
-- Timeline: rename, fix bug, add timing explanation icon
-- Flour blend: load saved blend from library
-- Water/Salt/Yeast: new dedicated step for hydration %, salt %, yeast type + quantity
-- Preferment: tap-to-enter hydration % alongside slider
-- Technique: notes field, "Other" mixer fill-in, autolyse time entry, autolyse/bassinage gates process defaults
-- Process: drag handles + row numbers, remove button, add-a-step button, bake card locked, order warnings as review prompt
-- Bake method: fillable sub-method field, temperature unit dropdown
-- Confirm: jump-to-step links with "save and return to review"
+### Phase 3 — Wizard screen by screen (shipped)
+- **Target:** linked ball weight ↔ diameter fields, WeightUnit selector (g/oz/lb), style-aware diameter (Neapolitan/NY only)
+- **Timeline:** timing info sheet explaining ready-by logic and timeline descriptions
+- **Method:** tap-to-enter preferment hydration % (TextField synced with slider)
+- **Technique:** Other mixer fill-in, autolyse time entry with style-suggested default, mixing notes section
+- **Process:** always-visible drag handles, trash per card, locked Bake card (🔒), freeform step title, AddStepSheet
+- **Bake Method:** portable oven free-text sub-method, temperature unit Picker (°F/°C)
+- **Confirm:** jump-to Edit links on each section, onJumpTo callback, review mode with "Return to Review →"
+- **WizardContainer:** reviewMode, process order warning alert, new state wired through
 
-**New screens queued (Phase 4):**
-- Bench prep view (post-pre-flight checklist: materials + measured ingredients)
-- Standalone Flour Blend builder (saveable to library, loadable in recipe creation)
-- Standalone Process builder (saveable to library, loadable in recipe creation)
+### v0.4.1 — Buffer → Dough loss factor (shipped)
+- Buffer field changed from % to absolute grams
+- Default prefill: 25g per kg of target dough (= 2.5%)
+- Renamed "Buffer" → "Dough loss factor", subtitle "stuck to bowl, hands, scraper"
+- Footer: "~25g per kg is a good starting point · the more you make, the less you need"
+- "Total with buffer" → "Total to mix"
+- ConfirmStepView shows grams not %
 
-**Library & post-wizard queued (Phase 5):**
-- `+` button: "New Dough Recipe" / "New Flour Blend" / "New Process"
-- Recipe name expansion on tap
-- RecipeDetailView: Edit Recipe button, flour blend tappable, hide biga row if ratio is 0%
-- Session mode: remove Automatic, Manual only
-- "Mis en place" → better baking-specific word (bench prep / setup — TBD)
+---
+
+## v0.5 — Queued
+
+### Wizard
+- **Timeline (Step 2):** remove biga warning from "Less than a day"; move incompatibility warning to Method step
+- **Flour Blend (Step 3):** lock Next until components = 100%; clamp additives to 0.1–99.9% / 1 decimal; load saved blend; save to library inline
+- **Method (Step 5):** timeline incompatibility warning; load saved preferment; save to library inline
+- **Process (Step 7):** remove locked Bake card entirely; add locked "Combine" card at position 1 (title: "Combine", subtitle: "mix flour and water"); no card moveable above it; load saved process; save to library inline
+- **Bake Method (Step 8):** rename section header "Select all that apply" → "Baking method"
+- **Confirm (Step 9):** show linked sub-recipe names (blend/preferment/process) as tappable secondary rows
+
+### Library
+- Edit and Delete (with confirmation) per item via swipe
+- Folders per section — create, rename, delete (items return to Unfiled)
+- Move items between folders
+- Edit recipe opens wizard pre-populated; rename supported in edit flow
+- New sections: Flour Blends, Processes, Preferments — each with folders, Edit, Delete, rename
+- Sub-recipe badges on recipe rows
+
+### Welcome screen
+- "New Recipe" button → action sheet: New Recipe / New Flour Blend / New Process / New Preferment
+- Standalone builders for Flour Blend, Process, Preferment (reuse wizard views, wrapped with Save)
+
+### Prep screen (formerly Pre-flight)
+- Rename all "pre-flight" mentions → "Prep" / "Begin Prep"
+- "Method" label under preferment → "Rise method"
+- Show linked sub-recipe names
+- Automatic mode caption updated to clarify time-keeping purpose
+
+### Live session
+- Clock-anchored timing — all step times stored as absolute `Date` values, no in-memory counters
+- Accurate through app close, device restart, device switch
+- **Automatic mode:** countdown from step duration; flips to `+MM:SS` (amber/red) when overtime; overtime logged
+- **Manual mode:** count-up from 00:00:00; target duration shown as soft reference label
+- "Next Step →" always tappable — no step ever blocked by timer
+- Notes field on every step — pre-filled from recipe note, editable per session, saved to BakeLog
+- "Combine" always first step (locked, from process queue above)
+- Concurrent sessions supported — `activeSessions: [SessionViewModel]`
+- Navigate away without ending session; persistent home screen indicator for active sessions
+- Ending always explicit from within the session view
+
+### Post-bake / Session review
+- All logged fields editable after the bake
+- Two tabs: **"As baked"** (raw, read-only) / **"Annotated"** (user-edited)
+- Both tabs: "Save as Recipe" → new library entry named `[Recipe name] — [Month Day]`
+
+### Models
+- `FlourBlend.name: String`
+- `SavedProcess(name, cards)`
+- `SavedPreferment(id, name, method, hydration, notes)`
+- `Folder(id, name, type, itemIDs)`
+- `RecipeStore` gains `savedBlends`, `savedProcesses`, `savedPreferments`, `activeSessions`, `folders`
+- `BakeLog` gains `stepStartedAt: Date`, overtime per step, annotated fields, per-step notes
+- `ProcessCardType.combine` (locked position 1)
+- `ProcessCardType.bake` removed from wizard list (retained for session logic)
+
+### Copy / Labels
+- "Pre-flight" → "Prep" / "Begin Prep" everywhere
+- "Rise method" for preferment label in Prep and session overview
+- "As baked" / "Annotated" in session review
+- Session-saved recipe suffix: `— [Month Day]`
+- Automatic mode caption updated
+- Light mode enforced app-wide (`.preferredColorScheme(.light)` at root + hardcoded dark color audit)
 
 ---
 
