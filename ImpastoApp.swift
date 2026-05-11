@@ -8,6 +8,7 @@ struct ImpastoApp: App {
         WindowGroup {
             HomeView()
                 .environmentObject(store)
+                .preferredColorScheme(.light)
         }
     }
 }

@@ -35,9 +35,9 @@ struct BakeMethodStepView: View {
                     }
                 }
             } header: {
-                Text("Select all that apply")
+                Text("Baking method")
             } footer: {
-                Text("You can save settings for multiple setups — choose which to use at pre-flight.")
+                Text("You can save settings for multiple setups — choose which to use at prep.")
                     .font(.system(size: 11, design: .monospaced))
             }
 

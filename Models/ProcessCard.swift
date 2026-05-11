@@ -15,6 +15,7 @@ enum AutolyseMode: String, Codable, CaseIterable {
 }
 
 enum ProcessCardType: String, Codable, CaseIterable {
+    case combine
     case autolyse
     case incorporateYeast
     case incorporateSalt
@@ -30,6 +31,7 @@ enum ProcessCardType: String, Codable, CaseIterable {
 
     var title: String {
         switch self {
+        case .combine:           return "Combine"
         case .autolyse:          return "Autolyse"
         case .incorporateYeast:  return "Add yeast"
         case .incorporateSalt:   return "Add salt"
@@ -47,6 +49,7 @@ enum ProcessCardType: String, Codable, CaseIterable {
 
     var subtitle: String {
         switch self {
+        case .combine:           return "mix flour and water"
         case .autolyse:          return "enzymatic hydration"
         case .incorporateYeast:  return "or add preferment"
         case .incorporateSalt:   return "dissolved in reserved water"
@@ -64,6 +67,7 @@ enum ProcessCardType: String, Codable, CaseIterable {
 
     var defaultDuration: TimeInterval {
         switch self {
+        case .combine:           return 0
         case .autolyse:          return 30 * 60
         case .incorporateYeast:  return 0
         case .incorporateSalt:   return 0
@@ -85,7 +89,7 @@ enum ProcessCardType: String, Codable, CaseIterable {
 
     var isActionOnly: Bool {
         switch self {
-        case .incorporateYeast, .incorporateSalt, .bassinage, .divide, .preShape:
+        case .combine, .incorporateYeast, .incorporateSalt, .bassinage, .divide, .preShape:
             return true
         default:
             return false
@@ -125,6 +129,7 @@ struct ProcessCard: Identifiable, Codable {
         var cards: [ProcessCard] = []
         var order = 0
 
+        cards.append(ProcessCard(type: .combine, sortOrder: order)); order += 1
         if autolyse {
             cards.append(ProcessCard(type: .autolyse, sortOrder: order)); order += 1
         }
@@ -138,8 +143,7 @@ struct ProcessCard: Identifiable, Codable {
         cards.append(ProcessCard(type: .divide, sortOrder: order)); order += 1
         cards.append(ProcessCard(type: .preShape, sortOrder: order)); order += 1
         cards.append(ProcessCard(type: .benchRest, sortOrder: order)); order += 1
-        cards.append(ProcessCard(type: .finalProof, sortOrder: order)); order += 1
-        cards.append(ProcessCard(type: .bake, sortOrder: order))
+        cards.append(ProcessCard(type: .finalProof, sortOrder: order))
         return cards
     }
 }

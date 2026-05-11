@@ -55,7 +55,7 @@ struct WizardContainerView: View {
                 case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
                 case 1: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight,
                                        buffer: $buffer, style: style)
-                case 2: TimelineStepView(selected: $timeline, method: method)
+                case 2: TimelineStepView(selected: $timeline)
                 case 3: FlourBlendStepView(flourBlend: $flourBlend)
                 case 4: WaterSaltYeastStepView(
                             finalHydration: $finalHydration,

@@ -26,7 +26,7 @@ struct PreFlightView: View {
                 modificationsSection
                 summarySection
             }
-            .navigationTitle("Pre-Flight")
+            .navigationTitle("Prep")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

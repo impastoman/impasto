@@ -16,7 +16,7 @@ struct ProcessScriptStepView: View {
                     ProcessCardRow(
                         card: $processCards[idx],
                         position: positionLabel(for: idx),
-                        isLocked: processCards[idx].type == .bake,
+                        isLocked: processCards[idx].type == .combine,
                         onRemove: {
                             processCards.remove(at: idx)
                             for i in processCards.indices { processCards[i].sortOrder = i }
@@ -24,9 +24,8 @@ struct ProcessScriptStepView: View {
                     )
                 }
                 .onMove { from, to in
-                    let bakeIdx = processCards.indices.last(where: { processCards[$0].type == .bake })
-                    if let bake = bakeIdx, from.contains(bake) { return }
-                    let safeTo = bakeIdx.map { min(to, $0) } ?? to
+                    if from.contains(0) { return }
+                    let safeTo = max(to, 1)
                     processCards.move(fromOffsets: from, toOffset: safeTo)
                     for i in processCards.indices { processCards[i].sortOrder = i }
                 }
@@ -49,20 +48,15 @@ struct ProcessScriptStepView: View {
         .environment(\.editMode, .constant(.active))
         .sheet(isPresented: $showAddSheet) {
             AddStepSheet { newCard in
-                if let bakeIdx = processCards.lastIndex(where: { $0.type == .bake }) {
-                    processCards.insert(newCard, at: bakeIdx)
-                } else {
-                    processCards.append(newCard)
-                }
+                processCards.append(newCard)
                 for i in processCards.indices { processCards[i].sortOrder = i }
             }
         }
     }
 
     func positionLabel(for idx: Int) -> String {
-        if processCards[idx].type == .bake { return "🔒" }
-        let pos = processCards[0..<idx].filter { $0.type != .bake }.count + 1
-        return "\(pos)"
+        if processCards[idx].type == .combine { return "🔒" }
+        return "\(idx)"
     }
 }
 
@@ -202,7 +196,7 @@ private struct AddStepSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var addableTypes: [ProcessCardType] {
-        ProcessCardType.allCases.filter { $0 != .bake }
+        ProcessCardType.allCases.filter { $0 != .bake && $0 != .combine }
     }
 
     var body: some View {

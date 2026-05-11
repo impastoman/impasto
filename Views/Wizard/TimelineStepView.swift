@@ -2,7 +2,6 @@ import SwiftUI
 
 struct TimelineStepView: View {
     @Binding var selected: Timeline
-    let method: PrefermentMethod
     let now: Date = Date()
 
     @State private var showTimingInfo = false
@@ -15,8 +14,7 @@ struct TimelineStepView: View {
 
             Section {
                 ForEach(Timeline.allCases, id: \.self) { option in
-                    let warning = option.warning(for: method, from: now)
-                    let target  = option.targetDate(from: now)
+                    let target = option.targetDate(from: now)
 
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -26,14 +24,7 @@ struct TimelineStepView: View {
                             }
                             Text("Ready by \(target.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.caption)
-                                .foregroundColor(warning != nil ? .yellow : Color(hex: "D2B96A").opacity(0.7))
-                            if let w = warning {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "exclamationmark.triangle.fill").font(.caption2)
-                                    Text(w).font(.caption2)
-                                }
-                                .foregroundColor(.yellow)
-                            }
+                                .foregroundColor(Color(hex: "D2B96A").opacity(0.7))
                         }
                         Spacer()
                         if selected == option {
@@ -109,7 +100,7 @@ private struct TimingInfoSheet: View {
                 }
 
                 Section("Conflict warnings") {
-                    Text("If your chosen timeline is shorter than your preferment method requires (e.g., a Biga needs at least 16h), you'll see a yellow warning. You can still proceed — it's advisory, not a block.")
+                    Text("If your timeline is too short for your chosen preferment method, a warning appears on the preferment step. You can still proceed — it's advisory, not a block.")
                         .font(.system(size: 13, design: .monospaced))
                         .foregroundColor(.secondary)
                         .padding(.vertical, 4)

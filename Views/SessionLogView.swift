@@ -130,7 +130,7 @@ struct SessionLogView: View {
         if !vm.preFlight.prefermentPH.isEmpty || !vm.pHReadings.isEmpty {
             Section("Fermentation") {
                 if !vm.preFlight.prefermentPH.isEmpty {
-                    LabeledContent("Pre-flight pH", value: vm.preFlight.prefermentPH)
+                    LabeledContent("Prep pH", value: vm.preFlight.prefermentPH)
                         .font(.system(.body, design: .monospaced))
                 }
                 if !vm.pHReadings.isEmpty {

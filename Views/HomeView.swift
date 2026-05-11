@@ -133,7 +133,7 @@ struct StartDoughView: View {
                 }
                 if selectedRecipe != nil {
                     ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink("Pre-Flight →") {
+                        NavigationLink("Begin Prep →") {
                             if let r = selectedRecipe {
                                 PreFlightView(recipe: r).environmentObject(store)
                             }
