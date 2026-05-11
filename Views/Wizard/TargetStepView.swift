@@ -15,6 +15,9 @@ struct TargetStepView: View {
     @State private var unit: WeightUnit = .grams
     @State private var weightText: String = ""
     @State private var diameterText: String = ""
+    @State private var bufferGramsText: String = ""
+
+    var totalDough: Double { Double(ballCount) * ballWeight }
 
     var body: some View {
         List {
@@ -103,32 +106,38 @@ struct TargetStepView: View {
             }
 
             Section {
-                LabeledContent("Target dough", value: "\(Int(Double(ballCount) * ballWeight))g")
+                LabeledContent("Target dough", value: "\(Int(totalDough))g")
                     .font(.system(.body, design: .monospaced))
 
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Buffer").font(.system(.body, design: .monospaced))
-                        Text("dough loss factor")
+                        Text("Dough loss factor")
+                            .font(.system(.body, design: .monospaced))
+                        Text("stuck to bowl, hands, scraper")
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                    TextField("2", value: Binding(
-                        get: { Int(buffer * 100) },
-                        set: { buffer = Double($0) / 100 }
-                    ), format: .number)
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 44)
-                    .font(.system(.body, design: .monospaced))
-                    Text("%").foregroundColor(.secondary)
+                    TextField("\(Int(totalDough / 1000 * 25))", text: $bufferGramsText)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 52)
+                        .font(.system(.body, design: .monospaced))
+                        .onChange(of: bufferGramsText) { _, val in
+                            if let g = Double(val), g >= 0, totalDough > 0 {
+                                buffer = g / totalDough
+                            }
+                        }
+                    Text("g").foregroundColor(.secondary)
                 }
 
-                LabeledContent("Total with buffer",
-                               value: "\(Int(Double(ballCount) * ballWeight * (1 + buffer)))g")
+                LabeledContent("Total to mix",
+                               value: "\(Int(totalDough * (1 + buffer)))g")
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(Color(hex: "D2B96A"))
+            } footer: {
+                Text("~25g per kg is a good starting point · the more you make, the less you need")
+                    .font(.system(size: 11, design: .monospaced))
             }
         }
         .onAppear {
@@ -136,6 +145,13 @@ struct TargetStepView: View {
             if let dia = estimatedDiameter(from: ballWeight) {
                 diameterText = String(format: "%.0f", dia)
             }
+            bufferGramsText = "\(max(1, Int(buffer * totalDough)))"
+        }
+        .onChange(of: ballCount) { _, _ in
+            bufferGramsText = "\(max(1, Int(buffer * totalDough)))"
+        }
+        .onChange(of: ballWeight) { _, _ in
+            bufferGramsText = "\(max(1, Int(buffer * totalDough)))"
         }
     }
 

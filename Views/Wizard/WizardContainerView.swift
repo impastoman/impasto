@@ -27,7 +27,7 @@ struct WizardContainerView: View {
     @State private var mixingNotes: String = ""
     @State private var ballCount = 6
     @State private var ballWeight: Double = 250
-    @State private var buffer: Double = 0.02
+    @State private var buffer: Double = 0.025
     @State private var processCards: [ProcessCard] = ProcessCard.defaultCards(autolyse: false, bassinage: false)
     @State private var bakeSetups: [BakeSetup] = []
     @State private var name = ""

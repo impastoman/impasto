@@ -53,7 +53,7 @@ struct ConfirmStepView: View {
                 LabeledContent("Bassinage",       value: bassinage ? "Yes" : "No")
                 LabeledContent("Timeline",        value: "\(timeline.rawValue)  ·  \(timeline.hours)")
                 LabeledContent("Balls",           value: "\(ballCount) × \(Int(ballWeight))g")
-                LabeledContent("Buffer",          value: "\(Int(buffer * 100))%")
+                LabeledContent("Loss factor",      value: "\(max(1, Int(buffer * Double(ballCount) * ballWeight)))g")
             } header: { sectionHeader("Summary", step: 0) }
 
             if !flourBlend.components.isEmpty {
