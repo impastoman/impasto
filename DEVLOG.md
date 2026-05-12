@@ -293,20 +293,44 @@ Intent: allow users to enter a recipe they found online or in a book, including 
 - Preferment ratio slider (1–99%, default ~20–30%) — what percentage of total flour goes into the preferment
 - Separate flour blend scoped to the preferment — own `FlourComponentRow` and `AdditiveRow` entries, independent from the main dough blend
 - `SavedPreferment` model gains `flourBlend: FlourBlend` and `ratioPercent: Double` — saves and loads the full preferment spec including its blend
-
-**Design notes:**
 - Ratio slider follows the existing "slider for exploration, field for precision" pattern — tap the value to type an exact number
-- Preferment flour blend should be collapsible — most users will use the same flour throughout; the blend picker only expands if they want to specify
-- `ConfirmStepView` preferment section should show the blend breakdown and ratio alongside hydration
+- Preferment flour blend collapsible — most users use the same flour throughout; blend picker only expands if they want to specify
+
+**ConfirmStepView — preferment display fix:**
+- "Preferment blend" label currently shows the main dough flour blend, not a preferment-specific one — cosmetic issue; once `SavedPreferment` gains `flourBlend`, display the correct blend breakdown and ratio alongside hydration
+
+**IngredientsChecklistView (dependent on preferment flour blend):**
+- Currently preferment flour section shows a single "Biga flour" row with no sub-components — reads from `recipe.flourBlend` because `SavedPreferment` has no blend of its own yet
+- Once `SavedPreferment` gains `flourBlend`, expand the preferment section the same way final dough works: sub-rows per component with gram weights from blend percentages
 
 **PizzaLogView — per-pizza bake time:**
 - "Bake time so far" label → "Bake time"
-- Value should record the elapsed time from when the user tapped "Start Baking" to when they tapped "Log Pizza" — i.e. how long that specific pizza took to bake, not a running session total
-- `vm.bakeElapsed` resets when the user returns to baking (already does this via `resetBakeTimer`), so the value at the moment "Log Pizza" is opened is already the correct per-pizza duration — just needs to be snapshotted into the log row rather than displaying the live counter
+- Snapshot `vm.bakeElapsed` at the moment "Log Pizza" is opened — records how long that specific pizza took, not a running total
+- `vm.bakeElapsed` already resets on "Return to Baking" via `resetBakeTimer`, so the value at open time is already the correct per-pizza duration
 
-**IngredientsChecklistView (dependent on preferment flour blend):**
-- Currently the preferment flour section shows a single "Biga flour" row with no sub-components — it reads from `recipe.flourBlend` because `SavedPreferment` has no blend of its own yet
-- Once `SavedPreferment` gains `flourBlend`, expand the preferment section the same way final dough works: sub-rows per component with individual gram weights calculated from the preferment flour weight and blend percentages
+**Timeline incompatibility warning in MethodStepView:**
+- Currently the incompatibility warning only surfaces in the pre-flight conflict alert — it should also be shown in the wizard's Method step (Step 5) at recipe creation time, before the user even gets to Prep
+- Show inline warning when selected method + hydration implies a fermentation window that exceeds the selected timeline
+
+**Library folders:**
+- Create, rename, delete folders per section (Recipes, Flour Blends, Processes, Preferments)
+- Items move between folders via swipe or edit menu
+- Items not assigned to a folder appear under "Unfiled"
+- Folders collapsed/expanded in the List
+
+**Standalone builder Save vs. Save As:**
+- `StandaloneBlendBuilderView`, `StandaloneProcessBuilderView`, `StandalonePrefermentBuilderView` currently only support creating new items
+- Add edit mode: when opened from an existing library item, pre-populate and offer "Save" (update in place) vs. "Save as New" — same `.edit` / `.fork` pattern used in the recipe wizard
+
+**Clock-anchored session timing:**
+- Step times stored as absolute `Date` values (`stepStartedAt: Date`) so sessions survive app close, device restart, and device switch
+- `BakeLog` gains `stepStartedAt` per card and overtime per step
+- No in-memory counters — elapsed time always computed from `Date.now - stepStartedAt`
+
+**"As baked" / "Annotated" in session review (SessionLogView / PostBakeView):**
+- Two modes in the post-bake review: **As baked** (raw, read-only snapshot) and **Annotated** (user-edited reflection)
+- All logged fields editable in Annotated mode after the fact
+- Both modes: "Save as Recipe →" creates a new library entry named `[Recipe name] — [Month Day]`
 
 ---
 
