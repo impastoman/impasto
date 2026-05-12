@@ -26,7 +26,6 @@ struct LiveSessionView: View {
             }
             .navigationTitle("Live Session")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
