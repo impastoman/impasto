@@ -56,7 +56,7 @@ struct LibraryView: View {
             }
             Button("Cancel", role: .cancel) { recipeToDelete = nil }
         } message: {
-            Text(""\(recipeToDelete?.name ?? "")" will be permanently removed.")
+            Text("\"\(recipeToDelete?.name ?? "")\" will be permanently removed.")
         }
     }
 
