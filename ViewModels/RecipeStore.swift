@@ -43,6 +43,12 @@ class RecipeStore: ObservableObject {
         recipes[i].bakeLogs.append(log); saveRecipes()
     }
 
+    func updateBakeLog(_ log: BakeLog, recipeId: UUID) {
+        guard let ri = recipes.firstIndex(where: { $0.id == recipeId }),
+              let li = recipes[ri].bakeLogs.firstIndex(where: { $0.id == log.id }) else { return }
+        recipes[ri].bakeLogs[li] = log; saveRecipes()
+    }
+
     // MARK: - Preferment Recipes (legacy full model)
 
     func addPreferment(_ p: PrefermentRecipe) { prefermentRecipes.append(p); savePreferments() }

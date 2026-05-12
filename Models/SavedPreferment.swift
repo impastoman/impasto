@@ -7,6 +7,9 @@ struct SavedPreferment: Identifiable, Codable {
     var hydration: Double
     var notes: String = ""
     var createdAt: Date = Date()
+    var flourBlend: FlourBlend = FlourBlend()
+    var ratioPercent: Double = 0.30
+    var folderName: String = ""
 
     var label: String {
         switch hydration {

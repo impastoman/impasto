@@ -64,6 +64,13 @@ struct WizardContainerView: View {
         _flourBlendMode  = State(initialValue: r?.flourBlend.components.isEmpty == false ? .create : .pick)
         _prefEntryMode   = State(initialValue: (r != nil && r!.method != .direct) ? .create : .pick)
         _processMode     = State(initialValue: r?.processCards.isEmpty == false ? .create : .pick)
+
+        let initRatio: Double = {
+            if let r = r { return r.bigaRatio > 0 ? r.bigaRatio : r.style.defaultBigaRatio }
+            return PizzaStyle.neapolitan.defaultBigaRatio
+        }()
+        _prefermentRatio       = State(initialValue: initRatio)
+        _prefermentFlourBlend  = State(initialValue: r?.prefermentFlourBlend ?? FlourBlend())
     }
 
     @State private var step = 0
@@ -95,6 +102,8 @@ struct WizardContainerView: View {
     @State private var processCards: [ProcessCard]
     @State private var bakeSetups: [BakeSetup]
     @State private var name: String
+    @State private var prefermentRatio: Double
+    @State private var prefermentFlourBlend: FlourBlend
 
     var isEditMode: Bool { if case .edit = mode { return true }; return false }
     var isForkMode: Bool { if case .fork = mode { return true }; return false }
@@ -133,7 +142,10 @@ struct WizardContainerView: View {
                 case 5: MethodStepView(usePreferment: $usePreferment,
                                        prefermentHydration: $prefermentHydration,
                                        method: $method,
-                                       prefEntryMode: $prefEntryMode)
+                                       prefEntryMode: $prefEntryMode,
+                                       timeline: $timeline,
+                                       prefermentRatio: $prefermentRatio,
+                                       prefermentFlourBlend: $prefermentFlourBlend)
                 case 6: TechniqueStepView(
                             mixerType: $mixerType,
                             autolyse: $autolyse,
@@ -166,6 +178,8 @@ struct WizardContainerView: View {
                             ballWeight: ballWeight,
                             buffer: buffer,
                             flourBlend: flourBlend,
+                            prefermentFlourBlend: prefermentFlourBlend,
+                            prefermentRatio: prefermentRatio,
                             bakeSetups: bakeSetups,
                             processCards: processCards)
                 default: EmptyView()
@@ -263,10 +277,12 @@ struct WizardContainerView: View {
         recipe.yeastPct            = yeastPct
         recipe.yeastType           = yeastType
         recipe.prefermentHydration = prefermentHydration
-        recipe.bigaHydration       = prefermentHydration
-        recipe.flourBlend          = flourBlend
-        recipe.processCards        = processCards
-        recipe.bakeSetups          = bakeSetups
+        recipe.bigaHydration         = prefermentHydration
+        recipe.bigaRatio             = usePreferment ? prefermentRatio : 0
+        recipe.flourBlend            = flourBlend
+        recipe.prefermentFlourBlend  = usePreferment ? prefermentFlourBlend : FlourBlend()
+        recipe.processCards          = processCards
+        recipe.bakeSetups            = bakeSetups
         return recipe
     }
 

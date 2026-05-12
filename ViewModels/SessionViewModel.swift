@@ -17,7 +17,6 @@ class SessionViewModel: ObservableObject, Identifiable {
     @Published var bakingStarted: Bool = false
     @Published var bakeElapsed: TimeInterval = 0
 
-    // Set to true when "hide session" is used so the vm isn't cleaned up on fullScreenCover dismiss
     var isHidden: Bool = false
 
     let recipe: Recipe
@@ -25,6 +24,12 @@ class SessionViewModel: ObservableObject, Identifiable {
     private var timer: AnyCancellable?
     private var bakeTimer: AnyCancellable?
     private var pauseStart: Date? = nil
+
+    // Clock-anchored timing — survives backgrounding
+    private var stepStartDate: Date? = nil
+    private var accumulatedSeconds: TimeInterval = 0
+    private var bakeStartDate: Date? = nil
+    private var accumulatedBakeSeconds: TimeInterval = 0
 
     init(recipe: Recipe, preFlight: PreFlightData = PreFlightData()) {
         self.recipe = recipe
@@ -53,17 +58,21 @@ class SessionViewModel: ObservableObject, Identifiable {
 
     func start() {
         isRunning = true
+        stepStartDate = Date()
         timer = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self else { return }
-                self.elapsed += 1
-                // No auto-advance: timer runs indefinitely; overtime is shown to the user
+                guard let self, let start = self.stepStartDate else { return }
+                self.elapsed = self.accumulatedSeconds + Date().timeIntervalSince(start)
             }
     }
 
     func pause() {
         isRunning = false
+        if let start = stepStartDate {
+            accumulatedSeconds += Date().timeIntervalSince(start)
+            stepStartDate = nil
+        }
         timer?.cancel()
         pauseStart = Date()
     }
@@ -81,6 +90,8 @@ class SessionViewModel: ObservableObject, Identifiable {
         actualDurations[card.id] = elapsed
         guard !isLastCard else { return }
         currentIndex += 1
+        accumulatedSeconds = 0
+        stepStartDate = isRunning ? Date() : nil
         elapsed = 0
         if sessionMode == .automatic, let next = currentCard, next.type.isActionOnly {
             pause()
@@ -90,10 +101,15 @@ class SessionViewModel: ObservableObject, Identifiable {
     func goBack() {
         guard currentIndex > 0 else { return }
         currentIndex -= 1
-        elapsed = actualDurations[cards[currentIndex].id] ?? 0
+        let savedElapsed = actualDurations[cards[currentIndex].id] ?? 0
+        accumulatedSeconds = savedElapsed
+        stepStartDate = isRunning ? Date() : nil
+        elapsed = savedElapsed
     }
 
     func resetTimer() {
+        accumulatedSeconds = 0
+        stepStartDate = isRunning ? Date() : nil
         elapsed = 0
     }
 
@@ -105,18 +121,26 @@ class SessionViewModel: ObservableObject, Identifiable {
 
     func startBaking() {
         bakingStarted = true
+        bakeStartDate = Date()
         bakeTimer = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                self?.bakeElapsed += 1
+                guard let self, let start = self.bakeStartDate else { return }
+                self.bakeElapsed = self.accumulatedBakeSeconds + Date().timeIntervalSince(start)
             }
     }
 
     func stopBaking() {
+        if let start = bakeStartDate {
+            accumulatedBakeSeconds += Date().timeIntervalSince(start)
+            bakeStartDate = nil
+        }
         bakeTimer?.cancel()
     }
 
     func resetBakeTimer() {
+        accumulatedBakeSeconds = 0
+        bakeStartDate = nil
         bakeElapsed = 0
     }
 

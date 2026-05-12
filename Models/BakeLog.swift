@@ -27,6 +27,10 @@ struct BakeLog: Identifiable, Codable {
     var bottomResult: BottomResult = .good
     var topResult: TopResult = .good
     var photoData: Data? = nil
+
+    // Annotated (post-session reflection)
+    var annotatedNotes: String = ""
+    var annotatedRating: Int? = nil
 }
 
 enum SessionMode: String, Codable {

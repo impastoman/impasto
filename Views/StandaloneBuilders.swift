@@ -6,13 +6,26 @@ struct StandaloneBlendBuilderView: View {
     @EnvironmentObject var store: RecipeStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var blend = FlourBlend()
+    @State private var blend: FlourBlend
+    private let editingId: UUID?
+
+    init(editing: FlourBlend? = nil) {
+        _blend = State(initialValue: editing ?? FlourBlend())
+        editingId = editing?.id
+    }
+
+    var isEditing: Bool { editingId != nil }
 
     var body: some View {
         NavigationStack {
             List {
                 Section("Name") {
                     TextField("e.g. Caputo 00 + Semolina", text: $blend.name)
+                        .font(.system(.body, design: .monospaced))
+                }
+
+                Section("Folder") {
+                    TextField("e.g. Neapolitan, Pizza Night…", text: $blend.folderName)
                         .font(.system(.body, design: .monospaced))
                 }
 
@@ -79,7 +92,7 @@ struct StandaloneBlendBuilderView: View {
                     .listRowBackground(Color.red.opacity(0.06))
                 }
             }
-            .navigationTitle("New Flour Blend")
+            .navigationTitle(isEditing ? "Edit Flour Blend" : "New Flour Blend")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -87,7 +100,11 @@ struct StandaloneBlendBuilderView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        store.addBlend(blend)
+                        if isEditing {
+                            store.updateBlend(blend)
+                        } else {
+                            store.addBlend(blend)
+                        }
                         dismiss()
                     }
                     .disabled(!blend.isValid || blend.name.isEmpty)
@@ -104,15 +121,31 @@ struct StandaloneProcessBuilderView: View {
     @EnvironmentObject var store: RecipeStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var name = ""
-    @State private var processCards: [ProcessCard] = ProcessCard.defaultCards(autolyse: false, bassinage: false)
+    @State private var name: String
+    @State private var folderName: String
+    @State private var processCards: [ProcessCard]
     @State private var showAddSheet = false
+    private let editingId: UUID?
+
+    init(editing: SavedProcess? = nil) {
+        _name = State(initialValue: editing?.name ?? "")
+        _folderName = State(initialValue: editing?.folderName ?? "")
+        _processCards = State(initialValue: editing?.cards ?? ProcessCard.defaultCards(autolyse: false, bassinage: false))
+        editingId = editing?.id
+    }
+
+    var isEditing: Bool { editingId != nil }
 
     var body: some View {
         NavigationStack {
             List {
                 Section("Name") {
                     TextField("e.g. Cold Retard w/ Stretch & Fold", text: $name)
+                        .font(.system(.body, design: .monospaced))
+                }
+
+                Section("Folder") {
+                    TextField("e.g. Weekend, Competition…", text: $folderName)
                         .font(.system(.body, design: .monospaced))
                 }
 
@@ -165,7 +198,7 @@ struct StandaloneProcessBuilderView: View {
                 } header: { Text("Process steps") }
             }
             .environment(\.editMode, .constant(.active))
-            .navigationTitle("New Process")
+            .navigationTitle(isEditing ? "Edit Process" : "New Process")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -173,8 +206,14 @@ struct StandaloneProcessBuilderView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        let savedProcess = SavedProcess(name: name, cards: processCards)
-                        store.addProcess(savedProcess)
+                        var savedProcess = SavedProcess(name: name, cards: processCards)
+                        savedProcess.folderName = folderName
+                        if let eid = editingId { savedProcess.id = eid }
+                        if isEditing {
+                            store.updateProcess(savedProcess)
+                        } else {
+                            store.addProcess(savedProcess)
+                        }
                         dismiss()
                     }
                     .disabled(name.isEmpty)
@@ -245,10 +284,27 @@ struct StandalonePrefermentBuilderView: View {
     @EnvironmentObject var store: RecipeStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var name = ""
-    @State private var hydration: Double = 0.50
-    @State private var notes = ""
-    @State private var hydrationText = "50"
+    @State private var name: String
+    @State private var folderName: String
+    @State private var hydration: Double
+    @State private var notes: String
+    @State private var hydrationText: String
+    @State private var ratioPercent: Double
+    @State private var ratioText: String
+    private let editingId: UUID?
+
+    init(editing: SavedPreferment? = nil) {
+        _name = State(initialValue: editing?.name ?? "")
+        _folderName = State(initialValue: editing?.folderName ?? "")
+        _hydration = State(initialValue: editing?.hydration ?? 0.50)
+        _notes = State(initialValue: editing?.notes ?? "")
+        _hydrationText = State(initialValue: "\(Int((editing?.hydration ?? 0.50) * 100))")
+        _ratioPercent = State(initialValue: editing?.ratioPercent ?? 0.30)
+        _ratioText = State(initialValue: "\(Int((editing?.ratioPercent ?? 0.30) * 100))")
+        editingId = editing?.id
+    }
+
+    var isEditing: Bool { editingId != nil }
 
     var prefermentLabel: String {
         switch hydration {
@@ -270,6 +326,11 @@ struct StandalonePrefermentBuilderView: View {
             List {
                 Section("Name") {
                     TextField("e.g. 50% Biga", text: $name)
+                        .font(.system(.body, design: .monospaced))
+                }
+
+                Section("Folder") {
+                    TextField("e.g. Standard Bigas, Poolish Variants…", text: $folderName)
                         .font(.system(.body, design: .monospaced))
                 }
 
@@ -314,13 +375,43 @@ struct StandalonePrefermentBuilderView: View {
                     }
                 }
 
+                Section {
+                    VStack(spacing: 10) {
+                        HStack {
+                            Text("Default ratio")
+                                .font(.system(size: 14, design: .monospaced))
+                            Spacer()
+                            HStack(spacing: 2) {
+                                TextField("30", text: $ratioText)
+                                    .keyboardType(.numberPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 44)
+                                    .font(.system(size: 15, design: .monospaced))
+                                    .onChange(of: ratioText) { _, val in
+                                        if let d = Double(val), d >= 1, d <= 99 {
+                                            ratioPercent = d / 100
+                                        }
+                                    }
+                                Text("%")
+                                    .font(.system(size: 15, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        Slider(value: $ratioPercent, in: 0.01...0.99, step: 0.01)
+                            .tint(Color(hex: "D2B96A"))
+                            .onChange(of: ratioPercent) { _, val in ratioText = "\(Int(val * 100))" }
+                    }
+                    .padding(.vertical, 4)
+                } header: { Text("Default ratio") }
+                  footer: { Text("% of total flour in the preferment. Pre-filled in Method step when loaded.") }
+
                 Section("Notes") {
                     TextField("Fermentation notes, ratios, tips...", text: $notes, axis: .vertical)
                         .font(.system(size: 13, design: .monospaced))
                         .lineLimit(3...)
                 }
             }
-            .navigationTitle("New Preferment")
+            .navigationTitle(isEditing ? "Edit Preferment" : "New Preferment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -328,13 +419,20 @@ struct StandalonePrefermentBuilderView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        let pref = SavedPreferment(
+                        var pref = SavedPreferment(
                             name: name,
                             method: derivedMethod,
                             hydration: hydration,
                             notes: notes
                         )
-                        store.addSavedPreferment(pref)
+                        pref.ratioPercent = ratioPercent
+                        pref.folderName = folderName
+                        if let eid = editingId { pref.id = eid }
+                        if isEditing {
+                            store.updateSavedPreferment(pref)
+                        } else {
+                            store.addSavedPreferment(pref)
+                        }
                         dismiss()
                     }
                     .disabled(name.isEmpty)

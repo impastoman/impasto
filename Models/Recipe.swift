@@ -20,6 +20,7 @@ struct Recipe: Identifiable, Codable {
     var ballWeight: Double
     var buffer: Double
     var flourBlend: FlourBlend
+    var prefermentFlourBlend: FlourBlend
     var processCards: [ProcessCard]
     var bakeSetups: [BakeSetup]
     var yeastType: YeastType
@@ -66,6 +67,7 @@ struct Recipe: Identifiable, Codable {
         self.notes = ""
         self.bakeLogs = []
         self.flourBlend = FlourBlend()
+        self.prefermentFlourBlend = FlourBlend()
         self.bakeSetups = []
         self.processCards = ProcessCard.defaultCards(autolyse: autolyse, bassinage: bassinage)
     }
@@ -97,6 +99,7 @@ struct Recipe: Identifiable, Codable {
         notes               = try c.decode(String.self, forKey: .notes)
         bakeLogs            = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
         flourBlend          = (try? c.decode(FlourBlend.self, forKey: .flourBlend)) ?? FlourBlend()
+        prefermentFlourBlend = (try? c.decode(FlourBlend.self, forKey: .prefermentFlourBlend)) ?? FlourBlend()
         bakeSetups          = (try? c.decode([BakeSetup].self, forKey: .bakeSetups)) ?? []
         let savedCards      = try? c.decode([ProcessCard].self, forKey: .processCards)
         processCards        = savedCards ?? ProcessCard.defaultCards(autolyse: autolyse, bassinage: bassinage)

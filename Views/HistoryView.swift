@@ -14,34 +14,9 @@ struct HistoryView: View {
         NavigationStack {
             List {
                 ForEach(allLogs, id: \.0.id) { log, recipe in
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack {
-                            Text(recipe.name).font(.headline)
-                            Spacer()
-                            HStack(spacing: 2) {
-                                ForEach(1...5, id: \.self) { i in
-                                    Image(systemName: i <= log.rating ? "star.fill" : "star")
-                                        .font(.caption2)
-                                        .foregroundColor(Color(hex: "D2B96A"))
-                                }
-                            }
-                        }
-                        Text(log.date.formatted(date: .abbreviated, time: .omitted)
-                             + " · \(log.ballCount) balls · \(Int(log.finalHydration * 100))% hydration")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        if !log.crustTags.isEmpty || !log.crumbTags.isEmpty {
-                            HStack(spacing: 4) {
-                                ForEach(log.crustTags, id: \.self) { tag in
-                                    Text(tag.rawValue).font(.caption2).foregroundColor(.secondary)
-                                }
-                                ForEach(log.crumbTags, id: \.self) { tag in
-                                    Text(tag.rawValue).font(.caption2).foregroundColor(.secondary)
-                                }
-                            }
-                        }
+                    NavigationLink(destination: BakeLogDetailView(log: log, recipe: recipe).environmentObject(store)) {
+                        logRow(log: log, recipe: recipe)
                     }
-                    .padding(.vertical, 4)
                 }
             }
             .navigationTitle("History")
@@ -60,5 +35,42 @@ struct HistoryView: View {
                 }
             }
         }
+    }
+
+    func logRow(log: BakeLog, recipe: Recipe) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text(recipe.name).font(.headline)
+                Spacer()
+                HStack(spacing: 2) {
+                    let displayRating = log.annotatedRating ?? log.rating
+                    ForEach(1...5, id: \.self) { i in
+                        Image(systemName: i <= displayRating ? "star.fill" : "star")
+                            .font(.caption2)
+                            .foregroundColor(log.annotatedRating != nil ? Color(hex: "D2B96A").opacity(0.7) : Color(hex: "D2B96A"))
+                    }
+                    if log.annotatedRating != nil {
+                        Image(systemName: "pencil")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            Text(log.date.formatted(date: .abbreviated, time: .omitted)
+                 + " · \(log.ballCount) balls · \(Int(log.finalHydration * 100))% hydration")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            if !log.crustTags.isEmpty || !log.crumbTags.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(log.crustTags, id: \.self) { tag in
+                        Text(tag.rawValue).font(.caption2).foregroundColor(.secondary)
+                    }
+                    ForEach(log.crumbTags, id: \.self) { tag in
+                        Text(tag.rawValue).font(.caption2).foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
     }
 }

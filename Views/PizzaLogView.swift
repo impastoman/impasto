@@ -24,6 +24,7 @@ struct PizzaLogView: View {
     @State private var ovenTempInput = ""
     @State private var selectedPhoto: PhotosPickerItem? = nil
     @State private var photoData: Data? = nil
+    @State private var snapshotBakeTime: TimeInterval = 0
 
     var body: some View {
         NavigationStack {
@@ -36,6 +37,7 @@ struct PizzaLogView: View {
             }
             .navigationTitle("Log Pizza")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear { snapshotBakeTime = vm.bakeElapsed }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Return to Baking") {
@@ -82,7 +84,7 @@ struct PizzaLogView: View {
     var bakeInfoSection: some View {
         Section("Bake info") {
             HStack {
-                Text("Bake time so far")
+                Text("Bake time")
                 Spacer()
                 Text(bakeTimeDisplay)
                     .font(.system(.body, design: .monospaced))
@@ -207,9 +209,9 @@ struct PizzaLogView: View {
     }
 
     var bakeTimeDisplay: String {
-        let h = Int(vm.bakeElapsed) / 3600
-        let m = (Int(vm.bakeElapsed) % 3600) / 60
-        let s = Int(vm.bakeElapsed) % 60
+        let h = Int(snapshotBakeTime) / 3600
+        let m = (Int(snapshotBakeTime) % 3600) / 60
+        let s = Int(snapshotBakeTime) % 60
         return String(format: "%02d:%02d:%02d", h, m, s)
     }
 

@@ -14,7 +14,7 @@ struct HomeView: View {
     @State private var resumedSession: SessionViewModel? = nil
     @State private var initialTab: Int = 0
 
-    private let appVersion = "0.7"
+    private let appVersion = "0.8"
 
     var body: some View {
         if showMainApp {

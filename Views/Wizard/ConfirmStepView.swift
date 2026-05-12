@@ -18,6 +18,8 @@ struct ConfirmStepView: View {
     let ballWeight: Double
     let buffer: Double
     let flourBlend: FlourBlend
+    let prefermentFlourBlend: FlourBlend
+    let prefermentRatio: Double
     let bakeSetups: [BakeSetup]
     let processCards: [ProcessCard]
 
@@ -48,8 +50,15 @@ struct ConfirmStepView: View {
             Section {
                 LabeledContent("Style",           value: styleLabel)
                 LabeledContent("Preferment",      value: method == .direct ? "Not used" : method.rawValue)
-                if method != .direct && !flourBlend.name.isEmpty {
-                    LabeledContent("Preferment blend", value: flourBlend.name)
+                if method != .direct {
+                    LabeledContent("Preferment ratio", value: "\(Int(prefermentRatio * 100))%")
+                    let prefBlendName: String = {
+                        if !prefermentFlourBlend.components.isEmpty {
+                            return prefermentFlourBlend.name.isEmpty ? "Custom" : prefermentFlourBlend.name
+                        }
+                        return flourBlend.name.isEmpty ? "Same as main" : flourBlend.name
+                    }()
+                    LabeledContent("Preferment flour", value: prefBlendName)
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
                 LabeledContent("Flour blend",     value: flourBlend.name.isEmpty ? "Custom" : flourBlend.name)
@@ -134,7 +143,7 @@ struct ConfirmStepView: View {
                 LabeledContent("Hydration",       value: "\(Int(finalHydration * 100))%").foregroundColor(.secondary)
                 LabeledContent("Salt",            value: String(format: "%.1f%%", saltPct * 100)).foregroundColor(.secondary)
                 LabeledContent("Yeast",           value: "\(yeastType.rawValue)  ·  \(String(format: "%.2f%%", yeastPct * 100))").foregroundColor(.secondary)
-                LabeledContent("Biga percentage", value: method == .direct ? "N/A" : "\(Int(style.defaultBigaRatio * 100))%").foregroundColor(.secondary)
+                LabeledContent("Biga percentage", value: method == .direct ? "N/A" : "\(Int(prefermentRatio * 100))%").foregroundColor(.secondary)
                 LabeledContent("Est. kneading",   value: "~\(kneadingMinutes) min").foregroundColor(.secondary)
             } header: {
                 Text(style == .custom ? "Balanced defaults (no style preset)" : "Auto-set from style + method")

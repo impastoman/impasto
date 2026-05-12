@@ -10,6 +10,9 @@ struct LibraryView: View {
     @State private var showPrefBuilder = false
     @State private var showStartDough = false
     @State private var recipeToDelete: Recipe? = nil
+    @State private var editingBlend: FlourBlend? = nil
+    @State private var editingProcess: SavedProcess? = nil
+    @State private var editingPreferment: SavedPreferment? = nil
 
     var body: some View {
         NavigationStack {
@@ -50,11 +53,20 @@ struct LibraryView: View {
         .sheet(isPresented: $showBlendBuilder) {
             StandaloneBlendBuilderView().environmentObject(store)
         }
+        .sheet(item: $editingBlend) { blend in
+            StandaloneBlendBuilderView(editing: blend).environmentObject(store)
+        }
         .sheet(isPresented: $showProcessBuilder) {
             StandaloneProcessBuilderView().environmentObject(store)
         }
+        .sheet(item: $editingProcess) { process in
+            StandaloneProcessBuilderView(editing: process).environmentObject(store)
+        }
         .sheet(isPresented: $showPrefBuilder) {
             StandalonePrefermentBuilderView().environmentObject(store)
+        }
+        .sheet(item: $editingPreferment) { pref in
+            StandalonePrefermentBuilderView(editing: pref).environmentObject(store)
         }
         .sheet(isPresented: $showStartDough) {
             StartDoughView().environmentObject(store)
@@ -101,24 +113,47 @@ struct LibraryView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             } else {
-                ForEach(store.savedBlends) { blend in
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
-                            .font(.system(.body, design: .monospaced))
-                        Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                    .padding(.vertical, 2)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) { store.deleteBlend(blend) } label: {
-                            Label("Delete", systemImage: "trash")
+                let grouped = Dictionary(grouping: store.savedBlends) { $0.folderName }
+                let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+                let unfoldered = grouped[""] ?? []
+
+                ForEach(unfoldered) { blend in
+                    blendRow(blend)
+                }
+                ForEach(folders, id: \.self) { folder in
+                    DisclosureGroup(folder) {
+                        ForEach(grouped[folder] ?? []) { blend in
+                            blendRow(blend)
                         }
                     }
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.secondary)
                 }
             }
         } header: { Text("Flour Blends") }
+    }
+
+    func blendRow(_ blend: FlourBlend) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
+                .font(.system(.body, design: .monospaced))
+            Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 2)
+        .swipeActions(edge: .leading) {
+            Button { editingBlend = blend } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.blue)
+        }
+        .swipeActions(edge: .trailing) {
+            Button(role: .destructive) { store.deleteBlend(blend) } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 
     var processesSection: some View {
@@ -128,23 +163,46 @@ struct LibraryView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             } else {
-                ForEach(store.savedProcesses) { process in
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(process.name.isEmpty ? "Untitled Process" : process.name)
-                            .font(.system(.body, design: .monospaced))
-                        Text("\(process.cards.count) steps")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 2)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) { store.deleteProcess(process) } label: {
-                            Label("Delete", systemImage: "trash")
+                let grouped = Dictionary(grouping: store.savedProcesses) { $0.folderName }
+                let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+                let unfoldered = grouped[""] ?? []
+
+                ForEach(unfoldered) { process in
+                    processRow(process)
+                }
+                ForEach(folders, id: \.self) { folder in
+                    DisclosureGroup(folder) {
+                        ForEach(grouped[folder] ?? []) { process in
+                            processRow(process)
                         }
                     }
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.secondary)
                 }
             }
         } header: { Text("Processes") }
+    }
+
+    func processRow(_ process: SavedProcess) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(process.name.isEmpty ? "Untitled Process" : process.name)
+                .font(.system(.body, design: .monospaced))
+            Text("\(process.cards.count) steps")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 2)
+        .swipeActions(edge: .leading) {
+            Button { editingProcess = process } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.blue)
+        }
+        .swipeActions(edge: .trailing) {
+            Button(role: .destructive) { store.deleteProcess(process) } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 
     var prefermentsSection: some View {
@@ -154,23 +212,46 @@ struct LibraryView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             } else {
-                ForEach(store.savedPreferments) { pref in
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
-                            .font(.system(.body, design: .monospaced))
-                        Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 2)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
-                            Label("Delete", systemImage: "trash")
+                let grouped = Dictionary(grouping: store.savedPreferments) { $0.folderName }
+                let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+                let unfoldered = grouped[""] ?? []
+
+                ForEach(unfoldered) { pref in
+                    prefermentRow(pref)
+                }
+                ForEach(folders, id: \.self) { folder in
+                    DisclosureGroup(folder) {
+                        ForEach(grouped[folder] ?? []) { pref in
+                            prefermentRow(pref)
                         }
                     }
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(.secondary)
                 }
             }
         } header: { Text("Preferments") }
+    }
+
+    func prefermentRow(_ pref: SavedPreferment) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
+                .font(.system(.body, design: .monospaced))
+            Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%  ·  \(Int(pref.ratioPercent * 100))% ratio")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 2)
+        .swipeActions(edge: .leading) {
+            Button { editingPreferment = pref } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.blue)
+        }
+        .swipeActions(edge: .trailing) {
+            Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 }
 

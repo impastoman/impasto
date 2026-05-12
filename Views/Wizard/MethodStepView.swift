@@ -5,12 +5,17 @@ struct MethodStepView: View {
     @Binding var prefermentHydration: Double
     @Binding var method: PrefermentMethod
     @Binding var prefEntryMode: PrefEntryMode
+    @Binding var timeline: Timeline
+    @Binding var prefermentRatio: Double
+    @Binding var prefermentFlourBlend: FlourBlend
     @EnvironmentObject var store: RecipeStore
 
     @State private var showLibraryPicker = false
     @State private var hydrationText: String = ""
+    @State private var ratioText: String = ""
     @State private var savePrefName: String = ""
     @State private var prefSaved: Bool = false
+    @State private var useCustomPrefBlend: Bool = false
 
     enum PrefEntryMode { case pick, load, create }
 
@@ -36,6 +41,9 @@ struct MethodStepView: View {
                 case .load, .create:
                     prefStatusRow
                     hydrationSection
+                    ratioSection
+                    prefBlendSection
+                    timelineWarningSection
                     saveToLibrarySection
                 }
             } else {
@@ -52,12 +60,22 @@ struct MethodStepView: View {
         }
         .onAppear {
             if hydrationText.isEmpty { hydrationText = "\(Int(prefermentHydration * 100))" }
+            if ratioText.isEmpty { ratioText = "\(Int(prefermentRatio * 100))" }
+            useCustomPrefBlend = !prefermentFlourBlend.components.isEmpty
         }
         .sheet(isPresented: $showLibraryPicker) {
             PrefermentLibraryPickerView { selected in
                 prefermentHydration = selected.hydration
                 method = selected.method
                 hydrationText = "\(Int(selected.hydration * 100))"
+                if selected.ratioPercent > 0 {
+                    prefermentRatio = selected.ratioPercent
+                    ratioText = "\(Int(selected.ratioPercent * 100))"
+                }
+                if !selected.flourBlend.components.isEmpty {
+                    prefermentFlourBlend = selected.flourBlend
+                    useCustomPrefBlend = true
+                }
                 savePrefName = selected.name
                 prefSaved = true
                 prefEntryMode = .load
@@ -88,6 +106,7 @@ struct MethodStepView: View {
 
             Button {
                 hydrationText = "\(Int(prefermentHydration * 100))"
+                ratioText = "\(Int(prefermentRatio * 100))"
                 prefEntryMode = .create
             } label: {
                 HStack {
@@ -182,6 +201,99 @@ struct MethodStepView: View {
         }
     }
 
+    var ratioSection: some View {
+        Section {
+            VStack(spacing: 10) {
+                HStack {
+                    Text("Preferment ratio")
+                        .font(.system(size: 14, design: .monospaced))
+                    Spacer()
+                    HStack(spacing: 2) {
+                        TextField("\(Int(prefermentRatio * 100))", text: $ratioText)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 44)
+                            .font(.system(size: 15, design: .monospaced))
+                            .onChange(of: ratioText) { _, val in
+                                if let d = Double(val), d >= 1, d <= 99 {
+                                    prefermentRatio = d / 100
+                                }
+                            }
+                        Text("%")
+                            .font(.system(size: 15, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                Slider(value: $prefermentRatio, in: 0.01...0.99, step: 0.01)
+                    .tint(Color(hex: "D2B96A"))
+                    .onChange(of: prefermentRatio) { _, val in
+                        ratioText = "\(Int(val * 100))"
+                    }
+            }
+            .padding(.vertical, 4)
+        } header: { Text("Preferment ratio") }
+          footer: { Text("Percentage of total flour that goes into the preferment. Typical: 20–40%.") }
+    }
+
+    @ViewBuilder
+    var prefBlendSection: some View {
+        Section {
+            Toggle("Same flour as main blend", isOn: Binding(
+                get: { !useCustomPrefBlend },
+                set: { useSame in
+                    useCustomPrefBlend = !useSame
+                    if useSame {
+                        prefermentFlourBlend = FlourBlend()
+                    } else if prefermentFlourBlend.components.isEmpty {
+                        prefermentFlourBlend.components = [FlourComponent()]
+                    }
+                }
+            ))
+            .tint(Color(hex: "D2B96A"))
+
+            if useCustomPrefBlend {
+                ForEach($prefermentFlourBlend.components) { $component in
+                    FlourComponentRow(component: $component) {
+                        prefermentFlourBlend.components.removeAll { $0.id == component.id }
+                    }
+                }
+                HStack {
+                    Text("Total")
+                        .foregroundColor(.secondary)
+                        .font(.system(.body, design: .monospaced))
+                    Spacer()
+                    let total = prefermentFlourBlend.totalPercentage
+                    Text(String(format: "%.0f%%", total) + (prefermentFlourBlend.isValid ? "  ✓" : ""))
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(prefermentFlourBlend.isValid ? Color(hex: "D2B96A") : .red)
+                }
+                .listRowBackground(Color.clear)
+                Button {
+                    prefermentFlourBlend.components.append(FlourComponent())
+                } label: {
+                    Label("Add flour type", systemImage: "plus")
+                        .foregroundColor(Color(hex: "D2B96A"))
+                        .font(.system(.body, design: .monospaced))
+                }
+            }
+        } header: { Text("Preferment flour") }
+    }
+
+    @ViewBuilder
+    var timelineWarningSection: some View {
+        if method.minimumHours > timeline.minimumHours {
+            Section {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                    Text("\(method.rawValue) needs at least \(Int(method.minimumHours))h, but your timeline is \"\(timeline.rawValue)\" (\(timeline.hours)). Consider a longer timeline or switching to Direct method.")
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.orange)
+                }
+            }
+            .listRowBackground(Color.orange.opacity(0.06))
+        }
+    }
+
     var saveToLibrarySection: some View {
         Section {
             if prefSaved {
@@ -195,11 +307,13 @@ struct MethodStepView: View {
                 TextField("Name this preferment to save...", text: $savePrefName)
                     .font(.system(size: 13, design: .monospaced))
                 Button("Save to Library") {
-                    let pref = SavedPreferment(
+                    var pref = SavedPreferment(
                         name: savePrefName.isEmpty ? "Untitled Preferment" : savePrefName,
                         method: derivedMethod,
                         hydration: prefermentHydration
                     )
+                    pref.ratioPercent = prefermentRatio
+                    if useCustomPrefBlend { pref.flourBlend = prefermentFlourBlend }
                     store.addSavedPreferment(pref)
                     prefSaved = true
                 }
@@ -263,7 +377,7 @@ private struct PrefermentLibraryPickerView: View {
                             Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
                                 .font(.system(.body, design: .monospaced))
                                 .foregroundColor(.primary)
-                            Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
+                            Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%  ·  \(Int(pref.ratioPercent * 100))% of flour")
                                 .font(.caption).foregroundColor(.secondary)
                         }
                         .padding(.vertical, 2)

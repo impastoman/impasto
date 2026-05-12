@@ -95,6 +95,7 @@ struct FlourBlend: Identifiable, Codable {
     var name: String = ""
     var components: [FlourComponent] = [FlourComponent()]
     var additives: [Additive] = []
+    var folderName: String = ""
 
     var totalPercentage: Double {
         components.reduce(0) { $0 + $1.percentage }

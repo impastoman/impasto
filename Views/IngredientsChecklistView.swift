@@ -18,7 +18,12 @@ struct IngredientsChecklistView: View {
         var items: [CheckItem] = []
         let label = recipe.method.rawValue
 
-        let flourComponents = recipe.flourBlend.components
+        // Use preferment-specific blend if set, otherwise fall back to main blend
+        let prefBlend = recipe.prefermentFlourBlend.components.isEmpty
+            ? recipe.flourBlend
+            : recipe.prefermentFlourBlend
+        let flourComponents = prefBlend.components
+
         if flourComponents.count > 1 {
             items.append(CheckItem(id: "pref_flour_header", label: "\(label) flour blend", amount: "\(Int(recipe.bigaFlour))g"))
             for c in flourComponents {
@@ -26,13 +31,14 @@ struct IngredientsChecklistView: View {
                 items.append(CheckItem(id: "pref_flour_\(c.id)", label: c.type.rawValue, amount: "\(Int(weight))g", isSubItem: true))
             }
         } else {
-            items.append(CheckItem(id: "pref_flour", label: "\(label) flour", amount: "\(Int(recipe.bigaFlour))g"))
+            let flourLabel = flourComponents.first.map { $0.type.rawValue } ?? "\(label) flour"
+            items.append(CheckItem(id: "pref_flour", label: flourLabel, amount: "\(Int(recipe.bigaFlour))g"))
         }
 
         items.append(CheckItem(id: "pref_water", label: "\(label) water", amount: "\(Int(recipe.bigaWater))g"))
         items.append(CheckItem(id: "pref_yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: String(format: "%.1fg", recipe.bigaYeast)))
 
-        for additive in recipe.flourBlend.additives {
+        for additive in prefBlend.additives {
             let weight = recipe.bigaFlour * (additive.percentage / 100)
             items.append(CheckItem(id: "pref_add_\(additive.id)", label: additive.type.rawValue, amount: "\(Int(weight))g", isSubItem: true))
         }

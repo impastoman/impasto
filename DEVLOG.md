@@ -394,6 +394,63 @@ Intent: allow users to enter a recipe they found online or in a book, including 
 
 ---
 
+## v0.8 — Preferment Depth, Folders, Edit Mode, Clock Timing, Bake Detail
+
+**What shipped:**
+
+*Preferment depth (wizard):*
+- `MethodStepView` gains preferment ratio slider (1–99%, default 30%) — tap field for precision
+- Preferment flour blend section: toggle "Same as main blend" (default on); if off, mini blend editor with `FlourComponentRow` + `AdditiveRow`
+- `SavedPreferment` model gains `flourBlend: FlourBlend`, `ratioPercent: Double`, `folderName: String`
+- Library picker now shows ratio and loads it into the wizard when a preferment is selected
+- `buildRecipe()` uses `prefermentRatio` instead of hard-coded `style.defaultBigaRatio`
+- Timeline incompatibility warning shown inline in `MethodStepView` when `method.minimumHours > timeline.minimumHours`
+
+*ConfirmStepView fix:*
+- "Preferment blend" label was showing the main flour blend — now shows preferment-specific blend or "Same as main" fallback
+- "Biga percentage" row now shows `prefermentRatio` instead of style default
+
+*IngredientsChecklistView:*
+- Preferment section now reads from `recipe.prefermentFlourBlend` when set; falls back to main blend
+- Single flour → shows type label (not generic "Biga flour"); multi-component → expands sub-rows with gram weights
+
+*PizzaLogView:*
+- "Bake time so far" → "Bake time"
+- `vm.bakeElapsed` is snapshot on open (`.onAppear`) so each logged pizza records its own duration, not a running total
+
+*Clock-anchored session timing:*
+- `SessionViewModel` replaces accumulator with `stepStartDate: Date?` + `accumulatedSeconds` approach
+- Timer now computes `elapsed = accumulatedSeconds + Date().timeIntervalSince(stepStartDate)` — correct after app backgrounding
+- Same pattern for `bakeElapsed` via `bakeStartDate` + `accumulatedBakeSeconds`
+
+*Library edit mode:*
+- All three standalone builders (`StandaloneBlendBuilderView`, `StandaloneProcessBuilderView`, `StandalonePrefermentBuilderView`) accept optional `editing:` parameter
+- When editing: pre-populated, "Save" calls `store.update*`; when new: "Save" calls `store.add*`
+- `LibraryView` adds left-swipe "Edit" action for Blends, Processes, and Preferments
+- Sheets open the builder with the tapped item pre-loaded
+
+*Library folders:*
+- `FlourBlend`, `SavedProcess`, `SavedPreferment` gain `folderName: String = ""`
+- Each standalone builder includes a "Folder" text field
+- `LibraryView` sections group items using `Dictionary(grouping:)` — unfoldered items first, then `DisclosureGroup` per folder
+
+*Bake log detail + annotated reflection:*
+- New `BakeLogDetailView` with "As Baked" / "Annotated" tab picker
+- As Baked tab: full read-only snapshot (photo, rating, bake results, stage times, tags, notes)
+- Annotated tab: editable reflection rating + notes; "Save Annotation" persists via `store.updateBakeLog`
+- "Fork as New Recipe →" button opens `WizardContainerView(.fork(...))` with bake log overrides applied
+- `BakeLog` model gains `annotatedNotes: String` and `annotatedRating: Int?`
+- `RecipeStore` gains `updateBakeLog(_:recipeId:)`
+- `HistoryView` rows are now `NavigationLink`s to `BakeLogDetailView`; rows show pencil icon when annotated rating exists
+
+**Key design decisions:**
+- Preferment flour blend defaults to "same as main" — most bakers don't split blends; the toggle only expands when needed
+- Ratio slider uses the same "slider + field" pattern as all other continuous values in the app — consistent with the design principle
+- Clock-anchored timing is transparent to the view layer — `elapsed` is still `@Published var`; only the update mechanism changed
+- Annotated tab is additive — the "As Baked" snapshot is always read-only; reflections can only be added, not replacing the original log
+
+---
+
 ## Design Principles (established through the build)
 
 - **Plain word up top, descriptor below** — "Buffer" / "dough loss factor", "Kneading" / "gluten development"

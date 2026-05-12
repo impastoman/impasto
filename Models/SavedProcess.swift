@@ -5,4 +5,5 @@ struct SavedProcess: Identifiable, Codable {
     var name: String
     var cards: [ProcessCard]
     var createdAt: Date = Date()
+    var folderName: String = ""
 }
