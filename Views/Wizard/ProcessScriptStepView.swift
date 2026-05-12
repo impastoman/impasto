@@ -204,7 +204,7 @@ private struct ProcessLibraryPickerView: View {
     }
 }
 
-private struct ProcessCardRow: View {
+struct ProcessCardRow: View {
     @Binding var card: ProcessCard
     let position: String
     let isLocked: Bool
@@ -333,7 +333,7 @@ private struct ProcessCardRow: View {
     }
 }
 
-private struct AddStepSheet: View {
+struct AddStepSheet: View {
     let onAdd: (ProcessCard) -> Void
     @Environment(\.dismiss) private var dismiss
 

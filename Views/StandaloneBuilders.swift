@@ -151,29 +151,15 @@ struct StandaloneProcessBuilderView: View {
 
                 Section {
                     ForEach(processCards.indices, id: \.self) { idx in
-                        HStack(spacing: 10) {
-                            Text(processCards[idx].type == .combine ? "🔒" : "\(idx)")
-                                .font(.system(size: 12, design: .monospaced))
-                                .foregroundColor(processCards[idx].type == .combine ? .secondary : Color(hex: "D2B96A"))
-                                .frame(width: 22, alignment: .center)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(processCards[idx].title)
-                                    .font(.system(.body, design: .monospaced))
-                                    .foregroundColor(processCards[idx].type == .combine ? .secondary : .primary)
-                                if !processCards[idx].subtitle.isEmpty {
-                                    Text(processCards[idx].subtitle)
-                                        .font(.system(size: 11, design: .monospaced))
-                                        .foregroundColor(.secondary)
-                                }
+                        ProcessCardRow(
+                            card: $processCards[idx],
+                            position: processCards[idx].type == .combine ? "🔒" : "\(idx)",
+                            isLocked: processCards[idx].type == .combine,
+                            onRemove: {
+                                processCards.remove(at: idx)
+                                for i in processCards.indices { processCards[i].sortOrder = i }
                             }
-                            Spacer()
-                            if processCards[idx].type.isTimed && processCards[idx].duration > 0 {
-                                Text(shortDuration(processCards[idx].duration))
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .padding(.vertical, 4)
+                        )
                     }
                     .onMove { from, to in
                         if from.contains(0) { return }
@@ -222,57 +208,9 @@ struct StandaloneProcessBuilderView: View {
             }
         }
         .sheet(isPresented: $showAddSheet) {
-            StandaloneAddStepSheet { newCard in
+            AddStepSheet { newCard in
                 processCards.append(newCard)
                 for i in processCards.indices { processCards[i].sortOrder = i }
-            }
-        }
-    }
-
-    func shortDuration(_ t: TimeInterval) -> String {
-        let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60
-        if h > 0 { return "\(h)h \(m)m" }
-        return "\(m)m"
-    }
-}
-
-private struct StandaloneAddStepSheet: View {
-    let onAdd: (ProcessCard) -> Void
-    @Environment(\.dismiss) private var dismiss
-
-    var addableTypes: [ProcessCardType] {
-        let rest = ProcessCardType.allCases.filter { $0 != .bake && $0 != .combine && $0 != .freeform }
-        return [.freeform] + rest
-    }
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section("Add a process step") {
-                    ForEach(addableTypes, id: \.self) { type in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(type.title).font(.headline)
-                                if !type.subtitle.isEmpty {
-                                    Text(type.subtitle).font(.caption).foregroundColor(.secondary)
-                                }
-                            }
-                            Spacer()
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            onAdd(ProcessCard(type: type))
-                            dismiss()
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Add step")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
-                }
             }
         }
     }
@@ -287,21 +225,21 @@ struct StandalonePrefermentBuilderView: View {
     @State private var name: String
     @State private var folderName: String
     @State private var hydration: Double
-    @State private var notes: String
     @State private var hydrationText: String
-    @State private var ratioPercent: Double
-    @State private var ratioText: String
+    @State private var notes: String
+    @State private var flourBlend: FlourBlend
     private let editingId: UUID?
 
     init(editing: SavedPreferment? = nil) {
-        _name = State(initialValue: editing?.name ?? "")
-        _folderName = State(initialValue: editing?.folderName ?? "")
-        _hydration = State(initialValue: editing?.hydration ?? 0.50)
-        _notes = State(initialValue: editing?.notes ?? "")
+        _name         = State(initialValue: editing?.name ?? "")
+        _folderName   = State(initialValue: editing?.folderName ?? "")
+        _hydration    = State(initialValue: editing?.hydration ?? 0.50)
         _hydrationText = State(initialValue: "\(Int((editing?.hydration ?? 0.50) * 100))")
-        _ratioPercent = State(initialValue: editing?.ratioPercent ?? 0.30)
-        _ratioText = State(initialValue: "\(Int((editing?.ratioPercent ?? 0.30) * 100))")
-        editingId = editing?.id
+        _notes        = State(initialValue: editing?.notes ?? "")
+        // Seed flourBlend from saved; if blank, start with one default component
+        let saved = editing?.flourBlend ?? FlourBlend()
+        _flourBlend   = State(initialValue: saved.components.isEmpty ? FlourBlend() : saved)
+        editingId     = editing?.id
     }
 
     var isEditing: Bool { editingId != nil }
@@ -317,9 +255,9 @@ struct StandalonePrefermentBuilderView: View {
         }
     }
 
-    var derivedMethod: PrefermentMethod {
-        hydration >= 0.99 ? .poolish : .biga
-    }
+    var derivedMethod: PrefermentMethod { hydration >= 0.99 ? .poolish : .biga }
+
+    var canSave: Bool { !name.isEmpty && flourBlend.isValid }
 
     var body: some View {
         NavigationStack {
@@ -334,6 +272,7 @@ struct StandalonePrefermentBuilderView: View {
                         .font(.system(.body, design: .monospaced))
                 }
 
+                // Hydration — classifies the type (Biga vs Poolish) and implies water %
                 Section {
                     VStack(spacing: 12) {
                         HStack {
@@ -353,12 +292,11 @@ struct StandalonePrefermentBuilderView: View {
                                             hydration = d / 100
                                         }
                                     }
-                                Text("%")
-                                    .font(.system(size: 15, design: .monospaced))
+                                Text("% water")
+                                    .font(.system(size: 13, design: .monospaced))
                                     .foregroundColor(.secondary)
                             }
                         }
-
                         Slider(value: $hydration, in: 0.40...1.20, step: 0.01)
                             .tint(Color(hex: "D2B96A"))
                             .onChange(of: hydration) { _, val in
@@ -375,38 +313,60 @@ struct StandalonePrefermentBuilderView: View {
                     }
                 }
 
-                Section {
-                    VStack(spacing: 10) {
-                        HStack {
-                            Text("Default ratio")
-                                .font(.system(size: 14, design: .monospaced))
-                            Spacer()
-                            HStack(spacing: 2) {
-                                TextField("30", text: $ratioText)
-                                    .keyboardType(.numberPad)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 44)
-                                    .font(.system(size: 15, design: .monospaced))
-                                    .onChange(of: ratioText) { _, val in
-                                        if let d = Double(val), d >= 1, d <= 99 {
-                                            ratioPercent = d / 100
-                                        }
-                                    }
-                                Text("%")
-                                    .font(.system(size: 15, design: .monospaced))
-                                    .foregroundColor(.secondary)
-                            }
+                // Flour blend — which flours go into this preferment
+                Section("Flour") {
+                    ForEach($flourBlend.components) { $component in
+                        FlourComponentRow(component: $component) {
+                            flourBlend.components.removeAll { $0.id == component.id }
                         }
-                        Slider(value: $ratioPercent, in: 0.01...0.99, step: 0.01)
-                            .tint(Color(hex: "D2B96A"))
-                            .onChange(of: ratioPercent) { _, val in ratioText = "\(Int(val * 100))" }
                     }
-                    .padding(.vertical, 4)
-                } header: { Text("Default ratio") }
-                  footer: { Text("% of total flour in the preferment. Pre-filled in Method step when loaded.") }
+                    HStack {
+                        Text("Total")
+                            .foregroundColor(.secondary)
+                            .font(.system(.body, design: .monospaced))
+                        Spacer()
+                        Text(String(format: "%.0f%%", flourBlend.totalPercentage)
+                             + (flourBlend.isValid ? "  ✓" : ""))
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(flourBlend.isValid ? Color(hex: "D2B96A") : .red)
+                    }
+                    .listRowBackground(Color.clear)
+                    Button {
+                        flourBlend.components.append(FlourComponent())
+                    } label: {
+                        Label("Add flour type", systemImage: "plus")
+                            .foregroundColor(Color(hex: "D2B96A"))
+                            .font(.system(.body, design: .monospaced))
+                    }
+                }
+
+                // Additives — diastatic malt, VWG, etc. (% of flour weight)
+                Section {
+                    ForEach($flourBlend.additives) { $additive in
+                        AdditiveRow(additive: $additive) {
+                            flourBlend.additives.removeAll { $0.id == additive.id }
+                        }
+                    }
+                    Button {
+                        flourBlend.additives.append(Additive())
+                    } label: {
+                        Label("Add additive", systemImage: "plus")
+                            .foregroundColor(Color(hex: "D2B96A"))
+                            .font(.system(.body, design: .monospaced))
+                    }
+                } header: { Text("Additives  ·  % of flour weight") }
+
+                if !flourBlend.isValid {
+                    Section {
+                        Text("Flour percentages must total 100%")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(.red)
+                    }
+                    .listRowBackground(Color.red.opacity(0.06))
+                }
 
                 Section("Notes") {
-                    TextField("Fermentation notes, ratios, tips...", text: $notes, axis: .vertical)
+                    TextField("Fermentation notes, timing tips…", text: $notes, axis: .vertical)
                         .font(.system(size: 13, design: .monospaced))
                         .lineLimit(3...)
                 }
@@ -425,7 +385,7 @@ struct StandalonePrefermentBuilderView: View {
                             hydration: hydration,
                             notes: notes
                         )
-                        pref.ratioPercent = ratioPercent
+                        pref.flourBlend = flourBlend
                         pref.folderName = folderName
                         if let eid = editingId { pref.id = eid }
                         if isEditing {
@@ -435,8 +395,8 @@ struct StandalonePrefermentBuilderView: View {
                         }
                         dismiss()
                     }
-                    .disabled(name.isEmpty)
-                    .foregroundColor(name.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                    .disabled(!canSave)
+                    .foregroundColor(canSave ? Color(hex: "D2B96A") : .secondary)
                 }
             }
         }
