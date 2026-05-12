@@ -211,7 +211,7 @@ struct LiveSessionView: View {
                         .buttonStyle(ImpastoButtonStyle(filled: false))
                 }
                 let isTimedAuto = vm.preFlight.sessionMode == .automatic && vm.currentCard?.type.isActionOnly == false
-                Button(isTimedAuto ? "Skip →" : "Next Step →") { vm.completeCard() }
+                Button(isTimedAuto ? "Proceed →" : "Next Step →") { vm.completeCard() }
                     .buttonStyle(ImpastoButtonStyle(filled: true))
             }
         }

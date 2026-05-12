@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
     @EnvironmentObject var store: RecipeStore
+    var onGoHome: (() -> Void)? = nil
 
     var allLogs: [(BakeLog, Recipe)] {
         store.recipes
@@ -44,6 +45,15 @@ struct HistoryView: View {
                 }
             }
             .navigationTitle("History")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if let goHome = onGoHome {
+                        Button("⌂ Home") { goHome() }
+                            .font(.system(size: 13, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
             .overlay {
                 if allLogs.isEmpty {
                     ContentUnavailableView("No bakes yet", systemImage: "clock", description: Text("Complete a session to see your history."))

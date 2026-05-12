@@ -9,12 +9,13 @@ struct HomeView: View {
     @State private var showPrefBuilder = false
     @State private var showMainApp = false
     @State private var showStartDough = false
+    @State private var splashDone = false
 
-    private let appVersion = "0.5"
+    private let appVersion = "0.6"
 
     var body: some View {
         if showMainApp {
-            MainTabView().environmentObject(store)
+            MainTabView(onGoHome: { showMainApp = false }).environmentObject(store)
         } else {
             launch
         }
@@ -40,7 +41,7 @@ struct HomeView: View {
 
                 Spacer()
 
-                if let active = store.activeRecipe {
+                if splashDone, let active = store.activeRecipe {
                     VStack(spacing: 10) {
                         Text("last session")
                             .font(.system(size: 9, design: .monospaced))
@@ -58,6 +59,7 @@ struct HomeView: View {
                     .cornerRadius(8)
                 }
 
+                if splashDone {
                 Divider().background(Color(hex: "D8D4C8"))
 
                 Button("Start Dough →") { showStartDough = true }
@@ -79,10 +81,17 @@ struct HomeView: View {
                 Button("↑  Import Recipe") {}
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(Color(hex: "C4B89A"))
+                } // end splashDone
 
                 Spacer()
             }
             .padding(.horizontal, 32)
+            .onAppear {
+                guard !splashDone else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation(.easeIn(duration: 0.4)) { splashDone = true }
+                }
+            }
         }
         .sheet(isPresented: $showWizard) {
             WizardContainerView { recipe in

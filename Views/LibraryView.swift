@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LibraryView: View {
     @EnvironmentObject var store: RecipeStore
+    var onGoHome: (() -> Void)? = nil
     @State private var showAddMenu = false
     @State private var showWizard = false
     @State private var showBlendBuilder = false
@@ -20,6 +21,13 @@ struct LibraryView: View {
             }
             .navigationTitle("Library")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if let goHome = onGoHome {
+                        Button("⌂ Home") { goHome() }
+                            .font(.system(size: 13, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showAddMenu = true } label: { Image(systemName: "plus") }
                 }

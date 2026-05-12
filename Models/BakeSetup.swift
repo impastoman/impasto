@@ -10,7 +10,7 @@ enum BakeMethod: String, Codable, CaseIterable {
     var subMethods: [String] {
         switch self {
         case .homeOven:     return ["Baking Steel", "Baking Stone", "Baking Pan", "Broiler Method"]
-        case .pizzaOven:    return ["Wood-Fired", "Gas-Fired", "Multi-Fuel"]
+        case .pizzaOven:    return ["Wood-Fired", "Gas-Fired", "Electric", "Multi-Fuel"]
         case .portableOven: return []
         case .grill:        return ["Gas", "Charcoal"]
         case .other:        return []

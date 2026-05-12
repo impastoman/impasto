@@ -47,13 +47,19 @@ struct ConfirmStepView: View {
 
             Section {
                 LabeledContent("Style",           value: styleLabel)
-                LabeledContent("Preferment used", value: method == .direct ? "Not used" : method.rawValue)
+                LabeledContent("Preferment",      value: method == .direct ? "Not used" : method.rawValue)
+                if method != .direct && !flourBlend.name.isEmpty {
+                    LabeledContent("Preferment blend", value: flourBlend.name)
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+                LabeledContent("Flour blend",     value: flourBlend.name.isEmpty ? "Custom" : flourBlend.name)
+                    .foregroundColor(flourBlend.name.isEmpty ? .secondary : Color(hex: "D2B96A"))
                 LabeledContent("Mixer",           value: mixerType.rawValue)
                 LabeledContent("Autolyse",        value: autolyse ? "Yes — \(style == .neapolitan ? 20 : 30) min" : "No")
                 LabeledContent("Bassinage",       value: bassinage ? "Yes" : "No")
                 LabeledContent("Timeline",        value: "\(timeline.rawValue)  ·  \(timeline.hours)")
                 LabeledContent("Balls",           value: "\(ballCount) × \(Int(ballWeight))g")
-                LabeledContent("Loss factor",      value: "\(max(1, Int(buffer * Double(ballCount) * ballWeight)))g")
+                LabeledContent("Loss factor",     value: "\(max(1, Int(buffer * Double(ballCount) * ballWeight)))g")
             } header: { sectionHeader("Summary", step: 0) }
 
             if !flourBlend.components.isEmpty {

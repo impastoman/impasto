@@ -227,7 +227,8 @@ private struct AddStepSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var addableTypes: [ProcessCardType] {
-        ProcessCardType.allCases.filter { $0 != .bake && $0 != .combine }
+        let rest = ProcessCardType.allCases.filter { $0 != .bake && $0 != .combine && $0 != .freeform }
+        return [.freeform] + rest
     }
 
     var body: some View {
