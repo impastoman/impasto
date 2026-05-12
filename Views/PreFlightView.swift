@@ -11,6 +11,12 @@ struct PreFlightView: View {
 
     private var hasPreferment: Bool { recipe.method != .direct }
 
+    private var totalDough: Double {
+        let count = Double(data.overrideBallCount ?? recipe.ballCount)
+        let weight = data.overrideBallWeight ?? recipe.ballWeight
+        return count * weight
+    }
+
     private var timeConflict: Bool {
         guard hasPreferment, !data.prefermentReady else { return false }
         return recipe.method.minimumHours > recipe.timeline.minimumHours
@@ -161,16 +167,21 @@ struct PreFlightView: View {
                 Text("g").foregroundColor(.secondary)
             }
             HStack {
-                Text("Buffer")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Dough loss factor")
+                    Text("stuck to bowl, hands, scraper")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
                 Spacer()
-                TextField("\(Int(recipe.buffer * 100))", value: Binding(
-                    get: { data.overrideBuffer.map { Int($0 * 100) } },
-                    set: { data.overrideBuffer = $0.map { Double($0) / 100 } }
+                TextField("\(Int(totalDough * 0.025))", value: Binding(
+                    get: { data.overrideBuffer.map { Int($0 * totalDough) } },
+                    set: { data.overrideBuffer = $0.map { Double($0) / totalDough } }
                 ), format: .number)
                 .keyboardType(.numberPad).multilineTextAlignment(.trailing).frame(width: 60)
                 .font(.system(.body, design: .monospaced))
                 .foregroundColor(data.overrideBuffer != nil ? Color(hex: "D2B96A") : .primary)
-                Text("%").foregroundColor(.secondary)
+                Text("g").foregroundColor(.secondary)
             }
         } header: {
             Text("Last-minute adjustments")
