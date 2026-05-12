@@ -59,11 +59,19 @@ struct WizardContainerView: View {
             }
         }()
         _name = State(initialValue: defaultName)
+
+        // Pre-select entry modes for edit/fork so back-nav shows the editor, not the pick card
+        _flourBlendMode  = State(initialValue: r?.flourBlend.components.isEmpty == false ? .create : .pick)
+        _prefEntryMode   = State(initialValue: (r != nil && r!.method != .direct) ? .create : .pick)
+        _processMode     = State(initialValue: r?.processCards.isEmpty == false ? .create : .pick)
     }
 
     @State private var step = 0
     @State private var reviewMode = false
     @State private var showProcessWarningAlert = false
+    @State private var flourBlendMode: FlourBlendStepView.EntryMode
+    @State private var prefEntryMode: MethodStepView.PrefEntryMode
+    @State private var processMode: ProcessScriptStepView.EntryMode
     @State private var style: PizzaStyle
     @State private var customStyleName: String
     @State private var usePreferment: Bool
@@ -115,7 +123,7 @@ struct WizardContainerView: View {
                 case 1: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight,
                                        buffer: $buffer, style: style)
                 case 2: TimelineStepView(selected: $timeline)
-                case 3: FlourBlendStepView(flourBlend: $flourBlend)
+                case 3: FlourBlendStepView(flourBlend: $flourBlend, mode: $flourBlendMode)
                 case 4: WaterSaltYeastStepView(
                             finalHydration: $finalHydration,
                             saltPct: $saltPct,
@@ -124,7 +132,8 @@ struct WizardContainerView: View {
                             styleDefault: style.defaultFinalHydration)
                 case 5: MethodStepView(usePreferment: $usePreferment,
                                        prefermentHydration: $prefermentHydration,
-                                       method: $method)
+                                       method: $method,
+                                       prefEntryMode: $prefEntryMode)
                 case 6: TechniqueStepView(
                             mixerType: $mixerType,
                             autolyse: $autolyse,
@@ -134,7 +143,7 @@ struct WizardContainerView: View {
                             mixingNotes: $mixingNotes,
                             style: style,
                             finalHydration: finalHydration)
-                case 7: ProcessScriptStepView(processCards: $processCards)
+                case 7: ProcessScriptStepView(processCards: $processCards, mode: $processMode)
                 case 8: BakeMethodStepView(bakeSetups: $bakeSetups)
                 case 9: ConfirmStepView(
                             name: $name,

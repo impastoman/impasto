@@ -4,9 +4,9 @@ struct MethodStepView: View {
     @Binding var usePreferment: Bool
     @Binding var prefermentHydration: Double
     @Binding var method: PrefermentMethod
+    @Binding var prefEntryMode: PrefEntryMode
     @EnvironmentObject var store: RecipeStore
 
-    @State private var prefEntryMode: PrefEntryMode = .pick
     @State private var showLibraryPicker = false
     @State private var hydrationText: String = ""
     @State private var savePrefName: String = ""
@@ -49,6 +49,9 @@ struct MethodStepView: View {
                     }
                 } header: { Text("Direct method") }
             }
+        }
+        .onAppear {
+            if hydrationText.isEmpty { hydrationText = "\(Int(prefermentHydration * 100))" }
         }
         .sheet(isPresented: $showLibraryPicker) {
             PrefermentLibraryPickerView { selected in

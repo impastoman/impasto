@@ -6,6 +6,8 @@ struct RecipeDetailView: View {
     @State private var showPreFlight = false
     @State private var showEditWizard = false
     @State private var showForkWizard = false
+    @State private var isRenamingTitle = false
+    @State private var pendingName = ""
 
     var styleLabel: String {
         recipe.style == .custom && !recipe.customStyleName.isEmpty
@@ -78,6 +80,26 @@ struct RecipeDetailView: View {
             }
         }
         .navigationTitle(recipe.name)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Button(recipe.name) {
+                    pendingName = recipe.name
+                    isRenamingTitle = true
+                }
+                .font(.headline)
+                .foregroundColor(.primary)
+            }
+        }
+        .alert("Rename Recipe", isPresented: $isRenamingTitle) {
+            TextField("Recipe name", text: $pendingName)
+            Button("Save") {
+                guard !pendingName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                recipe.name = pendingName
+                store.update(recipe)
+            }
+            Button("Cancel", role: .cancel) { }
+        }
         .fullScreenCover(isPresented: $showPreFlight) {
             PreFlightView(recipe: recipe)
                 .environmentObject(store)

@@ -6,7 +6,9 @@ struct LiveSessionView: View {
     @EnvironmentObject var store: RecipeStore
     @Environment(\.dismiss) private var dismiss
     @State private var showPostBake = false
+    @State private var showRecipeSheet = false
     @State private var pHInput = ""
+    @State private var sessionNotes: [UUID: String] = [:]
 
     init(recipe: Recipe, preFlight: PreFlightData = PreFlightData()) {
         self.recipe = recipe
@@ -33,16 +35,35 @@ struct LiveSessionView: View {
                     Button("✕") { dismiss() }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    if vm.isRunning {
-                        Button("Pause") { vm.pause() }.foregroundColor(Color(hex: "D2B96A"))
-                    } else {
-                        Button("Start") { vm.start() }.foregroundColor(Color(hex: "D2B96A"))
+                    HStack(spacing: 16) {
+                        Button {
+                            showRecipeSheet = true
+                        } label: {
+                            Image(systemName: "doc.text")
+                        }
+                        .foregroundColor(.secondary)
+                        if vm.isRunning {
+                            Button("Pause") { vm.pause() }.foregroundColor(Color(hex: "D2B96A"))
+                        } else {
+                            Button("Start") { vm.start() }.foregroundColor(Color(hex: "D2B96A"))
+                        }
                     }
                 }
             }
         }
         .fullScreenCover(isPresented: $showPostBake) {
             PostBakeView(vm: vm, recipe: recipe).environmentObject(store)
+        }
+        .sheet(isPresented: $showRecipeSheet) {
+            NavigationStack {
+                RecipeDetailView(recipe: recipe)
+                    .environmentObject(store)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") { showRecipeSheet = false }
+                        }
+                    }
+            }
         }
     }
 
@@ -184,14 +205,25 @@ struct LiveSessionView: View {
     @ViewBuilder
     var noteField: some View {
         if let card = vm.currentCard {
-            let recipeNote = card.recipeNote
-            VStack(alignment: .leading, spacing: 4) {
-                if !recipeNote.isEmpty {
-                    HStack(spacing: 4) {
-                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary)
-                        Text(recipeNote)
+            VStack(alignment: .leading, spacing: 6) {
+                if !card.recipeNote.isEmpty {
+                    HStack(alignment: .top, spacing: 4) {
+                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary).padding(.top, 2)
+                        Text(card.recipeNote)
                             .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                     }
+                }
+                HStack(alignment: .top, spacing: 6) {
+                    Image(systemName: "pencil").font(.caption).foregroundColor(.secondary).padding(.top, 2)
+                    TextField("Add a session note for this step…",
+                              text: Binding(
+                                get: { sessionNotes[card.id] ?? "" },
+                                set: { sessionNotes[card.id] = $0.isEmpty ? nil : $0 }
+                              ),
+                              axis: .vertical)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(Color(hex: "E8D49A"))
+                        .lineLimit(1...3)
                 }
             }
         }

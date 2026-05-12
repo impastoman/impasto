@@ -2,9 +2,9 @@ import SwiftUI
 
 struct FlourBlendStepView: View {
     @Binding var flourBlend: FlourBlend
+    @Binding var mode: EntryMode
     @EnvironmentObject var store: RecipeStore
 
-    @State private var mode: EntryMode = .pick
     @State private var showLibraryPicker = false
     @State private var saveBlendName: String = ""
     @State private var blendSaved: Bool = false

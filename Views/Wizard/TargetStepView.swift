@@ -50,9 +50,6 @@ struct TargetStepView: View {
                                 .onChange(of: weightText) { _, val in
                                     if let d = Double(val), d > 0 {
                                         ballWeight = gramsFromDisplay(d)
-                                        if let dia = estimatedDiameter(from: ballWeight) {
-                                            diameterText = String(format: "%.0f", dia)
-                                        }
                                     }
                                 }
                             Text(unit.rawValue)
@@ -69,39 +66,26 @@ struct TargetStepView: View {
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(.secondary)
                         HStack(spacing: 4) {
-                            TextField(diameterPlaceholder, text: $diameterText)
+                            TextField("—", text: $diameterText)
                                 .keyboardType(.decimalPad)
                                 .font(.system(size: 24, design: .monospaced))
-                                .foregroundColor(diameterAutoFills ? .primary : .secondary)
-                                .onChange(of: diameterText) { _, val in
-                                    if let d = Double(val), d > 0, let w = estimatedWeight(from: d) {
-                                        ballWeight = w
-                                        weightText = formattedWeight(w)
-                                    }
-                                }
                             Text("\"")
                                 .font(.system(size: 14, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
+                        if diameterText.isEmpty, let est = estimatedDiameter(from: ballWeight) {
+                            Text("Est. \(String(format: "%.0f", est))\"")
+                                .font(.system(size: 11, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(.vertical, 6)
-
-                if !diameterAutoFills {
-                    HStack(spacing: 6) {
-                        Image(systemName: "info.circle").foregroundColor(.secondary).font(.caption)
-                        Text(style == .custom
-                             ? "Custom style — enter diameter manually or leave blank"
-                             : "Pan style — enter pan size manually or leave blank")
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundColor(.secondary)
-                    }
-                }
             } header: {
                 Text("Size per ball")
             } footer: {
-                Text("Diameter is approximate · varies by stretch and thickness")
+                Text("Diameter is approximate · varies by stretch and thickness · leave blank to use estimate")
                     .font(.system(size: 11, design: .monospaced))
             }
 
@@ -136,15 +120,12 @@ struct TargetStepView: View {
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(Color(hex: "D2B96A"))
             } footer: {
-                Text("~25g per kg is a good starting point · the more you make, the less you need")
+                Text("~2.5% of total dough weight is a good starting point · decreases as technique improves")
                     .font(.system(size: 11, design: .monospaced))
             }
         }
         .onAppear {
             weightText = formattedWeight(ballWeight)
-            if let dia = estimatedDiameter(from: ballWeight) {
-                diameterText = String(format: "%.0f", dia)
-            }
             bufferGramsText = formattedBufferDisplay()
         }
         .onChange(of: unit) { _, _ in
@@ -157,15 +138,6 @@ struct TargetStepView: View {
         .onChange(of: ballWeight) { _, _ in
             bufferGramsText = formattedBufferDisplay()
         }
-    }
-
-    var diameterAutoFills: Bool {
-        estimatedDiameter(from: ballWeight) != nil
-    }
-
-    var diameterPlaceholder: String {
-        if let dia = estimatedDiameter(from: ballWeight) { return String(format: "%.0f", dia) }
-        return "—"
     }
 
     func formattedBufferDisplay() -> String {
@@ -201,11 +173,4 @@ struct TargetStepView: View {
         }
     }
 
-    func estimatedWeight(from diameter: Double) -> Double? {
-        switch style {
-        case .neapolitan: return diameter * 25.0
-        case .newYork:    return diameter * 24.0
-        default:          return nil
-        }
-    }
 }

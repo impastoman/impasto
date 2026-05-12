@@ -80,7 +80,7 @@ struct ConfirmStepView: View {
                     HStack {
                         Text(card.title).font(.system(size: 13, design: .monospaced))
                         Spacer()
-                        if card.type.isTimed {
+                        if card.duration > 0 {
                             Text(shortDuration(card.duration))
                                 .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                         } else {
@@ -94,14 +94,38 @@ struct ConfirmStepView: View {
             if !bakeSetups.isEmpty {
                 Section {
                     ForEach(bakeSetups) { setup in
-                        HStack {
-                            Text(setup.method.rawValue)
-                            Spacer()
-                            if !setup.subMethod.isEmpty {
-                                Text(setup.subMethod).foregroundColor(.secondary)
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack {
+                                Text(setup.method.rawValue)
+                                    .font(.system(size: 13, design: .monospaced))
+                                if !setup.subMethod.isEmpty {
+                                    Text("· \(setup.subMethod)")
+                                        .font(.system(size: 13, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Text(setup.ovenTempDisplay)
+                                    .font(.system(size: 12, design: .monospaced))
+                                    .foregroundColor(Color(hex: "D2B96A"))
+                            }
+                            HStack(spacing: 8) {
+                                if let surf = setup.surfaceTemp {
+                                    Text("Surface \(Int(surf))\(setup.tempUnit)")
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+                                Text("Preheat ~\(setup.preheatMinutes) min")
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                                if !setup.notes.isEmpty {
+                                    Text("· \(setup.notes)")
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                }
                             }
                         }
-                        .font(.system(size: 13, design: .monospaced))
+                        .padding(.vertical, 2)
                     }
                 } header: { sectionHeader("Bake setups", step: 8) }
             }

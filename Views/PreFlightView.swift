@@ -8,6 +8,7 @@ struct PreFlightView: View {
     @State private var data = PreFlightData()
     @State private var showConflictAlert = false
     @State private var showSession = false
+    @State private var showChecklist = false
     @State private var useCelsius = true
     @State private var weightUnit: WeightUnit = .grams
 
@@ -63,6 +64,9 @@ struct PreFlightView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) { beginButton }
+            .sheet(isPresented: $showChecklist) {
+                IngredientsChecklistView(recipe: resolvedRecipe)
+            }
             .alert("Time Conflict", isPresented: $showConflictAlert) {
                 Button("Proceed Anyway") { showSession = true }
                 Button("Choose Another Recipe", role: .cancel) { dismiss() }
@@ -245,6 +249,17 @@ struct PreFlightView: View {
             LabeledContent("Rise method", value: recipe.method.rawValue)
             LabeledContent("Timeline", value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
             LabeledContent("Target", value: "\(data.overrideBallCount ?? recipe.ballCount) × \(displayWeight(data.overrideBallWeight ?? recipe.ballWeight)) \(weightUnit.rawValue)")
+            Button {
+                showChecklist = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "checklist")
+                        .foregroundColor(Color(hex: "D2B96A"))
+                    Text("Prep Ingredients")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            }
         } header: { Text("Session overview") }
         .font(.system(.body, design: .monospaced))
         .foregroundColor(.secondary)

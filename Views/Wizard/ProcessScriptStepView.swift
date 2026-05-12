@@ -2,9 +2,9 @@ import SwiftUI
 
 struct ProcessScriptStepView: View {
     @Binding var processCards: [ProcessCard]
+    @Binding var mode: EntryMode
     @EnvironmentObject var store: RecipeStore
 
-    @State private var mode: EntryMode = .pick
     @State private var showLibraryPicker = false
     @State private var showAddSheet = false
     @State private var saveProcessName: String = ""
@@ -241,7 +241,7 @@ private struct ProcessCardRow: View {
 
                 Spacer()
 
-                if card.type.isTimed && card.duration > 0 {
+                if card.duration > 0 {
                     Text(shortDuration(card.duration))
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundColor(.secondary)
@@ -272,22 +272,20 @@ private struct ProcessCardRow: View {
                 VStack(spacing: 10) {
                     Divider()
 
-                    if card.type.isTimed {
-                        HStack {
-                            Text("Duration")
-                                .font(.system(size: 13, design: .monospaced))
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            TextField("min", value: Binding(
-                                get: { Int(card.duration / 60) },
-                                set: { card.customDuration = Double($0) * 60 }
-                            ), format: .number)
-                            .keyboardType(.numberPad)
-                            .frame(width: 52)
+                    HStack {
+                        Text("Duration")
                             .font(.system(size: 13, design: .monospaced))
-                            .multilineTextAlignment(.trailing)
-                            Text("min").font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
-                        }
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        TextField("0", value: Binding(
+                            get: { Int(card.duration / 60) },
+                            set: { card.customDuration = Double($0) * 60 }
+                        ), format: .number)
+                        .keyboardType(.numberPad)
+                        .frame(width: 52)
+                        .font(.system(size: 13, design: .monospaced))
+                        .multilineTextAlignment(.trailing)
+                        Text("min").font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                     }
 
                     if card.type == .bassinage {
