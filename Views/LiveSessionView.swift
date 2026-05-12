@@ -1,38 +1,42 @@
 import SwiftUI
 
 struct LiveSessionView: View {
-    let recipe: Recipe
-    @StateObject private var vm: SessionViewModel
+    @ObservedObject var vm: SessionViewModel
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
+
     @State private var showPostBake = false
     @State private var showRecipeSheet = false
-    @State private var pHInput = ""
+    @State private var showPizzaLog = false
     @State private var sessionNotes: [UUID: String] = [:]
 
-    init(recipe: Recipe, preFlight: PreFlightData = PreFlightData()) {
-        self.recipe = recipe
-        _vm = StateObject(wrappedValue: SessionViewModel(recipe: recipe, preFlight: preFlight))
-    }
+    var recipe: Recipe { vm.recipe }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                cardTabs.padding(.top, 8)
-                Spacer()
-                timerBlock
-                Spacer()
-                ingredientRef.padding(.horizontal)
-                stagePrompt.padding(.horizontal).padding(.top, 8)
-                noteField.padding(.horizontal).padding(.top, 4)
-                Spacer()
-                actionRow.padding(.horizontal).padding(.bottom, 24)
+            ZStack {
+                Color(hex: "1A1B18").ignoresSafeArea()
+
+                if vm.isInBakeStep {
+                    bakeStepView
+                } else {
+                    processView
+                }
             }
             .navigationTitle("Live Session")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("✕") { dismiss() }
+                    Button {
+                        vm.isHidden = true
+                        vm.pause()
+                        dismiss()
+                    } label: {
+                        Image(systemName: "house")
+                    }
+                    .foregroundColor(.secondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 16) {
@@ -42,17 +46,34 @@ struct LiveSessionView: View {
                             Image(systemName: "doc.text")
                         }
                         .foregroundColor(.secondary)
-                        if vm.isRunning {
-                            Button("Pause") { vm.pause() }.foregroundColor(Color(hex: "D2B96A"))
-                        } else {
-                            Button("Start") { vm.start() }.foregroundColor(Color(hex: "D2B96A"))
+                        if !vm.isInBakeStep {
+                            if vm.isRunning {
+                                Button("Pause") { vm.pause() }.foregroundColor(Color(hex: "D2B96A"))
+                            } else {
+                                Button("Start") { vm.start() }.foregroundColor(Color(hex: "D2B96A"))
+                            }
                         }
                     }
                 }
             }
         }
         .fullScreenCover(isPresented: $showPostBake) {
-            PostBakeView(vm: vm, recipe: recipe).environmentObject(store)
+            PostBakeView(vm: vm, recipe: recipe)
+                .environmentObject(store)
+                .environmentObject(sessionManager)
+        }
+        .sheet(isPresented: $showPizzaLog) {
+            PizzaLogView(vm: vm, recipe: recipe) {
+                // "Return to baking" — reset bake timer
+                vm.resetBakeTimer()
+                showPizzaLog = false
+            } onEndBake: {
+                vm.stopBaking()
+                showPizzaLog = false
+                showPostBake = true
+            }
+            .environmentObject(store)
+            .environmentObject(sessionManager)
         }
         .sheet(isPresented: $showRecipeSheet) {
             NavigationStack {
@@ -66,6 +87,24 @@ struct LiveSessionView: View {
             }
         }
     }
+
+    // MARK: - Process view
+
+    var processView: some View {
+        VStack(spacing: 0) {
+            cardTabs.padding(.top, 8)
+            Spacer()
+            timerBlock
+            Spacer()
+            ingredientRef.padding(.horizontal)
+            stagePrompt.padding(.horizontal).padding(.top, 8)
+            noteField.padding(.horizontal).padding(.top, 4)
+            Spacer()
+            actionRow.padding(.horizontal).padding(.bottom, 24)
+        }
+    }
+
+    // MARK: - Card tabs
 
     var cardTabs: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -83,6 +122,8 @@ struct LiveSessionView: View {
         }
     }
 
+    // MARK: - Timer
+
     var isCountdown: Bool {
         vm.preFlight.sessionMode == .automatic &&
         (vm.currentCard?.type.isTimed == true) &&
@@ -90,7 +131,13 @@ struct LiveSessionView: View {
     }
 
     var displayTime: TimeInterval {
-        isCountdown ? max(0, vm.targetDuration - vm.elapsed) : vm.elapsed
+        if isCountdown {
+            if vm.elapsed > vm.targetDuration {
+                return vm.elapsed - vm.targetDuration  // overtime: count up from 0
+            }
+            return vm.targetDuration - vm.elapsed      // counting down
+        }
+        return vm.elapsed
     }
 
     var timerBlock: some View {
@@ -100,14 +147,29 @@ struct LiveSessionView: View {
                     .font(.system(size: 10, design: .monospaced)).tracking(2).foregroundColor(.secondary)
                 Text(card.subtitle)
                     .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+
                 Text(timeString(displayTime))
-                    .font(.system(size: 56, design: .serif)).foregroundColor(Color(hex: "E8D49A"))
+                    .font(.system(size: 56, design: .serif))
+                    .foregroundColor(vm.isOvertime ? Color.orange : Color(hex: "E8D49A"))
+                    .onLongPressGesture(minimumDuration: 0.6) {
+                        let gen = UIImpactFeedbackGenerator(style: .heavy)
+                        gen.impactOccurred()
+                        vm.resetTimer()
+                    }
+
                 if card.type.isTimed && vm.targetDuration > 0 {
                     ProgressView(value: vm.progress)
-                        .tint(Color(hex: "D2B96A")).padding(.horizontal, 40)
-                    Text(isCountdown ? "of \(timeString(vm.targetDuration))" : "Target: \(timeString(vm.targetDuration))")
-                        .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                        .tint(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
+                        .padding(.horizontal, 40)
+                    if vm.isOvertime {
+                        Text("+\(timeString(vm.elapsed - vm.targetDuration)) overtime")
+                            .font(.system(size: 11, design: .monospaced)).foregroundColor(.orange)
+                    } else {
+                        Text(isCountdown ? "of \(timeString(vm.targetDuration))" : "Target: \(timeString(vm.targetDuration))")
+                            .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                    }
                 }
+
                 if vm.preFlight.sessionMode == .automatic && !vm.isRunning && !vm.isLastCard {
                     Text("PAUSED")
                         .font(.system(size: 10, design: .monospaced)).tracking(2)
@@ -117,25 +179,24 @@ struct LiveSessionView: View {
         }
     }
 
+    // MARK: - Ingredient reference
+
     @ViewBuilder
     var ingredientRef: some View {
         if let card = vm.currentCard {
             let rows: [(String, String)] = {
                 switch card.type {
-                case .autolyse, .incorporateYeast, .incorporateSalt, .kneading:
-                    if card.type == .autolyse {
-                        return [
-                            ("Flour", "\(Int(recipe.totalFlour))g"),
-                            ("Water (hold back \(Int(recipe.bassinageReserveGrams))g)", "\(Int(recipe.totalWater - recipe.bassinageReserveGrams))g")
-                        ]
-                    } else if card.type == .incorporateYeast {
-                        return recipe.method == .direct
-                            ? [("Yeast", String(format: "%.1fg", recipe.bigaYeast))]
-                            : [("Add preferment", "\(Int(recipe.bigaFlour + recipe.bigaWater))g")]
-                    } else if card.type == .incorporateSalt {
-                        return [("Salt (dissolved in \(Int(recipe.bassinageReserveGrams))g water)", "\(Int(recipe.totalSalt))g")]
-                    }
-                    return []
+                case .autolyse:
+                    return [
+                        ("Flour", "\(Int(recipe.totalFlour))g"),
+                        ("Water (hold back \(Int(recipe.bassinageReserveGrams))g)", "\(Int(recipe.totalWater - recipe.bassinageReserveGrams))g")
+                    ]
+                case .incorporateYeast:
+                    return recipe.method == .direct
+                        ? [("Yeast", String(format: "%.1fg", recipe.bigaYeast))]
+                        : [("Add preferment", "\(Int(recipe.bigaFlour + recipe.bigaWater))g")]
+                case .incorporateSalt:
+                    return [("Salt (dissolved in \(Int(recipe.bassinageReserveGrams))g water)", "\(Int(recipe.totalSalt))g")]
                 case .bulkFermentation:
                     return [("Volume increase target", "50–80%")]
                 default:
@@ -160,6 +221,8 @@ struct LiveSessionView: View {
             }
         }
     }
+
+    // MARK: - Stage prompt
 
     @ViewBuilder
     var stagePrompt: some View {
@@ -202,6 +265,8 @@ struct LiveSessionView: View {
         }
     }
 
+    // MARK: - Note field
+
     @ViewBuilder
     var noteField: some View {
         if let card = vm.currentCard {
@@ -229,14 +294,23 @@ struct LiveSessionView: View {
         }
     }
 
+    // MARK: - Action row
+
     var actionRow: some View {
         HStack(spacing: 12) {
-            if let card = vm.currentCard, card.type == .bake {
-                Button("Done Baking") { showPostBake = true }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
-            } else if vm.isLastCard {
-                Button("Done Baking") { showPostBake = true }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
+            // Back button — always available when not on first card
+            if vm.currentIndex > 0 {
+                Button("← Back") {
+                    vm.goBack()
+                }
+                .buttonStyle(ImpastoButtonStyle(filled: false))
+            }
+
+            if vm.isLastCard {
+                Button("Proceed to Bake →") {
+                    vm.enterBakeStep()
+                }
+                .buttonStyle(ImpastoButtonStyle(filled: true))
             } else {
                 if vm.preFlight.sessionMode == .automatic && !vm.isRunning {
                     Button("Resume") { vm.resume() }
@@ -248,6 +322,97 @@ struct LiveSessionView: View {
             }
         }
     }
+
+    // MARK: - Bake step view
+
+    var bakeStepView: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            VStack(spacing: 8) {
+                Text("BAKE")
+                    .font(.system(size: 10, design: .monospaced)).tracking(2).foregroundColor(.secondary)
+
+                if vm.bakingStarted {
+                    Text(timeString(vm.bakeElapsed))
+                        .font(.system(size: 56, design: .serif))
+                        .foregroundColor(Color(hex: "E8D49A"))
+                } else {
+                    Text("Ready to launch")
+                        .font(.system(size: 18, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Spacer()
+
+            if let setupId = vm.preFlight.selectedBakeSetupId,
+               let setup = recipe.bakeSetups.first(where: { $0.id == setupId }) {
+                VStack(spacing: 8) {
+                    HStack {
+                        Text(setup.method.rawValue)
+                            .font(.system(size: 14, design: .monospaced))
+                            .foregroundColor(.secondary)
+                        if !setup.subMethod.isEmpty {
+                            Text("· \(setup.subMethod)")
+                                .font(.system(size: 14, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Text(setup.ovenTempDisplay)
+                            .font(.system(size: 14, design: .monospaced))
+                            .foregroundColor(Color(hex: "D2B96A"))
+                    }
+                    promptRow(icon: "flame", color: .orange, text: "Preheat ~\(setup.preheatMinutes) min before launching. Use infrared thermometer on stone/steel.")
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+            } else {
+                promptRow(icon: "flame", color: .orange, text: "Preheat oven fully before launching.")
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+            }
+
+            Spacer()
+
+            bakeActionRow
+                .padding(.horizontal)
+                .padding(.bottom, 24)
+        }
+    }
+
+    var bakeActionRow: some View {
+        VStack(spacing: 12) {
+            if vm.bakingStarted {
+                Button("Log Pizza") {
+                    showPizzaLog = true
+                }
+                .buttonStyle(ImpastoButtonStyle(filled: false))
+
+                Text("Long-press to end bake")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+
+                Button("End Baking") {
+                    // placeholder — long press handled below
+                }
+                .buttonStyle(ImpastoButtonStyle(filled: true))
+                .onLongPressGesture(minimumDuration: 0.8) {
+                    let gen = UIImpactFeedbackGenerator(style: .heavy)
+                    gen.impactOccurred()
+                    vm.stopBaking()
+                    showPostBake = true
+                }
+            } else {
+                Button("Start Baking") {
+                    vm.startBaking()
+                }
+                .buttonStyle(ImpastoButtonStyle(filled: true))
+            }
+        }
+    }
+
+    // MARK: - Helpers
 
     func promptRow(icon: String, color: Color, text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {

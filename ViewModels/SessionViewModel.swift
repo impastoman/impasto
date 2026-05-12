@@ -1,7 +1,9 @@
 import Foundation
 import Combine
 
-class SessionViewModel: ObservableObject {
+class SessionViewModel: ObservableObject, Identifiable {
+    let id: UUID = UUID()
+
     @Published var cards: [ProcessCard]
     @Published var currentIndex: Int = 0
     @Published var elapsed: TimeInterval = 0
@@ -10,9 +12,18 @@ class SessionViewModel: ObservableObject {
     @Published var actualDurations: [UUID: TimeInterval] = [:]
     @Published var pauseDurations: [TimeInterval] = []
 
+    // Bake step state
+    @Published var isInBakeStep: Bool = false
+    @Published var bakingStarted: Bool = false
+    @Published var bakeElapsed: TimeInterval = 0
+
+    // Set to true when "hide session" is used so the vm isn't cleaned up on fullScreenCover dismiss
+    var isHidden: Bool = false
+
     let recipe: Recipe
     let preFlight: PreFlightData
     private var timer: AnyCancellable?
+    private var bakeTimer: AnyCancellable?
     private var pauseStart: Date? = nil
 
     init(recipe: Recipe, preFlight: PreFlightData = PreFlightData()) {
@@ -36,6 +47,10 @@ class SessionViewModel: ObservableObject {
         return min(elapsed / targetDuration, 1.0)
     }
 
+    var isOvertime: Bool {
+        targetDuration > 0 && elapsed > targetDuration
+    }
+
     func start() {
         isRunning = true
         timer = Timer.publish(every: 1, on: .main, in: .common)
@@ -43,13 +58,7 @@ class SessionViewModel: ObservableObject {
             .sink { [weak self] _ in
                 guard let self else { return }
                 self.elapsed += 1
-                if self.sessionMode == .automatic,
-                   let card = self.currentCard,
-                   card.type.isTimed,
-                   self.targetDuration > 0,
-                   self.elapsed >= self.targetDuration {
-                    self.completeCard()
-                }
+                // No auto-advance: timer runs indefinitely; overtime is shown to the user
             }
     }
 
@@ -73,12 +82,42 @@ class SessionViewModel: ObservableObject {
         guard !isLastCard else { return }
         currentIndex += 1
         elapsed = 0
-        if sessionMode == .automatic, let next = currentCard, next.type.isTimed {
-            // keep running into next timed card
-        } else if sessionMode == .automatic, let next = currentCard, next.type.isActionOnly {
-            // pause at action cards so user can act
+        if sessionMode == .automatic, let next = currentCard, next.type.isActionOnly {
             pause()
         }
+    }
+
+    func goBack() {
+        guard currentIndex > 0 else { return }
+        currentIndex -= 1
+        elapsed = actualDurations[cards[currentIndex].id] ?? 0
+    }
+
+    func resetTimer() {
+        elapsed = 0
+    }
+
+    // MARK: - Bake step
+
+    func enterBakeStep() {
+        isInBakeStep = true
+    }
+
+    func startBaking() {
+        bakingStarted = true
+        bakeTimer = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.bakeElapsed += 1
+            }
+    }
+
+    func stopBaking() {
+        bakeTimer?.cancel()
+    }
+
+    func resetBakeTimer() {
+        bakeElapsed = 0
     }
 
     func logPH(_ value: Double) {

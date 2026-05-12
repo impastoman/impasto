@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var sessionManager: SessionManager
     @State private var showNewMenu = false
     @State private var showWizard = false
     @State private var showBlendBuilder = false
@@ -10,12 +11,15 @@ struct HomeView: View {
     @State private var showMainApp = false
     @State private var showStartDough = false
     @State private var splashDone = false
+    @State private var resumedSession: SessionViewModel? = nil
 
     private let appVersion = "0.6"
 
     var body: some View {
         if showMainApp {
-            MainTabView(onGoHome: { showMainApp = false }).environmentObject(store)
+            MainTabView(onGoHome: { showMainApp = false })
+                .environmentObject(store)
+                .environmentObject(sessionManager)
         } else {
             launch
         }
@@ -41,22 +45,57 @@ struct HomeView: View {
 
                 Spacer()
 
-                if splashDone, let active = store.activeRecipe {
-                    VStack(spacing: 10) {
-                        Text("last session")
-                            .font(.system(size: 9, design: .monospaced))
-                            .foregroundColor(Color(hex: "9A9688"))
-                            .tracking(2)
-                        Text(active.name)
-                            .font(.system(size: 15, design: .monospaced))
-                            .foregroundColor(Color(hex: "2C2A24"))
-                        Button("▶  Continue") { showMainApp = true }
+                if splashDone {
+                    // Active hidden sessions
+                    ForEach(sessionManager.sessions) { vm in
+                        VStack(spacing: 8) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("Session in progress")
+                                        .font(.system(size: 9, design: .monospaced))
+                                        .foregroundColor(Color(hex: "9A9688"))
+                                        .tracking(2)
+                                    Text(vm.recipe.name)
+                                        .font(.system(size: 15, design: .monospaced))
+                                        .foregroundColor(Color(hex: "2C2A24"))
+                                    Text("Step \(vm.currentIndex + 1) of \(vm.cards.count) · \(vm.recipe.method.rawValue)")
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .foregroundColor(Color(hex: "9A9688"))
+                                }
+                                Spacer()
+                                Circle()
+                                    .fill(Color.orange)
+                                    .frame(width: 8, height: 8)
+                            }
+                            Button("▶  Resume Session") {
+                                vm.isHidden = false
+                                resumedSession = vm
+                            }
                             .buttonStyle(ImpastoButtonStyle(filled: true))
+                        }
+                        .padding(16)
+                        .background(Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.orange.opacity(0.4), lineWidth: 1))
+                        .cornerRadius(8)
                     }
-                    .padding(16)
-                    .background(Color.white)
-                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
-                    .cornerRadius(8)
+
+                    if let active = store.activeRecipe, sessionManager.sessions.isEmpty {
+                        VStack(spacing: 10) {
+                            Text("last session")
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundColor(Color(hex: "9A9688"))
+                                .tracking(2)
+                            Text(active.name)
+                                .font(.system(size: 15, design: .monospaced))
+                                .foregroundColor(Color(hex: "2C2A24"))
+                            Button("▶  Continue") { showMainApp = true }
+                                .buttonStyle(ImpastoButtonStyle(filled: true))
+                        }
+                        .padding(16)
+                        .background(Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                        .cornerRadius(8)
+                    }
                 }
 
                 if splashDone {
@@ -113,6 +152,12 @@ struct HomeView: View {
         .sheet(isPresented: $showStartDough) {
             StartDoughView()
                 .environmentObject(store)
+                .environmentObject(sessionManager)
+        }
+        .fullScreenCover(item: $resumedSession) { vm in
+            LiveSessionView(vm: vm)
+                .environmentObject(store)
+                .environmentObject(sessionManager)
         }
     }
 }

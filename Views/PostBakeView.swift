@@ -5,6 +5,7 @@ struct PostBakeView: View {
     @ObservedObject var vm: SessionViewModel
     let recipe: Recipe
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
 
     @State private var bakeTimeOverride: String = ""
@@ -51,7 +52,10 @@ struct PostBakeView: View {
                 bottomResult: bottomResult,
                 topResult: topResult,
                 photoData: photoData,
-                onEndSession: { dismiss() }
+                onEndSession: {
+                    sessionManager.end(vm)
+                    dismiss()
+                }
             )
             .environmentObject(store)
         }

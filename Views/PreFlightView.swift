@@ -5,10 +5,12 @@ struct PreFlightView: View {
     @EnvironmentObject var store: RecipeStore
     @Environment(\.dismiss) private var dismiss
 
+    @EnvironmentObject var sessionManager: SessionManager
     @State private var data = PreFlightData()
     @State private var showConflictAlert = false
     @State private var showSession = false
     @State private var showChecklist = false
+    @State private var activeVM: SessionViewModel? = nil
     @State private var useCelsius = true
     @State private var weightUnit: WeightUnit = .grams
 
@@ -68,15 +70,27 @@ struct PreFlightView: View {
                 IngredientsChecklistView(recipe: resolvedRecipe)
             }
             .alert("Time Conflict", isPresented: $showConflictAlert) {
-                Button("Proceed Anyway") { showSession = true }
+                Button("Proceed Anyway") {
+                    activeVM = sessionManager.start(recipe: resolvedRecipe, preFlight: data)
+                    showSession = true
+                }
                 Button("Choose Another Recipe", role: .cancel) { dismiss() }
             } message: {
                 Text("\(recipe.method.rawValue) needs at least \(Int(recipe.method.minimumHours))h but your \(recipe.timeline.rawValue) window (\(recipe.timeline.hours)) may not be enough if the preferment hasn't started.")
             }
         }
-        .fullScreenCover(isPresented: $showSession) {
-            LiveSessionView(recipe: resolvedRecipe, preFlight: data)
-                .environmentObject(store)
+        .fullScreenCover(isPresented: $showSession, onDismiss: {
+            // Clean up session only if it wasn't hidden (hidden sessions stay in SessionManager)
+            if let vm = activeVM, !vm.isHidden {
+                sessionManager.end(vm)
+                activeVM = nil
+            }
+        }) {
+            if let vm = activeVM {
+                LiveSessionView(vm: vm)
+                    .environmentObject(store)
+                    .environmentObject(sessionManager)
+            }
         }
     }
 
@@ -268,7 +282,10 @@ struct PreFlightView: View {
     var beginButton: some View {
         Button("Begin Session →") {
             if timeConflict { showConflictAlert = true }
-            else { showSession = true }
+            else {
+                activeVM = sessionManager.start(recipe: resolvedRecipe, preFlight: data)
+                showSession = true
+            }
         }
         .buttonStyle(ImpastoButtonStyle(filled: true))
         .padding(.horizontal, 20).padding(.vertical, 12)
