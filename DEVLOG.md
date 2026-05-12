@@ -231,6 +231,20 @@ A record of what's been built, why, and the decisions that shaped it.
 
 ---
 
+## v0.8 — Queued
+
+**Preferment depth in wizard (MethodStepView):**
+- Preferment ratio slider (1–99%, default ~20–30%) — what percentage of total flour goes into the preferment
+- Separate flour blend scoped to the preferment — own `FlourComponentRow` and `AdditiveRow` entries, independent from the main dough blend
+- `SavedPreferment` model gains `flourBlend: FlourBlend` and `ratioPercent: Double` — saves and loads the full preferment spec including its blend
+
+**Design notes:**
+- Ratio slider follows the existing "slider for exploration, field for precision" pattern — tap the value to type an exact number
+- Preferment flour blend should be collapsible — most users will use the same flour throughout; the blend picker only expands if they want to specify
+- `ConfirmStepView` preferment section should show the blend breakdown and ratio alongside hydration
+
+---
+
 ## v0.6 — Edit/Fork, Session Architecture, Bake Flow
 *The big refinement pass*
 
