@@ -21,7 +21,10 @@ enum ProcessCardType: String, Codable, CaseIterable {
     case incorporateSalt
     case bassinage
     case kneading
+    case rest
+    case stretchAndFold
     case bulkFermentation
+    case coldFerment
     case divide
     case preShape
     case benchRest
@@ -37,7 +40,10 @@ enum ProcessCardType: String, Codable, CaseIterable {
         case .incorporateSalt:   return "Add salt"
         case .bassinage:         return "Bassinage"
         case .kneading:          return "Kneading"
+        case .rest:              return "Rest"
+        case .stretchAndFold:    return "Stretch & Fold"
         case .bulkFermentation:  return "Bulk fermentation"
+        case .coldFerment:       return "Cold ferment"
         case .divide:            return "Divide"
         case .preShape:          return "Pre-shape"
         case .benchRest:         return "Bench rest"
@@ -55,7 +61,10 @@ enum ProcessCardType: String, Codable, CaseIterable {
         case .incorporateSalt:   return "dissolved in reserved water"
         case .bassinage:         return "gradual water addition"
         case .kneading:          return "gluten development"
+        case .rest:              return "dough rest"
+        case .stretchAndFold:    return "every 20–30 min"
         case .bulkFermentation:  return "with stretch & fold intervals"
+        case .coldFerment:       return "refrigerated"
         case .divide:            return "scale and portion"
         case .preShape:          return "rough ball, surface tension"
         case .benchRest:         return "gluten relaxation"
@@ -73,7 +82,10 @@ enum ProcessCardType: String, Codable, CaseIterable {
         case .incorporateSalt:   return 0
         case .bassinage:         return 0
         case .kneading:          return 12 * 60
+        case .rest:              return 5 * 60
+        case .stretchAndFold:    return 60 * 60
         case .bulkFermentation:  return 4 * 3600
+        case .coldFerment:       return 36 * 3600
         case .divide:            return 0
         case .preShape:          return 0
         case .benchRest:         return 20 * 60
@@ -93,6 +105,15 @@ enum ProcessCardType: String, Codable, CaseIterable {
             return true
         default:
             return false
+        }
+    }
+
+    var isInDefaultSet: Bool {
+        switch self {
+        case .rest, .stretchAndFold, .coldFerment, .freeform:
+            return false
+        default:
+            return true
         }
     }
 

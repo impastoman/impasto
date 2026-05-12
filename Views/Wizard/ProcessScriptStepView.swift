@@ -232,11 +232,6 @@ struct ProcessCardRow: View {
                         ))
                         .font(.system(.body, design: .monospaced))
                     }
-                    if !card.subtitle.isEmpty {
-                        Text(card.subtitle)
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundColor(.secondary)
-                    }
                 }
 
                 Spacer()
@@ -337,30 +332,29 @@ struct AddStepSheet: View {
     let onAdd: (ProcessCard) -> Void
     @Environment(\.dismiss) private var dismiss
 
-    var addableTypes: [ProcessCardType] {
-        let rest = ProcessCardType.allCases.filter { $0 != .bake && $0 != .combine && $0 != .freeform }
-        return [.freeform] + rest
+    var primaryTypes: [ProcessCardType] {
+        [.rest, .stretchAndFold, .coldFerment, .freeform]
+    }
+
+    var standardTypes: [ProcessCardType] {
+        ProcessCardType.allCases.filter { $0.isInDefaultSet && $0 != .bake && $0 != .combine }
     }
 
     var body: some View {
         NavigationStack {
             List {
-                Section("Add a process step") {
-                    ForEach(addableTypes, id: \.self) { type in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(type.title).font(.headline)
-                                if !type.subtitle.isEmpty {
-                                    Text(type.subtitle).font(.caption).foregroundColor(.secondary)
-                                }
-                            }
-                            Spacer()
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            onAdd(ProcessCard(type: type))
-                            dismiss()
-                        }
+                Section("Extra steps") {
+                    ForEach(primaryTypes, id: \.self) { type in
+                        Text(type.title).font(.system(.body, design: .monospaced))
+                            .contentShape(Rectangle())
+                            .onTapGesture { onAdd(ProcessCard(type: type)); dismiss() }
+                    }
+                }
+                Section("Standard steps") {
+                    ForEach(standardTypes, id: \.self) { type in
+                        Text(type.title).font(.system(.body, design: .monospaced))
+                            .contentShape(Rectangle())
+                            .onTapGesture { onAdd(ProcessCard(type: type)); dismiss() }
                     }
                 }
             }

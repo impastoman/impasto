@@ -166,8 +166,6 @@ struct LiveSessionView: View {
             if let card = vm.currentCard {
                 Text(card.title.uppercased())
                     .font(.system(size: 10, design: .monospaced)).tracking(2).foregroundColor(.secondary)
-                Text(card.subtitle)
-                    .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
 
                 Text(timeString(displayTime))
                     .font(.system(size: 56, design: .serif))
@@ -265,8 +263,14 @@ struct LiveSessionView: View {
                     promptRow(icon: "hand.raised", color: .secondary, text: "Slap & fold technique recommended at this hydration. Wet hands throughout.")
                 }
                 promptRow(icon: "checkmark.circle", color: Color(hex: "D2B96A"), text: "Windowpane test at target time: stretch thin — should be translucent without tearing.")
+            case .rest:
+                promptRow(icon: "timer", color: .secondary, text: "Cover and let the dough rest undisturbed.")
+            case .stretchAndFold:
+                promptRow(icon: "arrow.up.arrow.down", color: .secondary, text: "Stretch and fold, then cover and rest 20 min. Repeat each round within the timer.")
             case .bulkFermentation:
                 promptRow(icon: "arrow.up.arrow.down", color: .secondary, text: "Perform stretch & fold sets every 30 min for the first 2 hours (4 sets total).")
+            case .coldFerment:
+                promptRow(icon: "snowflake", color: .blue, text: "Keep refrigerated until final proof. Do not freeze.")
             case .preShape:
                 promptRow(icon: "circle", color: .secondary, text: "Shape into rough balls. Surface tension should feel taut.")
             case .benchRest:

@@ -18,7 +18,7 @@ class RecipeStore: ObservableObject {
     private let sprefsKey     = "impasto_saved_preferments_v1"
     private let customTagsKey = "impasto_custom_tags_v1"
 
-    init() { load() }
+    init() { load(); seedDefaultsIfNeeded() }
 
     var activeRecipe: Recipe? {
         guard let id = activeRecipeId else { return nil }
