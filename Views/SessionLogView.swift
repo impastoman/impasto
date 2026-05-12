@@ -13,10 +13,13 @@ struct SessionLogView: View {
     @EnvironmentObject var store: RecipeStore
     @Environment(\.dismiss) private var dismiss
 
+    var onEndSession: (() -> Void)? = nil
+
     @State private var rating = 3
     @State private var crustTags: Set<CrustTag> = []
     @State private var crumbTags: Set<CrumbTag> = []
     @State private var notes = ""
+    @State private var saved = false
 
     init(vm: SessionViewModel, recipe: Recipe,
          bakeTimeSeconds: TimeInterval = 0,
@@ -24,7 +27,8 @@ struct SessionLogView: View {
          crustColor: CrustColor = .even,
          bottomResult: BottomResult = .good,
          topResult: TopResult = .good,
-         photoData: Data? = nil) {
+         photoData: Data? = nil,
+         onEndSession: (() -> Void)? = nil) {
         self.vm = vm
         self.recipe = recipe
         self.bakeTimeSeconds = bakeTimeSeconds
@@ -33,6 +37,7 @@ struct SessionLogView: View {
         self.bottomResult = bottomResult
         self.topResult = topResult
         self.photoData = photoData
+        self.onEndSession = onEndSession
     }
 
     var body: some View {
@@ -166,9 +171,27 @@ struct SessionLogView: View {
 
     var saveSection: some View {
         Section {
-            Button("Save to History") { save() }
+            if saved {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Saved to \(recipe.name)")
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundColor(Color(hex: "D2B96A"))
+                .padding(.vertical, 4)
+
+                Button("End Session") {
+                    dismiss()
+                    onEndSession?()
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .foregroundColor(.primary)
+            } else {
+                Button("Save to History") { save() }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .foregroundColor(Color(hex: "D2B96A"))
+            }
         }
     }
 
@@ -186,7 +209,7 @@ struct SessionLogView: View {
             photoData: photoData
         )
         store.addBakeLog(log, to: recipe.id)
-        dismiss()
+        saved = true
     }
 
     func shortTime(_ t: TimeInterval) -> String {
@@ -239,7 +262,7 @@ struct TagChip: View {
         Text(label)
             .font(.system(size: 12, design: .monospaced))
             .padding(.horizontal, 10).padding(.vertical, 5)
-            .background(selected ? Color(hex: "D2B96A").opacity(0.18) : Color(hex: "1A1B18"))
+            .background(selected ? Color(hex: "D2B96A").opacity(0.18) : Color(hex: "ECEAE3"))
             .foregroundColor(selected ? Color(hex: "D2B96A") : .secondary)
             .cornerRadius(5)
             .onTapGesture(perform: onTap)

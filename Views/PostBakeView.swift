@@ -50,7 +50,8 @@ struct PostBakeView: View {
                 crustColor: crustColor,
                 bottomResult: bottomResult,
                 topResult: topResult,
-                photoData: photoData
+                photoData: photoData,
+                onEndSession: { dismiss() }
             )
             .environmentObject(store)
         }

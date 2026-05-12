@@ -62,6 +62,16 @@ struct LiveSessionView: View {
         }
     }
 
+    var isCountdown: Bool {
+        vm.preFlight.sessionMode == .automatic &&
+        (vm.currentCard?.type.isTimed == true) &&
+        vm.targetDuration > 0
+    }
+
+    var displayTime: TimeInterval {
+        isCountdown ? max(0, vm.targetDuration - vm.elapsed) : vm.elapsed
+    }
+
     var timerBlock: some View {
         VStack(spacing: 6) {
             if let card = vm.currentCard {
@@ -69,12 +79,12 @@ struct LiveSessionView: View {
                     .font(.system(size: 10, design: .monospaced)).tracking(2).foregroundColor(.secondary)
                 Text(card.subtitle)
                     .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
-                Text(timeString(vm.elapsed))
+                Text(timeString(displayTime))
                     .font(.system(size: 56, design: .serif)).foregroundColor(Color(hex: "E8D49A"))
                 if card.type.isTimed && vm.targetDuration > 0 {
                     ProgressView(value: vm.progress)
                         .tint(Color(hex: "D2B96A")).padding(.horizontal, 40)
-                    Text("Target: \(timeString(vm.targetDuration))")
+                    Text(isCountdown ? "of \(timeString(vm.targetDuration))" : "Target: \(timeString(vm.targetDuration))")
                         .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
                 }
                 if vm.preFlight.sessionMode == .automatic && !vm.isRunning && !vm.isLastCard {
@@ -116,15 +126,15 @@ struct LiveSessionView: View {
                 VStack(spacing: 8) {
                     ForEach(rows, id: \.0) { label, value in
                         HStack {
-                            Text(label).foregroundColor(.secondary)
+                            Text(label).foregroundColor(Color(hex: "9A9688"))
                             Spacer()
-                            Text(value).fontWeight(.medium)
+                            Text(value).foregroundColor(Color(hex: "2C2A24")).fontWeight(.medium)
                         }
                         .font(.system(size: 14, design: .monospaced))
                     }
                 }
                 .padding(14)
-                .background(Color(hex: "1A1B18"))
+                .background(Color(hex: "F0EDE4"))
                 .cornerRadius(8)
             }
         }
@@ -196,13 +206,13 @@ struct LiveSessionView: View {
                 Button("Done Baking") { showPostBake = true }
                     .buttonStyle(ImpastoButtonStyle(filled: true))
             } else {
-                if vm.preFlight.sessionMode == .manual || (vm.currentCard?.type.isActionOnly == true) {
-                    Button("Next Step →") { vm.completeCard() }
-                        .buttonStyle(ImpastoButtonStyle(filled: true))
-                } else if !vm.isRunning {
+                if vm.preFlight.sessionMode == .automatic && !vm.isRunning {
                     Button("Resume") { vm.resume() }
-                        .buttonStyle(ImpastoButtonStyle(filled: true))
+                        .buttonStyle(ImpastoButtonStyle(filled: false))
                 }
+                let isTimedAuto = vm.preFlight.sessionMode == .automatic && vm.currentCard?.type.isActionOnly == false
+                Button(isTimedAuto ? "Skip →" : "Next Step →") { vm.completeCard() }
+                    .buttonStyle(ImpastoButtonStyle(filled: true))
             }
         }
     }
