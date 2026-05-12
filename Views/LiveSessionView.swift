@@ -9,6 +9,7 @@ struct LiveSessionView: View {
     @State private var showPostBake = false
     @State private var showRecipeSheet = false
     @State private var showPizzaLog = false
+    @State private var showEndBakingAlert = false
     @State private var sessionNotes: [UUID: String] = [:]
 
     var recipe: Recipe { vm.recipe }
@@ -73,6 +74,11 @@ struct LiveSessionView: View {
             }
             .environmentObject(store)
             .environmentObject(sessionManager)
+        }
+        .onChange(of: sessionManager.sessions.count) { _, _ in
+            if !sessionManager.sessions.contains(where: { $0 === vm }) {
+                dismiss()
+            }
         }
         .sheet(isPresented: $showRecipeSheet) {
             NavigationStack {
@@ -388,19 +394,18 @@ struct LiveSessionView: View {
                 }
                 .buttonStyle(ImpastoButtonStyle(filled: false))
 
-                Text("Long-press to end bake")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundColor(.secondary)
-
                 Button("End Baking") {
-                    // placeholder — long press handled below
+                    showEndBakingAlert = true
                 }
                 .buttonStyle(ImpastoButtonStyle(filled: true))
-                .onLongPressGesture(minimumDuration: 0.8) {
-                    let gen = UIImpactFeedbackGenerator(style: .heavy)
-                    gen.impactOccurred()
-                    vm.stopBaking()
-                    showPostBake = true
+                .confirmationDialog("End baking?", isPresented: $showEndBakingAlert, titleVisibility: .visible) {
+                    Button("End Baking", role: .destructive) {
+                        let gen = UIImpactFeedbackGenerator(style: .medium)
+                        gen.impactOccurred()
+                        vm.stopBaking()
+                        showPostBake = true
+                    }
+                    Button("Cancel", role: .cancel) { }
                 }
             } else {
                 Button("Start Baking") {

@@ -16,6 +16,7 @@ struct SessionLogView: View {
     var onEndSession: (() -> Void)? = nil
 
     @State private var rating = 3
+    @State private var showGoHomeAlert = false
     @State private var crustTags: Set<CrustTag> = []
     @State private var crumbTags: Set<CrumbTag> = []
     @State private var customCrustTags: Set<String> = []
@@ -24,7 +25,6 @@ struct SessionLogView: View {
     @State private var showNewCrumbTag = false
     @State private var newTagText = ""
     @State private var notes = ""
-    @State private var saved = false
 
     init(vm: SessionViewModel, recipe: Recipe,
          bakeTimeSeconds: TimeInterval = 0,
@@ -228,27 +228,19 @@ struct SessionLogView: View {
 
     var saveSection: some View {
         Section {
-            if saved {
-                HStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
-                    Text("Saved to \(recipe.name)")
-                        .font(.system(size: 13, design: .monospaced))
-                        .foregroundColor(Color(hex: "D2B96A"))
-                }
+            Button("Save to History") { save() }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, 4)
+                .foregroundColor(Color(hex: "D2B96A"))
 
-                Button("End Session") {
-                    dismiss()
-                    onEndSession?()
-                }
+            Button("↩ Go Home") { showGoHomeAlert = true }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundColor(.primary)
-            } else {
-                Button("Save to History") { save() }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(Color(hex: "D2B96A"))
-            }
+                .foregroundColor(.secondary)
+                .font(.system(size: 13, design: .monospaced))
+        }
+        .confirmationDialog("Save before leaving?", isPresented: $showGoHomeAlert, titleVisibility: .visible) {
+            Button("Save to history") { save() }
+            Button("Leave without saving", role: .destructive) { onEndSession?() }
+            Button("Cancel", role: .cancel) { }
         }
     }
 
@@ -268,7 +260,7 @@ struct SessionLogView: View {
             photoData: photoData
         )
         store.addBakeLog(log, to: recipe.id)
-        saved = true
+        onEndSession?()
     }
 
     func shortTime(_ t: TimeInterval) -> String {
