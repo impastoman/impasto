@@ -231,6 +231,62 @@ A record of what's been built, why, and the decisions that shaped it.
 
 ---
 
+## Import Recipe — Queued (version TBD)
+
+**Entry point:** The `↑ Import Recipe` button on the home screen (currently a no-op placeholder) opens a sheet with two paths: **Load Impasto File** and **Transcribe a Recipe**. The transcription path is detailed below.
+
+---
+
+**Transcribe a Recipe — manual entry flow**
+
+Intent: allow users to enter a recipe they found online or in a book, including volume-based measurements, and convert it into Impasto's weight/percentage-based model. Deliberately simpler than the New Recipe wizard — anyone going through this flow is translating an existing recipe, not designing from scratch.
+
+*Step 1 — Total dough*
+- Single field: total dough quantity (fillable number + unit dropdown: g / oz / lb)
+- This anchors the scaling math for everything that follows
+
+*Step 2 — Flour & Water*
+- Flour: fillable number + unit dropdown (g / oz / lb / cup)
+- Water: fillable number + unit dropdown (g / oz / lb / ml / cup / fl oz)
+- If either field uses a volume unit, show an inline warning:
+  > "Volume measurements are converted using standard averages (flour ~125g/cup, water 240g/cup). Weigh your ingredients for an exact recipe."
+- Flour type picker: same `FlourType` list used in the wizard (bread, 00, AP, whole wheat, etc.)
+- If multiple flour types, user can add rows — same `FlourComponentRow` pattern, must sum to 100%
+
+*Step 3 — Salt, Yeast, Additives*
+- Salt: fillable number + unit dropdown (g / oz / tsp / tbsp)
+- Yeast: fillable number + unit dropdown (g / oz / tsp / tbsp) + yeast type picker (active dry / instant / fresh)
+- Additional additives: same additive list used in the wizard (vital wheat gluten, diastatic malt, ascorbic acid, etc.) — user can add rows, each with number + unit dropdown
+- Same volume conversion warning if any non-weight unit is selected
+
+*Step 4 — Process*
+- Process picker using the same `ProcessScriptStepView` / process builder
+- Kept intentionally lightweight: pick a saved process or build a simple one
+- No bake setup, no preferment, no timeline in this flow — those can be added later via Edit Recipe in the wizard
+
+*Completion*
+- "Open in Wizard →" hands off to `WizardContainerView` with `.fork(recipe)` mode pre-populated from the transcription data
+- User lands at ConfirmStep to review before saving — they can jump to any step to refine
+- Alternatively, "Save Directly" skips the wizard review and saves to library as-is
+
+**Volume conversion reference (use these constants):**
+- Flour (all-purpose / bread / 00): 125g/cup
+- Whole wheat flour: 120g/cup
+- Water: 240g/cup (exact)
+- Salt (fine sea / kosher): 6g/tsp
+- Active dry yeast: 3g/tsp
+- Instant yeast: 3g/tsp
+- Fresh yeast: ~6g/tsp (roughly 2× instant by weight)
+- 1 tbsp = 3 tsp
+
+**Design constraints:**
+- No rise method, hydration slider, or timeline — those belong in the wizard and can be added post-import
+- Volume warning is informational only — user can proceed without weighing; the flag is logged so `ConfirmStep` can surface it
+- Flour blend must still sum to 100% before proceeding (same locked-Next rule as wizard)
+- Additives are always "on top of" flour weight — never part of the 100% anchor
+
+---
+
 ## v0.8 — Queued
 
 **Preferment depth in wizard (MethodStepView):**
