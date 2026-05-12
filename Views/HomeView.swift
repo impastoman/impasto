@@ -156,6 +156,12 @@ struct HomeView: View {
                 .environmentObject(store)
                 .environmentObject(sessionManager)
         }
+        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
+            guard isTrue else { return }
+            showStartDough = false
+            showMainApp = false
+            sessionManager.shouldReturnHome = false
+        }
     }
 }
 

@@ -13,6 +13,7 @@ struct LibraryView: View {
     @State private var editingBlend: FlourBlend? = nil
     @State private var editingProcess: SavedProcess? = nil
     @State private var editingPreferment: SavedPreferment? = nil
+    @State private var isReordering = false
 
     var body: some View {
         NavigationStack {
@@ -22,6 +23,7 @@ struct LibraryView: View {
                 processesSection
                 prefermentsSection
             }
+            .environment(\.editMode, .constant(isReordering ? .active : .inactive))
             .navigationTitle("Library")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -30,6 +32,13 @@ struct LibraryView: View {
                             .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(isReordering ? "Done" : "Reorder") {
+                        isReordering.toggle()
+                    }
+                    .foregroundColor(isReordering ? Color(hex: "D2B96A") : .secondary)
+                    .font(.system(size: 13, design: .monospaced))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showAddMenu = true } label: { Image(systemName: "plus") }
@@ -86,69 +95,102 @@ struct LibraryView: View {
         }
     }
 
+    // MARK: - Recipes (folder-grouped for onMove support)
+
+    @ViewBuilder
     var recipesSection: some View {
-        Section {
-            if store.recipes.isEmpty {
+        let grouped = Dictionary(grouping: store.recipes) { $0.folderName }
+        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let unfoldered = grouped[""] ?? []
+
+        if store.recipes.isEmpty {
+            Section(header: Text("Recipes")) {
                 Text("No recipes yet — tap + to create one.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
-            } else {
-                ForEach(store.recipes) { recipe in
-                    NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
-                        RecipeRowView(recipe: recipe)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) { recipeToDelete = recipe } label: {
-                            Label("Delete", systemImage: "trash")
+            }
+        } else {
+            if !unfoldered.isEmpty || folders.isEmpty {
+                Section(header: Text("Recipes")) {
+                    ForEach(unfoldered) { recipe in
+                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                            RecipeRowView(recipe: recipe)
                         }
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) { recipeToDelete = recipe } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                    }
+                    .onMove { src, dst in
+                        store.moveRecipes(inFolder: "", from: src, to: dst)
                     }
                 }
             }
-        } header: { Text("Recipes") }
+            ForEach(folders, id: \.self) { folder in
+                let items = grouped[folder] ?? []
+                Section(header: folderHeader("Recipes", folder: folder)) {
+                    ForEach(items) { recipe in
+                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                            RecipeRowView(recipe: recipe)
+                        }
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) { recipeToDelete = recipe } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                    }
+                    .onMove { src, dst in
+                        store.moveRecipes(inFolder: folder, from: src, to: dst)
+                    }
+                }
+            }
+        }
     }
 
+    // MARK: - Blends (folder-grouped for onMove support)
+
+    @ViewBuilder
     var blendsSection: some View {
-        Section {
-            if store.savedBlends.isEmpty {
+        let grouped = Dictionary(grouping: store.savedBlends) { $0.folderName }
+        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let unfoldered = grouped[""] ?? []
+
+        if store.savedBlends.isEmpty {
+            Section(header: Text("Flour Blends")) {
                 Text("No saved blends yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
-            } else {
-                let grouped = Dictionary(grouping: store.savedBlends) { $0.folderName }
-                let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
-                let unfoldered = grouped[""] ?? []
-
-                ForEach(unfoldered) { blend in
-                    blendRow(blend)
-                }
-                ForEach(folders, id: \.self) { folder in
-                    DisclosureGroup(folder) {
-                        ForEach(grouped[folder] ?? []) { blend in
-                            blendRow(blend)
-                        }
-                    }
-                    .font(.system(size: 13, design: .monospaced))
-                    .foregroundColor(.secondary)
+            }
+        } else {
+            if !unfoldered.isEmpty || folders.isEmpty {
+                Section(header: Text("Flour Blends")) {
+                    ForEach(unfoldered) { blend in blendRow(blend) }
+                        .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
                 }
             }
-        } header: { Text("Flour Blends") }
+            ForEach(folders, id: \.self) { folder in
+                let items = grouped[folder] ?? []
+                Section(header: folderHeader("Flour Blends", folder: folder)) {
+                    ForEach(items) { blend in blendRow(blend) }
+                        .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
+                }
+            }
+        }
     }
 
     func blendRow(_ blend: FlourBlend) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
-                .font(.system(.body, design: .monospaced))
-            Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 2)
-        .swipeActions(edge: .leading) {
-            Button { editingBlend = blend } label: {
-                Label("Edit", systemImage: "pencil")
+        Button { editingBlend = blend } label: {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundColor(.primary)
+                Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
-            .tint(.blue)
+            .padding(.vertical, 2)
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteBlend(blend) } label: {
@@ -157,47 +199,48 @@ struct LibraryView: View {
         }
     }
 
+    // MARK: - Processes (folder-grouped for onMove support)
+
+    @ViewBuilder
     var processesSection: some View {
-        Section {
-            if store.savedProcesses.isEmpty {
+        let grouped = Dictionary(grouping: store.savedProcesses) { $0.folderName }
+        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let unfoldered = grouped[""] ?? []
+
+        if store.savedProcesses.isEmpty {
+            Section(header: Text("Processes")) {
                 Text("No saved processes yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
-            } else {
-                let grouped = Dictionary(grouping: store.savedProcesses) { $0.folderName }
-                let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
-                let unfoldered = grouped[""] ?? []
-
-                ForEach(unfoldered) { process in
-                    processRow(process)
-                }
-                ForEach(folders, id: \.self) { folder in
-                    DisclosureGroup(folder) {
-                        ForEach(grouped[folder] ?? []) { process in
-                            processRow(process)
-                        }
-                    }
-                    .font(.system(size: 13, design: .monospaced))
-                    .foregroundColor(.secondary)
+            }
+        } else {
+            if !unfoldered.isEmpty || folders.isEmpty {
+                Section(header: Text("Processes")) {
+                    ForEach(unfoldered) { process in processRow(process) }
+                        .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
                 }
             }
-        } header: { Text("Processes") }
+            ForEach(folders, id: \.self) { folder in
+                let items = grouped[folder] ?? []
+                Section(header: folderHeader("Processes", folder: folder)) {
+                    ForEach(items) { process in processRow(process) }
+                        .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
+                }
+            }
+        }
     }
 
     func processRow(_ process: SavedProcess) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(process.name.isEmpty ? "Untitled Process" : process.name)
-                .font(.system(.body, design: .monospaced))
-            Text("\(process.cards.count) steps")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .padding(.vertical, 2)
-        .swipeActions(edge: .leading) {
-            Button { editingProcess = process } label: {
-                Label("Edit", systemImage: "pencil")
+        Button { editingProcess = process } label: {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(process.name.isEmpty ? "Untitled Process" : process.name)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundColor(.primary)
+                Text("\(process.cards.count) steps")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
-            .tint(.blue)
+            .padding(.vertical, 2)
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteProcess(process) } label: {
@@ -206,52 +249,60 @@ struct LibraryView: View {
         }
     }
 
+    // MARK: - Preferments (folder-grouped for onMove support)
+
+    @ViewBuilder
     var prefermentsSection: some View {
-        Section {
-            if store.savedPreferments.isEmpty {
+        let grouped = Dictionary(grouping: store.savedPreferments) { $0.folderName }
+        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let unfoldered = grouped[""] ?? []
+
+        if store.savedPreferments.isEmpty {
+            Section(header: Text("Preferments")) {
                 Text("No saved preferments yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
-            } else {
-                let grouped = Dictionary(grouping: store.savedPreferments) { $0.folderName }
-                let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
-                let unfoldered = grouped[""] ?? []
-
-                ForEach(unfoldered) { pref in
-                    prefermentRow(pref)
-                }
-                ForEach(folders, id: \.self) { folder in
-                    DisclosureGroup(folder) {
-                        ForEach(grouped[folder] ?? []) { pref in
-                            prefermentRow(pref)
-                        }
-                    }
-                    .font(.system(size: 13, design: .monospaced))
-                    .foregroundColor(.secondary)
+            }
+        } else {
+            if !unfoldered.isEmpty || folders.isEmpty {
+                Section(header: Text("Preferments")) {
+                    ForEach(unfoldered) { pref in prefermentRow(pref) }
+                        .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
                 }
             }
-        } header: { Text("Preferments") }
+            ForEach(folders, id: \.self) { folder in
+                let items = grouped[folder] ?? []
+                Section(header: folderHeader("Preferments", folder: folder)) {
+                    ForEach(items) { pref in prefermentRow(pref) }
+                        .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
+                }
+            }
+        }
     }
 
     func prefermentRow(_ pref: SavedPreferment) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
-                .font(.system(.body, design: .monospaced))
-            Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%  ·  \(Int(pref.ratioPercent * 100))% ratio")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .padding(.vertical, 2)
-        .swipeActions(edge: .leading) {
-            Button { editingPreferment = pref } label: {
-                Label("Edit", systemImage: "pencil")
+        Button { editingPreferment = pref } label: {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundColor(.primary)
+                Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
-            .tint(.blue)
+            .padding(.vertical, 2)
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
                 Label("Delete", systemImage: "trash")
             }
+        }
+    }
+
+    func folderHeader(_ type: String, folder: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "folder").font(.caption2)
+            Text(folder)
         }
     }
 }

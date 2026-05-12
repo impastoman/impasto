@@ -34,19 +34,21 @@ struct PizzaLogView: View {
                 visualSection
                 tagsSection
                 notesSection
+                logAndReturnSection
             }
-            .navigationTitle("Log Pizza")
+            .navigationTitle("Log Pizza #\(vm.pizzaEntries.count + 1)")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { snapshotBakeTime = vm.bakeElapsed }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Return to Baking") {
+                    Button("← Back") {
                         onReturnToBaking()
                     }
                     .foregroundColor(.secondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("End Bake →") {
+                        savePizzaEntry()
                         onEndBake()
                     }
                     .foregroundColor(Color(hex: "D2B96A"))
@@ -206,6 +208,35 @@ struct PizzaLogView: View {
                 .font(.system(size: 13, design: .monospaced))
                 .lineLimit(3...)
         }
+    }
+
+    var logAndReturnSection: some View {
+        Section {
+            Button("Log & Return to Baking") {
+                savePizzaEntry()
+                onReturnToBaking()
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .foregroundColor(Color(hex: "D2B96A"))
+        }
+    }
+
+    func savePizzaEntry() {
+        let entry = PizzaEntry(
+            pizzaNumber: vm.pizzaEntries.count + 1,
+            bakeTimeSeconds: snapshotBakeTime,
+            ovenTempAchieved: Double(ovenTempInput),
+            crustColor: crustColor,
+            bottomResult: bottomResult,
+            topResult: topResult,
+            crustTags: Array(crustTags),
+            crumbTags: Array(crumbTags),
+            customCrustTags: Array(customCrustTags),
+            customCrumbTags: Array(customCrumbTags),
+            notes: notes,
+            photoData: photoData
+        )
+        vm.logPizza(entry)
     }
 
     var bakeTimeDisplay: String {

@@ -29,6 +29,7 @@ struct Recipe: Identifiable, Codable {
     var customStyleName: String
     var notes: String
     var bakeLogs: [BakeLog]
+    var folderName: String
 
     init(
         name: String,
@@ -66,6 +67,7 @@ struct Recipe: Identifiable, Codable {
         self.customStyleName = ""
         self.notes = ""
         self.bakeLogs = []
+        self.folderName = ""
         self.flourBlend = FlourBlend()
         self.prefermentFlourBlend = FlourBlend()
         self.bakeSetups = []
@@ -98,6 +100,7 @@ struct Recipe: Identifiable, Codable {
         customStyleName     = (try? c.decode(String.self, forKey: .customStyleName)) ?? ""
         notes               = try c.decode(String.self, forKey: .notes)
         bakeLogs            = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
+        folderName          = (try? c.decode(String.self, forKey: .folderName)) ?? ""
         flourBlend          = (try? c.decode(FlourBlend.self, forKey: .flourBlend)) ?? FlourBlend()
         prefermentFlourBlend = (try? c.decode(FlourBlend.self, forKey: .prefermentFlourBlend)) ?? FlourBlend()
         bakeSetups          = (try? c.decode([BakeSetup].self, forKey: .bakeSetups)) ?? []

@@ -1,5 +1,22 @@
 import Foundation
 
+struct PizzaEntry: Identifiable, Codable {
+    var id: UUID = UUID()
+    var pizzaNumber: Int
+    var bakeTimeSeconds: TimeInterval
+    var ovenTempAchieved: Double?
+    var crustColor: CrustColor
+    var bottomResult: BottomResult
+    var topResult: TopResult
+    var crustTags: [CrustTag] = []
+    var crumbTags: [CrumbTag] = []
+    var customCrustTags: [String] = []
+    var customCrumbTags: [String] = []
+    var notes: String = ""
+    var photoData: Data?
+    var loggedAt: Date = Date()
+}
+
 struct BakeLog: Identifiable, Codable {
     var id: UUID = UUID()
     var recipeId: UUID

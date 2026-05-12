@@ -16,6 +16,7 @@ class SessionViewModel: ObservableObject, Identifiable {
     @Published var isInBakeStep: Bool = false
     @Published var bakingStarted: Bool = false
     @Published var bakeElapsed: TimeInterval = 0
+    @Published var pizzaEntries: [PizzaEntry] = []
 
     var isHidden: Bool = false
 
@@ -142,6 +143,10 @@ class SessionViewModel: ObservableObject, Identifiable {
         accumulatedBakeSeconds = 0
         bakeStartDate = nil
         bakeElapsed = 0
+    }
+
+    func logPizza(_ entry: PizzaEntry) {
+        pizzaEntries.append(entry)
     }
 
     func logPH(_ value: Double) {

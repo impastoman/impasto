@@ -38,6 +38,19 @@ class RecipeStore: ObservableObject {
 
     func delete(at offsets: IndexSet) { recipes.remove(atOffsets: offsets); saveRecipes() }
 
+    func moveRecipes(inFolder folder: String, from source: IndexSet, to destination: Int) {
+        let indices = recipes.indices.filter { recipes[$0].folderName == folder }
+        var items = indices.map { recipes[$0] }
+        items.move(fromOffsets: source, toOffset: destination)
+        for (i, item) in zip(indices, items) { recipes[i] = item }
+        saveRecipes()
+    }
+
+    func moveRecipeToFolder(_ recipe: Recipe, folder: String) {
+        guard let i = recipes.firstIndex(where: { $0.id == recipe.id }) else { return }
+        recipes[i].folderName = folder; saveRecipes()
+    }
+
     func addBakeLog(_ log: BakeLog, to recipeId: UUID) {
         guard let i = recipes.firstIndex(where: { $0.id == recipeId }) else { return }
         recipes[i].bakeLogs.append(log); saveRecipes()
@@ -73,6 +86,19 @@ class RecipeStore: ObservableObject {
 
     func deleteBlend(at offsets: IndexSet) { savedBlends.remove(atOffsets: offsets); saveBlends() }
 
+    func moveBlends(inFolder folder: String, from source: IndexSet, to destination: Int) {
+        let indices = savedBlends.indices.filter { savedBlends[$0].folderName == folder }
+        var items = indices.map { savedBlends[$0] }
+        items.move(fromOffsets: source, toOffset: destination)
+        for (i, item) in zip(indices, items) { savedBlends[i] = item }
+        saveBlends()
+    }
+
+    func moveBlendToFolder(_ blend: FlourBlend, folder: String) {
+        guard let i = savedBlends.firstIndex(where: { $0.id == blend.id }) else { return }
+        savedBlends[i].folderName = folder; saveBlends()
+    }
+
     // MARK: - Saved Processes
 
     func addProcess(_ process: SavedProcess) { savedProcesses.append(process); saveProcesses() }
@@ -86,6 +112,19 @@ class RecipeStore: ObservableObject {
 
     func deleteProcess(at offsets: IndexSet) { savedProcesses.remove(atOffsets: offsets); saveProcesses() }
 
+    func moveProcesses(inFolder folder: String, from source: IndexSet, to destination: Int) {
+        let indices = savedProcesses.indices.filter { savedProcesses[$0].folderName == folder }
+        var items = indices.map { savedProcesses[$0] }
+        items.move(fromOffsets: source, toOffset: destination)
+        for (i, item) in zip(indices, items) { savedProcesses[i] = item }
+        saveProcesses()
+    }
+
+    func moveProcessToFolder(_ process: SavedProcess, folder: String) {
+        guard let i = savedProcesses.firstIndex(where: { $0.id == process.id }) else { return }
+        savedProcesses[i].folderName = folder; saveProcesses()
+    }
+
     // MARK: - Saved Preferments
 
     func addSavedPreferment(_ p: SavedPreferment) { savedPreferments.append(p); saveSavedPreferments() }
@@ -98,6 +137,19 @@ class RecipeStore: ObservableObject {
     func deleteSavedPreferment(_ p: SavedPreferment) { savedPreferments.removeAll { $0.id == p.id }; saveSavedPreferments() }
 
     func deleteSavedPreferment(at offsets: IndexSet) { savedPreferments.remove(atOffsets: offsets); saveSavedPreferments() }
+
+    func movePreferments(inFolder folder: String, from source: IndexSet, to destination: Int) {
+        let indices = savedPreferments.indices.filter { savedPreferments[$0].folderName == folder }
+        var items = indices.map { savedPreferments[$0] }
+        items.move(fromOffsets: source, toOffset: destination)
+        for (i, item) in zip(indices, items) { savedPreferments[i] = item }
+        saveSavedPreferments()
+    }
+
+    func movePrefermentToFolder(_ pref: SavedPreferment, folder: String) {
+        guard let i = savedPreferments.firstIndex(where: { $0.id == pref.id }) else { return }
+        savedPreferments[i].folderName = folder; saveSavedPreferments()
+    }
 
     // MARK: - Persistence
 

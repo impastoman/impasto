@@ -152,6 +152,18 @@ struct StandaloneBlendBuilderView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
                 }
+                if isEditing {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Save As") {
+                            var copy = blend; copy.id = UUID()
+                            store.addBlend(copy)
+                            dismiss()
+                        }
+                        .disabled(!blend.isValid || blend.name.isEmpty)
+                        .foregroundColor(blend.isValid && !blend.name.isEmpty ? .secondary : .secondary)
+                        .font(.system(size: 13, design: .monospaced))
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
                         if isEditing {
@@ -246,6 +258,19 @@ struct StandaloneProcessBuilderView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
+                }
+                if isEditing {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Save As") {
+                            var copy = SavedProcess(name: name, cards: processCards)
+                            copy.folderName = folderName
+                            store.addProcess(copy)
+                            dismiss()
+                        }
+                        .disabled(name.isEmpty)
+                        .foregroundColor(name.isEmpty ? .secondary : .secondary)
+                        .font(.system(size: 13, design: .monospaced))
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
@@ -438,6 +463,19 @@ struct StandalonePrefermentBuilderView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
+                }
+                if isEditing {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Save As") {
+                            var copy = SavedPreferment(name: name, method: derivedMethod, hydration: hydration, notes: notes)
+                            copy.flourBlend = flourBlend; copy.folderName = folderName
+                            store.addSavedPreferment(copy)
+                            dismiss()
+                        }
+                        .disabled(!canSave)
+                        .foregroundColor(canSave ? .secondary : .secondary)
+                        .font(.system(size: 13, design: .monospaced))
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {

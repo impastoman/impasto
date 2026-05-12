@@ -10,6 +10,7 @@ struct LiveSessionView: View {
     @State private var showRecipeSheet = false
     @State private var showPizzaLog = false
     @State private var showEndBakingAlert = false
+    @State private var showLeaveAlert = false
     @State private var sessionNotes: [UUID: String] = [:]
 
     var recipe: Recipe { vm.recipe }
@@ -30,28 +31,43 @@ struct LiveSessionView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        vm.isHidden = true
-                        vm.pause()
-                        dismiss()
+                        if vm.isRunning {
+                            vm.isHidden = true
+                            dismiss()
+                        } else {
+                            showLeaveAlert = true
+                        }
                     } label: {
                         Image(systemName: "house")
                     }
                     .foregroundColor(.secondary)
+                    .confirmationDialog("Leave session?", isPresented: $showLeaveAlert, titleVisibility: .visible) {
+                        Button("Keep Paused and Leave") {
+                            vm.isHidden = true
+                            dismiss()
+                        }
+                        Button("Unpause and Leave") {
+                            vm.resume()
+                            vm.isHidden = true
+                            dismiss()
+                        }
+                        Button("Go Back", role: .cancel) {}
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 16) {
-                        Button {
-                            showRecipeSheet = true
-                        } label: {
-                            Image(systemName: "doc.text")
-                        }
-                        .foregroundColor(.secondary)
-                        if !vm.isInBakeStep {
-                            if vm.isRunning {
-                                Button("Pause") { vm.pause() }.foregroundColor(Color(hex: "D2B96A"))
-                            } else {
-                                Button("Start") { vm.start() }.foregroundColor(Color(hex: "D2B96A"))
-                            }
+                    Button {
+                        showRecipeSheet = true
+                    } label: {
+                        Image(systemName: "doc.text")
+                    }
+                    .foregroundColor(.secondary)
+                }
+                if !vm.isInBakeStep {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        if vm.isRunning {
+                            Button("Pause") { vm.pause() }.foregroundColor(Color(hex: "D2B96A"))
+                        } else {
+                            Button("Start") { vm.start() }.foregroundColor(Color(hex: "D2B96A"))
                         }
                     }
                 }
@@ -83,7 +99,7 @@ struct LiveSessionView: View {
         }
         .sheet(isPresented: $showRecipeSheet) {
             NavigationStack {
-                RecipeDetailView(recipe: recipe)
+                RecipeDetailView(recipe: recipe, isReadOnly: true)
                     .environmentObject(store)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
@@ -131,7 +147,6 @@ struct LiveSessionView: View {
     // MARK: - Timer
 
     var isCountdown: Bool {
-        vm.preFlight.sessionMode == .automatic &&
         (vm.currentCard?.type.isTimed == true) &&
         vm.targetDuration > 0
     }

@@ -11,6 +11,7 @@ struct SessionLogView: View {
     let photoData: Data?
 
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
 
     var onEndSession: (() -> Void)? = nil
@@ -59,11 +60,6 @@ struct SessionLogView: View {
             }
             .navigationTitle("How'd it go?")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
         }
     }
 
@@ -208,14 +204,14 @@ struct SessionLogView: View {
     @ViewBuilder
     var bakeResultsSection: some View {
         Section("Bake") {
-            LabeledContent("Crust color",   value: crustColor.rawValue).font(.system(.body, design: .monospaced))
-            LabeledContent("Bottom",        value: bottomResult.rawValue).font(.system(.body, design: .monospaced))
-            LabeledContent("Top",           value: topResult.rawValue).font(.system(.body, design: .monospaced))
             if bakeTimeSeconds > 0 {
                 LabeledContent("Bake time", value: shortTime(bakeTimeSeconds)).font(.system(.body, design: .monospaced))
             }
             if let temp = ovenTempAchieved {
                 LabeledContent("Oven temp", value: "\(Int(temp))°").font(.system(.body, design: .monospaced))
+            }
+            if !vm.pizzaEntries.isEmpty {
+                LabeledContent("Pizzas logged", value: "\(vm.pizzaEntries.count)").font(.system(.body, design: .monospaced))
             }
         }
     }
@@ -232,16 +228,21 @@ struct SessionLogView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(Color(hex: "D2B96A"))
 
-            Button("↩ Go Home") { showGoHomeAlert = true }
+            Button("↩ Exit Session") { showGoHomeAlert = true }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(.secondary)
                 .font(.system(size: 13, design: .monospaced))
         }
         .confirmationDialog("Save before leaving?", isPresented: $showGoHomeAlert, titleVisibility: .visible) {
             Button("Save to history") { save() }
-            Button("Leave without saving", role: .destructive) { onEndSession?() }
+            Button("Leave without saving", role: .destructive) { goHome() }
             Button("Cancel", role: .cancel) { }
         }
+    }
+
+    func goHome() {
+        onEndSession?()
+        sessionManager.shouldReturnHome = true
     }
 
     func save() {
@@ -260,7 +261,7 @@ struct SessionLogView: View {
             photoData: photoData
         )
         store.addBakeLog(log, to: recipe.id)
-        onEndSession?()
+        goHome()
     }
 
     func shortTime(_ t: TimeInterval) -> String {

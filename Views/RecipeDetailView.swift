@@ -3,6 +3,7 @@ import SwiftUI
 struct RecipeDetailView: View {
     @EnvironmentObject var store: RecipeStore
     @State var recipe: Recipe
+    var isReadOnly: Bool = false
     @State private var showPreFlight = false
     @State private var showEditWizard = false
     @State private var showForkWizard = false
@@ -67,16 +68,18 @@ struct RecipeDetailView: View {
                 row("Salt",  "\(Int(recipe.totalSalt))g")
             }
 
-            Section {
-                Button("▶  Start Session") { showPreFlight = true }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(Color(hex: "D2B96A"))
-                Button("Edit Recipe") { showEditWizard = true }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(.primary)
-                Button("Modify and Save as New") { showForkWizard = true }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(.secondary)
+            if !isReadOnly {
+                Section {
+                    Button("▶  Start Session") { showPreFlight = true }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .foregroundColor(Color(hex: "D2B96A"))
+                    Button("Edit Recipe") { showEditWizard = true }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .foregroundColor(.primary)
+                    Button("Modify and Save as New") { showForkWizard = true }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .navigationTitle(recipe.name)
