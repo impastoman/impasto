@@ -7,6 +7,7 @@ struct LibraryView: View {
     @State private var showBlendBuilder = false
     @State private var showProcessBuilder = false
     @State private var showPrefBuilder = false
+    @State private var showStartDough = false
     @State private var recipeToDelete: Recipe? = nil
 
     var body: some View {
@@ -23,11 +24,12 @@ struct LibraryView: View {
                     Button { showAddMenu = true } label: { Image(systemName: "plus") }
                 }
             }
-            .confirmationDialog("Add to Library", isPresented: $showAddMenu, titleVisibility: .visible) {
+            .confirmationDialog("", isPresented: $showAddMenu, titleVisibility: .hidden) {
                 Button("New Recipe") { showWizard = true }
                 Button("New Flour Blend") { showBlendBuilder = true }
                 Button("New Process") { showProcessBuilder = true }
                 Button("New Preferment") { showPrefBuilder = true }
+                Button("Start New Session") { showStartDough = true }
                 Button("Cancel", role: .cancel) {}
             }
         }
@@ -45,6 +47,9 @@ struct LibraryView: View {
         }
         .sheet(isPresented: $showPrefBuilder) {
             StandalonePrefermentBuilderView().environmentObject(store)
+        }
+        .sheet(isPresented: $showStartDough) {
+            StartDoughView().environmentObject(store)
         }
         .alert("Delete Recipe?", isPresented: Binding(
             get: { recipeToDelete != nil },
