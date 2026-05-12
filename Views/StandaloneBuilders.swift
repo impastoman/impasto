@@ -1,5 +1,54 @@
 import SwiftUI
 
+// MARK: - Folder Picker Row
+
+private struct FolderPickerRow: View {
+    @Binding var folderName: String
+    let existingFolders: [String]
+
+    @State private var showNewFolderAlert = false
+    @State private var newFolderInput = ""
+
+    var body: some View {
+        HStack {
+            Text("Folder")
+                .font(.system(.body, design: .monospaced))
+            Spacer()
+            Menu {
+                Button("None") { folderName = "" }
+                if !existingFolders.isEmpty { Divider() }
+                ForEach(existingFolders, id: \.self) { folder in
+                    Button(folder) { folderName = folder }
+                }
+                Divider()
+                Button("New folder…") {
+                    newFolderInput = ""
+                    showNewFolderAlert = true
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(folderName.isEmpty ? "None" : folderName)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(folderName.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .alert("New Folder", isPresented: $showNewFolderAlert) {
+            TextField("Folder name", text: $newFolderInput)
+            Button("Create") {
+                let trimmed = newFolderInput.trimmingCharacters(in: .whitespaces)
+                if !trimmed.isEmpty { folderName = trimmed }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Enter a name for the new folder")
+        }
+    }
+}
+
 // MARK: - Standalone Blend Builder
 
 struct StandaloneBlendBuilderView: View {
@@ -16,6 +65,10 @@ struct StandaloneBlendBuilderView: View {
 
     var isEditing: Bool { editingId != nil }
 
+    var blendFolders: [String] {
+        Array(Set(store.savedBlends.map(\.folderName).filter { !$0.isEmpty })).sorted()
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -24,9 +77,8 @@ struct StandaloneBlendBuilderView: View {
                         .font(.system(.body, design: .monospaced))
                 }
 
-                Section("Folder") {
-                    TextField("e.g. Neapolitan, Pizza Night…", text: $blend.folderName)
-                        .font(.system(.body, design: .monospaced))
+                Section {
+                    FolderPickerRow(folderName: $blend.folderName, existingFolders: blendFolders)
                 }
 
                 Section("Flour blend") {
@@ -46,7 +98,9 @@ struct StandaloneBlendBuilderView: View {
                     }
                     .listRowBackground(Color.clear)
                     Button {
-                        blend.components.append(FlourComponent())
+                        var c = FlourComponent()
+                        c.percentage = max(0, 100 - blend.totalPercentage)
+                        blend.components.append(c)
                     } label: {
                         Label("Add flour type", systemImage: "plus")
                             .foregroundColor(Color(hex: "D2B96A"))
@@ -136,6 +190,10 @@ struct StandaloneProcessBuilderView: View {
 
     var isEditing: Bool { editingId != nil }
 
+    var processFolders: [String] {
+        Array(Set(store.savedProcesses.map(\.folderName).filter { !$0.isEmpty })).sorted()
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -144,9 +202,8 @@ struct StandaloneProcessBuilderView: View {
                         .font(.system(.body, design: .monospaced))
                 }
 
-                Section("Folder") {
-                    TextField("e.g. Weekend, Competition…", text: $folderName)
-                        .font(.system(.body, design: .monospaced))
+                Section {
+                    FolderPickerRow(folderName: $folderName, existingFolders: processFolders)
                 }
 
                 Section {
@@ -244,6 +301,10 @@ struct StandalonePrefermentBuilderView: View {
 
     var isEditing: Bool { editingId != nil }
 
+    var prefermentFolders: [String] {
+        Array(Set(store.savedPreferments.map(\.folderName).filter { !$0.isEmpty })).sorted()
+    }
+
     var prefermentLabel: String {
         switch hydration {
         case ..<0.50:       return "Dry Biga"
@@ -267,9 +328,8 @@ struct StandalonePrefermentBuilderView: View {
                         .font(.system(.body, design: .monospaced))
                 }
 
-                Section("Folder") {
-                    TextField("e.g. Standard Bigas, Poolish Variants…", text: $folderName)
-                        .font(.system(.body, design: .monospaced))
+                Section {
+                    FolderPickerRow(folderName: $folderName, existingFolders: prefermentFolders)
                 }
 
                 // Hydration — classifies the type (Biga vs Poolish) and implies water %
@@ -332,7 +392,9 @@ struct StandalonePrefermentBuilderView: View {
                     }
                     .listRowBackground(Color.clear)
                     Button {
-                        flourBlend.components.append(FlourComponent())
+                        var c = FlourComponent()
+                        c.percentage = max(0, 100 - flourBlend.totalPercentage)
+                        flourBlend.components.append(c)
                     } label: {
                         Label("Add flour type", systemImage: "plus")
                             .foregroundColor(Color(hex: "D2B96A"))

@@ -269,7 +269,9 @@ struct MethodStepView: View {
                 }
                 .listRowBackground(Color.clear)
                 Button {
-                    prefermentFlourBlend.components.append(FlourComponent())
+                    var c = FlourComponent()
+                    c.percentage = max(0, 100 - prefermentFlourBlend.totalPercentage)
+                    prefermentFlourBlend.components.append(c)
                 } label: {
                     Label("Add flour type", systemImage: "plus")
                         .foregroundColor(Color(hex: "D2B96A"))

@@ -214,6 +214,7 @@ struct StartDoughView: View {
                 }
             }
         }
+        .preferredColorScheme(.light)
         .sheet(isPresented: $showWizard) {
             WizardContainerView { recipe in
                 store.add(recipe)

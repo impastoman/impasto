@@ -44,6 +44,7 @@ struct LibraryView: View {
                 Button("Cancel", role: .cancel) {}
             }
         }
+        .preferredColorScheme(.light)
         .sheet(isPresented: $showWizard) {
             WizardContainerView { recipe in
                 store.add(recipe)

@@ -221,16 +221,16 @@ struct ProcessCardRow: View {
                     .frame(width: 22, alignment: .center)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    if card.type == .freeform {
-                        TextField("Step name", text: Binding(
+                    if isLocked {
+                        Text(card.title)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    } else {
+                        TextField(card.type == .freeform ? "Step name" : card.title, text: Binding(
                             get: { card.customTitle ?? "" },
                             set: { card.customTitle = $0.isEmpty ? nil : $0 }
                         ))
                         .font(.system(.body, design: .monospaced))
-                    } else {
-                        Text(card.title)
-                            .font(.system(.body, design: .monospaced))
-                            .foregroundColor(isLocked ? .secondary : .primary)
                     }
                     if !card.subtitle.isEmpty {
                         Text(card.subtitle)

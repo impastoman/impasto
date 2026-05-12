@@ -103,6 +103,7 @@ struct RecipeDetailView: View {
         .fullScreenCover(isPresented: $showPreFlight) {
             PreFlightView(recipe: recipe)
                 .environmentObject(store)
+                .preferredColorScheme(.light)
         }
         .sheet(isPresented: $showEditWizard) {
             WizardContainerView(

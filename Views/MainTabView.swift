@@ -83,6 +83,7 @@ struct ActiveSessionsView: View {
                 }
             }
         }
+        .preferredColorScheme(.light)
         .fullScreenCover(item: $resumedSession) { vm in
             LiveSessionView(vm: vm)
                 .environmentObject(store)

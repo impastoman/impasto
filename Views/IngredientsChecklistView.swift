@@ -2,6 +2,7 @@ import SwiftUI
 
 struct IngredientsChecklistView: View {
     let recipe: Recipe
+    var weightUnit: WeightUnit = .grams
     @Environment(\.dismiss) private var dismiss
 
     @State private var checked: Set<String> = []
@@ -25,22 +26,22 @@ struct IngredientsChecklistView: View {
         let flourComponents = prefBlend.components
 
         if flourComponents.count > 1 {
-            items.append(CheckItem(id: "pref_flour_header", label: "\(label) flour blend", amount: "\(Int(recipe.bigaFlour))g"))
+            items.append(CheckItem(id: "pref_flour_header", label: "\(label) flour blend", amount: weightUnit.display(recipe.bigaFlour)))
             for c in flourComponents {
                 let weight = recipe.bigaFlour * (c.percentage / 100)
-                items.append(CheckItem(id: "pref_flour_\(c.id)", label: c.type.rawValue, amount: "\(Int(weight))g", isSubItem: true))
+                items.append(CheckItem(id: "pref_flour_\(c.id)", label: c.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
             }
         } else {
             let flourLabel = flourComponents.first.map { $0.type.rawValue } ?? "\(label) flour"
-            items.append(CheckItem(id: "pref_flour", label: flourLabel, amount: "\(Int(recipe.bigaFlour))g"))
+            items.append(CheckItem(id: "pref_flour", label: flourLabel, amount: weightUnit.display(recipe.bigaFlour)))
         }
 
-        items.append(CheckItem(id: "pref_water", label: "\(label) water", amount: "\(Int(recipe.bigaWater))g"))
-        items.append(CheckItem(id: "pref_yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: String(format: "%.1fg", recipe.bigaYeast)))
+        items.append(CheckItem(id: "pref_water", label: "\(label) water", amount: weightUnit.display(recipe.bigaWater)))
+        items.append(CheckItem(id: "pref_yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: weightUnit.display(recipe.bigaYeast)))
 
         for additive in prefBlend.additives {
             let weight = recipe.bigaFlour * (additive.percentage / 100)
-            items.append(CheckItem(id: "pref_add_\(additive.id)", label: additive.type.rawValue, amount: "\(Int(weight))g", isSubItem: true))
+            items.append(CheckItem(id: "pref_add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
         }
 
         return items
@@ -52,34 +53,34 @@ struct IngredientsChecklistView: View {
 
         let flourComponents = recipe.flourBlend.components
         if flourComponents.count > 1 {
-            items.append(CheckItem(id: "flour_header", label: "Flour blend", amount: "\(Int(flourTotal))g"))
+            items.append(CheckItem(id: "flour_header", label: "Flour blend", amount: weightUnit.display(flourTotal)))
             for c in flourComponents {
                 let weight = flourTotal * (c.percentage / 100)
-                items.append(CheckItem(id: "flour_\(c.id)", label: c.type.rawValue, amount: "\(Int(weight))g", isSubItem: true))
+                items.append(CheckItem(id: "flour_\(c.id)", label: c.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
             }
         } else {
             let flourLabel = flourComponents.first.map { $0.type.rawValue } ?? "Flour"
-            items.append(CheckItem(id: "flour", label: flourLabel, amount: "\(Int(flourTotal))g"))
+            items.append(CheckItem(id: "flour", label: flourLabel, amount: weightUnit.display(flourTotal)))
         }
 
         for additive in recipe.flourBlend.additives {
             let weight = flourTotal * (additive.percentage / 100)
-            items.append(CheckItem(id: "add_\(additive.id)", label: additive.type.rawValue, amount: "\(Int(weight))g", isSubItem: true))
+            items.append(CheckItem(id: "add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
         }
 
         let waterTotal = recipe.method == .direct ? recipe.totalWater : recipe.additionalWater
         if recipe.bassinage {
             let mainWater = waterTotal - recipe.bassinageReserveGrams
-            items.append(CheckItem(id: "water_main", label: "Water (main)", amount: "\(Int(mainWater))g"))
-            items.append(CheckItem(id: "water_reserve", label: "Water (bassinage reserve)", amount: "\(Int(recipe.bassinageReserveGrams))g"))
+            items.append(CheckItem(id: "water_main", label: "Water (main)", amount: weightUnit.display(mainWater)))
+            items.append(CheckItem(id: "water_reserve", label: "Water (bassinage reserve)", amount: weightUnit.display(recipe.bassinageReserveGrams)))
         } else {
-            items.append(CheckItem(id: "water", label: "Water", amount: "\(Int(waterTotal))g"))
+            items.append(CheckItem(id: "water", label: "Water", amount: weightUnit.display(waterTotal)))
         }
 
-        items.append(CheckItem(id: "salt", label: "Salt", amount: "\(Int(recipe.totalSalt))g"))
+        items.append(CheckItem(id: "salt", label: "Salt", amount: weightUnit.display(recipe.totalSalt)))
 
         if recipe.method == .direct {
-            items.append(CheckItem(id: "yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: String(format: "%.1fg", recipe.bigaYeast)))
+            items.append(CheckItem(id: "yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: weightUnit.display(recipe.bigaYeast)))
         }
 
         return items

@@ -1,5 +1,41 @@
 import SwiftUI
 
+enum WeightUnit: String, CaseIterable {
+    case grams = "g"; case ounces = "oz"; case pounds = "lb"
+
+    func display(_ grams: Double) -> String {
+        switch self {
+        case .grams:  return grams < 10 ? String(format: "%.1f g", grams) : String(format: "%.0f g", grams)
+        case .ounces: return String(format: "%.2f oz", grams / 28.3495)
+        case .pounds: return String(format: "%.3f lb", grams / 453.592)
+        }
+    }
+
+    func displayShort(_ grams: Double) -> String {
+        switch self {
+        case .grams:  return String(format: "%.0f", grams)
+        case .ounces: return String(format: "%.1f", grams / 28.3495)
+        case .pounds: return String(format: "%.2f", grams / 453.592)
+        }
+    }
+
+    func toGrams(_ v: Double) -> Double {
+        switch self {
+        case .grams:  return v
+        case .ounces: return v * 28.3495
+        case .pounds: return v * 453.592
+        }
+    }
+
+    func toDisplay(_ grams: Double) -> Double {
+        switch self {
+        case .grams:  return grams
+        case .ounces: return grams / 28.3495
+        case .pounds: return grams / 453.592
+        }
+    }
+}
+
 struct PreFlightView: View {
     let recipe: Recipe
     @EnvironmentObject var store: RecipeStore
@@ -14,26 +50,10 @@ struct PreFlightView: View {
     @State private var useCelsius = true
     @State private var weightUnit: WeightUnit = .grams
 
-    enum WeightUnit: String, CaseIterable {
-        case grams = "g"; case ounces = "oz"; case pounds = "lb"
-    }
-
     func toDisplayTemp(_ c: Double) -> Double { useCelsius ? c : c * 9/5 + 32 }
     func fromDisplayTemp(_ t: Double) -> Double { useCelsius ? t : (t - 32) * 5/9 }
-    func displayWeight(_ g: Double) -> String {
-        switch weightUnit {
-        case .grams:  return String(format: "%.0f", g)
-        case .ounces: return String(format: "%.1f", g / 28.3495)
-        case .pounds: return String(format: "%.2f", g / 453.592)
-        }
-    }
-    func gramsFromDisplay(_ v: Double) -> Double {
-        switch weightUnit {
-        case .grams:  return v
-        case .ounces: return v * 28.3495
-        case .pounds: return v * 453.592
-        }
-    }
+    func displayWeight(_ g: Double) -> String { weightUnit.displayShort(g) }
+    func gramsFromDisplay(_ v: Double) -> Double { weightUnit.toGrams(v) }
 
     private var hasPreferment: Bool { recipe.method != .direct }
 
@@ -67,7 +87,7 @@ struct PreFlightView: View {
             }
             .safeAreaInset(edge: .bottom) { beginButton }
             .sheet(isPresented: $showChecklist) {
-                IngredientsChecklistView(recipe: resolvedRecipe)
+                IngredientsChecklistView(recipe: resolvedRecipe, weightUnit: weightUnit)
             }
             .alert("Time Conflict", isPresented: $showConflictAlert) {
                 Button("Proceed Anyway") {
@@ -79,6 +99,7 @@ struct PreFlightView: View {
                 Text("\(recipe.method.rawValue) needs at least \(Int(recipe.method.minimumHours))h but your \(recipe.timeline.rawValue) window (\(recipe.timeline.hours)) may not be enough if the preferment hasn't started.")
             }
         }
+        .preferredColorScheme(.light)
         .fullScreenCover(isPresented: $showSession, onDismiss: {
             // Clean up session only if it wasn't hidden (hidden sessions stay in SessionManager)
             if let vm = activeVM, !vm.isHidden {
@@ -223,11 +244,11 @@ struct PreFlightView: View {
             HStack {
                 Text("Ball weight")
                 Spacer()
-                TextField(displayWeight(recipe.ballWeight), value: Binding(
-                    get: { data.overrideBallWeight.map { gramsFromDisplay($0) } ?? gramsFromDisplay(recipe.ballWeight) },
-                    set: { data.overrideBallWeight = gramsFromDisplay($0) }
+                TextField("\(Int(ceil(weightUnit.toDisplay(recipe.ballWeight))))", value: Binding(
+                    get: { ceil(weightUnit.toDisplay(data.overrideBallWeight ?? recipe.ballWeight)) },
+                    set: { data.overrideBallWeight = weightUnit.toGrams(Double($0)) }
                 ), format: .number)
-                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 60)
+                    .keyboardType(.numberPad).multilineTextAlignment(.trailing).frame(width: 60)
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(data.overrideBallWeight != nil ? Color(hex: "D2B96A") : .primary)
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
@@ -240,11 +261,11 @@ struct PreFlightView: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                TextField(displayWeight(totalDough * 0.025), value: Binding(
-                    get: { data.overrideBuffer.map { gramsFromDisplay($0 * totalDough) } },
-                    set: { data.overrideBuffer = $0.map { gramsFromDisplay($0) / totalDough } }
+                TextField("\(Int(ceil(weightUnit.toDisplay(totalDough * 0.025))))", value: Binding(
+                    get: { ceil(weightUnit.toDisplay(data.overrideBuffer.map { $0 * totalDough } ?? totalDough * 0.025)) },
+                    set: { data.overrideBuffer = weightUnit.toGrams(Double($0)) / totalDough }
                 ), format: .number)
-                .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 60)
+                .keyboardType(.numberPad).multilineTextAlignment(.trailing).frame(width: 60)
                 .font(.system(.body, design: .monospaced))
                 .foregroundColor(data.overrideBuffer != nil ? Color(hex: "D2B96A") : .primary)
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
@@ -262,7 +283,7 @@ struct PreFlightView: View {
             LabeledContent("Recipe",   value: recipe.name)
             LabeledContent("Rise method", value: recipe.method.rawValue)
             LabeledContent("Timeline", value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
-            LabeledContent("Target", value: "\(data.overrideBallCount ?? recipe.ballCount) × \(displayWeight(data.overrideBallWeight ?? recipe.ballWeight)) \(weightUnit.rawValue)")
+            LabeledContent("Target", value: "\(data.overrideBallCount ?? recipe.ballCount) × \(Int(ceil(weightUnit.toDisplay(data.overrideBallWeight ?? recipe.ballWeight)))) \(weightUnit.rawValue)")
             Button {
                 showChecklist = true
             } label: {

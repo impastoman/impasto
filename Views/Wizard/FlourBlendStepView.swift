@@ -124,7 +124,9 @@ struct FlourBlendStepView: View {
 
     var addFlourRow: some View {
         Button {
-            flourBlend.components.append(FlourComponent())
+            var c = FlourComponent()
+            c.percentage = max(0, 100 - flourBlend.totalPercentage)
+            flourBlend.components.append(c)
         } label: {
             Label("Add flour type", systemImage: "plus")
                 .foregroundColor(Color(hex: "D2B96A"))
