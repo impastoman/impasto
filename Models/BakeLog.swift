@@ -7,6 +7,8 @@ struct BakeLog: Identifiable, Codable {
     var rating: Int = 0
     var crustTags: [CrustTag] = []
     var crumbTags: [CrumbTag] = []
+    var customCrustTags: [String] = []
+    var customCrumbTags: [String] = []
     var notes: String = ""
     var ballCount: Int
     var ballWeight: Double

@@ -15,6 +15,11 @@ struct PizzaLogView: View {
     @State private var topResult: TopResult = .good
     @State private var crustTags: Set<CrustTag> = []
     @State private var crumbTags: Set<CrumbTag> = []
+    @State private var customCrustTags: Set<String> = []
+    @State private var customCrumbTags: Set<String> = []
+    @State private var showNewCrustTag = false
+    @State private var showNewCrumbTag = false
+    @State private var newTagText = ""
     @State private var notes = ""
     @State private var ovenTempInput = ""
     @State private var selectedPhoto: PhotosPickerItem? = nil
@@ -133,6 +138,13 @@ struct PizzaLogView: View {
                             else { crustTags.insert(tag) }
                         }
                     }
+                    ForEach(store.customCrustTags, id: \.self) { tag in
+                        tagChip(tag, selected: customCrustTags.contains(tag)) {
+                            if customCrustTags.contains(tag) { customCrustTags.remove(tag) }
+                            else { customCrustTags.insert(tag) }
+                        }
+                    }
+                    tagChip("+ New", selected: false) { showNewCrustTag = true }
                 }
                 .padding(.vertical, 4)
             }
@@ -146,10 +158,43 @@ struct PizzaLogView: View {
                             else { crumbTags.insert(tag) }
                         }
                     }
+                    ForEach(store.customCrumbTags, id: \.self) { tag in
+                        tagChip(tag, selected: customCrumbTags.contains(tag)) {
+                            if customCrumbTags.contains(tag) { customCrumbTags.remove(tag) }
+                            else { customCrumbTags.insert(tag) }
+                        }
+                    }
+                    tagChip("+ New", selected: false) { showNewCrumbTag = true }
                 }
                 .padding(.vertical, 4)
             }
             .listRowBackground(Color.clear)
+        }
+        .alert("New Crust Tag", isPresented: $showNewCrustTag) {
+            TextField("e.g. Leoparded", text: $newTagText)
+            Button("Add") {
+                let t = newTagText.trimmingCharacters(in: .whitespaces)
+                if !t.isEmpty && !store.customCrustTags.contains(t) {
+                    store.customCrustTags.append(t)
+                    store.saveCustomTags()
+                    customCrustTags.insert(t)
+                }
+                newTagText = ""
+            }
+            Button("Cancel", role: .cancel) { newTagText = "" }
+        }
+        .alert("New Crumb Tag", isPresented: $showNewCrumbTag) {
+            TextField("e.g. Pillowy", text: $newTagText)
+            Button("Add") {
+                let t = newTagText.trimmingCharacters(in: .whitespaces)
+                if !t.isEmpty && !store.customCrumbTags.contains(t) {
+                    store.customCrumbTags.append(t)
+                    store.saveCustomTags()
+                    customCrumbTags.insert(t)
+                }
+                newTagText = ""
+            }
+            Button("Cancel", role: .cancel) { newTagText = "" }
         }
     }
 

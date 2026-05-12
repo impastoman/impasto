@@ -8,12 +8,15 @@ class RecipeStore: ObservableObject {
     @Published var savedProcesses: [SavedProcess] = []
     @Published var savedPreferments: [SavedPreferment] = []
     @Published var activeRecipeId: UUID?
+    @Published var customCrustTags: [String] = []
+    @Published var customCrumbTags: [String] = []
 
     private let recipeKey     = "impasto_recipes_v3"
     private let prefermentKey = "impasto_preferments_v1"
     private let blendsKey     = "impasto_blends_v1"
     private let processesKey  = "impasto_processes_v1"
     private let sprefsKey     = "impasto_saved_preferments_v1"
+    private let customTagsKey = "impasto_custom_tags_v1"
 
     init() { load() }
 
@@ -107,6 +110,10 @@ class RecipeStore: ObservableObject {
     private func saveSavedPreferments() {
         if let d = try? JSONEncoder().encode(savedPreferments) { UserDefaults.standard.set(d, forKey: sprefsKey) }
     }
+    func saveCustomTags() {
+        let data = ["crust": customCrustTags, "crumb": customCrumbTags]
+        if let d = try? JSONEncoder().encode(data) { UserDefaults.standard.set(d, forKey: customTagsKey) }
+    }
 
     private func load() {
         if let d = UserDefaults.standard.data(forKey: recipeKey),
@@ -119,5 +126,10 @@ class RecipeStore: ObservableObject {
            let v = try? JSONDecoder().decode([SavedProcess].self, from: d) { savedProcesses = v }
         if let d = UserDefaults.standard.data(forKey: sprefsKey),
            let v = try? JSONDecoder().decode([SavedPreferment].self, from: d) { savedPreferments = v }
+        if let d = UserDefaults.standard.data(forKey: customTagsKey),
+           let v = try? JSONDecoder().decode([String: [String]].self, from: d) {
+            customCrustTags = v["crust"] ?? []
+            customCrumbTags = v["crumb"] ?? []
+        }
     }
 }

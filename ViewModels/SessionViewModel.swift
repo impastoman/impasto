@@ -125,6 +125,7 @@ class SessionViewModel: ObservableObject, Identifiable {
     }
 
     func buildBakeLog(rating: Int, crustTags: [CrustTag], crumbTags: [CrumbTag],
+                      customCrustTags: [String] = [], customCrumbTags: [String] = [],
                       notes: String, bakeTimeSeconds: TimeInterval,
                       ovenTempAchieved: Double?, crustColor: CrustColor,
                       bottomResult: BottomResult, topResult: TopResult,
@@ -140,6 +141,8 @@ class SessionViewModel: ObservableObject, Identifiable {
             rating: rating,
             crustTags: crustTags,
             crumbTags: crumbTags,
+            customCrustTags: customCrustTags,
+            customCrumbTags: customCrumbTags,
             notes: notes,
             ballCount: preFlight.overrideBallCount ?? recipe.ballCount,
             ballWeight: preFlight.overrideBallWeight ?? recipe.ballWeight,

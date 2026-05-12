@@ -18,6 +18,11 @@ struct SessionLogView: View {
     @State private var rating = 3
     @State private var crustTags: Set<CrustTag> = []
     @State private var crumbTags: Set<CrumbTag> = []
+    @State private var customCrustTags: Set<String> = []
+    @State private var customCrumbTags: Set<String> = []
+    @State private var showNewCrustTag = false
+    @State private var showNewCrumbTag = false
+    @State private var newTagText = ""
     @State private var notes = ""
     @State private var saved = false
 
@@ -123,10 +128,62 @@ struct SessionLogView: View {
         Group {
             Section("Crust") {
                 FlowTagRow(tags: CrustTag.allCases, selected: $crustTags).padding(.vertical, 4)
+                if !store.customCrustTags.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(store.customCrustTags, id: \.self) { tag in
+                                TagChip(label: tag, selected: customCrustTags.contains(tag)) {
+                                    if customCrustTags.contains(tag) { customCrustTags.remove(tag) }
+                                    else { customCrustTags.insert(tag) }
+                                }
+                            }
+                        }
+                    }
+                }
+                TagChip(label: "+ New", selected: false) { showNewCrustTag = true }
             }
             Section("Crumb") {
                 FlowTagRow(tags: CrumbTag.allCases, selected: $crumbTags).padding(.vertical, 4)
+                if !store.customCrumbTags.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(store.customCrumbTags, id: \.self) { tag in
+                                TagChip(label: tag, selected: customCrumbTags.contains(tag)) {
+                                    if customCrumbTags.contains(tag) { customCrumbTags.remove(tag) }
+                                    else { customCrumbTags.insert(tag) }
+                                }
+                            }
+                        }
+                    }
+                }
+                TagChip(label: "+ New", selected: false) { showNewCrumbTag = true }
             }
+        }
+        .alert("New Crust Tag", isPresented: $showNewCrustTag) {
+            TextField("e.g. Leoparded", text: $newTagText)
+            Button("Add") {
+                let t = newTagText.trimmingCharacters(in: .whitespaces)
+                if !t.isEmpty && !store.customCrustTags.contains(t) {
+                    store.customCrustTags.append(t)
+                    store.saveCustomTags()
+                    customCrustTags.insert(t)
+                }
+                newTagText = ""
+            }
+            Button("Cancel", role: .cancel) { newTagText = "" }
+        }
+        .alert("New Crumb Tag", isPresented: $showNewCrumbTag) {
+            TextField("e.g. Pillowy", text: $newTagText)
+            Button("Add") {
+                let t = newTagText.trimmingCharacters(in: .whitespaces)
+                if !t.isEmpty && !store.customCrumbTags.contains(t) {
+                    store.customCrumbTags.append(t)
+                    store.saveCustomTags()
+                    customCrumbTags.insert(t)
+                }
+                newTagText = ""
+            }
+            Button("Cancel", role: .cancel) { newTagText = "" }
         }
     }
 
@@ -200,6 +257,8 @@ struct SessionLogView: View {
             rating: rating,
             crustTags: Array(crustTags),
             crumbTags: Array(crumbTags),
+            customCrustTags: Array(customCrustTags),
+            customCrumbTags: Array(customCrumbTags),
             notes: notes,
             bakeTimeSeconds: bakeTimeSeconds,
             ovenTempAchieved: ovenTempAchieved,
