@@ -13,7 +13,7 @@ struct HomeView: View {
     @State private var splashDone = false
     @State private var resumedSession: SessionViewModel? = nil
 
-    private let appVersion = "0.6"
+    private let appVersion = "0.7"
 
     var body: some View {
         if showMainApp {

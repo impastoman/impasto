@@ -211,6 +211,86 @@ A record of what's been built, why, and the decisions that shaped it.
 
 ---
 
+## v0.5 — Library Architecture + Save-to-Library
+*Sub-recipe management*
+
+**What shipped:**
+- LibraryView rewritten with 4 sections: Recipes, Flour Blends, Processes, Preferments — each with swipe-delete and confirmation alerts
+- `+` button triggers a `confirmationDialog` with options for all four asset types plus "Start New Session" at the bottom
+- Standalone builders: `StandaloneBlendBuilderView`, `StandaloneProcessBuilderView`, `StandalonePrefermentBuilderView` — full editors accessible outside the wizard
+- Save-to-library flows in wizard steps for Flour Blend, Method, and Process — name the asset inline, save it, reuse on future recipes
+- Flour blend step: Next button disabled until flour percentages total exactly 100%
+- TargetStepView: weight unit selector (g / oz / lb) with full conversion throughout all fields — consistent with PreFlightView's unit picker
+- "Rise method" label in Prep view (previously generic "Method")
+- "⌂ Home" toolbar button in Library and History to return to welcome screen
+
+**Design decisions:**
+- Standalone builders reuse the same `FlourComponentRow` and `AdditiveRow` subviews as the wizard — single source of truth for the editing UI
+- Save-to-library is optional and deferred to after the user has built the asset — not a gate, just an offer at the bottom
+- The `+` button covers all creation types from one place — "the + button looks like it should allow that even from library"
+
+---
+
+## v0.6 — Edit/Fork, Session Architecture, Bake Flow
+*The big refinement pass*
+
+**What shipped:**
+
+*Edit/Fork recipe flow:*
+- `WizardMode` enum: `.new` / `.edit(Recipe)` / `.fork(Recipe)` — wizard opens pre-populated in all three cases
+- Custom `WizardContainerView` init that reads an existing recipe and seeds all `@State` vars via `_var = State(initialValue:)` pattern
+- Fork mode appends date suffix to recipe name automatically
+- Edit save: preserves original `id` and `bakeLogs`, calls `store.update` — recipe history stays intact
+- Fork save: assigns new `UUID`, calls `store.add`
+- RecipeDetailView: "Edit Recipe" and "Modify and Save as New" action buttons with appropriate callbacks
+- Tap recipe name in RecipeDetailView to rename inline via alert
+
+*Wizard UX fixes:*
+- `flourBlendMode`, `prefEntryMode`, `processMode` lifted to `WizardContainerView` as `@State` + passed as `@Binding` — back navigation no longer resets the wizard steps to the empty pick card
+- Edit/fork mode pre-selects `.create` mode on blend/preferment/process steps so the existing data is visible immediately
+- Process builder: duration field available on all step types, not just timed ones — leave at 0 and it hides in both the row and summary
+- ConfirmStepView: cards with 0 duration show "action" vs. duration label; bake setups now show temp range and preheat time
+- TargetStepView: weight and diameter fully independent — weight no longer auto-fills diameter; estimated diameter shown as gray hint text only for style-supported types (Neapolitan, NY); buffer footer changed to "~2.5% of total dough weight" (unit-agnostic)
+
+*Session architecture (SessionManager):*
+- `SessionManager: ObservableObject` — owns all `SessionViewModel` instances; injected at app root
+- `SessionViewModel` made `Identifiable`, no longer auto-advances on timer expiry
+- `LiveSessionView` takes `vm: @ObservedObject` from outside (not `@StateObject`) — vm lifecycle independent of the view
+- **Hide Session**: house icon pauses the session and dismisses the cover; `vm.isHidden = true` prevents cleanup on dismiss; session stays in `SessionManager.sessions`
+- `PreFlightView` creates vm via `sessionManager.start(...)` and cleans up on normal end via `onDismiss`
+- HomeView: orange "Session in progress" cards for each hidden session with step progress + "Resume Session" button that re-opens `LiveSessionView(vm:)` via `fullScreenCover(item:)`
+
+*Live session improvements:*
+- **Back navigation**: `← Back` button always visible past first card; calls `vm.goBack()` which restores `elapsed` from `actualDurations`
+- **Overtime counter**: once countdown hits 0:00:00, flips to orange count-up from 0 with "+XX:XX:XX overtime" label; progress bar turns orange
+- **Long-press timer reset**: 0.6s long-press on timer digits → heavy haptic + `vm.resetTimer()`
+- **Per-step session notes**: pencil icon + editable `TextField` on every step, keyed by card UUID, persists across step changes within the session
+- **View recipe button**: `doc.text` toolbar icon opens RecipeDetailView sheet without leaving the session
+
+*Bake flow:*
+- Last process card shows "Proceed to Bake →" instead of "Done Baking"
+- Enters bake step showing oven setup details from the selected `BakeSetup`
+- "Start Baking" → separate bake timer begins (`vm.bakeElapsed`)
+- Once baking: "Log Pizza" sheet + "End Baking" long-press (0.8s haptic → PostBakeView)
+- **PizzaLogView**: new sheet with photo, bake time readout, visual pickers, crust/crumb tag chips, notes — "Return to Baking" resets bake timer; "End Bake →" goes straight to PostBakeView
+
+*Ingredients Prep checklist:*
+- "Prep Ingredients" button in Prep view session overview section
+- `IngredientsChecklistView`: checkable per-ingredient rows with strikethrough
+- Preferment and main/final dough shown as separate sections
+- Flour blend components expand into sub-rows with individual gram weights calculated from percentages
+- Bassinage reserve shown as its own split row
+- Progress counter at the bottom
+
+**Key design decisions:**
+- SessionManager is the right place for session ownership — not RecipeStore, not the view itself. Views are ephemeral; the session is not.
+- "Hide session" isn't "pause" — the timer is paused but the session is intentionally in a liminal state. The orange indicator on the home screen makes that explicit.
+- Bake flow is a new phase, not a process card — "Proceed to Bake" transitions the session into a different mode with its own timer and loop logic. Per-pizza logging respects that you might bake several before ending.
+- Overtime counts up rather than blocking — "the timer should continue" was the user's explicit ask. You already know you're late; the app just shows you how late.
+- Independent weight/diameter: the fields aren't linked anymore because "ball weight and diameter can be separately entered." The estimate hint serves the curious without locking the field.
+
+---
+
 ## Design Principles (established through the build)
 
 - **Plain word up top, descriptor below** — "Buffer" / "dough loss factor", "Kneading" / "gluten development"

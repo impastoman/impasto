@@ -1,36 +1,38 @@
 # Impasto — Build Cost & ROI Report
 *Claude vs. Traditional iOS Development Agency*
-*As of May 2026*
+*Updated May 2026 — v0.7*
 
 ---
 
 ## What Has Been Built
 
-### Shipped (v0.1 → v0.4 in progress)
+### Shipped (v0.1 → v0.7)
 
-**Data models (11):**
-Recipe, FlourBlend, ProcessCard, BakeSetup, BakeLog, SessionViewModel, PrefermentRecipe, FlourComponent, FlourAdditive, PreFlightData, Timeline
+**Data models (15+):**
+Recipe, FlourBlend (with FlourComponent, Additive), ProcessCard, BakeSetup, BakeLog, SessionViewModel, SessionManager, PrefermentRecipe, PreFlightData, Timeline, SavedProcess, SavedPreferment
 
-**Views (18+):**
-HomeView, LibraryView, RecipeDetailView, PreFlightView, LiveSessionView, PostBakeView, SessionLogView, WizardContainerView + 10 wizard step views, supporting sub-views and sheets
+**Views (30+):**
+HomeView, MainTabView, LibraryView, HistoryView, RecipeDetailView, PreFlightView, IngredientsChecklistView, LiveSessionView, PostBakeView, PizzaLogView, SessionLogView, WizardContainerView + 10 wizard step views + 3 standalone builders + 3 library pickers + supporting sub-views and sheets
 
 **Features:**
-- 10-step recipe wizard with validation, linked fields, bidirectional sync, review mode, jump-to-step editing
-- Flour blend builder with 14 flour types, additives, live % validation
-- Process card system with drag-to-reorder, per-card settings, order warnings, locked cards
-- Bake method setup with multiple concurrent methods, temperature units, surface temps
-- Live session: clock-anchored timers, auto/manual modes, stage prompts, ingredient reference, pause logging
-- Pre-flight with session mode selection, last-minute overrides, preferment status check
-- Post-bake capture: photo, crust/crumb visual pickers, oven temp, bake time
-- Session log with planned vs. actual time comparisons, pause log, bake results
-- Library with recipe rows, tested/untested badges, style labels
-- Custom "My Style" pizza style with free-form naming and balanced defaults
-- Full dark → light theme with gold accent branding
+- 10-step recipe wizard: validation, review mode, jump-to-step editing, edit/fork pre-population with `WizardMode`
+- Flour blend builder: 14 flour types, additives, live % validation, locked Next until 100%
+- Process card system: drag-to-reorder, per-card duration (all types), per-card settings, order warnings, locked cards
+- Bake method setup: multiple concurrent methods, temperature units, surface temps, electric pizza oven
+- **Session architecture**: `SessionManager` owns live `SessionViewModel` instances; sessions survive view dismissal; hide and resume from home screen
+- Live session: back navigation (restores prior elapsed), overtime counter (orange count-up), long-press timer reset, per-step notes, view recipe button
+- **Bake flow**: Proceed to Bake → Start Baking → per-pizza log loop → End Baking
+- **PizzaLogView**: per-pizza photo, visuals, crust/crumb tags, notes — Return to Baking or End Bake
+- Pre-flight (Prep): session mode, preferment status, room temp, weight unit + temp unit selectors, last-minute overrides, ingredient prep checklist
+- **IngredientsChecklistView**: checkable per-ingredient rows, flour blend sub-rows, bassinage split, progress counter
+- Post-bake: photo, visual pickers, bake time, oven temp
+- Session log: rating, crust/crumb tags, notes, planned vs. actual comparison
+- Library: 4 sections (Recipes, Blends, Processes, Preferments), swipe delete, edit/fork from recipe detail
+- Standalone builders for Flour Blend, Process, and Preferment accessible from home and library
+- Save-to-library flows embedded in wizard steps for all three sub-recipe types
+- Rename recipe by tapping navigation title
+- Splash screen with 3-second hold before UI loads
 - GitHub version control with structured commit history
-- Copy audit (90+ strings catalogued in Excel)
-
-**Queued (designed, not yet coded):**
-Concurrent sessions, clock-based timing, folder system, standalone blend/process/preferment builders, library sections for sub-recipes, edit from library, session review with As Baked / Annotated tabs, save session as recipe, live session notes, Combine locked opener, "Begin Prep" rename pass, and ~25 additional scoped features
 
 ---
 
@@ -47,26 +49,29 @@ Concurrent sessions, clock-based timing, folder system, standalone blend/process
 
 | Area | Dev hours | PM hours | QA hours |
 |---|---|---|---|
-| Architecture, models, data layer | 25 | 6 | 4 |
-| 10-step wizard (all interactions) | 55 | 10 | 10 |
-| Library, RecipeDetail, HomeView | 18 | 4 | 4 |
-| Pre-flight + Live Session + Post-bake | 38 | 8 | 8 |
-| Bug fix iterations (Phase 2 equivalent) | 16 | 4 | 4 |
-| Design iteration cycles | 12 | 6 | 2 |
-| Specification writing | — | 20 | — |
-| Testing + device QA | — | — | 16 |
-| **Subtotal** | **164** | **58** | **48** |
+| Architecture, models, data layer | 35 | 8 | 5 |
+| 10-step wizard (all interactions + edit/fork) | 65 | 12 | 12 |
+| Library, RecipeDetail, standalone builders | 28 | 6 | 6 |
+| Pre-flight + IngredientsChecklist | 14 | 3 | 3 |
+| Live Session + SessionManager architecture | 50 | 10 | 10 |
+| Bake flow + PizzaLogView | 18 | 4 | 4 |
+| Post-bake + Session log | 12 | 3 | 3 |
+| Bug fix + UX refinement passes | 22 | 5 | 5 |
+| Design iteration cycles | 14 | 8 | 2 |
+| Specification writing | — | 25 | — |
+| Testing + device QA | — | — | 20 |
+| **Subtotal** | **258** | **84** | **70** |
 
 **Raw labor cost:**
-- Dev: 164 × $175 = $28,700
-- PM: 58 × $110 = $6,380
-- QA: 48 × $85 = $4,080
-- **Raw total: $39,160**
+- Dev: 258 × $175 = $45,150
+- PM: 84 × $110 = $9,240
+- QA: 70 × $85 = $5,950
+- **Raw total: $60,340**
 
 **With 35% overhead (email chains, revision rounds, status calls, sprint ceremonies):**
-- **$52,866**
+- **$81,459**
 
-**Realistic range: $40,000 – $60,000**
+**Realistic range: $65,000 – $95,000**
 depending on agency tier, revision cycles, and how well requirements were captured upfront (they rarely are).
 
 ---
@@ -80,8 +85,11 @@ depending on agency tier, revision cycles, and how well requirements were captur
 | v0.2 wizard + session | 3–4 weeks | ~2 sessions |
 | v0.3 major feature pass | 4–6 weeks | ~3 sessions |
 | v0.4 feedback + refinement | 2–3 weeks | ~2 sessions |
+| v0.5 library + save-to-library | 2–3 weeks | ~1 session |
+| v0.6 edit/fork + session architecture | 3–5 weeks | ~2 sessions |
+| v0.7 bake flow + overtime + hide/resume | 2–4 weeks | ~1 session |
 | Bug fix cycles | 1–2 weeks | Same session |
-| **Total** | **14–21 weeks** | **~2–3 weeks elapsed** |
+| **Total** | **21–33 weeks** | **~4–6 weeks elapsed** |
 
 The agency timeline assumes business-hours-only work, email turnaround (typically 24–48h per round-trip), and the standard compression that happens when requirements change mid-sprint — which they always do.
 
@@ -106,11 +114,11 @@ The agency timeline assumes business-hours-only work, email turnaround (typicall
 Claude Code is available as part of Anthropic's subscription plans. At the time of this build:
 
 - **Claude Pro / Max:** ~$20–100/month depending on plan
-- **Sessions used to build v0.1–v0.4:** estimated 8–12 substantial sessions
-- **Estimated total spend:** **$20–200** depending on plan tier and usage
+- **Sessions used to build v0.1–v0.7:** estimated 14–20 substantial sessions
+- **Estimated total spend:** **$40–400** depending on plan tier and usage
 
-**Conservative savings vs. agency: ~$40,000 – $60,000**
-**Time saved: ~12–18 weeks**
+**Conservative savings vs. agency: ~$65,000 – $95,000**
+**Time saved: ~17–27 weeks**
 
 ---
 
@@ -147,4 +155,14 @@ That compression — from idea to shipped in minutes rather than days — change
 
 ---
 
-*Report generated May 2026. Estimates based on US market rates for mid-size iOS development agencies. Your mileage may vary — some agencies are faster, most are slower.*
+## The Compounding Effect
+
+Something the hourly table doesn't capture: the value compounds as the build gets longer.
+
+By v0.7, Claude carries the design decisions made in v0.1 — why the monospaced font, why additives aren't treated as hydration, why the bake card is separate from process cards, why the session has two modes. Every new feature lands consistently with what came before because the design principles are embedded in the working context, not in a spec doc that went stale in week two.
+
+At an agency, that context lives in people. People leave. Handoffs happen. The spec gets out of date. By v0.7, an agency build would have touched 3–4 developers across the feature history. Here, it's one conversation.
+
+---
+
+*Updated May 2026 — v0.7. Estimates based on US market rates for mid-size iOS development agencies. Your mileage may vary — some agencies are faster, most are slower.*

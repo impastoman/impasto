@@ -142,6 +142,87 @@ Context compresses over very long sessions. Occasionally asking "summarize the q
 4. **Confirm** recommendations with a single word when possible
 5. **Close** with "summarize the queue" to verify nothing slipped
 
+### Cross-session queue processing
+When sessions end mid-queue, the summary system carries the backlog forward cleanly. The next session opens with a full technical briefing — file names, line numbers, what was written vs. what was only planned. No re-explaining needed. The queue just picks up where it left off.
+
+**Example:**
+> "keep processing the queue!"
+
+That one message resumed a 15-item backlog spanning 10+ files across 3 different feature areas. Claude recovered full context from the compaction summary and executed without prompting.
+
+---
+
+### Architecture questions get real answers, not deferred answers
+When a new feature requires rethinking the architecture (e.g. "how do we keep a session alive after the view is dismissed?"), asking "what's the right approach?" gets a concrete architectural answer with tradeoffs, not a "there are several ways to do this." Claude commits to a recommendation and explains why.
+
+**Example:**
+> "how would the hiding and return to home work?"
+
+Claude evaluated 3 approaches (store vm in RecipeStore / SessionManager / view state flag), picked SessionManager as the right separation of concerns, and explained why. Decision made in one message; coded in the same session.
+
+---
+
+### Batching notes and letting Claude organize them
+Large unstructured feedback dumps — even mid-session — work better than trying to prioritize yourself. Claude sorts by dependency, identifies what breaks what, and returns a sequenced implementation plan.
+
+**Example from v0.6:**
+> "got some notes from this first part i want to share: [14 unstructured observations across 8 different views]"
+
+Claude sorted these into bugs (state persistence), UX fixes (diameter independence), medium features (bake flow per-step notes), and complex features (bake flow, ingredient checklist, session architecture) — with implicit sequencing based on what each thing depended on.
+
+---
+
+### "Notes for future" as a pattern for architecture
+When an idea is good but the scope is too large for the current session, saying "note for future" or "queue this" explicitly gets it into the devlog's "Design Principles" or queued section without slowing the current pass. Nothing gets lost; everything gets its time.
+
+---
+
+## Wins: What Claude Made Possible
+
+**Impasto at v0.7 — built in ~6–8 weeks of intermittent sessions**
+
+---
+
+### Things that would have taken weeks at an agency, done in one session:
+
+**SessionManager architecture** — "sessions survive view dismissal" is a non-trivial iOS architecture problem. The right solution (ObservableObject with a sessions array, injected at root, vm ownership separated from the view) was designed, implemented, and shipped in a single session. A typical agency sprint cycle would be: requirements (day 1), architecture review (day 2), implementation (days 3–5), QA (days 6–8). Here: one session.
+
+**WizardMode / Edit/Fork flow** — Pre-populating a 20-field wizard from an existing recipe using Swift's `@State` initialization pattern, with three distinct save behaviors (update in place / save as new / fork), is exactly the kind of feature that creates weeks of back-and-forth on requirements at an agency. Written in one pass.
+
+**Process card system** — Drag-to-reorder, per-card expansion, per-type settings (autolyse mode, bassinage %), order warnings, locked positions, custom titles — this is a full custom UI system. Shipped in v0.3 with no prior spec, driven entirely by conversation.
+
+**Bake flow state machine** — The "Proceed to Bake → Start Baking → Log Pizza loop → End Baking" flow is a mini state machine layered on top of an already running session. Designed from a paragraph of user notes and implemented the same day.
+
+---
+
+### Things that got better because iteration is free:
+
+- "25g per kg" → "~2.5% of total dough weight" (unit-agnostic in one edit)
+- Weight/diameter coupling → independence, with estimate hint (two removed bindings + one new computed label)
+- Mode state lifting for wizard back-nav: four files, surgical change, no regressions
+- Every naming decision (Rise method, Dough loss factor, Proceed to Bake, Proceed →) iterated in conversation, not in a ticket
+
+---
+
+### The compounding effect:
+
+By v0.7, Claude carries the full context of design decisions made in v0.1 — why the monospaced font was chosen, why additives aren't treated as hydration, why the session has two modes, why the Combine card is locked. New features land consistently with what came before because the design principles are embedded in the context, not in a separate document that gets out of date.
+
+That's the real multiplier: not just speed, but coherence across a long build.
+
+---
+
+## What Claude Doesn't Replace (still true)
+
+- Xcode setup, target membership, signing
+- Real device testing — the app needs to be launched and clicked through
+- App Store submission
+- The product instincts that decide *what* to build — every feature decision above came from the user
+
+---
+
+*Updated May 2026 through v0.7.*
+
 ---
 
 ## Notes on Claude's Tendencies
