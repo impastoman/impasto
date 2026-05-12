@@ -2,11 +2,15 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var store: RecipeStore
+    @State private var showNewMenu = false
     @State private var showWizard = false
+    @State private var showBlendBuilder = false
+    @State private var showProcessBuilder = false
+    @State private var showPrefBuilder = false
     @State private var showMainApp = false
     @State private var showStartDough = false
 
-    private let appVersion = "0.4"
+    private let appVersion = "0.5"
 
     var body: some View {
         if showMainApp {
@@ -59,8 +63,15 @@ struct HomeView: View {
                 Button("Start Dough →") { showStartDough = true }
                     .buttonStyle(ImpastoButtonStyle(filled: true))
 
-                Button("+ New Recipe") { showWizard = true }
+                Button("+ New Recipe") { showNewMenu = true }
                     .buttonStyle(ImpastoButtonStyle(filled: false))
+                    .confirmationDialog("Create New", isPresented: $showNewMenu, titleVisibility: .visible) {
+                        Button("New Recipe") { showWizard = true }
+                        Button("New Flour Blend") { showBlendBuilder = true }
+                        Button("New Process") { showProcessBuilder = true }
+                        Button("New Preferment") { showPrefBuilder = true }
+                        Button("Cancel", role: .cancel) {}
+                    }
 
                 Button("Library") { showMainApp = true }
                     .buttonStyle(ImpastoButtonStyle(filled: false))
@@ -80,6 +91,15 @@ struct HomeView: View {
                 showWizard = false
                 showMainApp = true
             }
+        }
+        .sheet(isPresented: $showBlendBuilder) {
+            StandaloneBlendBuilderView().environmentObject(store)
+        }
+        .sheet(isPresented: $showProcessBuilder) {
+            StandaloneProcessBuilderView().environmentObject(store)
+        }
+        .sheet(isPresented: $showPrefBuilder) {
+            StandalonePrefermentBuilderView().environmentObject(store)
         }
         .sheet(isPresented: $showStartDough) {
             StartDoughView()

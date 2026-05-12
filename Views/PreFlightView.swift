@@ -183,7 +183,7 @@ struct PreFlightView: View {
     var summarySection: some View {
         Section {
             LabeledContent("Recipe",   value: recipe.name)
-            LabeledContent("Method",   value: recipe.method.rawValue)
+            LabeledContent("Rise method", value: recipe.method.rawValue)
             LabeledContent("Timeline", value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
             LabeledContent("Target",   value: "\(data.overrideBallCount ?? recipe.ballCount) × \(Int(data.overrideBallWeight ?? recipe.ballWeight))g")
         } header: { Text("Session overview") }

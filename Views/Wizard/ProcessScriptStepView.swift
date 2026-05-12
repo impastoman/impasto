@@ -2,8 +2,11 @@ import SwiftUI
 
 struct ProcessScriptStepView: View {
     @Binding var processCards: [ProcessCard]
+    @EnvironmentObject var store: RecipeStore
 
     @State private var showAddSheet = false
+    @State private var saveProcessName: String = ""
+    @State private var processSaved: Bool = false
 
     var body: some View {
         List {
@@ -44,6 +47,8 @@ struct ProcessScriptStepView: View {
             } header: {
                 Text("Process")
             }
+
+            saveToLibrarySection
         }
         .environment(\.editMode, .constant(.active))
         .sheet(isPresented: $showAddSheet) {
@@ -52,6 +57,32 @@ struct ProcessScriptStepView: View {
                 for i in processCards.indices { processCards[i].sortOrder = i }
             }
         }
+    }
+
+    var saveToLibrarySection: some View {
+        Section {
+            if processSaved {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Saved to library")
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            } else {
+                TextField("Name this process to save...", text: $saveProcessName)
+                    .font(.system(size: 13, design: .monospaced))
+                Button("Save to Library") {
+                    let savedProcess = SavedProcess(
+                        name: saveProcessName.isEmpty ? "Untitled Process" : saveProcessName,
+                        cards: processCards
+                    )
+                    store.addProcess(savedProcess)
+                    processSaved = true
+                }
+                .foregroundColor(Color(hex: "D2B96A"))
+            }
+        } header: { Text("Save to Library") }
+          footer: { Text("Optional — save this process for reuse in future recipes") }
     }
 
     func positionLabel(for idx: Int) -> String {

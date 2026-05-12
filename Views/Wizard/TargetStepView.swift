@@ -106,7 +106,7 @@ struct TargetStepView: View {
             }
 
             Section {
-                LabeledContent("Target dough", value: "\(Int(totalDough))g")
+                LabeledContent("Target dough", value: formattedWeight(totalDough) + " " + unit.rawValue)
                     .font(.system(.body, design: .monospaced))
 
                 HStack {
@@ -118,21 +118,21 @@ struct TargetStepView: View {
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                    TextField("\(Int(totalDough / 1000 * 25))", text: $bufferGramsText)
-                        .keyboardType(.numberPad)
+                    TextField(formattedBufferDisplay(), text: $bufferGramsText)
+                        .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
-                        .frame(width: 52)
+                        .frame(width: 60)
                         .font(.system(.body, design: .monospaced))
                         .onChange(of: bufferGramsText) { _, val in
-                            if let g = Double(val), g >= 0, totalDough > 0 {
-                                buffer = g / totalDough
+                            if let d = Double(val), d >= 0, totalDough > 0 {
+                                buffer = gramsFromDisplay(d) / totalDough
                             }
                         }
-                    Text("g").foregroundColor(.secondary)
+                    Text(unit.rawValue).foregroundColor(.secondary)
                 }
 
                 LabeledContent("Total to mix",
-                               value: "\(Int(totalDough * (1 + buffer)))g")
+                               value: formattedWeight(totalDough * (1 + buffer)) + " " + unit.rawValue)
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(Color(hex: "D2B96A"))
             } footer: {
@@ -145,13 +145,17 @@ struct TargetStepView: View {
             if let dia = estimatedDiameter(from: ballWeight) {
                 diameterText = String(format: "%.0f", dia)
             }
-            bufferGramsText = "\(max(1, Int(buffer * totalDough)))"
+            bufferGramsText = formattedBufferDisplay()
+        }
+        .onChange(of: unit) { _, _ in
+            weightText = formattedWeight(ballWeight)
+            bufferGramsText = formattedBufferDisplay()
         }
         .onChange(of: ballCount) { _, _ in
-            bufferGramsText = "\(max(1, Int(buffer * totalDough)))"
+            bufferGramsText = formattedBufferDisplay()
         }
         .onChange(of: ballWeight) { _, _ in
-            bufferGramsText = "\(max(1, Int(buffer * totalDough)))"
+            bufferGramsText = formattedBufferDisplay()
         }
     }
 
@@ -162,6 +166,15 @@ struct TargetStepView: View {
     var diameterPlaceholder: String {
         if let dia = estimatedDiameter(from: ballWeight) { return String(format: "%.0f", dia) }
         return "—"
+    }
+
+    func formattedBufferDisplay() -> String {
+        let grams = buffer * totalDough
+        switch unit {
+        case .grams:   return String(format: "%.0f", max(0, grams))
+        case .ounces:  return String(format: "%.1f", max(0, grams / 28.3495))
+        case .pounds:  return String(format: "%.2f", max(0, grams / 453.592))
+        }
     }
 
     func formattedWeight(_ grams: Double) -> String {

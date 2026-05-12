@@ -147,6 +147,7 @@ struct WizardContainerView: View {
                     }
                 }
                 .buttonStyle(ImpastoButtonStyle(filled: true))
+                .disabled(step == 3 && !flourBlend.isValid)
             } else {
                 Button("Save Recipe →") { save() }
                     .buttonStyle(ImpastoButtonStyle(filled: true))

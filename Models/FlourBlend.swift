@@ -90,7 +90,9 @@ struct Additive: Identifiable, Codable {
     var note: String = ""
 }
 
-struct FlourBlend: Codable {
+struct FlourBlend: Identifiable, Codable {
+    var id: UUID = UUID()
+    var name: String = ""
     var components: [FlourComponent] = [FlourComponent()]
     var additives: [Additive] = []
 

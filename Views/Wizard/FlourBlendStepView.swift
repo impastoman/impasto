@@ -2,6 +2,10 @@ import SwiftUI
 
 struct FlourBlendStepView: View {
     @Binding var flourBlend: FlourBlend
+    @EnvironmentObject var store: RecipeStore
+
+    @State private var saveBlendName: String = ""
+    @State private var blendSaved: Bool = false
 
     var body: some View {
         List {
@@ -14,7 +18,33 @@ struct FlourBlendStepView: View {
             addFlourRow
             additivesSection
             hintsSection
+            saveToLibrarySection
         }
+    }
+
+    var saveToLibrarySection: some View {
+        Section {
+            if blendSaved {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Saved to library")
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            } else {
+                TextField("Name this blend to save...", text: $saveBlendName)
+                    .font(.system(size: 13, design: .monospaced))
+                Button("Save to Library") {
+                    var toSave = flourBlend
+                    toSave.name = saveBlendName.isEmpty ? "Untitled Blend" : saveBlendName
+                    store.addBlend(toSave)
+                    blendSaved = true
+                }
+                .foregroundColor(flourBlend.isValid ? Color(hex: "D2B96A") : .secondary)
+                .disabled(!flourBlend.isValid)
+            }
+        } header: { Text("Save to Library") }
+          footer: { Text("Optional — save this blend for reuse in future recipes") }
     }
 
     var flourSection: some View {
@@ -94,7 +124,7 @@ struct FlourBlendStepView: View {
     }
 }
 
-private struct FlourComponentRow: View {
+struct FlourComponentRow: View {
     @Binding var component: FlourComponent
     let onRemove: () -> Void
     @State private var showNote = false
@@ -147,7 +177,7 @@ private struct FlourComponentRow: View {
     }
 }
 
-private struct AdditiveRow: View {
+struct AdditiveRow: View {
     @Binding var additive: Additive
     let onRemove: () -> Void
 

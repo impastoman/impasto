@@ -4,8 +4,11 @@ struct MethodStepView: View {
     @Binding var usePreferment: Bool
     @Binding var prefermentHydration: Double
     @Binding var method: PrefermentMethod
+    @EnvironmentObject var store: RecipeStore
 
     @State private var hydrationText: String = ""
+    @State private var savePrefName: String = ""
+    @State private var prefSaved: Bool = false
 
     var body: some View {
         List {
@@ -109,6 +112,33 @@ struct MethodStepView: View {
                             .foregroundColor(.secondary)
                     }
                 } header: { Text("Direct method") }
+            }
+
+            if usePreferment {
+                Section {
+                    if prefSaved {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                            Text("Saved to library")
+                                .font(.system(size: 13, design: .monospaced))
+                                .foregroundColor(Color(hex: "D2B96A"))
+                        }
+                    } else {
+                        TextField("Name this preferment to save...", text: $savePrefName)
+                            .font(.system(size: 13, design: .monospaced))
+                        Button("Save to Library") {
+                            let pref = SavedPreferment(
+                                name: savePrefName.isEmpty ? "Untitled Preferment" : savePrefName,
+                                method: derivedMethod,
+                                hydration: prefermentHydration
+                            )
+                            store.addSavedPreferment(pref)
+                            prefSaved = true
+                        }
+                        .foregroundColor(Color(hex: "D2B96A"))
+                    }
+                } header: { Text("Save to Library") }
+                  footer: { Text("Optional — save this preferment for reuse in future recipes") }
             }
         }
     }
