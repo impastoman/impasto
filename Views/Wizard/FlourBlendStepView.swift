@@ -4,8 +4,12 @@ struct FlourBlendStepView: View {
     @Binding var flourBlend: FlourBlend
     @EnvironmentObject var store: RecipeStore
 
+    @State private var mode: EntryMode = .pick
+    @State private var showLibraryPicker = false
     @State private var saveBlendName: String = ""
     @State private var blendSaved: Bool = false
+
+    enum EntryMode { case pick, load, create }
 
     var body: some View {
         List {
@@ -13,38 +17,86 @@ struct FlourBlendStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            flourSection
-            totalRow
-            addFlourRow
-            additivesSection
-            hintsSection
-            saveToLibrarySection
+            switch mode {
+            case .pick:
+                pickSection
+            case .load, .create:
+                statusRow
+                flourSection
+                totalRow
+                addFlourRow
+                additivesSection
+                hintsSection
+                saveToLibrarySection
+            }
+        }
+        .sheet(isPresented: $showLibraryPicker) {
+            BlendLibraryPickerView { selected in
+                flourBlend = selected
+                saveBlendName = selected.name
+                blendSaved = true
+                mode = .load
+            }
         }
     }
 
-    var saveToLibrarySection: some View {
+    var pickSection: some View {
         Section {
-            if blendSaved {
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
-                    Text("Saved to library")
-                        .font(.system(size: 13, design: .monospaced))
+            Button {
+                if store.savedBlends.isEmpty { return }
+                showLibraryPicker = true
+            } label: {
+                HStack {
+                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Load flour blend")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(store.savedBlends.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                }
+            }
+            .disabled(store.savedBlends.isEmpty)
+
+            if store.savedBlends.isEmpty {
+                Text("No saved blends yet — create one below or from the Library.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
+
+            Button {
+                flourBlend = FlourBlend()
+                mode = .create
+            } label: {
+                HStack {
+                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Create flour blend")
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
-            } else {
-                TextField("Name this blend to save...", text: $saveBlendName)
-                    .font(.system(size: 13, design: .monospaced))
-                Button("Save to Library") {
-                    var toSave = flourBlend
-                    toSave.name = saveBlendName.isEmpty ? "Untitled Blend" : saveBlendName
-                    store.addBlend(toSave)
-                    blendSaved = true
-                }
-                .foregroundColor(flourBlend.isValid ? Color(hex: "D2B96A") : .secondary)
-                .disabled(!flourBlend.isValid)
             }
-        } header: { Text("Save to Library") }
-          footer: { Text("Optional — save this blend for reuse in future recipes") }
+        } header: { Text("Flour blend") }
+    }
+
+    var statusRow: some View {
+        Section {
+            HStack {
+                Image(systemName: mode == .load ? "tray.and.arrow.down" : "pencil")
+                    .foregroundColor(Color(hex: "D2B96A")).font(.caption)
+                Text(mode == .load
+                     ? (flourBlend.name.isEmpty ? "Loaded from library" : flourBlend.name)
+                     : "New blend")
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(Color(hex: "D2B96A"))
+                Spacer()
+                Button("Change") {
+                    flourBlend = FlourBlend()
+                    saveBlendName = ""
+                    blendSaved = false
+                    mode = .pick
+                }
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundColor(.secondary)
+            }
+        }
+        .listRowBackground(Color(hex: "D2B96A").opacity(0.06))
     }
 
     var flourSection: some View {
@@ -119,6 +171,68 @@ struct FlourBlendStepView: View {
                         .foregroundColor(.red)
                 }
                 .listRowBackground(Color.red.opacity(0.06))
+            }
+        }
+    }
+
+    var saveToLibrarySection: some View {
+        Section {
+            if blendSaved {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Saved to library")
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            } else {
+                TextField("Name this blend to save...", text: $saveBlendName)
+                    .font(.system(size: 13, design: .monospaced))
+                Button("Save to Library") {
+                    var toSave = flourBlend
+                    toSave.name = saveBlendName.isEmpty ? "Untitled Blend" : saveBlendName
+                    store.addBlend(toSave)
+                    blendSaved = true
+                }
+                .foregroundColor(flourBlend.isValid ? Color(hex: "D2B96A") : .secondary)
+                .disabled(!flourBlend.isValid)
+            }
+        } header: { Text("Save to Library") }
+          footer: { Text("Optional — save this blend for reuse in future recipes") }
+    }
+}
+
+// MARK: - Library picker
+
+private struct BlendLibraryPickerView: View {
+    @EnvironmentObject var store: RecipeStore
+    @Environment(\.dismiss) private var dismiss
+    let onSelect: (FlourBlend) -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(store.savedBlends) { blend in
+                    Button {
+                        onSelect(blend)
+                        dismiss()
+                    } label: {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
+                                .font(.system(.body, design: .monospaced))
+                                .foregroundColor(.primary)
+                            Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
+                                .font(.caption).foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            .navigationTitle("Choose Blend")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
             }
         }
     }

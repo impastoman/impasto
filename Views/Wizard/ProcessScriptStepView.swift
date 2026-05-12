@@ -4,9 +4,13 @@ struct ProcessScriptStepView: View {
     @Binding var processCards: [ProcessCard]
     @EnvironmentObject var store: RecipeStore
 
+    @State private var mode: EntryMode = .pick
+    @State private var showLibraryPicker = false
     @State private var showAddSheet = false
     @State private var saveProcessName: String = ""
     @State private var processSaved: Bool = false
+
+    enum EntryMode { case pick, load, create }
 
     var body: some View {
         List {
@@ -14,48 +18,120 @@ struct ProcessScriptStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section {
-                ForEach(processCards.indices, id: \.self) { idx in
-                    ProcessCardRow(
-                        card: $processCards[idx],
-                        position: positionLabel(for: idx),
-                        isLocked: processCards[idx].type == .combine,
-                        onRemove: {
-                            processCards.remove(at: idx)
-                            for i in processCards.indices { processCards[i].sortOrder = i }
-                        }
-                    )
-                }
-                .onMove { from, to in
-                    if from.contains(0) { return }
-                    let safeTo = max(to, 1)
-                    processCards.move(fromOffsets: from, toOffset: safeTo)
-                    for i in processCards.indices { processCards[i].sortOrder = i }
-                }
-
-                Button {
-                    showAddSheet = true
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "plus.circle")
-                            .foregroundColor(Color(hex: "D2B96A"))
-                        Text("Add step")
-                            .font(.system(.body, design: .monospaced))
-                            .foregroundColor(Color(hex: "D2B96A"))
-                    }
-                }
-            } header: {
-                Text("Process")
+            switch mode {
+            case .pick:
+                pickSection
+            case .load, .create:
+                statusRow
+                cardsSection
+                saveToLibrarySection
             }
-
-            saveToLibrarySection
         }
-        .environment(\.editMode, .constant(.active))
+        .environment(\.editMode, mode == .pick ? .constant(.inactive) : .constant(.active))
+        .sheet(isPresented: $showLibraryPicker) {
+            ProcessLibraryPickerView { selected in
+                processCards = selected.cards
+                saveProcessName = selected.name
+                processSaved = true
+                mode = .load
+            }
+        }
         .sheet(isPresented: $showAddSheet) {
             AddStepSheet { newCard in
                 processCards.append(newCard)
                 for i in processCards.indices { processCards[i].sortOrder = i }
             }
+        }
+    }
+
+    var pickSection: some View {
+        Section {
+            Button {
+                if store.savedProcesses.isEmpty { return }
+                showLibraryPicker = true
+            } label: {
+                HStack {
+                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Load process")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(store.savedProcesses.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                }
+            }
+            .disabled(store.savedProcesses.isEmpty)
+
+            if store.savedProcesses.isEmpty {
+                Text("No saved processes yet — create one below or from the Library.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
+
+            Button {
+                mode = .create
+            } label: {
+                HStack {
+                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
+                    Text("Build process")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            }
+        } header: { Text("Process") }
+    }
+
+    var statusRow: some View {
+        Section {
+            HStack {
+                Image(systemName: mode == .load ? "tray.and.arrow.down" : "pencil")
+                    .foregroundColor(Color(hex: "D2B96A")).font(.caption)
+                Text(mode == .load ? (saveProcessName.isEmpty ? "Loaded from library" : saveProcessName) : "New process")
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(Color(hex: "D2B96A"))
+                Spacer()
+                Button("Change") {
+                    saveProcessName = ""
+                    processSaved = false
+                    mode = .pick
+                }
+                .font(.system(size: 12, design: .monospaced))
+                .foregroundColor(.secondary)
+            }
+        }
+        .listRowBackground(Color(hex: "D2B96A").opacity(0.06))
+    }
+
+    var cardsSection: some View {
+        Section {
+            ForEach(processCards.indices, id: \.self) { idx in
+                ProcessCardRow(
+                    card: $processCards[idx],
+                    position: positionLabel(for: idx),
+                    isLocked: processCards[idx].type == .combine,
+                    onRemove: {
+                        processCards.remove(at: idx)
+                        for i in processCards.indices { processCards[i].sortOrder = i }
+                    }
+                )
+            }
+            .onMove { from, to in
+                if from.contains(0) { return }
+                let safeTo = max(to, 1)
+                processCards.move(fromOffsets: from, toOffset: safeTo)
+                for i in processCards.indices { processCards[i].sortOrder = i }
+            }
+
+            Button {
+                showAddSheet = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus.circle")
+                        .foregroundColor(Color(hex: "D2B96A"))
+                    Text("Add step")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            }
+        } header: {
+            Text("Process")
         }
     }
 
@@ -88,6 +164,43 @@ struct ProcessScriptStepView: View {
     func positionLabel(for idx: Int) -> String {
         if processCards[idx].type == .combine { return "🔒" }
         return "\(idx)"
+    }
+}
+
+// MARK: - Library picker
+
+private struct ProcessLibraryPickerView: View {
+    @EnvironmentObject var store: RecipeStore
+    @Environment(\.dismiss) private var dismiss
+    let onSelect: (SavedProcess) -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(store.savedProcesses) { process in
+                    Button {
+                        onSelect(process)
+                        dismiss()
+                    } label: {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(process.name.isEmpty ? "Untitled Process" : process.name)
+                                .font(.system(.body, design: .monospaced))
+                                .foregroundColor(.primary)
+                            Text("\(process.cards.count) steps")
+                                .font(.caption).foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            .navigationTitle("Choose Process")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
     }
 }
 

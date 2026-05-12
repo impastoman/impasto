@@ -8,6 +8,29 @@ struct PreFlightView: View {
     @State private var data = PreFlightData()
     @State private var showConflictAlert = false
     @State private var showSession = false
+    @State private var useCelsius = true
+    @State private var weightUnit: WeightUnit = .grams
+
+    enum WeightUnit: String, CaseIterable {
+        case grams = "g"; case ounces = "oz"; case pounds = "lb"
+    }
+
+    func toDisplayTemp(_ c: Double) -> Double { useCelsius ? c : c * 9/5 + 32 }
+    func fromDisplayTemp(_ t: Double) -> Double { useCelsius ? t : (t - 32) * 5/9 }
+    func displayWeight(_ g: Double) -> String {
+        switch weightUnit {
+        case .grams:  return String(format: "%.0f", g)
+        case .ounces: return String(format: "%.1f", g / 28.3495)
+        case .pounds: return String(format: "%.2f", g / 453.592)
+        }
+    }
+    func gramsFromDisplay(_ v: Double) -> Double {
+        switch weightUnit {
+        case .grams:  return v
+        case .ounces: return v * 28.3495
+        case .pounds: return v * 453.592
+        }
+    }
 
     private var hasPreferment: Bool { recipe.method != .direct }
 
@@ -115,12 +138,34 @@ struct PreFlightView: View {
     var kitchenSection: some View {
         Section("Kitchen") {
             HStack {
+                Text("Temperature")
+                Spacer()
+                Picker("", selection: $useCelsius) {
+                    Text("°C").tag(true)
+                    Text("°F").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 90)
+            }
+            HStack {
+                Text("Dough weight")
+                Spacer()
+                Picker("", selection: $weightUnit) {
+                    ForEach(WeightUnit.allCases, id: \.self) { u in Text(u.rawValue).tag(u) }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 120)
+            }
+            HStack {
                 Text("Room temp")
                 Spacer()
-                TextField("20", value: $data.roomTempC, format: .number)
+                TextField(useCelsius ? "20" : "68", value: Binding(
+                    get: { toDisplayTemp(data.roomTempC) },
+                    set: { data.roomTempC = fromDisplayTemp($0) }
+                ), format: .number)
                     .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 60)
                     .font(.system(.body, design: .monospaced))
-                Text("°C").foregroundColor(.secondary)
+                Text(useCelsius ? "°C" : "°F").foregroundColor(.secondary)
             }
             Toggle("pH meter available", isOn: $data.hasPHMeter).tint(Color(hex: "D2B96A"))
             Toggle("Dough thermometer", isOn: $data.hasDoughThermometer).tint(Color(hex: "D2B96A"))
@@ -160,11 +205,14 @@ struct PreFlightView: View {
             HStack {
                 Text("Ball weight")
                 Spacer()
-                TextField("\(Int(recipe.ballWeight))", value: $data.overrideBallWeight, format: .number)
+                TextField(displayWeight(recipe.ballWeight), value: Binding(
+                    get: { data.overrideBallWeight.map { gramsFromDisplay($0) } ?? gramsFromDisplay(recipe.ballWeight) },
+                    set: { data.overrideBallWeight = gramsFromDisplay($0) }
+                ), format: .number)
                     .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 60)
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(data.overrideBallWeight != nil ? Color(hex: "D2B96A") : .primary)
-                Text("g").foregroundColor(.secondary)
+                Text(weightUnit.rawValue).foregroundColor(.secondary)
             }
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -174,14 +222,14 @@ struct PreFlightView: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                TextField("\(Int(totalDough * 0.025))", value: Binding(
-                    get: { data.overrideBuffer.map { Int($0 * totalDough) } },
-                    set: { data.overrideBuffer = $0.map { Double($0) / totalDough } }
+                TextField(displayWeight(totalDough * 0.025), value: Binding(
+                    get: { data.overrideBuffer.map { gramsFromDisplay($0 * totalDough) } },
+                    set: { data.overrideBuffer = $0.map { gramsFromDisplay($0) / totalDough } }
                 ), format: .number)
-                .keyboardType(.numberPad).multilineTextAlignment(.trailing).frame(width: 60)
+                .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 60)
                 .font(.system(.body, design: .monospaced))
                 .foregroundColor(data.overrideBuffer != nil ? Color(hex: "D2B96A") : .primary)
-                Text("g").foregroundColor(.secondary)
+                Text(weightUnit.rawValue).foregroundColor(.secondary)
             }
         } header: {
             Text("Last-minute adjustments")
@@ -196,7 +244,7 @@ struct PreFlightView: View {
             LabeledContent("Recipe",   value: recipe.name)
             LabeledContent("Rise method", value: recipe.method.rawValue)
             LabeledContent("Timeline", value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
-            LabeledContent("Target",   value: "\(data.overrideBallCount ?? recipe.ballCount) × \(Int(data.overrideBallWeight ?? recipe.ballWeight))g")
+            LabeledContent("Target", value: "\(data.overrideBallCount ?? recipe.ballCount) × \(displayWeight(data.overrideBallWeight ?? recipe.ballWeight)) \(weightUnit.rawValue)")
         } header: { Text("Session overview") }
         .font(.system(.body, design: .monospaced))
         .foregroundColor(.secondary)
