@@ -243,6 +243,10 @@ A record of what's been built, why, and the decisions that shaped it.
 - Preferment flour blend should be collapsible — most users will use the same flour throughout; the blend picker only expands if they want to specify
 - `ConfirmStepView` preferment section should show the blend breakdown and ratio alongside hydration
 
+**IngredientsChecklistView (dependent on preferment flour blend):**
+- Currently the preferment flour section shows a single "Biga flour" row with no sub-components — it reads from `recipe.flourBlend` because `SavedPreferment` has no blend of its own yet
+- Once `SavedPreferment` gains `flourBlend`, expand the preferment section the same way final dough works: sub-rows per component with individual gram weights calculated from the preferment flour weight and blend percentages
+
 ---
 
 ## v0.6 — Edit/Fork, Session Architecture, Bake Flow
