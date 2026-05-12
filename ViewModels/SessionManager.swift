@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 class SessionManager: ObservableObject {
     @Published var sessions: [SessionViewModel] = []

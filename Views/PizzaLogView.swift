@@ -8,7 +8,6 @@ struct PizzaLogView: View {
     let onEndBake: () -> Void
 
     @EnvironmentObject var store: RecipeStore
-    @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
 
     @State private var crustColor: CrustColor = .even
