@@ -1,36 +1,95 @@
 import SwiftUI
 
+enum WizardMode {
+    case new
+    case edit(Recipe)
+    case fork(Recipe)
+}
+
 struct WizardContainerView: View {
+    let mode: WizardMode
     let onComplete: (Recipe) -> Void
+    let onSaveAsNew: ((Recipe) -> Void)?
     @Environment(\.dismiss) private var dismiss
+
+    init(mode: WizardMode = .new,
+         onComplete: @escaping (Recipe) -> Void,
+         onSaveAsNew: ((Recipe) -> Void)? = nil) {
+        self.mode = mode
+        self.onComplete = onComplete
+        self.onSaveAsNew = onSaveAsNew
+
+        let r: Recipe? = {
+            switch mode {
+            case .new: return nil
+            case .edit(let r), .fork(let r): return r
+            }
+        }()
+
+        _style              = State(initialValue: r?.style ?? .neapolitan)
+        _customStyleName    = State(initialValue: r?.customStyleName ?? "")
+        _usePreferment      = State(initialValue: r.map { $0.method != .direct } ?? true)
+        _prefermentHydration = State(initialValue: r?.prefermentHydration ?? 0.50)
+        _method             = State(initialValue: r?.method ?? .biga)
+        _flourBlend         = State(initialValue: r?.flourBlend ?? FlourBlend())
+        _finalHydration     = State(initialValue: r?.finalHydration ?? PizzaStyle.neapolitan.defaultFinalHydration)
+        _saltPct            = State(initialValue: r?.saltPct ?? 0.028)
+        _yeastPct           = State(initialValue: r?.yeastPct ?? 0.001)
+        _yeastType          = State(initialValue: r?.yeastType ?? .instantDry)
+        _timeline           = State(initialValue: r?.timeline ?? .overnight)
+        _mixerType          = State(initialValue: r?.mixerType ?? .hand)
+        _autolyse           = State(initialValue: r?.autolyse ?? false)
+        _bassinage          = State(initialValue: r?.bassinage ?? false)
+        _autolyseMinutes    = State(initialValue: r?.autolyseMinutes ?? 30)
+        _customMixerName    = State(initialValue: r?.customMixerName ?? "")
+        _mixingNotes        = State(initialValue: r?.mixingNotes ?? "")
+        _ballCount          = State(initialValue: r?.ballCount ?? 6)
+        _ballWeight         = State(initialValue: r?.ballWeight ?? 250)
+        _buffer             = State(initialValue: r?.buffer ?? 0.025)
+        _processCards       = State(initialValue: r?.processCards ?? ProcessCard.defaultCards(autolyse: false, bassinage: false))
+        _bakeSetups         = State(initialValue: r?.bakeSetups ?? [])
+
+        let defaultName: String = {
+            guard let r else { return "" }
+            switch mode {
+            case .fork:
+                let fmt = DateFormatter(); fmt.dateFormat = "MMM d yyyy"
+                return "\(r.name) — \(fmt.string(from: Date()))"
+            default: return r.name
+            }
+        }()
+        _name = State(initialValue: defaultName)
+    }
 
     @State private var step = 0
     @State private var reviewMode = false
     @State private var showProcessWarningAlert = false
+    @State private var style: PizzaStyle
+    @State private var customStyleName: String
+    @State private var usePreferment: Bool
+    @State private var prefermentHydration: Double
+    @State private var method: PrefermentMethod
+    @State private var flourBlend: FlourBlend
+    @State private var finalHydration: Double
+    @State private var saltPct: Double
+    @State private var yeastPct: Double
+    @State private var yeastType: YeastType
+    @State private var timeline: Timeline
+    @State private var mixerType: MixerType
+    @State private var autolyse: Bool
+    @State private var bassinage: Bool
+    @State private var autolyseMinutes: Int
+    @State private var customMixerName: String
+    @State private var mixingNotes: String
+    @State private var ballCount: Int
+    @State private var ballWeight: Double
+    @State private var buffer: Double
+    @State private var processCards: [ProcessCard]
+    @State private var bakeSetups: [BakeSetup]
+    @State private var name: String
 
-    @State private var style: PizzaStyle = .neapolitan
-    @State private var customStyleName: String = ""
-    @State private var usePreferment: Bool = true
-    @State private var prefermentHydration: Double = 0.50
-    @State private var method: PrefermentMethod = .biga
-    @State private var flourBlend: FlourBlend = FlourBlend()
-    @State private var finalHydration: Double = PizzaStyle.neapolitan.defaultFinalHydration
-    @State private var saltPct: Double = 0.028
-    @State private var yeastPct: Double = 0.001
-    @State private var yeastType: YeastType = .instantDry
-    @State private var timeline: Timeline = .overnight
-    @State private var mixerType: MixerType = .hand
-    @State private var autolyse: Bool = false
-    @State private var bassinage: Bool = false
-    @State private var autolyseMinutes: Int = 30
-    @State private var customMixerName: String = ""
-    @State private var mixingNotes: String = ""
-    @State private var ballCount = 6
-    @State private var ballWeight: Double = 250
-    @State private var buffer: Double = 0.025
-    @State private var processCards: [ProcessCard] = ProcessCard.defaultCards(autolyse: false, bassinage: false)
-    @State private var bakeSetups: [BakeSetup] = []
-    @State private var name = ""
+    var isEditMode: Bool { if case .edit = mode { return true }; return false }
+    var isForkMode: Bool { if case .fork = mode { return true }; return false }
 
     let totalSteps = 10
 
@@ -148,6 +207,14 @@ struct WizardContainerView: View {
                 }
                 .buttonStyle(ImpastoButtonStyle(filled: true))
                 .disabled(step == 3 && !flourBlend.isValid)
+            } else if isEditMode {
+                Button("Save as New →") { saveAsNew() }
+                    .buttonStyle(ImpastoButtonStyle(filled: false))
+                Button("Save Changes →") { save() }
+                    .buttonStyle(ImpastoButtonStyle(filled: true))
+            } else if isForkMode {
+                Button("Save as New →") { saveAsNew() }
+                    .buttonStyle(ImpastoButtonStyle(filled: true))
             } else {
                 Button("Save Recipe →") { save() }
                     .buttonStyle(ImpastoButtonStyle(filled: true))
@@ -165,7 +232,7 @@ struct WizardContainerView: View {
         }
     }
 
-    func save() {
+    func buildRecipe() -> Recipe {
         let styleName = style == .custom ? (customStyleName.isEmpty ? "My Style" : customStyleName) : style.rawValue
         var recipe = Recipe(
             name: name.isEmpty ? "\(styleName) — \(method.rawValue)" : name,
@@ -191,6 +258,22 @@ struct WizardContainerView: View {
         recipe.flourBlend          = flourBlend
         recipe.processCards        = processCards
         recipe.bakeSetups          = bakeSetups
+        return recipe
+    }
+
+    func save() {
+        var recipe = buildRecipe()
+        if case .edit(let existing) = mode {
+            recipe.id = existing.id
+            recipe.bakeLogs = existing.bakeLogs
+        }
         onComplete(recipe)
+    }
+
+    func saveAsNew() {
+        var recipe = buildRecipe()
+        recipe.id = UUID()
+        if let handler = onSaveAsNew { handler(recipe) }
+        else { onComplete(recipe) }
     }
 }

@@ -4,6 +4,8 @@ struct RecipeDetailView: View {
     @EnvironmentObject var store: RecipeStore
     @State var recipe: Recipe
     @State private var showPreFlight = false
+    @State private var showEditWizard = false
+    @State private var showForkWizard = false
 
     var styleLabel: String {
         recipe.style == .custom && !recipe.customStyleName.isEmpty
@@ -67,12 +69,43 @@ struct RecipeDetailView: View {
                 Button("▶  Start Session") { showPreFlight = true }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundColor(Color(hex: "D2B96A"))
+                Button("Edit Recipe") { showEditWizard = true }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .foregroundColor(.primary)
+                Button("Modify and Save as New") { showForkWizard = true }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .foregroundColor(.secondary)
             }
         }
         .navigationTitle(recipe.name)
         .fullScreenCover(isPresented: $showPreFlight) {
             PreFlightView(recipe: recipe)
                 .environmentObject(store)
+        }
+        .sheet(isPresented: $showEditWizard) {
+            WizardContainerView(
+                mode: .edit(recipe),
+                onComplete: { updated in
+                    store.update(updated)
+                    recipe = updated
+                    showEditWizard = false
+                },
+                onSaveAsNew: { forked in
+                    store.add(forked)
+                    showEditWizard = false
+                }
+            )
+            .environmentObject(store)
+        }
+        .sheet(isPresented: $showForkWizard) {
+            WizardContainerView(
+                mode: .fork(recipe),
+                onComplete: { forked in
+                    store.add(forked)
+                    showForkWizard = false
+                }
+            )
+            .environmentObject(store)
         }
     }
 
