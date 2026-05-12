@@ -17,7 +17,7 @@ struct LiveSessionView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: "1A1B18").ignoresSafeArea()
+                Color(hex: "F5F1E8").ignoresSafeArea()
 
                 if vm.isInBakeStep {
                     bakeStepView
@@ -57,6 +57,7 @@ struct LiveSessionView: View {
                 }
             }
         }
+        .preferredColorScheme(.light)
         .fullScreenCover(isPresented: $showPostBake) {
             PostBakeView(vm: vm, recipe: recipe)
                 .environmentObject(store)
@@ -155,7 +156,7 @@ struct LiveSessionView: View {
 
                 Text(timeString(displayTime))
                     .font(.system(size: 56, design: .serif))
-                    .foregroundColor(vm.isOvertime ? Color.orange : Color(hex: "E8D49A"))
+                    .foregroundColor(vm.isOvertime ? Color.orange : Color(hex: "2C2A24"))
                     .onLongPressGesture(minimumDuration: 0.6) {
                         let gen = UIImpactFeedbackGenerator(style: .heavy)
                         gen.impactOccurred()
@@ -292,7 +293,7 @@ struct LiveSessionView: View {
                               ),
                               axis: .vertical)
                         .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(Color(hex: "E8D49A"))
+                        .foregroundColor(.primary)
                         .lineLimit(1...3)
                 }
             }
@@ -341,7 +342,7 @@ struct LiveSessionView: View {
                 if vm.bakingStarted {
                     Text(timeString(vm.bakeElapsed))
                         .font(.system(size: 56, design: .serif))
-                        .foregroundColor(Color(hex: "E8D49A"))
+                        .foregroundColor(Color(hex: "2C2A24"))
                 } else {
                     Text("Ready to launch")
                         .font(.system(size: 18, design: .monospaced))
