@@ -12,12 +12,13 @@ struct HomeView: View {
     @State private var showStartDough = false
     @State private var splashDone = false
     @State private var resumedSession: SessionViewModel? = nil
+    @State private var initialTab: Int = 0
 
     private let appVersion = "0.7"
 
     var body: some View {
         if showMainApp {
-            MainTabView(onGoHome: { showMainApp = false })
+            MainTabView(onGoHome: { showMainApp = false }, initialTab: initialTab)
                 .environmentObject(store)
                 .environmentObject(sessionManager)
         } else {
@@ -46,30 +47,26 @@ struct HomeView: View {
                 Spacer()
 
                 if splashDone {
-                    // Active hidden sessions
-                    ForEach(sessionManager.sessions) { vm in
+                    if !sessionManager.sessions.isEmpty {
                         VStack(spacing: 8) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text("Session in progress")
+                                    Text("Sessions in progress")
                                         .font(.system(size: 9, design: .monospaced))
                                         .foregroundColor(Color(hex: "9A9688"))
                                         .tracking(2)
-                                    Text(vm.recipe.name)
+                                    Text("\(sessionManager.sessions.count) active")
                                         .font(.system(size: 15, design: .monospaced))
                                         .foregroundColor(Color(hex: "2C2A24"))
-                                    Text("Step \(vm.currentIndex + 1) of \(vm.cards.count) · \(vm.recipe.method.rawValue)")
-                                        .font(.system(size: 11, design: .monospaced))
-                                        .foregroundColor(Color(hex: "9A9688"))
                                 }
                                 Spacer()
                                 Circle()
                                     .fill(Color.orange)
                                     .frame(width: 8, height: 8)
                             }
-                            Button("▶  Resume Session") {
-                                vm.isHidden = false
-                                resumedSession = vm
+                            Button("▶  Check Sessions") {
+                                initialTab = 1
+                                showMainApp = true
                             }
                             .buttonStyle(ImpastoButtonStyle(filled: true))
                         }
