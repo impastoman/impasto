@@ -62,14 +62,6 @@ struct LiveSessionView: View {
                         Button("Go Back", role: .cancel) {}
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showRecipeSheet = true
-                    } label: {
-                        Image(systemName: "doc.text")
-                    }
-                    .foregroundColor(.secondary)
-                }
                 if !vm.isInBakeStep {
                     ToolbarItem(placement: .topBarTrailing) {
                         if vm.isRunning {
@@ -132,6 +124,17 @@ struct LiveSessionView: View {
     var processView: some View {
         VStack(spacing: 0) {
             cardTabs.padding(.top, 8)
+            HStack {
+                Button {
+                    showRecipeSheet = true
+                } label: {
+                    Image(systemName: "doc.text")
+                }
+                .foregroundColor(.secondary)
+                .padding(.leading, 16)
+                .padding(.top, 6)
+                Spacer()
+            }
             Spacer()
             timerBlock
             Spacer()
