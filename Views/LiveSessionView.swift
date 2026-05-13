@@ -100,7 +100,12 @@ struct LiveSessionView: View {
             .environmentObject(sessionManager)
         }
         .onChange(of: sessionManager.sessions.count) { _, _ in
-            if !sessionManager.sessions.contains(where: { $0 === vm }) {
+            // Only self-dismiss from an external end (e.g. ended from Sessions tab).
+            // When shouldReturnHome is already true, the shouldReturnHome observer
+            // handles the orderly inside-out cascade — firing both at once causes a
+            // race that leaves PreFlightView stranded.
+            if !sessionManager.sessions.contains(where: { $0 === vm }),
+               !sessionManager.shouldReturnHome {
                 dismiss()
             }
         }
