@@ -8,7 +8,8 @@ enum WizardMode {
 
 // MARK: - ConvertedFormula
 
-struct ConvertedFormula {
+struct ConvertedFormula: Identifiable {
+    let id = UUID()
     var finalHydration: Double
     var saltPct: Double
     var yeastPct: Double

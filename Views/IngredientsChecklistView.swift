@@ -12,6 +12,7 @@ struct IngredientsChecklistView: View {
         let label: String
         let amount: String
         var isSubItem: Bool = false
+        var note: String = ""
     }
 
     var prefermentItems: [CheckItem] {
@@ -29,11 +30,12 @@ struct IngredientsChecklistView: View {
             items.append(CheckItem(id: "pref_flour_header", label: "\(label) flour blend", amount: weightUnit.display(recipe.bigaFlour)))
             for c in flourComponents {
                 let weight = recipe.bigaFlour * (c.percentage / 100)
-                items.append(CheckItem(id: "pref_flour_\(c.id)", label: c.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
+                items.append(CheckItem(id: "pref_flour_\(c.id)", label: c.type.rawValue, amount: weightUnit.display(weight), isSubItem: true, note: c.brand))
             }
         } else {
             let flourLabel = flourComponents.first.map { $0.type.rawValue } ?? "\(label) flour"
-            items.append(CheckItem(id: "pref_flour", label: flourLabel, amount: weightUnit.display(recipe.bigaFlour)))
+            let flourNote  = flourComponents.first?.brand ?? ""
+            items.append(CheckItem(id: "pref_flour", label: flourLabel, amount: weightUnit.display(recipe.bigaFlour), note: flourNote))
         }
 
         items.append(CheckItem(id: "pref_water", label: "\(label) water", amount: weightUnit.display(recipe.bigaWater)))
@@ -41,7 +43,7 @@ struct IngredientsChecklistView: View {
 
         for additive in prefBlend.additives {
             let weight = recipe.bigaFlour * (additive.percentage / 100)
-            items.append(CheckItem(id: "pref_add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.displayPrecise(weight), isSubItem: true))
+            items.append(CheckItem(id: "pref_add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.displayPrecise(weight), isSubItem: true, note: additive.note))
         }
 
         return items
@@ -56,16 +58,17 @@ struct IngredientsChecklistView: View {
             items.append(CheckItem(id: "flour_header", label: "Flour blend", amount: weightUnit.display(flourTotal)))
             for c in flourComponents {
                 let weight = flourTotal * (c.percentage / 100)
-                items.append(CheckItem(id: "flour_\(c.id)", label: c.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
+                items.append(CheckItem(id: "flour_\(c.id)", label: c.type.rawValue, amount: weightUnit.display(weight), isSubItem: true, note: c.brand))
             }
         } else {
             let flourLabel = flourComponents.first.map { $0.type.rawValue } ?? "Flour"
-            items.append(CheckItem(id: "flour", label: flourLabel, amount: weightUnit.display(flourTotal)))
+            let flourNote  = flourComponents.first?.brand ?? ""
+            items.append(CheckItem(id: "flour", label: flourLabel, amount: weightUnit.display(flourTotal), note: flourNote))
         }
 
         for additive in recipe.flourBlend.additives {
             let weight = flourTotal * (additive.percentage / 100)
-            items.append(CheckItem(id: "add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.displayPrecise(weight), isSubItem: true))
+            items.append(CheckItem(id: "add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.displayPrecise(weight), isSubItem: true, note: additive.note))
         }
 
         let waterTotal = recipe.method == .direct ? recipe.totalWater : recipe.additionalWater
@@ -157,10 +160,17 @@ struct IngredientsChecklistView: View {
             }
             .buttonStyle(.plain)
 
-            Text(item.label)
-                .font(.system(item.isSubItem ? .subheadline : .body, design: .monospaced))
-                .foregroundColor(checked.contains(item.id) ? .secondary : .primary)
-                .strikethrough(checked.contains(item.id), color: .secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.label)
+                    .font(.system(item.isSubItem ? .subheadline : .body, design: .monospaced))
+                    .foregroundColor(checked.contains(item.id) ? .secondary : .primary)
+                    .strikethrough(checked.contains(item.id), color: .secondary)
+                if !item.note.isEmpty {
+                    Text(item.note)
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+            }
             Spacer()
             Text(item.amount)
                 .font(.system(size: 15, design: .monospaced))

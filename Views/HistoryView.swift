@@ -43,9 +43,10 @@ struct HistoryView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if let goHome = onGoHome {
-                        Button("⌂ Home") { goHome() }
-                            .font(.system(size: 13, design: .monospaced))
-                            .foregroundColor(.secondary)
+                        Button { goHome() } label: {
+                            Image(systemName: "house")
+                        }
+                        .foregroundColor(.secondary)
                     }
                 }
             }

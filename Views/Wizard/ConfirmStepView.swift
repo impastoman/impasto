@@ -99,6 +99,13 @@ struct ConfirmStepView: View {
                     }
                 }
             } header: { sectionHeader("Process", step: 7) }
+              footer: {
+                let total = processCards.reduce(0.0) { $0 + $1.duration }
+                if total > 0 {
+                    Text("Total: \(processTotalString(total))")
+                        .font(.system(size: 11, design: .monospaced))
+                }
+            }
 
             if !bakeSetups.isEmpty {
                 Section {
@@ -166,6 +173,13 @@ struct ConfirmStepView: View {
     func shortDuration(_ t: TimeInterval) -> String {
         let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60
         if h > 0 { return "\(h)h \(m)m" }
+        return "\(m)m"
+    }
+
+    func processTotalString(_ t: TimeInterval) -> String {
+        let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60
+        if h > 0 && m > 0 { return "\(h)h \(m)m" }
+        if h > 0 { return "\(h)h" }
         return "\(m)m"
     }
 }

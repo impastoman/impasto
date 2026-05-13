@@ -15,7 +15,6 @@ struct HomeView: View {
     @State private var initialTab: Int = 0
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
-    @State private var showFormulaWizard = false
 
     private let appVersion = "0.8"
 
@@ -35,7 +34,7 @@ struct HomeView: View {
         .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
             guard isTrue else { return }
             showStartDough = false
-            showMainApp = false
+            withAnimation(.easeInOut(duration: 0.35)) { showMainApp = false }
             sessionManager.shouldReturnHome = false
         }
     }
@@ -90,23 +89,6 @@ struct HomeView: View {
                         .cornerRadius(8)
                     }
 
-                    if let active = store.activeRecipe, sessionManager.sessions.isEmpty {
-                        VStack(spacing: 10) {
-                            Text("last session")
-                                .font(.system(size: 9, design: .monospaced))
-                                .foregroundColor(Color(hex: "9A9688"))
-                                .tracking(2)
-                            Text(active.name)
-                                .font(.system(size: 15, design: .monospaced))
-                                .foregroundColor(Color(hex: "2C2A24"))
-                            Button("▶  Continue") { showMainApp = true }
-                                .buttonStyle(ImpastoButtonStyle(filled: true))
-                        }
-                        .padding(16)
-                        .background(Color.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
-                        .cornerRadius(8)
-                    }
                 }
 
                 if splashDone {
@@ -152,23 +134,18 @@ struct HomeView: View {
                 showMainApp = true
             }
         }
-        .sheet(isPresented: $showVolumeConverter, onDismiss: {
-            if pendingFormula != nil { showFormulaWizard = true }
-        }) {
+        .sheet(isPresented: $showVolumeConverter) {
             VolumeConverterView { formula in
                 pendingFormula = formula
                 showVolumeConverter = false
             }
         }
-        .sheet(isPresented: $showFormulaWizard) {
-            if let formula = pendingFormula {
-                WizardContainerView(convertedFormula: formula) { recipe in
-                    store.add(recipe)
-                    store.activeRecipeId = recipe.id
-                    pendingFormula = nil
-                    showFormulaWizard = false
-                    showMainApp = true
-                }
+        .sheet(item: $pendingFormula) { formula in
+            WizardContainerView(convertedFormula: formula) { recipe in
+                store.add(recipe)
+                store.activeRecipeId = recipe.id
+                pendingFormula = nil
+                showMainApp = true
             }
         }
         .sheet(isPresented: $showBlendBuilder) {

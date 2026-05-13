@@ -18,13 +18,6 @@ struct SessionLogView: View {
 
     @State private var rating = 3
     @State private var showGoHomeAlert = false
-    @State private var crustTags: Set<CrustTag> = []
-    @State private var crumbTags: Set<CrumbTag> = []
-    @State private var customCrustTags: Set<String> = []
-    @State private var customCrumbTags: Set<String> = []
-    @State private var showNewCrustTag = false
-    @State private var showNewCrumbTag = false
-    @State private var newTagText = ""
     @State private var notes = ""
 
     init(vm: SessionViewModel, recipe: Recipe,
@@ -52,7 +45,6 @@ struct SessionLogView: View {
                 ratingSection
                 stageReportSection
                 pauseSection
-                crustCrumbSection
                 fermentSection
                 bakeResultsSection
                 notesSection
@@ -84,28 +76,67 @@ struct SessionLogView: View {
             ForEach(vm.cards, id: \.id) { card in
                 let planned = card.duration
                 let actual  = vm.actualDurations[card.id]
-                HStack {
-                    Text(card.title)
-                        .font(.system(size: 13, design: .monospaced))
-                        .frame(width: 130, alignment: .leading)
-                    Spacer()
-                    if let actual {
-                        let delta = actual - planned
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text(shortTime(actual))
-                                .font(.system(size: 13, design: .monospaced))
-                            if planned > 0 {
-                                Text(deltaString(delta))
-                                    .font(.system(size: 11, design: .monospaced))
-                                    .foregroundColor(deltaColor(delta))
+                if planned > 0 {
+                    // Timed step — show labeled planned / actual / delta
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(card.title)
+                            .font(.system(size: 13, design: .monospaced))
+                        HStack(spacing: 0) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Planned")
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                                Text(shortTime(planned))
+                                    .font(.system(size: 13, design: .monospaced))
+                            }
+                            Spacer()
+                            VStack(alignment: .center, spacing: 2) {
+                                Text("Actual")
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                                if let actual {
+                                    Text(shortTime(actual))
+                                        .font(.system(size: 13, design: .monospaced))
+                                } else {
+                                    Text("—")
+                                        .font(.system(size: 13, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                            if let actual, Swift.abs(actual - planned) >= 60 {
+                                let delta = actual - planned
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    Text(delta >= 0 ? "Over" : "Under")
+                                        .font(.system(size: 10, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                    Text(deltaString(delta))
+                                        .font(.system(size: 13, design: .monospaced))
+                                        .foregroundColor(deltaColor(delta))
+                                }
                             }
                         }
-                    } else {
-                        Text("—").font(.system(size: 13, design: .monospaced)).foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                } else {
+                    // Action step — just title + actual time
+                    HStack {
+                        Text(card.title)
+                            .font(.system(size: 13, design: .monospaced))
+                        Spacer()
+                        if let actual {
+                            Text(shortTime(actual))
+                                .font(.system(size: 13, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        } else {
+                            Text("—")
+                                .font(.system(size: 13, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
-        } header: { Text("Stage times  ·  planned vs. actual") }
+        } header: { Text("Stage times") }
     }
 
     @ViewBuilder
@@ -120,69 +151,6 @@ struct SessionLogView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             } header: { Text("Pause log") }
-        }
-    }
-
-    var crustCrumbSection: some View {
-        Group {
-            Section("Crust") {
-                FlowTagRow(tags: CrustTag.allCases, selected: $crustTags).padding(.vertical, 4)
-                if !store.customCrustTags.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(store.customCrustTags, id: \.self) { tag in
-                                TagChip(label: tag, selected: customCrustTags.contains(tag)) {
-                                    if customCrustTags.contains(tag) { customCrustTags.remove(tag) }
-                                    else { customCrustTags.insert(tag) }
-                                }
-                            }
-                        }
-                    }
-                }
-                TagChip(label: "+ New", selected: false) { showNewCrustTag = true }
-            }
-            Section("Crumb") {
-                FlowTagRow(tags: CrumbTag.allCases, selected: $crumbTags).padding(.vertical, 4)
-                if !store.customCrumbTags.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(store.customCrumbTags, id: \.self) { tag in
-                                TagChip(label: tag, selected: customCrumbTags.contains(tag)) {
-                                    if customCrumbTags.contains(tag) { customCrumbTags.remove(tag) }
-                                    else { customCrumbTags.insert(tag) }
-                                }
-                            }
-                        }
-                    }
-                }
-                TagChip(label: "+ New", selected: false) { showNewCrumbTag = true }
-            }
-        }
-        .alert("New Crust Tag", isPresented: $showNewCrustTag) {
-            TextField("e.g. Leoparded", text: $newTagText)
-            Button("Add") {
-                let t = newTagText.trimmingCharacters(in: .whitespaces)
-                if !t.isEmpty && !store.customCrustTags.contains(t) {
-                    store.customCrustTags.append(t)
-                    store.saveCustomTags()
-                    customCrustTags.insert(t)
-                }
-                newTagText = ""
-            }
-            Button("Cancel", role: .cancel) { newTagText = "" }
-        }
-        .alert("New Crumb Tag", isPresented: $showNewCrumbTag) {
-            TextField("e.g. Pillowy", text: $newTagText)
-            Button("Add") {
-                let t = newTagText.trimmingCharacters(in: .whitespaces)
-                if !t.isEmpty && !store.customCrumbTags.contains(t) {
-                    store.customCrumbTags.append(t)
-                    store.saveCustomTags()
-                    customCrumbTags.insert(t)
-                }
-                newTagText = ""
-            }
-            Button("Cancel", role: .cancel) { newTagText = "" }
         }
     }
 
@@ -255,10 +223,10 @@ struct SessionLogView: View {
     func save() {
         let log = vm.buildBakeLog(
             rating: rating,
-            crustTags: Array(crustTags),
-            crumbTags: Array(crumbTags),
-            customCrustTags: Array(customCrustTags),
-            customCrumbTags: Array(customCrumbTags),
+            crustTags: [],
+            crumbTags: [],
+            customCrustTags: [],
+            customCrumbTags: [],
             notes: notes,
             bakeTimeSeconds: bakeTimeSeconds,
             ovenTempAchieved: ovenTempAchieved,

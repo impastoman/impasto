@@ -42,7 +42,7 @@ struct PostBakeView: View {
             SessionLogView(
                 vm: vm,
                 recipe: recipe,
-                bakeTimeSeconds: vm.bakeElapsed,
+                bakeTimeSeconds: totalBakeTime,
                 ovenTempAchieved: nil,
                 photoData: photoData,
                 onEndSession: {
@@ -123,9 +123,15 @@ struct PostBakeView: View {
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }
 
+    var totalBakeTime: TimeInterval {
+        vm.pizzaEntries.isEmpty
+            ? vm.bakeElapsed
+            : vm.pizzaEntries.reduce(0) { $0 + $1.bakeTimeSeconds }
+    }
+
     var bakeTimeSection: some View {
         Section("Bake info") {
-            LabeledContent("Total bake time", value: timeString(vm.bakeElapsed))
+            LabeledContent("Total bake time", value: timeString(totalBakeTime))
                 .font(.system(.body, design: .monospaced))
         }
     }

@@ -88,9 +88,10 @@ struct ActiveSessionsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("⌂ Home") { onGoHome() }
-                        .font(.system(size: 13, design: .monospaced))
-                        .foregroundColor(.secondary)
+                    Button { onGoHome() } label: {
+                        Image(systemName: "house")
+                    }
+                    .foregroundColor(.secondary)
                 }
             }
             .confirmationDialog("End Session", isPresented: $showEndOptions, titleVisibility: .visible) {

@@ -149,14 +149,20 @@ struct MethodStepView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(Color(hex: "D2B96A"))
                     Spacer()
-                    HStack(spacing: 2) {
+                    HStack(spacing: 4) {
                         TextField("\(Int(prefermentHydration * 100))", text: $hydrationText)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 44)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 52)
                             .font(.system(size: 15, design: .monospaced))
+                            .padding(.vertical, 4).padding(.horizontal, 4)
+                            .background(Color(hex: "F0EDE4"))
+                            .cornerRadius(5)
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                             .onChange(of: hydrationText) { _, val in
-                                if let d = Double(val), d >= 40, d <= 120 {
+                                let f = val.filter { $0.isNumber || $0 == "." }
+                                if f != val { hydrationText = f; return }
+                                if let d = Double(val), d >= 1 {
                                     prefermentHydration = d / 100
                                     method = derivedMethod
                                 }
@@ -193,11 +199,15 @@ struct MethodStepView: View {
         } header: {
             Text("Preferment hydration")
         } footer: {
-            if prefermentHydration < 0.50 {
-                Text("Below 50% the dough will be very stiff — handle with lightly floured hands")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundColor(.orange)
+            Group {
+                if prefermentHydration < 0.50 {
+                    Text("Below 50% the dough will be very stiff — handle with lightly floured hands")
+                        .foregroundColor(.orange)
+                } else {
+                    Text("Tap the field to type any value from 1–999%")
+                }
             }
+            .font(.system(size: 11, design: .monospaced))
         }
     }
 
@@ -208,14 +218,20 @@ struct MethodStepView: View {
                     Text("Preferment ratio")
                         .font(.system(size: 14, design: .monospaced))
                     Spacer()
-                    HStack(spacing: 2) {
+                    HStack(spacing: 4) {
                         TextField("\(Int(prefermentRatio * 100))", text: $ratioText)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 44)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 52)
                             .font(.system(size: 15, design: .monospaced))
+                            .padding(.vertical, 4).padding(.horizontal, 4)
+                            .background(Color(hex: "F0EDE4"))
+                            .cornerRadius(5)
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                             .onChange(of: ratioText) { _, val in
-                                if let d = Double(val), d >= 1, d <= 99 {
+                                let f = val.filter { $0.isNumber || $0 == "." }
+                                if f != val { ratioText = f; return }
+                                if let d = Double(val), d >= 1 {
                                     prefermentRatio = d / 100
                                 }
                             }
@@ -232,7 +248,7 @@ struct MethodStepView: View {
             }
             .padding(.vertical, 4)
         } header: { Text("Preferment ratio") }
-          footer: { Text("Percentage of total flour that goes into the preferment. Typical: 20–40%.") }
+          footer: { Text("Percentage of total flour that goes into the preferment. Typical: 20–40%  ·  tap field to type any value from 1–999%").font(.system(size: 11, design: .monospaced)) }
     }
 
     @ViewBuilder

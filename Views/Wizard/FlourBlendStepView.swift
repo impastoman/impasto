@@ -247,7 +247,7 @@ struct FlourComponentRow: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Picker("", selection: $component.type) {
                     ForEach(FlourType.allCases, id: \.self) { t in
                         Text(t.rawValue).tag(t)
@@ -256,11 +256,17 @@ struct FlourComponentRow: View {
                 .labelsHidden()
                 .frame(maxWidth: .infinity, alignment: .leading)
 
+                Divider().frame(height: 28)
+
                 TextField("0", value: $component.percentage, format: .number)
                     .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 52)
+                    .multilineTextAlignment(.center)
+                    .frame(width: 48)
                     .font(.system(.body, design: .monospaced))
+                    .padding(.vertical, 4).padding(.horizontal, 4)
+                    .background(Color(hex: "F0EDE4"))
+                    .cornerRadius(5)
+                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "C4B89A").opacity(0.7), lineWidth: 1))
 
                 Text("%").foregroundColor(.secondary).font(.system(.body, design: .monospaced))
 
@@ -299,7 +305,7 @@ struct AdditiveRow: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Picker("", selection: $additive.type) {
                     ForEach(AdditiveType.allCases, id: \.self) { t in
                         Text(t.rawValue).tag(t)
@@ -308,11 +314,17 @@ struct AdditiveRow: View {
                 .labelsHidden()
                 .frame(maxWidth: .infinity, alignment: .leading)
 
+                Divider().frame(height: 28)
+
                 TextField("0", value: $additive.percentage, format: .number)
                     .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 52)
+                    .multilineTextAlignment(.center)
+                    .frame(width: 48)
                     .font(.system(.body, design: .monospaced))
+                    .padding(.vertical, 4).padding(.horizontal, 4)
+                    .background(Color(hex: "F0EDE4"))
+                    .cornerRadius(5)
+                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "C4B89A").opacity(0.7), lineWidth: 1))
 
                 Text("%").foregroundColor(.secondary).font(.system(.body, design: .monospaced))
 

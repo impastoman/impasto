@@ -221,19 +221,20 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Seed defaults
 
-    private static let seedKey = "impasto_seeded_v4"
+    private static let seedKey = "impasto_seeded_v5"
 
     func seedDefaultsIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: Self.seedKey) else { return }
 
         // Remove any prior-version seed data by name before re-seeding
-        savedBlends.removeAll    { $0.name == "Perfectly good flour" };               saveBlends()
-        savedProcesses.removeAll { $0.name == "Perfectly good process" };             saveProcesses()
+        savedBlends.removeAll    { ["Perfectly good flour", "Perfectly Good Flour Blend"].contains($0.name) };  saveBlends()
+        savedProcesses.removeAll { $0.name == "Perfectly good process" };                                       saveProcesses()
         recipes.removeAll        { ["Classic Neapolitan", "Perfectly Good Dough Recipe"].contains($0.name) }
         saveRecipes()
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v1")
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v2")
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v3")
+        UserDefaults.standard.removeObject(forKey: "impasto_seeded_v4")
 
         let blend = makeSeedBlend()
         addBlend(blend)
@@ -252,9 +253,9 @@ class RecipeStore: ObservableObject {
         component.type       = .tipo00
         component.percentage = 100
         component.glutenPct  = 15
-        component.brand      = "TG \"California Artisan\" Type 00 Pizza Flour"
+        component.brand      = "TG California Artisan Blend"
         var blend = FlourBlend()
-        blend.name       = "Perfectly good flour"
+        blend.name       = "Perfectly Good Flour Blend"
         blend.components = [component]
         return blend
     }
@@ -276,19 +277,26 @@ class RecipeStore: ObservableObject {
         }
 
         card(.combine)
-        card(.autolyse,          duration: 30 * 60)
-        card(.incorporateYeast)
-        card(.bassinage,                               bassinagePct: 0.10)
-        card(.kneading,          duration: 10 * 60)
-        card(.incorporateSalt)
-        card(.kneading,          duration: 1 * 60)
-        card(.rest,              duration: 5 * 60)
-        card(.stretchAndFold,    duration: 60 * 60)
-        card(.bulkFermentation,  duration: 12 * 3600)
-        card(.divide)
-        card(.coldFerment,       duration: 36 * 3600)
-        card(.preShape)
-        card(.finalProof,        duration: 4 * 3600)
+        card(.autolyse,         duration: 30 * 60,  note: "leave covered")
+        card(.incorporateYeast,                     note: "dissolve in reserved water")
+        card(.bassinage,                            note: "add gradually to running mixer, to avoid splashing", bassinagePct: 0.10)
+        card(.kneading,         duration: 9 * 60,   note: "This is part 1 of kneading; plan to cut kneading short when it is less than 1 min. to completion to add salt")
+        card(.incorporateSalt,                      note: "leave mixer running while gradually adding salt to prevent splashing salt")
+        card(.kneading,         duration: 1 * 60,   note: "look for dough to show signs of completion. While mixer is off, pressing dough will leave an indent that bounces back somewhat, is soft, and the dough appears to snake up the dough hook as a single unit. If dough does not appear done at this step, continue kneading until it is")
+        card(.rest,             duration: 5 * 60,   note: "Dough should be covered during every rest step")
+        card(.stretchAndFold,   duration: 0,        note: "imagine 4 corners of the dough, pull on each outwards then fold onto center. Flip dough when four corners are done")
+        card(.benchRest,        duration: 20 * 60,  note: "this dough will be stretched and folded 4 total times with rests in between")
+        card(.stretchAndFold,   duration: 0,        note: "same method as before and the same again for the next two stretch and folds")
+        card(.benchRest,        duration: 20 * 60,  note: "drink a glass of water; it's good for you")
+        card(.stretchAndFold,   duration: 0,        note: "one more rest and one more stretch and fold to go!")
+        card(.benchRest,        duration: 20 * 60,  note: "good time to get a bowl ready to bulk ferment. Use a few drops of extra virgin olive oil and spread through bowl")
+        card(.stretchAndFold,   duration: 0)
+        card(.bulkFermentation, duration: 12 * 3600, note: "place dough into bowl for bulk fermentation at room temperature. Pour a few droplets on top and cover")
+        card(.divide,                               note: "place dough onto a clean surface and use dough cutter to make number of desired dough balls. Use a scale to remove and add dough portions among each other to get desired size")
+        card(.preShape,                             note: "Have as many 16oz deli containers with lids or similar ready with a drop of EVOO on the bottom to store balls in fridge. Shape each portion into a ball, building tension on the top, and place into container. Pour a drop of EVOO atop each dough ball before closing container")
+        card(.coldFerment,      duration: 36 * 3600, note: "store refrigerated")
+        card(.preShape,                             note: "transfer cool doughs onto a baking sheet or dough box with enough space between them to allow room for dough to expand without touching one another, at least 3\" apart on each side")
+        card(.finalProof,       duration: 4 * 3600,  note: "doughs should remain covered and away from direct sun during final proof. Bake begins after doughs have expanded, and have warmed up")
 
         return SavedProcess(name: "Perfectly good process", cards: cards)
     }
@@ -296,12 +304,12 @@ class RecipeStore: ObservableObject {
     private func makeSeedRecipe(blend: FlourBlend, processCards: [ProcessCard]) -> Recipe {
         var r = Recipe(name: "Perfectly Good Dough Recipe", style: .custom, method: .direct,
                        mixerType: .standMixer, autolyse: true, bassinage: true,
-                       timeline: .longColdProof, ballCount: 8, ballWeight: 250, buffer: 0.0125)
+                       timeline: .longColdProof, ballCount: 8, ballWeight: 250, buffer: 0.0075)
         r.customStyleName = "Perfectly Good Style"
         r.finalHydration      = 0.66
         r.saltPct             = 0.03
         r.yeastPct            = 0.001
-        r.yeastType           = .instantDry
+        r.yeastType           = .activeDry
         r.bassinageReservePct = 0.10
         r.flourBlend          = blend
         r.processCards        = processCards

@@ -26,10 +26,16 @@ struct WaterSaltYeastStepView: View {
                         Spacer()
                         TextField("\(Int(styleDefault * 100))", text: $hydrationText)
                             .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
+                            .multilineTextAlignment(.center)
                             .frame(width: 52)
                             .font(.system(.body, design: .monospaced))
+                            .padding(.vertical, 4).padding(.horizontal, 4)
+                            .background(Color(hex: "F0EDE4"))
+                            .cornerRadius(5)
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                             .onChange(of: hydrationText) { _, val in
+                                let f = val.filter { $0.isNumber || $0 == "." }
+                                if f != val { hydrationText = f; return }
                                 if let d = Double(val), d > 0 { finalHydration = d / 100 }
                             }
                         Text("%").foregroundColor(.secondary)
@@ -56,10 +62,10 @@ struct WaterSaltYeastStepView: View {
                 Text("Water")
             } footer: {
                 if isFromConversion {
-                    Text("Pre-filled from your volume recipe  ·  higher = stickier dough, more open crumb")
+                    Text("Pre-filled from your volume recipe  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
                         .font(.system(size: 11, design: .monospaced))
                 } else {
-                    Text("Style default: \(Int(styleDefault * 100))%  ·  higher = stickier dough, more open crumb")
+                    Text("Style default: \(Int(styleDefault * 100))%  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
                         .font(.system(size: 11, design: .monospaced))
                 }
             }
@@ -71,10 +77,16 @@ struct WaterSaltYeastStepView: View {
                     Spacer()
                     TextField("2.8", text: $saltText)
                         .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
+                        .multilineTextAlignment(.center)
                         .frame(width: 52)
                         .font(.system(.body, design: .monospaced))
+                        .padding(.vertical, 4).padding(.horizontal, 4)
+                        .background(Color(hex: "F0EDE4"))
+                        .cornerRadius(5)
+                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                         .onChange(of: saltText) { _, val in
+                            let f = val.filter { $0.isNumber || $0 == "." }
+                            if f != val { saltText = f; return }
                             if let d = Double(val), d > 0 { saltPct = d / 100 }
                         }
                     Text("%").foregroundColor(.secondary)
@@ -105,10 +117,16 @@ struct WaterSaltYeastStepView: View {
                     Spacer()
                     TextField("0.1", text: $yeastText)
                         .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
+                        .multilineTextAlignment(.center)
                         .frame(width: 52)
                         .font(.system(.body, design: .monospaced))
+                        .padding(.vertical, 4).padding(.horizontal, 4)
+                        .background(Color(hex: "F0EDE4"))
+                        .cornerRadius(5)
+                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                         .onChange(of: yeastText) { _, val in
+                            let f = val.filter { $0.isNumber || $0 == "." }
+                            if f != val { yeastText = f; return }
                             if let d = Double(val), d > 0 { yeastPct = d / 100 }
                         }
                     Text("%").foregroundColor(.secondary)
