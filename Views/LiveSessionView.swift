@@ -32,12 +32,7 @@ struct LiveSessionView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        if vm.isRunning {
-                            vm.isHidden = true
-                            dismiss()
-                        } else {
-                            showLeaveAlert = true
-                        }
+                        showLeaveAlert = true
                     } label: {
                         Image(systemName: "house")
                     }
@@ -45,12 +40,22 @@ struct LiveSessionView: View {
                     .confirmationDialog("Leave session?", isPresented: $showLeaveAlert, titleVisibility: .visible) {
                         Button("Keep Paused and Leave") {
                             vm.isHidden = true
-                            dismiss()
+                            sessionManager.shouldReturnHome = true
                         }
-                        Button("Unpause and Leave") {
-                            vm.resume()
-                            vm.isHidden = true
-                            dismiss()
+                        if !vm.isRunning {
+                            Button("Unpause and Leave") {
+                                vm.resume()
+                                vm.isHidden = true
+                                sessionManager.shouldReturnHome = true
+                            }
+                        }
+                        Button("End and Log") {
+                            vm.stopBaking()
+                            showPostBake = true
+                        }
+                        Button("End without Logging", role: .destructive) {
+                            sessionManager.end(vm)
+                            sessionManager.shouldReturnHome = true
                         }
                         Button("Go Back", role: .cancel) {}
                     }
@@ -98,6 +103,9 @@ struct LiveSessionView: View {
             if !sessionManager.sessions.contains(where: { $0 === vm }) {
                 dismiss()
             }
+        }
+        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
+            if isTrue { dismiss() }
         }
         .sheet(isPresented: $showRecipeSheet) {
             NavigationStack {

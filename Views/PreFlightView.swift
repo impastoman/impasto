@@ -123,6 +123,9 @@ struct PreFlightView: View {
                     .environmentObject(sessionManager)
             }
         }
+        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
+            if isTrue { dismiss() }
+        }
     }
 
     var sessionModeSection: some View {
