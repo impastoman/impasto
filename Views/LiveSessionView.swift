@@ -221,17 +221,26 @@ struct LiveSessionView: View {
     @ViewBuilder
     var noteField: some View {
         if let card = vm.currentCard {
-            HStack(alignment: .top, spacing: 6) {
-                Image(systemName: "pencil").font(.caption).foregroundColor(.secondary).padding(.top, 2)
-                TextField("Add a session note for this step…",
-                          text: Binding(
-                            get: { sessionNotes[card.id] ?? "" },
-                            set: { sessionNotes[card.id] = $0.isEmpty ? nil : $0 }
-                          ),
-                          axis: .vertical)
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.primary)
-                    .lineLimit(1...3)
+            VStack(alignment: .leading, spacing: 6) {
+                if !card.recipeNote.isEmpty {
+                    HStack(alignment: .top, spacing: 4) {
+                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary).padding(.top, 2)
+                        Text(card.recipeNote)
+                            .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
+                    }
+                }
+                HStack(alignment: .top, spacing: 6) {
+                    Image(systemName: "pencil").font(.caption).foregroundColor(.secondary).padding(.top, 2)
+                    TextField("Add a session note for this step…",
+                              text: Binding(
+                                get: { sessionNotes[card.id] ?? "" },
+                                set: { sessionNotes[card.id] = $0.isEmpty ? nil : $0 }
+                              ),
+                              axis: .vertical)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.primary)
+                        .lineLimit(1...3)
+                }
             }
         }
     }
