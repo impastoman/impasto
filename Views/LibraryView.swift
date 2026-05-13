@@ -18,6 +18,9 @@ struct LibraryView: View {
     @State private var newFolderSection   = ""
     @State private var newFolderName      = ""
     @State private var showNewFolderAlert = false
+    @State private var showVolumeConverter = false
+    @State private var pendingFormula: ConvertedFormula? = nil
+    @State private var showFormulaWizard  = false
 
     // MARK: - Folder option lists
 
@@ -75,6 +78,7 @@ struct LibraryView: View {
             }
             .confirmationDialog("", isPresented: $showAddMenu, titleVisibility: .hidden) {
                 Button("New Recipe") { showWizard = true }
+                Button("Convert a Volume Recipe") { showVolumeConverter = true }
                 Button("New Flour Blend") { showBlendBuilder = true }
                 Button("New Process") { showProcessBuilder = true }
                 Button("New Preferment") { showPrefBuilder = true }
@@ -127,6 +131,23 @@ struct LibraryView: View {
             WizardContainerView { recipe in
                 store.add(recipe)
                 showWizard = false
+            }
+        }
+        .sheet(isPresented: $showVolumeConverter, onDismiss: {
+            if pendingFormula != nil { showFormulaWizard = true }
+        }) {
+            VolumeConverterView { formula in
+                pendingFormula = formula
+                showVolumeConverter = false
+            }
+        }
+        .sheet(isPresented: $showFormulaWizard) {
+            if let formula = pendingFormula {
+                WizardContainerView(convertedFormula: formula) { recipe in
+                    store.add(recipe)
+                    pendingFormula = nil
+                    showFormulaWizard = false
+                }
             }
         }
         .sheet(isPresented: $showBlendBuilder) {

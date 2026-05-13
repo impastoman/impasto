@@ -6,18 +6,33 @@ enum WizardMode {
     case fork(Recipe)
 }
 
+// MARK: - ConvertedFormula
+
+struct ConvertedFormula {
+    var finalHydration: Double
+    var saltPct: Double
+    var yeastPct: Double
+    var yeastType: YeastType
+    var flourBlend: FlourBlend
+}
+
 struct WizardContainerView: View {
     let mode: WizardMode
     let onComplete: (Recipe) -> Void
     let onSaveAsNew: ((Recipe) -> Void)?
+    /// When set, hydration/salt/yeast/flourBlend are seeded from the converter and
+    /// the style-change observer won't overwrite the pre-filled hydration value.
+    let hasConvertedFormula: Bool
     @Environment(\.dismiss) private var dismiss
 
     init(mode: WizardMode = .new,
+         convertedFormula: ConvertedFormula? = nil,
          onComplete: @escaping (Recipe) -> Void,
          onSaveAsNew: ((Recipe) -> Void)? = nil) {
         self.mode = mode
         self.onComplete = onComplete
         self.onSaveAsNew = onSaveAsNew
+        self.hasConvertedFormula = convertedFormula != nil
 
         let r: Recipe? = {
             switch mode {
@@ -31,11 +46,12 @@ struct WizardContainerView: View {
         _usePreferment      = State(initialValue: r.map { $0.method != .direct } ?? true)
         _prefermentHydration = State(initialValue: r?.prefermentHydration ?? 0.50)
         _method             = State(initialValue: r?.method ?? .biga)
-        _flourBlend         = State(initialValue: r?.flourBlend ?? FlourBlend())
-        _finalHydration     = State(initialValue: r?.finalHydration ?? PizzaStyle.neapolitan.defaultFinalHydration)
-        _saltPct            = State(initialValue: r?.saltPct ?? 0.028)
-        _yeastPct           = State(initialValue: r?.yeastPct ?? 0.001)
-        _yeastType          = State(initialValue: r?.yeastType ?? .instantDry)
+        // Formula takes priority over recipe, recipe over defaults
+        _flourBlend         = State(initialValue: convertedFormula?.flourBlend ?? r?.flourBlend ?? FlourBlend())
+        _finalHydration     = State(initialValue: convertedFormula?.finalHydration ?? r?.finalHydration ?? PizzaStyle.neapolitan.defaultFinalHydration)
+        _saltPct            = State(initialValue: convertedFormula?.saltPct ?? r?.saltPct ?? 0.028)
+        _yeastPct           = State(initialValue: convertedFormula?.yeastPct ?? r?.yeastPct ?? 0.001)
+        _yeastType          = State(initialValue: convertedFormula?.yeastType ?? r?.yeastType ?? .instantDry)
         _timeline           = State(initialValue: r?.timeline ?? .overnight)
         _mixerType          = State(initialValue: r?.mixerType ?? .hand)
         _autolyse           = State(initialValue: r?.autolyse ?? false)
@@ -195,7 +211,10 @@ struct WizardContainerView: View {
             .safeAreaInset(edge: .bottom) { navBar }
             .onChange(of: autolyse)  { _, val in regenerateCards(autolyse: val, bassinage: bassinage) }
             .onChange(of: bassinage) { _, val in regenerateCards(autolyse: autolyse, bassinage: val) }
-            .onChange(of: style)     { _, val in finalHydration = val.defaultFinalHydration }
+            .onChange(of: style)     { _, val in
+                // Don't override hydration when it was seeded from a volume conversion
+                if !hasConvertedFormula { finalHydration = val.defaultFinalHydration }
+            }
             .onChange(of: autolyseMinutes) { _, mins in
                 if let idx = processCards.firstIndex(where: { $0.type == .autolyse }) {
                     processCards[idx].customDuration = Double(mins) * 60

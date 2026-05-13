@@ -13,6 +13,9 @@ struct HomeView: View {
     @State private var splashDone = false
     @State private var resumedSession: SessionViewModel? = nil
     @State private var initialTab: Int = 0
+    @State private var showVolumeConverter = false
+    @State private var pendingFormula: ConvertedFormula? = nil
+    @State private var showFormulaWizard = false
 
     private let appVersion = "0.8"
 
@@ -105,6 +108,7 @@ struct HomeView: View {
                     .buttonStyle(ImpastoButtonStyle(filled: false))
                     .confirmationDialog("Create New", isPresented: $showNewMenu, titleVisibility: .visible) {
                         Button("New Recipe") { showWizard = true }
+                        Button("Convert a Volume Recipe") { showVolumeConverter = true }
                         Button("New Flour Blend") { showBlendBuilder = true }
                         Button("New Process") { showProcessBuilder = true }
                         Button("New Preferment") { showPrefBuilder = true }
@@ -135,6 +139,25 @@ struct HomeView: View {
                 store.activeRecipeId = recipe.id
                 showWizard = false
                 showMainApp = true
+            }
+        }
+        .sheet(isPresented: $showVolumeConverter, onDismiss: {
+            if pendingFormula != nil { showFormulaWizard = true }
+        }) {
+            VolumeConverterView { formula in
+                pendingFormula = formula
+                showVolumeConverter = false
+            }
+        }
+        .sheet(isPresented: $showFormulaWizard) {
+            if let formula = pendingFormula {
+                WizardContainerView(convertedFormula: formula) { recipe in
+                    store.add(recipe)
+                    store.activeRecipeId = recipe.id
+                    pendingFormula = nil
+                    showFormulaWizard = false
+                    showMainApp = true
+                }
             }
         }
         .sheet(isPresented: $showBlendBuilder) {
