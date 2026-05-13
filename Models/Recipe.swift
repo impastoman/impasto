@@ -135,7 +135,11 @@ struct Recipe: Identifiable, Codable {
     }
 
     var autolyseMinutes: Int {
-        autolyse ? (style == .neapolitan ? 20 : 30) : 0
+        guard autolyse else { return 0 }
+        if let card = processCards.first(where: { $0.type == .autolyse }) {
+            return Int(card.duration / 60)
+        }
+        return style == .neapolitan ? 20 : 30
     }
 }
 
