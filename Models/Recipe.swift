@@ -115,7 +115,7 @@ struct Recipe: Identifiable, Codable {
     var totalSalt: Double         { totalFlour * saltPct }
     var bigaFlour: Double         { totalFlour * bigaRatio }
     var bigaWater: Double         { bigaFlour * bigaHydration }
-    var bigaYeast: Double         { bigaFlour * yeastPct }
+    var bigaYeast: Double         { (method == .direct ? totalFlour : bigaFlour) * yeastPct }
     var additionalFlour: Double   { totalFlour - bigaFlour }
     var additionalWater: Double   { totalWater - bigaWater }
     var bassinageReserveGrams: Double { totalWater * bassinageReservePct }
