@@ -135,7 +135,6 @@ struct LiveSessionView: View {
             Spacer()
             timerBlock
             Spacer()
-            ingredientRef.padding(.horizontal)
             noteField.padding(.horizontal).padding(.top, 4)
             Spacer()
             actionRow.padding(.horizontal).padding(.bottom, 24)
@@ -214,74 +213,22 @@ struct LiveSessionView: View {
         }
     }
 
-    // MARK: - Ingredient reference
-
-    @ViewBuilder
-    var ingredientRef: some View {
-        if let card = vm.currentCard {
-            let rows: [(String, String)] = {
-                switch card.type {
-                case .autolyse:
-                    return [
-                        ("Flour", "\(Int(recipe.totalFlour))g"),
-                        ("Water (hold back \(Int(recipe.bassinageReserveGrams))g)", "\(Int(recipe.totalWater - recipe.bassinageReserveGrams))g")
-                    ]
-                case .incorporateYeast:
-                    return recipe.method == .direct
-                        ? [("Yeast", String(format: "%.1fg", recipe.bigaYeast))]
-                        : [("Add preferment", "\(Int(recipe.bigaFlour + recipe.bigaWater))g")]
-                case .incorporateSalt:
-                    return [("Salt (dissolved in \(Int(recipe.bassinageReserveGrams))g water)", "\(Int(recipe.totalSalt))g")]
-                case .bulkFermentation:
-                    return [("Volume increase target", "50–80%")]
-                default:
-                    return []
-                }
-            }()
-
-            if !rows.isEmpty {
-                VStack(spacing: 8) {
-                    ForEach(rows, id: \.0) { label, value in
-                        HStack {
-                            Text(label).foregroundColor(Color(hex: "9A9688"))
-                            Spacer()
-                            Text(value).foregroundColor(Color(hex: "2C2A24")).fontWeight(.medium)
-                        }
-                        .font(.system(size: 14, design: .monospaced))
-                    }
-                }
-                .padding(14)
-                .background(Color(hex: "F0EDE4"))
-                .cornerRadius(8)
-            }
-        }
-    }
-
     // MARK: - Note field
 
     @ViewBuilder
     var noteField: some View {
         if let card = vm.currentCard {
-            VStack(alignment: .leading, spacing: 6) {
-                if !card.recipeNote.isEmpty {
-                    HStack(alignment: .top, spacing: 4) {
-                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary).padding(.top, 2)
-                        Text(card.recipeNote)
-                            .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
-                    }
-                }
-                HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "pencil").font(.caption).foregroundColor(.secondary).padding(.top, 2)
-                    TextField("Add a session note for this step…",
-                              text: Binding(
-                                get: { sessionNotes[card.id] ?? "" },
-                                set: { sessionNotes[card.id] = $0.isEmpty ? nil : $0 }
-                              ),
-                              axis: .vertical)
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(.primary)
-                        .lineLimit(1...3)
-                }
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "pencil").font(.caption).foregroundColor(.secondary).padding(.top, 2)
+                TextField("Add a session note for this step…",
+                          text: Binding(
+                            get: { sessionNotes[card.id] ?? "" },
+                            set: { sessionNotes[card.id] = $0.isEmpty ? nil : $0 }
+                          ),
+                          axis: .vertical)
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(.primary)
+                    .lineLimit(1...3)
             }
         }
     }

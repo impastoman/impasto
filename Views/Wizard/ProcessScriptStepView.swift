@@ -309,12 +309,6 @@ struct ProcessCardRow: View {
                             .foregroundColor(.secondary)
                     }
 
-                    HStack(alignment: .top) {
-                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary)
-                        TextField("Add a note for this step...", text: $card.recipeNote, axis: .vertical)
-                            .font(.system(size: 13, design: .monospaced))
-                            .lineLimit(2...)
-                    }
                 }
                 .padding(.bottom, 8)
             }
