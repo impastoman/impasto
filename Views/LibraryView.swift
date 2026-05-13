@@ -18,13 +18,9 @@ struct LibraryView: View {
     @State private var newFolderSection   = ""
     @State private var newFolderName      = ""
     @State private var showNewFolderAlert = false
-    // Move-to-folder
-    @State private var recipeToMove: Recipe? = nil
-    @State private var blendToMove: FlourBlend? = nil
-    @State private var processToMove: SavedProcess? = nil
-    @State private var prefermentToMove: SavedPreferment? = nil
 
-    // Folder option lists for move dialogs
+    // MARK: - Folder option lists
+
     var recipeFolderOptions: [String] {
         Array(Set(store.recipeFolders + store.recipes.compactMap { $0.folderName.isEmpty ? nil : $0.folderName })).sorted()
     }
@@ -118,75 +114,6 @@ struct LibraryView: View {
             } message: {
                 Text("\"\(recipeToDelete?.name ?? "")\" will be permanently removed.")
             }
-            // Move-to-folder dialogs
-            .confirmationDialog(
-                "Move \"\(recipeToMove?.name ?? "")\" to…",
-                isPresented: Binding(get: { recipeToMove != nil }, set: { if !$0 { recipeToMove = nil } }),
-                titleVisibility: .visible
-            ) {
-                Button("No Folder (root)") {
-                    if let r = recipeToMove { store.moveRecipeToFolder(r, folder: "") }
-                    recipeToMove = nil
-                }
-                ForEach(recipeFolderOptions, id: \.self) { folder in
-                    Button(folder) {
-                        if let r = recipeToMove { store.moveRecipeToFolder(r, folder: folder) }
-                        recipeToMove = nil
-                    }
-                }
-                Button("Cancel", role: .cancel) { recipeToMove = nil }
-            }
-            .confirmationDialog(
-                "Move \"\(blendToMove?.name ?? "")\" to…",
-                isPresented: Binding(get: { blendToMove != nil }, set: { if !$0 { blendToMove = nil } }),
-                titleVisibility: .visible
-            ) {
-                Button("No Folder (root)") {
-                    if let b = blendToMove { store.moveBlendToFolder(b, folder: "") }
-                    blendToMove = nil
-                }
-                ForEach(blendFolderOptions, id: \.self) { folder in
-                    Button(folder) {
-                        if let b = blendToMove { store.moveBlendToFolder(b, folder: folder) }
-                        blendToMove = nil
-                    }
-                }
-                Button("Cancel", role: .cancel) { blendToMove = nil }
-            }
-            .confirmationDialog(
-                "Move \"\(processToMove?.name ?? "")\" to…",
-                isPresented: Binding(get: { processToMove != nil }, set: { if !$0 { processToMove = nil } }),
-                titleVisibility: .visible
-            ) {
-                Button("No Folder (root)") {
-                    if let p = processToMove { store.moveProcessToFolder(p, folder: "") }
-                    processToMove = nil
-                }
-                ForEach(processFolderOptions, id: \.self) { folder in
-                    Button(folder) {
-                        if let p = processToMove { store.moveProcessToFolder(p, folder: folder) }
-                        processToMove = nil
-                    }
-                }
-                Button("Cancel", role: .cancel) { processToMove = nil }
-            }
-            .confirmationDialog(
-                "Move \"\(prefermentToMove?.name ?? "")\" to…",
-                isPresented: Binding(get: { prefermentToMove != nil }, set: { if !$0 { prefermentToMove = nil } }),
-                titleVisibility: .visible
-            ) {
-                Button("No Folder (root)") {
-                    if let p = prefermentToMove { store.movePrefermentToFolder(p, folder: "") }
-                    prefermentToMove = nil
-                }
-                ForEach(prefermentFolderOptions, id: \.self) { folder in
-                    Button(folder) {
-                        if let p = prefermentToMove { store.movePrefermentToFolder(p, folder: folder) }
-                        prefermentToMove = nil
-                    }
-                }
-                Button("Cancel", role: .cancel) { prefermentToMove = nil }
-            }
         }
         .preferredColorScheme(.light)
         .sheet(isPresented: $showSectionReorder) {
@@ -238,18 +165,17 @@ struct LibraryView: View {
         }
     }
 
-    // MARK: - Tappable type header
+    // MARK: - Section header button
 
     func sectionTypeHeader(_ title: String) -> some View {
         Button {
-            newFolderSection = title
-            newFolderName    = ""
+            newFolderSection   = title
+            newFolderName      = ""
             showNewFolderAlert = true
         } label: {
             HStack(spacing: 5) {
                 Text(title)
-                Image(systemName: "folder.badge.plus")
-                    .font(.caption2)
+                Image(systemName: "folder.badge.plus").font(.caption2)
             }
             .foregroundColor(.secondary)
         }
@@ -270,21 +196,17 @@ struct LibraryView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
+
             ForEach(unfoldered) { recipe in
                 NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
                     RecipeRowView(recipe: recipe)
                 }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(role: .destructive) { recipeToDelete = recipe } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                    if !allFolders.isEmpty {
-                        Button { recipeToMove = recipe } label: {
-                            Label("Move", systemImage: "folder")
-                        }
-                        .tint(.blue)
-                    }
-                }
+                .recipeRowActions(
+                    recipe: recipe,
+                    folders: recipeFolderOptions,
+                    onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
+                    onDelete: { recipeToDelete = recipe }
+                )
             }
             .onMove { src, dst in store.moveRecipes(inFolder: "", from: src, to: dst) }
 
@@ -295,15 +217,12 @@ struct LibraryView: View {
                         NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
                             RecipeRowView(recipe: recipe)
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) { recipeToDelete = recipe } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                            Button { recipeToMove = recipe } label: {
-                                Label("Move", systemImage: "folder")
-                            }
-                            .tint(.blue)
-                        }
+                        .recipeRowActions(
+                            recipe: recipe,
+                            folders: recipeFolderOptions,
+                            onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
+                            onDelete: { recipeToDelete = recipe }
+                        )
                     }
                     .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
                 } label: {
@@ -329,13 +248,12 @@ struct LibraryView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-            ForEach(unfoldered) { blend in blendRow(blend, allFolders: allFolders) }
+            ForEach(unfoldered) { blend in blendRow(blend) }
                 .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
                 DisclosureGroup {
-                    let items = grouped[folder] ?? []
-                    ForEach(items) { blend in blendRow(blend, allFolders: allFolders) }
+                    ForEach(grouped[folder] ?? []) { blend in blendRow(blend) }
                         .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
@@ -346,28 +264,30 @@ struct LibraryView: View {
         }
     }
 
-    func blendRow(_ blend: FlourBlend, allFolders: [String]) -> some View {
+    func blendRow(_ blend: FlourBlend) -> some View {
         Button { editingBlend = blend } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundColor(.primary)
+                    .font(.system(.body, design: .monospaced)).foregroundColor(.primary)
                 Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
+                    .font(.caption).foregroundColor(.secondary).lineLimit(1)
             }
             .padding(.vertical, 2)
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteBlend(blend) } label: {
                 Label("Delete", systemImage: "trash")
             }
-            if !allFolders.isEmpty {
-                Button { blendToMove = blend } label: {
-                    Label("Move", systemImage: "folder")
-                }
-                .tint(.blue)
+        }
+        .contextMenu {
+            folderMoveMenu(
+                currentFolder: blend.folderName,
+                options: blendFolderOptions,
+                onMove: { store.moveBlendToFolder(blend, folder: $0) }
+            )
+            Divider()
+            Button(role: .destructive) { store.deleteBlend(blend) } label: {
+                Label("Delete", systemImage: "trash")
             }
         }
     }
@@ -386,13 +306,12 @@ struct LibraryView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-            ForEach(unfoldered) { process in processRow(process, allFolders: allFolders) }
+            ForEach(unfoldered) { process in processRow(process) }
                 .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
                 DisclosureGroup {
-                    let items = grouped[folder] ?? []
-                    ForEach(items) { process in processRow(process, allFolders: allFolders) }
+                    ForEach(grouped[folder] ?? []) { process in processRow(process) }
                         .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
@@ -403,27 +322,30 @@ struct LibraryView: View {
         }
     }
 
-    func processRow(_ process: SavedProcess, allFolders: [String]) -> some View {
+    func processRow(_ process: SavedProcess) -> some View {
         Button { editingProcess = process } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(process.name.isEmpty ? "Untitled Process" : process.name)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundColor(.primary)
+                    .font(.system(.body, design: .monospaced)).foregroundColor(.primary)
                 Text("\(process.cards.count) steps")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.caption).foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteProcess(process) } label: {
                 Label("Delete", systemImage: "trash")
             }
-            if !allFolders.isEmpty {
-                Button { processToMove = process } label: {
-                    Label("Move", systemImage: "folder")
-                }
-                .tint(.blue)
+        }
+        .contextMenu {
+            folderMoveMenu(
+                currentFolder: process.folderName,
+                options: processFolderOptions,
+                onMove: { store.moveProcessToFolder(process, folder: $0) }
+            )
+            Divider()
+            Button(role: .destructive) { store.deleteProcess(process) } label: {
+                Label("Delete", systemImage: "trash")
             }
         }
     }
@@ -442,13 +364,12 @@ struct LibraryView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-            ForEach(unfoldered) { pref in prefermentRow(pref, allFolders: allFolders) }
+            ForEach(unfoldered) { pref in prefermentRow(pref) }
                 .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
                 DisclosureGroup {
-                    let items = grouped[folder] ?? []
-                    ForEach(items) { pref in prefermentRow(pref, allFolders: allFolders) }
+                    ForEach(grouped[folder] ?? []) { pref in prefermentRow(pref) }
                         .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
@@ -459,29 +380,100 @@ struct LibraryView: View {
         }
     }
 
-    func prefermentRow(_ pref: SavedPreferment, allFolders: [String]) -> some View {
+    func prefermentRow(_ pref: SavedPreferment) -> some View {
         Button { editingPreferment = pref } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundColor(.primary)
+                    .font(.system(.body, design: .monospaced)).foregroundColor(.primary)
                 Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.caption).foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
                 Label("Delete", systemImage: "trash")
             }
-            if !allFolders.isEmpty {
-                Button { prefermentToMove = pref } label: {
-                    Label("Move", systemImage: "folder")
-                }
-                .tint(.blue)
+        }
+        .contextMenu {
+            folderMoveMenu(
+                currentFolder: pref.folderName,
+                options: prefermentFolderOptions,
+                onMove: { store.movePrefermentToFolder(pref, folder: $0) }
+            )
+            Divider()
+            Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
+                Label("Delete", systemImage: "trash")
             }
         }
+    }
+
+    // MARK: - Shared folder move menu (used in context menus)
+
+    @ViewBuilder
+    func folderMoveMenu(currentFolder: String, options: [String], onMove: @escaping (String) -> Void) -> some View {
+        let destinations = options.filter { $0 != currentFolder }
+        if !destinations.isEmpty || !currentFolder.isEmpty {
+            Menu {
+                if !currentFolder.isEmpty {
+                    Button {
+                        onMove("")
+                    } label: {
+                        Label("Remove from Folder", systemImage: "folder.badge.minus")
+                    }
+                }
+                ForEach(destinations, id: \.self) { folder in
+                    Button {
+                        onMove(folder)
+                    } label: {
+                        Label(folder, systemImage: "folder")
+                    }
+                }
+            } label: {
+                Label("Move to Folder", systemImage: "folder")
+            }
+        }
+    }
+}
+
+// MARK: - Recipe row modifier
+
+private extension View {
+    func recipeRowActions(
+        recipe: Recipe,
+        folders: [String],
+        onMove: @escaping (String) -> Void,
+        onDelete: @escaping () -> Void
+    ) -> some View {
+        self
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) { onDelete() } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+            .contextMenu {
+                let destinations = folders.filter { $0 != recipe.folderName }
+                if !destinations.isEmpty || !recipe.folderName.isEmpty {
+                    Menu {
+                        if !recipe.folderName.isEmpty {
+                            Button { onMove("") } label: {
+                                Label("Remove from Folder", systemImage: "folder.badge.minus")
+                            }
+                        }
+                        ForEach(destinations, id: \.self) { folder in
+                            Button { onMove(folder) } label: {
+                                Label(folder, systemImage: "folder")
+                            }
+                        }
+                    } label: {
+                        Label("Move to Folder", systemImage: "folder")
+                    }
+                }
+                Divider()
+                Button(role: .destructive) { onDelete() } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
     }
 }
 
@@ -496,8 +488,7 @@ private struct SectionReorderView: View {
         NavigationStack {
             List {
                 ForEach(order, id: \.self) { section in
-                    Text(section)
-                        .font(.system(.body, design: .monospaced))
+                    Text(section).font(.system(.body, design: .monospaced))
                 }
                 .onMove { from, to in order.move(fromOffsets: from, toOffset: to) }
             }
@@ -538,8 +529,7 @@ struct RecipeRowView: View {
                     .cornerRadius(4)
             }
             Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(.caption).foregroundColor(.secondary)
             Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested ×\(recipe.bakeLogs.count)")
                 .font(.caption2)
                 .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
