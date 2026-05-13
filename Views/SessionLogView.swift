@@ -244,8 +244,12 @@ struct SessionLogView: View {
     }
 
     func goHome() {
-        onEndSession?()
+        // Set the flag BEFORE ending the session so LiveSessionView's
+        // sessions.count observer sees shouldReturnHome = true and skips
+        // its own dismiss(), letting the shouldReturnHome cascade handle
+        // the orderly inside-out unwinding instead.
         sessionManager.shouldReturnHome = true
+        onEndSession?()
     }
 
     func save() {

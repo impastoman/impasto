@@ -54,8 +54,8 @@ struct LiveSessionView: View {
                             showPostBake = true
                         }
                         Button("End without Logging", role: .destructive) {
-                            sessionManager.end(vm)
                             sessionManager.shouldReturnHome = true
+                            sessionManager.end(vm)
                         }
                         Button("Go Back", role: .cancel) {}
                     }
