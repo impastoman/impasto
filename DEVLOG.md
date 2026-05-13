@@ -494,6 +494,20 @@ Intent: allow users to enter a recipe they found online or in a book, including 
 
 ---
 
+## Social Photo Builder — Queued (version TBD)
+
+A shareable recipe card generator using the recipe detail view's existing card groupings as the content blocks.
+
+**Concept:**
+- Each recipe card group (Dough, Preferment, Process, Bake, etc.) can be individually toggled on/off for inclusion in the share image
+- The groupings as they appear in RecipeDetailView are the right ones — they're already intuitive and well-structured
+- **Exception: the Dough group must NOT show the buffer (dough loss factor)** — buffer is a production detail, not part of the recipe formula. The social card should show the clean formula only.
+- Layout, font, and color should follow the app's existing aesthetic (cream background, serif timer font for numbers, monospaced labels, gold accent)
+
+**Deferred until:** social/sharing feature is scoped. No implementation work needed yet — this note is a heads-up for when the builder is started.
+
+---
+
 ## Design Principles (established through the build)
 
 - **Plain word up top, descriptor below** — "Buffer" / "dough loss factor", "Kneading" / "gluten development"
