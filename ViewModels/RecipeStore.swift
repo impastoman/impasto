@@ -193,10 +193,16 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Seed defaults
 
-    private static let seedKey = "impasto_seeded_v1"
+    private static let seedKey = "impasto_seeded_v2"
 
     func seedDefaultsIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: Self.seedKey) else { return }
+
+        // Remove any prior-version seed data by name before re-seeding
+        savedBlends.removeAll    { $0.name == "Perfectly good flour" };    saveBlends()
+        savedProcesses.removeAll { $0.name == "Perfectly good process" };  saveProcesses()
+        recipes.removeAll        { $0.name == "Classic Neapolitan" };      saveRecipes()
+        UserDefaults.standard.removeObject(forKey: "impasto_seeded_v1")
 
         let blend = makeSeedBlend()
         addBlend(blend)
@@ -257,9 +263,10 @@ class RecipeStore: ObservableObject {
     }
 
     private func makeSeedRecipe(blend: FlourBlend, processCards: [ProcessCard]) -> Recipe {
-        var r = Recipe(name: "Classic Neapolitan", style: .neapolitan, method: .direct,
+        var r = Recipe(name: "Classic Neapolitan", style: .custom, method: .direct,
                        mixerType: .standMixer, autolyse: true, bassinage: true,
                        timeline: .longColdProof, ballCount: 8, ballWeight: 250, buffer: 0.0125)
+        r.customStyleName = "Perfectly Good Style"
         r.finalHydration      = 0.66
         r.saltPct             = 0.03
         r.yeastPct            = 0.001
