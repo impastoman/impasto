@@ -20,12 +20,23 @@ struct HomeView: View {
     private let appVersion = "0.8"
 
     var body: some View {
-        if showMainApp {
-            MainTabView(onGoHome: { showMainApp = false }, initialTab: initialTab)
-                .environmentObject(store)
-                .environmentObject(sessionManager)
-        } else {
-            launch
+        // ZStack wrapper is always in the hierarchy — the shouldReturnHome observer
+        // must live here, not on `launch`, so it remains active when MainTabView
+        // is showing (showMainApp = true) and a session is re-entered from there.
+        ZStack {
+            if showMainApp {
+                MainTabView(onGoHome: { showMainApp = false }, initialTab: initialTab)
+                    .environmentObject(store)
+                    .environmentObject(sessionManager)
+            } else {
+                launch
+            }
+        }
+        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
+            guard isTrue else { return }
+            showStartDough = false
+            showMainApp = false
+            sessionManager.shouldReturnHome = false
         }
     }
 
@@ -178,12 +189,6 @@ struct HomeView: View {
             LiveSessionView(vm: vm)
                 .environmentObject(store)
                 .environmentObject(sessionManager)
-        }
-        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
-            guard isTrue else { return }
-            showStartDough = false
-            showMainApp = false
-            sessionManager.shouldReturnHome = false
         }
     }
 }
