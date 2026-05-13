@@ -37,11 +37,11 @@ struct IngredientsChecklistView: View {
         }
 
         items.append(CheckItem(id: "pref_water", label: "\(label) water", amount: weightUnit.display(recipe.bigaWater)))
-        items.append(CheckItem(id: "pref_yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: weightUnit.display(recipe.bigaYeast)))
+        items.append(CheckItem(id: "pref_yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: weightUnit.displayPrecise(recipe.bigaYeast)))
 
         for additive in prefBlend.additives {
             let weight = recipe.bigaFlour * (additive.percentage / 100)
-            items.append(CheckItem(id: "pref_add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
+            items.append(CheckItem(id: "pref_add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.displayPrecise(weight), isSubItem: true))
         }
 
         return items
@@ -65,7 +65,7 @@ struct IngredientsChecklistView: View {
 
         for additive in recipe.flourBlend.additives {
             let weight = flourTotal * (additive.percentage / 100)
-            items.append(CheckItem(id: "add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.display(weight), isSubItem: true))
+            items.append(CheckItem(id: "add_\(additive.id)", label: additive.type.rawValue, amount: weightUnit.displayPrecise(weight), isSubItem: true))
         }
 
         let waterTotal = recipe.method == .direct ? recipe.totalWater : recipe.additionalWater
@@ -80,7 +80,7 @@ struct IngredientsChecklistView: View {
         items.append(CheckItem(id: "salt", label: "Salt", amount: weightUnit.display(recipe.totalSalt)))
 
         if recipe.method == .direct {
-            items.append(CheckItem(id: "yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: weightUnit.display(recipe.bigaYeast)))
+            items.append(CheckItem(id: "yeast", label: "\(recipe.yeastType.rawValue) yeast", amount: weightUnit.displayPrecise(recipe.bigaYeast)))
         }
 
         return items

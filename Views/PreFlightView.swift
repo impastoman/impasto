@@ -3,14 +3,21 @@ import SwiftUI
 enum WeightUnit: String, CaseIterable {
     case grams = "g"; case ounces = "oz"; case pounds = "lb"
 
+    /// Bulk ingredients (flour, water, salt) — ceiling to nearest whole unit.
     func display(_ grams: Double) -> String {
         switch self {
-        case .grams:
-            let hasFraction = grams.truncatingRemainder(dividingBy: 1) >= 0.005
-            if hasFraction { return String(format: "%.2f g", grams) }
-            return grams < 10 ? String(format: "%.1f g", grams) : String(format: "%.0f g", grams)
-        case .ounces: return String(format: "%.2f oz", grams / 28.3495)
-        case .pounds: return String(format: "%.3f lb", grams / 453.592)
+        case .grams:  return String(format: "%.0f g",  ceil(grams))
+        case .ounces: return String(format: "%.1f oz", ceil(grams / 28.3495 * 10) / 10)
+        case .pounds: return String(format: "%.2f lb", ceil(grams / 453.592  * 100) / 100)
+        }
+    }
+
+    /// Precise ingredients (yeast, additives) — ceiling to nearest hundredth.
+    func displayPrecise(_ grams: Double) -> String {
+        switch self {
+        case .grams:  return String(format: "%.2f g",  ceil(grams * 100)   / 100)
+        case .ounces: return String(format: "%.3f oz", ceil(grams / 28.3495  * 1000)  / 1000)
+        case .pounds: return String(format: "%.4f lb", ceil(grams / 453.592  * 10000) / 10000)
         }
     }
 
