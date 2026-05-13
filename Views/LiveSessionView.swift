@@ -12,7 +12,6 @@ struct LiveSessionView: View {
     @State private var showEndBakingAlert = false
     @State private var showLeaveAlert = false
     @State private var showBackAlert = false
-    @State private var bakingIsPaused = false
     @State private var sessionNotes: [UUID: String] = [:]
 
     var recipe: Recipe { vm.recipe }
@@ -83,11 +82,12 @@ struct LiveSessionView: View {
         }
         .sheet(isPresented: $showPizzaLog) {
             PizzaLogView(vm: vm, recipe: recipe) {
-                // "← Back" or "Log & Return" — timer was already stopped on entry; show Resume button
+                // "← Back" or "Log & Return" — reset and immediately start the next lap
+                vm.resetBakeTimer()
+                vm.startBaking()
                 showPizzaLog = false
             } onEndBake: {
                 vm.stopBaking()
-                bakingIsPaused = false
                 showPizzaLog = false
                 showPostBake = true
             }
@@ -365,31 +365,21 @@ struct LiveSessionView: View {
     var bakeActionRow: some View {
         VStack(spacing: 12) {
             if vm.bakingStarted {
-                if bakingIsPaused {
-                    Button("Resume Baking") {
-                        vm.startBaking()
-                        bakingIsPaused = false
-                    }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
-                } else {
-                    Button("Log Pizza") {
-                        vm.stopBaking()
-                        bakingIsPaused = true
-                        showPizzaLog = true
-                    }
-                    .buttonStyle(ImpastoButtonStyle(filled: false))
+                Button("Log Pizza") {
+                    vm.stopBaking()
+                    showPizzaLog = true
                 }
+                .buttonStyle(ImpastoButtonStyle(filled: false))
 
                 Button("End Baking") {
                     showEndBakingAlert = true
                 }
-                .buttonStyle(ImpastoButtonStyle(filled: bakingIsPaused ? false : true))
+                .buttonStyle(ImpastoButtonStyle(filled: true))
                 .confirmationDialog("End baking?", isPresented: $showEndBakingAlert, titleVisibility: .visible) {
                     Button("End Baking", role: .destructive) {
                         let gen = UIImpactFeedbackGenerator(style: .medium)
                         gen.impactOccurred()
                         vm.stopBaking()
-                        bakingIsPaused = false
                         showPostBake = true
                     }
                     Button("Cancel", role: .cancel) { }
