@@ -5,7 +5,10 @@ enum WeightUnit: String, CaseIterable {
 
     func display(_ grams: Double) -> String {
         switch self {
-        case .grams:  return grams < 10 ? String(format: "%.1f g", grams) : String(format: "%.0f g", grams)
+        case .grams:
+            let hasFraction = grams.truncatingRemainder(dividingBy: 1) >= 0.005
+            if hasFraction { return String(format: "%.2f g", grams) }
+            return grams < 10 ? String(format: "%.1f g", grams) : String(format: "%.0f g", grams)
         case .ounces: return String(format: "%.2f oz", grams / 28.3495)
         case .pounds: return String(format: "%.3f lb", grams / 453.592)
         }
