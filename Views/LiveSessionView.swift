@@ -11,6 +11,7 @@ struct LiveSessionView: View {
     @State private var showPizzaLog = false
     @State private var showEndBakingAlert = false
     @State private var showLeaveAlert = false
+    @State private var showBackAlert = false
     @State private var sessionNotes: [UUID: String] = [:]
 
     var recipe: Recipe { vm.recipe }
@@ -275,10 +276,21 @@ struct LiveSessionView: View {
         HStack(spacing: 12) {
             // Back button — always available when not on first card
             if vm.currentIndex > 0 {
+                let prevTitle = vm.cards[vm.currentIndex - 1].title
                 Button("← Back") {
-                    vm.goBack()
+                    showBackAlert = true
                 }
                 .buttonStyle(ImpastoButtonStyle(filled: false))
+                .confirmationDialog(
+                    "Go back to \(prevTitle)?",
+                    isPresented: $showBackAlert,
+                    titleVisibility: .visible
+                ) {
+                    Button("Go Back") { vm.goBack() }
+                    Button("Stay Here", role: .cancel) {}
+                } message: {
+                    Text("Timer will resume where it left off. Going back again from there will reset that step's time.")
+                }
             }
 
             if vm.isLastCard {
