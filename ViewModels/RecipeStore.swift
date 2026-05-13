@@ -193,16 +193,18 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Seed defaults
 
-    private static let seedKey = "impasto_seeded_v2"
+    private static let seedKey = "impasto_seeded_v3"
 
     func seedDefaultsIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: Self.seedKey) else { return }
 
         // Remove any prior-version seed data by name before re-seeding
-        savedBlends.removeAll    { $0.name == "Perfectly good flour" };    saveBlends()
-        savedProcesses.removeAll { $0.name == "Perfectly good process" };  saveProcesses()
-        recipes.removeAll        { $0.name == "Classic Neapolitan" };      saveRecipes()
+        savedBlends.removeAll    { $0.name == "Perfectly good flour" };               saveBlends()
+        savedProcesses.removeAll { $0.name == "Perfectly good process" };             saveProcesses()
+        recipes.removeAll        { ["Classic Neapolitan", "Perfectly Good Dough Recipe"].contains($0.name) }
+        saveRecipes()
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v1")
+        UserDefaults.standard.removeObject(forKey: "impasto_seeded_v2")
 
         let blend = makeSeedBlend()
         addBlend(blend)
@@ -263,7 +265,7 @@ class RecipeStore: ObservableObject {
     }
 
     private func makeSeedRecipe(blend: FlourBlend, processCards: [ProcessCard]) -> Recipe {
-        var r = Recipe(name: "Classic Neapolitan", style: .custom, method: .direct,
+        var r = Recipe(name: "Perfectly Good Dough Recipe", style: .custom, method: .direct,
                        mixerType: .standMixer, autolyse: true, bassinage: true,
                        timeline: .longColdProof, ballCount: 8, ballWeight: 250, buffer: 0.0125)
         r.customStyleName = "Perfectly Good Style"
