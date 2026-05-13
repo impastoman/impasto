@@ -451,6 +451,49 @@ Intent: allow users to enter a recipe they found online or in a book, including 
 
 ---
 
+## v0.9 — Volume Converter, Session Navigation Fixes, Folder Move
+*Converter pipeline, race condition resolution, UX polish*
+
+**What shipped:**
+
+*Volume recipe converter:*
+- `VolumeConverterView` — full conversion flow: multi-flour entries (type + unit per row), water, salt (with kind picker), yeast (with type picker); "Review →" disabled until flour + water have values
+- `ConversionReviewView` — two-table display (ingredient grams + baker's % summary), inline warnings for unusual hydration/salt/yeast values, "Build This Recipe →" hands off a `ConvertedFormula` struct
+- `VolumeConversionTable.swift` — density reference for all flour types, salt kinds, and yeast types; `parseAmount(_:)` handles fractions, mixed numbers, and decimals
+- `SaltKind` enum renamed to remove brand references: Table Salt / Kosher (Coarse) / Kosher (Fine) / Sea Salt (Coarse) / Sea Salt (Fine)
+- "Convert a Volume Recipe" entry point added to the New Recipe action sheet on the home screen
+
+*Wizard auto-fill from conversion:*
+- `ConvertedFormula` struct bridges `VolumeConverterView` → `WizardContainerView`; carries `finalHydration`, `saltPct`, `yeastPct`, `yeastType`, `flourBlend`
+- `hasConvertedFormula: Bool` stored let property guards `onChange(of: style)` — selecting a style no longer overwrites converted hydration
+- `flourBlendMode` initialises to `.create` when a converted formula is provided — lands directly in the blend editor pre-populated, skipping the pick card
+- `WaterSaltYeastStepView` gains `isFromConversion: Bool` flag — footer text changes to "Pre-filled from your volume recipe" for all three fields (water, salt, yeast)
+- Two-sheet chain via `onDismiss`: converter sheet closes → `pendingFormula` set → `onDismiss` fires → wizard sheet opens; avoids presenting two sheets simultaneously
+
+*Library folder move fix:*
+- `.contextMenu` on `NavigationLink` rows replaced with leading swipe actions — context menu was unreliable (long-press activated the link's press state instead)
+- `FolderPickerSheet` added as a private struct presented at the `NavigationStack` level via `sheet(item:)` — safe for cross-section moves
+- "Remove from [folder]" option shown when item is already in a folder; destination folder list otherwise; hint shown when no folders exist yet
+- Leading swipe available on all four section types: Recipes, Flour Blends, Processes, Preferments
+
+*Session navigation bug fixes:*
+
+**HomeView always-active observer** — `shouldReturnHome` observer was on `HomeView.launch`, which is only in the hierarchy when `showMainApp = false`. Re-entering a session from `ActiveSessionsView` sets `showMainApp = true`, so the observer went inactive. Fixed by wrapping `body` in a persistent `ZStack` and attaching the observer there — it is now always active regardless of which child is shown.
+
+**shouldReturnHome race condition** — `SessionLogView.goHome()` was calling `end(vm)` before setting `shouldReturnHome = true`. When `sessions.count` dropped, the `onChange` guard checked `shouldReturnHome` and saw `false` — the entire stack collapsed prematurely. Fixed by setting `shouldReturnHome = true` first so the guard is armed before `sessions.count` changes. Same ordering fix applied to `LiveSessionView`'s "End without Logging" action.
+
+*Home button dialog:*
+- Confirmation dialog options standardised: "Leave Session" / "Pause & Leave Session" (only shown when running) / "End and Log" / "End without Logging" (destructive) / "Go Back" (cancel)
+- "Pause & Leave" only appears while the timer is running — keeps the dialog uncluttered for paused sessions
+
+**Key design decisions:**
+- Volume conversion is the entry point; the wizard is still the authority — the converter hands off a formula, not a finished recipe. All wizard steps remain editable after conversion.
+- Brand names removed from salt kinds because the app ships to international markets and "Diamond Crystal" is meaningless outside North America. Generic descriptors (coarse/fine, table/kosher/sea) are universally understood.
+- Folder move via leading swipe is less discoverable than a context menu but far more reliable on `NavigationLink` rows in a `List`. A "Move" label with a folder icon covers discoverability.
+- The `shouldReturnHome` pattern depends on ordering — documentation of the fix is intentionally detailed in this log because the bug is subtle enough to reintroduce.
+
+---
+
 ## Design Principles (established through the build)
 
 - **Plain word up top, descriptor below** — "Buffer" / "dough loss factor", "Kneading" / "gluten development"

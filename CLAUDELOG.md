@@ -221,7 +221,51 @@ That's the real multiplier: not just speed, but coherence across a long build.
 
 ---
 
-*Updated May 2026 through v0.7.*
+*Updated May 2026 through v0.9.*
+
+---
+
+## Patterns Added in v0.8–v0.9
+
+### Terse bug descriptions that enable surgical fixes
+The most efficient bug reports in this project are a single sentence describing what you see + what you expected, with no speculation about cause. Claude diagnoses and implements without needing the user to know why it's broken.
+
+**Examples from v0.9:**
+> "when a live session has been left and reentered from the active sessions view, the home button to leave session no longer works"
+> "from the 'how'd it go' view, neither save to history or exit session let me leave"
+
+Both bugs were unrelated (one was an observer lifecycle issue, one was a race condition). One-sentence descriptions → diagnosed and fixed without back-and-forth.
+
+---
+
+### "Fix:" as a commit-grade signal
+Prefixing a message with "fix:" signals that this is a regression or broken behaviour, not a design request. It scopes the response to diagnosis + repair rather than exploration. Claude treats it as a targeted patch, not a redesign prompt.
+
+---
+
+### Ordering bugs are timing bugs
+Race conditions in SwiftUI tend to manifest as "buttons do nothing" or "the wrong thing happens after dismiss." When a button's action includes two state mutations that both have observers, the order matters — `shouldReturnHome = true` must come before anything that drops `sessions.count`, or the guard fires too early. This pattern will recur; the fix is always: arm the guard first, then trigger the drop.
+
+---
+
+### SwiftUI gesture conflicts on NavigationLink rows
+`.contextMenu` on a `NavigationLink(destination:)` inside a `List` is not reliable — long-press activates the link's internal press animation and the context menu never fires consistently. The reliable pattern is a leading swipe action (`.swipeActions(edge: .leading)`) which does not conflict with the navigation tap gesture. If a context menu is needed on a non-navigating row, it works fine.
+
+---
+
+### Always-active observers via persistent ZStack wrapper
+SwiftUI `onChange` observers only run while the view they're attached to is in the hierarchy. If an observer is on a view that conditionally shows/hides (like a `launch` view that only renders when `showMainApp = false`), it won't fire when the condition is false. Fix: attach the observer to a parent that is always rendered. A top-level `ZStack` wrapping both branches — with the observer on the ZStack itself — is the canonical form for this in SwiftUI.
+
+---
+
+### Two-sheet sequencing via onDismiss
+iOS won't present two sheets simultaneously — trying to programmatically set two `isPresented` flags in the same call silently drops one of them. When one sheet must close and a second must open, the correct pattern is:
+1. Store the value in a `@State` variable
+2. Set `showFirstSheet = false`
+3. Use `sheet(isPresented:onDismiss:)` — the `onDismiss` closure fires after the first sheet's dismiss animation completes
+4. Set `showSecondSheet = true` inside `onDismiss`
+
+This is now the established pattern for any "close converter → open wizard" type of flow.
 
 ---
 
