@@ -494,6 +494,64 @@ Intent: allow users to enter a recipe they found online or in a book, including 
 
 ---
 
+## Sourdough Starter Support — Queued (post-V1, pre-2.0)
+
+A self-contained sourdough starter management layer that sits alongside the existing dough recipe system — shared session infrastructure, separate recipe type, no disruption to existing flows.
+
+---
+
+### Entry point rename + new action
+
+- **"Begin Dough" button** on the home screen renamed to **"Begin Session"** — neutral enough to cover both dough sessions and starter feeding sessions
+- A second button appears alongside it: **"Begin Dough"** and **"Feed Starter"** as the two explicit paths
+
+*Design note:* "Begin Session" as the parent opens the picker; "Begin Dough" and "Feed Starter" are its two children. Or: the two named buttons replace the single "Begin Dough" button entirely — decide at implementation. Either way the original dough start flow is unchanged.
+
+---
+
+### Sourdough Starter recipe type
+
+- New section in Library: **Sourdough Starters** — separate from Recipes, Flour Blends, Processes, Preferments
+- A starter recipe is defined by:
+  - **Flour blend** — uses the existing flour blending tool (same `FlourBlend` model + `FlourComponentRow` UI)
+  - **Hydration** — single slider/field, same "slider for exploration, field for precision" pattern
+  - Name, optional notes
+- Built via a dedicated builder accessible from the **home screen** and the **Library** only
+- **Starters cannot be created inline** anywhere else in the app (see Preferment / Method step below)
+
+---
+
+### "Feed Starter" live session mode
+
+- Tapping "Feed Starter" on the home screen opens a starter picker (existing starter recipes), then launches a live session in **fermentation-only mode**
+- The session uses the existing `SessionManager` / `SessionViewModel` infrastructure — starter sessions appear alongside dough sessions in the active sessions list, fully concurrent
+- **New default Process Steps for a starter feed session:**
+  - Discard
+  - Weigh flour
+  - Add water
+  - Mix
+  - Rest / Ferment (timed, countdown)
+  - (Optional) Refrigerate
+- These steps follow the same ProcessCard system — user can reorder, add, remove, and set durations per their routine
+
+---
+
+### Sourdough Starter as a preferment option (wizard Method step)
+
+- In the "Use preferment" section of the wizard's Method step, **Sourdough Starter** appears as a new preferment type option alongside Biga, Poolish, etc.
+- When selected:
+  - The existing starter recipes are listed for the user to pick from
+  - No "create one now" option — starters must be built through the home screen or Library first
+  - This is a deliberate contrast to flour blends and processes, where "create on the spot" is offered inline
+  - *Rationale:* a sourdough starter has a life of its own outside any single recipe; it belongs in the library as a first-class managed asset, not something created in passing
+- Once a starter is selected, its hydration and flour blend are read into the recipe's preferment calculations the same way a Biga or Poolish would be
+
+---
+
+**Deferred until:** V1 ships. No implementation work needed now.
+
+---
+
 ## Social Photo Builder — Queued (version TBD)
 
 A shareable recipe card generator using the recipe detail view's existing card groupings as the content blocks.
