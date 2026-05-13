@@ -193,7 +193,7 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Seed defaults
 
-    private static let seedKey = "impasto_seeded_v3"
+    private static let seedKey = "impasto_seeded_v4"
 
     func seedDefaultsIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: Self.seedKey) else { return }
@@ -205,6 +205,7 @@ class RecipeStore: ObservableObject {
         saveRecipes()
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v1")
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v2")
+        UserDefaults.standard.removeObject(forKey: "impasto_seeded_v3")
 
         let blend = makeSeedBlend()
         addBlend(blend)
@@ -247,19 +248,19 @@ class RecipeStore: ObservableObject {
         }
 
         card(.combine)
-        card(.autolyse,          duration: 30 * 60,   note: "keep covered")
-        card(.incorporateYeast,                        note: "dissolve in bassinage")
-        card(.bassinage,                               note: "add all gradually during kneading in the next step to avoid splashing", bassinagePct: 0.10)
-        card(.kneading,          duration: 10 * 60,   note: "this step ends 1 minute before kneading is actually done — proceed to next step to add salt")
-        card(.incorporateSalt,                         note: "allow mixer to continue mixing while adding salt")
-        card(.kneading,          duration: 1 * 60,    note: "after all salt has been incorporated, finish the knead until you see the dough start climbing the hook, is tacky without being sticky. Turn off mixer before touching dough. Ideally this step will take less than a minute — if dough is not yet done, continue kneading until it is")
+        card(.autolyse,          duration: 30 * 60)
+        card(.incorporateYeast)
+        card(.bassinage,                               bassinagePct: 0.10)
+        card(.kneading,          duration: 10 * 60)
+        card(.incorporateSalt)
+        card(.kneading,          duration: 1 * 60)
         card(.rest,              duration: 5 * 60)
-        card(.stretchAndFold,    duration: 60 * 60,   note: "stretch and fold then rest for 20 minutes. this will total 4 rounds of stretch & fold within 60 minutes")
-        card(.bulkFermentation,  duration: 12 * 3600, note: "cover at room temperature or 68–70°F. drizzle olive oil on bottom of bowl/dough and on top")
-        card(.divide,                                  note: "shape into balls and save in covered pint containers or similar. drizzle olive oil atop each ball")
-        card(.coldFerment,       duration: 36 * 3600, note: "store refrigerated")
-        card(.preShape,                                note: "move from containers to a dough box or baking tray, fixing shape during transfer. give each dough at least 3\" all around to allow dough space to rise without contacting another")
-        card(.finalProof,        duration: 4 * 3600,  note: "dough will be ready when it is no longer cold to touch and has expanded. keep doughs covered until time for use")
+        card(.stretchAndFold,    duration: 60 * 60)
+        card(.bulkFermentation,  duration: 12 * 3600)
+        card(.divide)
+        card(.coldFerment,       duration: 36 * 3600)
+        card(.preShape)
+        card(.finalProof,        duration: 4 * 3600)
 
         return SavedProcess(name: "Perfectly good process", cards: cards)
     }

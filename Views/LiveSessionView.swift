@@ -119,7 +119,6 @@ struct LiveSessionView: View {
             timerBlock
             Spacer()
             ingredientRef.padding(.horizontal)
-            stagePrompt.padding(.horizontal).padding(.top, 8)
             noteField.padding(.horizontal).padding(.top, 4)
             Spacer()
             actionRow.padding(.horizontal).padding(.bottom, 24)
@@ -241,55 +240,6 @@ struct LiveSessionView: View {
         }
     }
 
-    // MARK: - Stage prompt
-
-    @ViewBuilder
-    var stagePrompt: some View {
-        if let card = vm.currentCard {
-            switch card.type {
-            case .autolyse:
-                promptRow(icon: "drop", color: .blue, text: "Stir until no dry flour remains — do not knead. Cover and rest.")
-                if card.autolyseMode != .standard {
-                    promptRow(icon: "info.circle", color: .secondary, text: card.autolyseMode.description)
-                }
-            case .incorporateYeast:
-                promptRow(icon: "circle.dotted", color: .secondary, text: "Dissolve yeast in reserved water. Fold into dough on one side.")
-            case .incorporateSalt:
-                promptRow(icon: "circle.dotted", color: .orange, text: "Dissolve salt in remaining water. Add on the opposite side from yeast.")
-            case .bassinage:
-                promptRow(icon: "drop.fill", color: .blue, text: "Add reserved water in 2–3 small additions. Allow full absorption between each.")
-            case .kneading:
-                if recipe.mixerType == .hand && recipe.finalHydration > 0.68 {
-                    promptRow(icon: "hand.raised", color: .secondary, text: "Slap & fold technique recommended at this hydration. Wet hands throughout.")
-                }
-                promptRow(icon: "checkmark.circle", color: Color(hex: "D2B96A"), text: "Windowpane test at target time: stretch thin — should be translucent without tearing.")
-            case .rest:
-                promptRow(icon: "timer", color: .secondary, text: "Cover and let the dough rest undisturbed.")
-            case .stretchAndFold:
-                promptRow(icon: "arrow.up.arrow.down", color: .secondary, text: "Stretch and fold, then cover and rest 20 min. Repeat each round within the timer.")
-            case .bulkFermentation:
-                promptRow(icon: "arrow.up.arrow.down", color: .secondary, text: "Perform stretch & fold sets every 30 min for the first 2 hours (4 sets total).")
-            case .coldFerment:
-                promptRow(icon: "snowflake", color: .blue, text: "Keep refrigerated until final proof. Do not freeze.")
-            case .preShape:
-                promptRow(icon: "circle", color: .secondary, text: "Shape into rough balls. Surface tension should feel taut.")
-            case .benchRest:
-                promptRow(icon: "timer", color: .secondary, text: "Cover and rest. Gluten will relax for final shaping.")
-            case .finalProof:
-                promptRow(icon: "hand.tap", color: Color(hex: "D2B96A"), text: "Poke test: press gently — dough should spring back slowly when ready.")
-            case .bake:
-                if let setupId = vm.preFlight.selectedBakeSetupId,
-                   let setup = recipe.bakeSetups.first(where: { $0.id == setupId }) {
-                    promptRow(icon: "flame", color: .orange, text: "Preheat \(setup.method.rawValue)\(setup.subMethod.isEmpty ? "" : " (\(setup.subMethod))"): \(setup.ovenTempDisplay). Preheat ~\(setup.preheatMinutes) min.")
-                } else {
-                    promptRow(icon: "flame", color: .orange, text: "Preheat oven fully before launching.")
-                }
-            default:
-                EmptyView()
-            }
-        }
-    }
-
     // MARK: - Note field
 
     @ViewBuilder
@@ -373,29 +323,22 @@ struct LiveSessionView: View {
 
             if let setupId = vm.preFlight.selectedBakeSetupId,
                let setup = recipe.bakeSetups.first(where: { $0.id == setupId }) {
-                VStack(spacing: 8) {
-                    HStack {
-                        Text(setup.method.rawValue)
+                HStack {
+                    Text(setup.method.rawValue)
+                        .font(.system(size: 14, design: .monospaced))
+                        .foregroundColor(.secondary)
+                    if !setup.subMethod.isEmpty {
+                        Text("· \(setup.subMethod)")
                             .font(.system(size: 14, design: .monospaced))
                             .foregroundColor(.secondary)
-                        if !setup.subMethod.isEmpty {
-                            Text("· \(setup.subMethod)")
-                                .font(.system(size: 14, design: .monospaced))
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        Text(setup.ovenTempDisplay)
-                            .font(.system(size: 14, design: .monospaced))
-                            .foregroundColor(Color(hex: "D2B96A"))
                     }
-                    promptRow(icon: "flame", color: .orange, text: "Preheat ~\(setup.preheatMinutes) min before launching. Use infrared thermometer on stone/steel.")
+                    Spacer()
+                    Text(setup.ovenTempDisplay)
+                        .font(.system(size: 14, design: .monospaced))
+                        .foregroundColor(Color(hex: "D2B96A"))
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 8)
-            } else {
-                promptRow(icon: "flame", color: .orange, text: "Preheat oven fully before launching.")
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
             }
 
             Spacer()
@@ -437,13 +380,6 @@ struct LiveSessionView: View {
     }
 
     // MARK: - Helpers
-
-    func promptRow(icon: String, color: Color, text: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Image(systemName: icon).foregroundColor(color).font(.caption).padding(.top, 2)
-            Text(text).font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
-        }
-    }
 
     func timeString(_ t: TimeInterval) -> String {
         let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60; let s = Int(t) % 60
