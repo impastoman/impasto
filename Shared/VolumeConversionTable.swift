@@ -3,10 +3,11 @@ import Foundation
 // MARK: - SaltKind
 
 enum SaltKind: String, CaseIterable {
-    case table                = "Table"
-    case kosherDiamondCrystal = "Kosher (Diamond Crystal)"
-    case kosherMorton         = "Kosher (Morton)"
-    case fineSea              = "Fine sea salt"
+    case table        = "Table Salt"
+    case kosherCoarse = "Kosher (Coarse)"
+    case kosherFine   = "Kosher (Fine)"
+    case seaCoarse    = "Sea Salt (Coarse)"
+    case seaFine      = "Sea Salt (Fine)"
 }
 
 // MARK: - VolumeUnit
@@ -47,10 +48,11 @@ enum VolumeConversion {
     /// Grams per teaspoon for each salt kind.
     static func gramsPerTsp(_ kind: SaltKind) -> Double {
         switch kind {
-        case .table:                return 6.0
-        case .kosherDiamondCrystal: return 3.0
-        case .kosherMorton:         return 4.8
-        case .fineSea:              return 5.7
+        case .table:        return 6.0   // fine-ground iodised table salt
+        case .kosherCoarse: return 3.0   // e.g. Diamond Crystal — large hollow flakes
+        case .kosherFine:   return 4.8   // e.g. Morton — denser compressed flakes
+        case .seaCoarse:    return 4.0   // coarse sea salt crystals
+        case .seaFine:      return 5.5   // fine-ground sea salt
         }
     }
 
