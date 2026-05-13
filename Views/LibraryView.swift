@@ -3,25 +3,28 @@ import SwiftUI
 struct LibraryView: View {
     @EnvironmentObject var store: RecipeStore
     var onGoHome: (() -> Void)? = nil
-    @State private var showAddMenu = false
-    @State private var showWizard = false
-    @State private var showBlendBuilder = false
+    @State private var showAddMenu        = false
+    @State private var showWizard         = false
+    @State private var showBlendBuilder   = false
     @State private var showProcessBuilder = false
-    @State private var showPrefBuilder = false
-    @State private var showStartDough = false
+    @State private var showPrefBuilder    = false
+    @State private var showStartDough     = false
     @State private var recipeToDelete: Recipe? = nil
     @State private var editingBlend: FlourBlend? = nil
     @State private var editingProcess: SavedProcess? = nil
     @State private var editingPreferment: SavedPreferment? = nil
-    @State private var isReordering = false
+    @State private var isReordering       = false
+    @State private var showSectionReorder = false
+    @State private var newFolderSection   = ""
+    @State private var newFolderName      = ""
+    @State private var showNewFolderAlert = false
 
     var body: some View {
         NavigationStack {
             List {
-                recipesSection
-                blendsSection
-                processesSection
-                prefermentsSection
+                ForEach(store.librarySectionOrder, id: \.self) { section in
+                    sectionView(for: section)
+                }
             }
             .environment(\.editMode, .constant(isReordering ? .active : .inactive))
             .navigationTitle("Library")
@@ -33,15 +36,26 @@ struct LibraryView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(isReordering ? "Done" : "Reorder") {
-                        isReordering.toggle()
+                if isReordering {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") { isReordering = false }
+                            .foregroundColor(Color(hex: "D2B96A"))
+                            .font(.system(size: 13, design: .monospaced))
                     }
-                    .foregroundColor(isReordering ? Color(hex: "D2B96A") : .secondary)
-                    .font(.system(size: 13, design: .monospaced))
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAddMenu = true } label: { Image(systemName: "plus") }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Sections ↕") { showSectionReorder = true }
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 13, design: .monospaced))
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Reorder") { isReordering = true }
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 13, design: .monospaced))
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { showAddMenu = true } label: { Image(systemName: "plus") }
+                    }
                 }
             }
             .confirmationDialog("", isPresented: $showAddMenu, titleVisibility: .hidden) {
@@ -52,8 +66,48 @@ struct LibraryView: View {
                 Button("Start New Session") { showStartDough = true }
                 Button("Cancel", role: .cancel) {}
             }
+            .alert("New Folder", isPresented: $showNewFolderAlert) {
+                TextField("Folder name", text: $newFolderName)
+                Button("Create") {
+                    let name = newFolderName.trimmingCharacters(in: .whitespaces)
+                    guard !name.isEmpty else { return }
+                    switch newFolderSection {
+                    case "Recipes":
+                        if !store.recipeFolders.contains(name) { store.recipeFolders.append(name); store.saveFolderRegistry() }
+                    case "Flour Blends":
+                        if !store.blendFolders.contains(name) { store.blendFolders.append(name); store.saveFolderRegistry() }
+                    case "Processes":
+                        if !store.processFolders.contains(name) { store.processFolders.append(name); store.saveFolderRegistry() }
+                    case "Preferments":
+                        if !store.prefermentFolders.contains(name) { store.prefermentFolders.append(name); store.saveFolderRegistry() }
+                    default: break
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("New folder in \(newFolderSection)")
+            }
+            .alert("Delete Recipe?", isPresented: Binding(
+                get: { recipeToDelete != nil },
+                set: { if !$0 { recipeToDelete = nil } }
+            )) {
+                Button("Delete", role: .destructive) {
+                    if let r = recipeToDelete { store.delete(r) }
+                    recipeToDelete = nil
+                }
+                Button("Cancel", role: .cancel) { recipeToDelete = nil }
+            } message: {
+                Text("\"\(recipeToDelete?.name ?? "")\" will be permanently removed.")
+            }
         }
         .preferredColorScheme(.light)
+        .sheet(isPresented: $showSectionReorder) {
+            SectionReorderView(
+                order: Binding(get: { store.librarySectionOrder },
+                               set: { store.librarySectionOrder = $0 }),
+                onSave: { store.saveSectionOrder() }
+            )
+        }
         .sheet(isPresented: $showWizard) {
             WizardContainerView { recipe in
                 store.add(recipe)
@@ -81,100 +135,105 @@ struct LibraryView: View {
         .sheet(isPresented: $showStartDough) {
             StartDoughView().environmentObject(store)
         }
-        .alert("Delete Recipe?", isPresented: Binding(
-            get: { recipeToDelete != nil },
-            set: { if !$0 { recipeToDelete = nil } }
-        )) {
-            Button("Delete", role: .destructive) {
-                if let r = recipeToDelete { store.delete(r) }
-                recipeToDelete = nil
-            }
-            Button("Cancel", role: .cancel) { recipeToDelete = nil }
-        } message: {
-            Text("\"\(recipeToDelete?.name ?? "")\" will be permanently removed.")
+    }
+
+    // MARK: - Section routing
+
+    @ViewBuilder
+    func sectionView(for section: String) -> some View {
+        switch section {
+        case "Recipes":      recipesSection
+        case "Processes":    processesSection
+        case "Flour Blends": blendsSection
+        case "Preferments":  prefermentsSection
+        default:             EmptyView()
         }
     }
 
-    // MARK: - Recipes (folder-grouped for onMove support)
+    // MARK: - Tappable type header
+
+    func sectionTypeHeader(_ title: String) -> some View {
+        Button {
+            newFolderSection = title
+            newFolderName    = ""
+            showNewFolderAlert = true
+        } label: {
+            HStack(spacing: 5) {
+                Text(title)
+                Image(systemName: "folder.badge.plus")
+                    .font(.caption2)
+            }
+            .foregroundColor(.secondary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Recipes
 
     @ViewBuilder
     var recipesSection: some View {
-        let grouped = Dictionary(grouping: store.recipes) { $0.folderName }
-        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let grouped   = Dictionary(grouping: store.recipes) { $0.folderName }
+        let allFolders = Array(Set(store.recipeFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        if store.recipes.isEmpty {
-            Section(header: Text("Recipes")) {
+        Section(header: sectionTypeHeader("Recipes")) {
+            if store.recipes.isEmpty {
                 Text("No recipes yet — tap + to create one.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-        } else {
-            if !unfoldered.isEmpty || folders.isEmpty {
-                Section(header: Text("Recipes")) {
-                    ForEach(unfoldered) { recipe in
-                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
-                            RecipeRowView(recipe: recipe)
-                        }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) { recipeToDelete = recipe } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                    }
-                    .onMove { src, dst in
-                        store.moveRecipes(inFolder: "", from: src, to: dst)
+            ForEach(unfoldered) { recipe in
+                NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                    RecipeRowView(recipe: recipe)
+                }
+                .swipeActions(edge: .trailing) {
+                    Button(role: .destructive) { recipeToDelete = recipe } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
-            ForEach(folders, id: \.self) { folder in
-                let items = grouped[folder] ?? []
-                Section(header: folderHeader("Recipes", folder: folder)) {
-                    ForEach(items) { recipe in
-                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
-                            RecipeRowView(recipe: recipe)
-                        }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) { recipeToDelete = recipe } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
+            .onMove { src, dst in store.moveRecipes(inFolder: "", from: src, to: dst) }
+        }
+        ForEach(allFolders, id: \.self) { folder in
+            let items = grouped[folder] ?? []
+            Section(header: folderHeader("Recipes", folder: folder)) {
+                ForEach(items) { recipe in
+                    NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                        RecipeRowView(recipe: recipe)
                     }
-                    .onMove { src, dst in
-                        store.moveRecipes(inFolder: folder, from: src, to: dst)
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) { recipeToDelete = recipe } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
                 }
+                .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
             }
         }
     }
 
-    // MARK: - Blends (folder-grouped for onMove support)
+    // MARK: - Flour Blends
 
     @ViewBuilder
     var blendsSection: some View {
-        let grouped = Dictionary(grouping: store.savedBlends) { $0.folderName }
-        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let grouped   = Dictionary(grouping: store.savedBlends) { $0.folderName }
+        let allFolders = Array(Set(store.blendFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        if store.savedBlends.isEmpty {
-            Section(header: Text("Flour Blends")) {
+        Section(header: sectionTypeHeader("Flour Blends")) {
+            if store.savedBlends.isEmpty && allFolders.isEmpty {
                 Text("No saved blends yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-        } else {
-            if !unfoldered.isEmpty || folders.isEmpty {
-                Section(header: Text("Flour Blends")) {
-                    ForEach(unfoldered) { blend in blendRow(blend) }
-                        .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
-                }
-            }
-            ForEach(folders, id: \.self) { folder in
-                let items = grouped[folder] ?? []
-                Section(header: folderHeader("Flour Blends", folder: folder)) {
-                    ForEach(items) { blend in blendRow(blend) }
-                        .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
-                }
+            ForEach(unfoldered) { blend in blendRow(blend) }
+                .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
+        }
+        ForEach(allFolders, id: \.self) { folder in
+            let items = grouped[folder] ?? []
+            Section(header: folderHeader("Flour Blends", folder: folder)) {
+                ForEach(items) { blend in blendRow(blend) }
+                    .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
             }
         }
     }
@@ -199,33 +258,28 @@ struct LibraryView: View {
         }
     }
 
-    // MARK: - Processes (folder-grouped for onMove support)
+    // MARK: - Processes
 
     @ViewBuilder
     var processesSection: some View {
-        let grouped = Dictionary(grouping: store.savedProcesses) { $0.folderName }
-        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let grouped   = Dictionary(grouping: store.savedProcesses) { $0.folderName }
+        let allFolders = Array(Set(store.processFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        if store.savedProcesses.isEmpty {
-            Section(header: Text("Processes")) {
+        Section(header: sectionTypeHeader("Processes")) {
+            if store.savedProcesses.isEmpty && allFolders.isEmpty {
                 Text("No saved processes yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-        } else {
-            if !unfoldered.isEmpty || folders.isEmpty {
-                Section(header: Text("Processes")) {
-                    ForEach(unfoldered) { process in processRow(process) }
-                        .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
-                }
-            }
-            ForEach(folders, id: \.self) { folder in
-                let items = grouped[folder] ?? []
-                Section(header: folderHeader("Processes", folder: folder)) {
-                    ForEach(items) { process in processRow(process) }
-                        .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
-                }
+            ForEach(unfoldered) { process in processRow(process) }
+                .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
+        }
+        ForEach(allFolders, id: \.self) { folder in
+            let items = grouped[folder] ?? []
+            Section(header: folderHeader("Processes", folder: folder)) {
+                ForEach(items) { process in processRow(process) }
+                    .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
             }
         }
     }
@@ -249,33 +303,28 @@ struct LibraryView: View {
         }
     }
 
-    // MARK: - Preferments (folder-grouped for onMove support)
+    // MARK: - Preferments
 
     @ViewBuilder
     var prefermentsSection: some View {
-        let grouped = Dictionary(grouping: store.savedPreferments) { $0.folderName }
-        let folders = grouped.keys.filter { !$0.isEmpty }.sorted()
+        let grouped   = Dictionary(grouping: store.savedPreferments) { $0.folderName }
+        let allFolders = Array(Set(store.prefermentFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        if store.savedPreferments.isEmpty {
-            Section(header: Text("Preferments")) {
+        Section(header: sectionTypeHeader("Preferments")) {
+            if store.savedPreferments.isEmpty && allFolders.isEmpty {
                 Text("No saved preferments yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-        } else {
-            if !unfoldered.isEmpty || folders.isEmpty {
-                Section(header: Text("Preferments")) {
-                    ForEach(unfoldered) { pref in prefermentRow(pref) }
-                        .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
-                }
-            }
-            ForEach(folders, id: \.self) { folder in
-                let items = grouped[folder] ?? []
-                Section(header: folderHeader("Preferments", folder: folder)) {
-                    ForEach(items) { pref in prefermentRow(pref) }
-                        .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
-                }
+            ForEach(unfoldered) { pref in prefermentRow(pref) }
+                .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
+        }
+        ForEach(allFolders, id: \.self) { folder in
+            let items = grouped[folder] ?? []
+            Section(header: folderHeader("Preferments", folder: folder)) {
+                ForEach(items) { pref in prefermentRow(pref) }
+                    .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
             }
         }
     }
@@ -306,6 +355,37 @@ struct LibraryView: View {
         }
     }
 }
+
+// MARK: - Section Reorder Sheet
+
+private struct SectionReorderView: View {
+    @Binding var order: [String]
+    let onSave: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(order, id: \.self) { section in
+                    Text(section)
+                        .font(.system(.body, design: .monospaced))
+                }
+                .onMove { from, to in order.move(fromOffsets: from, toOffset: to) }
+            }
+            .environment(\.editMode, .constant(.active))
+            .navigationTitle("Section Order")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { onSave(); dismiss() }
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Recipe Row
 
 struct RecipeRowView: View {
     let recipe: Recipe

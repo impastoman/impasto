@@ -8,17 +8,10 @@ struct PostBakeView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
 
-    @State private var bakeTimeOverride: String = ""
-    @State private var ovenTempInput: String = ""
     @State private var selectedPhoto: PhotosPickerItem? = nil
     @State private var photoData: Data? = nil
     @State private var showSessionLog = false
     @State private var selectedPizza: PizzaEntry? = nil
-
-    var bakeSeconds: TimeInterval {
-        if let s = TimeInterval(bakeTimeOverride), s > 0 { return s }
-        return vm.bakeElapsed
-    }
 
     var body: some View {
         NavigationStack {
@@ -41,17 +34,19 @@ struct PostBakeView: View {
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
+            .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
+                if isTrue { dismiss() }
+            }
         }
         .sheet(isPresented: $showSessionLog) {
             SessionLogView(
                 vm: vm,
                 recipe: recipe,
-                bakeTimeSeconds: bakeSeconds,
-                ovenTempAchieved: Double(ovenTempInput),
+                bakeTimeSeconds: vm.bakeElapsed,
+                ovenTempAchieved: nil,
                 photoData: photoData,
                 onEndSession: {
                     sessionManager.end(vm)
-                    dismiss()
                 }
             )
             .environmentObject(store)
@@ -129,29 +124,15 @@ struct PostBakeView: View {
     }
 
     var bakeTimeSection: some View {
-        Section {
-            HStack {
-                Text("Total bake time")
-                Spacer()
-                TextField(timeDisplay(vm.bakeElapsed), text: $bakeTimeOverride)
-                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 72)
-                    .font(.system(.body, design: .monospaced))
-                Text("sec").foregroundColor(.secondary)
-            }
-
-            HStack {
-                Text("Oven temp achieved")
-                Spacer()
-                TextField("optional", text: $ovenTempInput)
-                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 64)
-                    .font(.system(.body, design: .monospaced))
-                Text("°").foregroundColor(.secondary)
-            }
-        } header: { Text("Bake info") }
+        Section("Bake info") {
+            LabeledContent("Total bake time", value: timeString(vm.bakeElapsed))
+                .font(.system(.body, design: .monospaced))
+        }
     }
 
-    func timeDisplay(_ t: TimeInterval) -> String {
-        String(format: "%.0f", t)
+    func timeString(_ t: TimeInterval) -> String {
+        let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60; let s = Int(t) % 60
+        return String(format: "%02d:%02d:%02d", h, m, s)
     }
 
     func shortTime(_ t: TimeInterval) -> String {

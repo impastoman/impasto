@@ -10,13 +10,20 @@ class RecipeStore: ObservableObject {
     @Published var activeRecipeId: UUID?
     @Published var customCrustTags: [String] = []
     @Published var customCrumbTags: [String] = []
+    @Published var librarySectionOrder: [String] = ["Recipes", "Processes", "Flour Blends", "Preferments"]
+    @Published var recipeFolders:    [String] = []
+    @Published var blendFolders:     [String] = []
+    @Published var processFolders:   [String] = []
+    @Published var prefermentFolders:[String] = []
 
     private let recipeKey     = "impasto_recipes_v3"
     private let prefermentKey = "impasto_preferments_v1"
     private let blendsKey     = "impasto_blends_v1"
     private let processesKey  = "impasto_processes_v1"
     private let sprefsKey     = "impasto_saved_preferments_v1"
-    private let customTagsKey = "impasto_custom_tags_v1"
+    private let customTagsKey      = "impasto_custom_tags_v1"
+    private let sectionOrderKey    = "impasto_section_order_v1"
+    private let folderRegistryKey  = "impasto_folder_registry_v1"
 
     init() { load(); seedDefaultsIfNeeded() }
 
@@ -173,6 +180,18 @@ class RecipeStore: ObservableObject {
         if let d = try? JSONEncoder().encode(data) { UserDefaults.standard.set(d, forKey: customTagsKey) }
     }
 
+    func saveSectionOrder() {
+        if let d = try? JSONEncoder().encode(librarySectionOrder) { UserDefaults.standard.set(d, forKey: sectionOrderKey) }
+    }
+
+    func saveFolderRegistry() {
+        let data: [String: [String]] = [
+            "recipes": recipeFolders, "blends": blendFolders,
+            "processes": processFolders, "preferments": prefermentFolders
+        ]
+        if let d = try? JSONEncoder().encode(data) { UserDefaults.standard.set(d, forKey: folderRegistryKey) }
+    }
+
     private func load() {
         if let d = UserDefaults.standard.data(forKey: recipeKey),
            let v = try? JSONDecoder().decode([Recipe].self, from: d) { recipes = v }
@@ -188,6 +207,15 @@ class RecipeStore: ObservableObject {
            let v = try? JSONDecoder().decode([String: [String]].self, from: d) {
             customCrustTags = v["crust"] ?? []
             customCrumbTags = v["crumb"] ?? []
+        }
+        if let d = UserDefaults.standard.data(forKey: sectionOrderKey),
+           let v = try? JSONDecoder().decode([String].self, from: d) { librarySectionOrder = v }
+        if let d = UserDefaults.standard.data(forKey: folderRegistryKey),
+           let v = try? JSONDecoder().decode([String: [String]].self, from: d) {
+            recipeFolders     = v["recipes"]     ?? []
+            blendFolders      = v["blends"]      ?? []
+            processFolders    = v["processes"]   ?? []
+            prefermentFolders = v["preferments"] ?? []
         }
     }
 

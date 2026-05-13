@@ -61,6 +61,9 @@ struct SessionLogView: View {
             .navigationTitle("How'd it go?")
             .navigationBarTitleDisplayMode(.inline)
         }
+        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
+            if isTrue { dismiss() }
+        }
     }
 
     var ratingSection: some View {

@@ -66,7 +66,8 @@ struct StandaloneBlendBuilderView: View {
     var isEditing: Bool { editingId != nil }
 
     var blendFolders: [String] {
-        Array(Set(store.savedBlends.map(\.folderName).filter { !$0.isEmpty })).sorted()
+        let fromItems = store.savedBlends.map(\.folderName).filter { !$0.isEmpty }
+        return Array(Set(store.blendFolders + fromItems)).sorted()
     }
 
     var body: some View {
@@ -203,7 +204,8 @@ struct StandaloneProcessBuilderView: View {
     var isEditing: Bool { editingId != nil }
 
     var processFolders: [String] {
-        Array(Set(store.savedProcesses.map(\.folderName).filter { !$0.isEmpty })).sorted()
+        let fromItems = store.savedProcesses.map(\.folderName).filter { !$0.isEmpty }
+        return Array(Set(store.processFolders + fromItems)).sorted()
     }
 
     var body: some View {
@@ -327,7 +329,8 @@ struct StandalonePrefermentBuilderView: View {
     var isEditing: Bool { editingId != nil }
 
     var prefermentFolders: [String] {
-        Array(Set(store.savedPreferments.map(\.folderName).filter { !$0.isEmpty })).sorted()
+        let fromItems = store.savedPreferments.map(\.folderName).filter { !$0.isEmpty }
+        return Array(Set(store.prefermentFolders + fromItems)).sorted()
     }
 
     var prefermentLabel: String {
