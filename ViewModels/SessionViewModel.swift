@@ -187,7 +187,8 @@ class SessionViewModel: ObservableObject, Identifiable {
             crustColor: crustColor,
             bottomResult: bottomResult,
             topResult: topResult,
-            photoData: photoData
+            photoData: photoData,
+            pizzaEntries: pizzaEntries
         )
     }
 }

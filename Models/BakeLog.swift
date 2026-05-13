@@ -44,6 +44,7 @@ struct BakeLog: Identifiable, Codable {
     var bottomResult: BottomResult = .good
     var topResult: TopResult = .good
     var photoData: Data? = nil
+    var pizzaEntries: [PizzaEntry] = []
 
     // Annotated (post-session reflection)
     var annotatedNotes: String = ""
