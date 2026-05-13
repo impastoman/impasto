@@ -76,8 +76,9 @@ struct WizardContainerView: View {
         }()
         _name = State(initialValue: defaultName)
 
-        // Pre-select entry modes for edit/fork so back-nav shows the editor, not the pick card
-        _flourBlendMode  = State(initialValue: r?.flourBlend.components.isEmpty == false ? .create : .pick)
+        // Pre-select entry modes for edit/fork so back-nav shows the editor, not the pick card.
+        // Also jump straight to .create when a converted formula pre-fills the blend.
+        _flourBlendMode  = State(initialValue: (convertedFormula != nil || r?.flourBlend.components.isEmpty == false) ? .create : .pick)
         _prefEntryMode   = State(initialValue: (r != nil && r!.method != .direct) ? .create : .pick)
         _processMode     = State(initialValue: r?.processCards.isEmpty == false ? .create : .pick)
 
@@ -154,7 +155,8 @@ struct WizardContainerView: View {
                             saltPct: $saltPct,
                             yeastPct: $yeastPct,
                             yeastType: $yeastType,
-                            styleDefault: style.defaultFinalHydration)
+                            styleDefault: style.defaultFinalHydration,
+                            isFromConversion: hasConvertedFormula)
                 case 5: MethodStepView(usePreferment: $usePreferment,
                                        prefermentHydration: $prefermentHydration,
                                        method: $method,

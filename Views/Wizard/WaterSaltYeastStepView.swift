@@ -6,6 +6,7 @@ struct WaterSaltYeastStepView: View {
     @Binding var yeastPct: Double
     @Binding var yeastType: YeastType
     let styleDefault: Double
+    var isFromConversion: Bool = false
 
     @State private var hydrationText: String = ""
     @State private var saltText: String = ""
@@ -54,8 +55,13 @@ struct WaterSaltYeastStepView: View {
             } header: {
                 Text("Water")
             } footer: {
-                Text("Style default: \(Int(styleDefault * 100))%  ·  higher = stickier dough, more open crumb")
-                    .font(.system(size: 11, design: .monospaced))
+                if isFromConversion {
+                    Text("Pre-filled from your volume recipe  ·  higher = stickier dough, more open crumb")
+                        .font(.system(size: 11, design: .monospaced))
+                } else {
+                    Text("Style default: \(Int(styleDefault * 100))%  ·  higher = stickier dough, more open crumb")
+                        .font(.system(size: 11, design: .monospaced))
+                }
             }
 
             Section {
@@ -76,8 +82,13 @@ struct WaterSaltYeastStepView: View {
             } header: {
                 Text("Salt")
             } footer: {
-                Text("Typical: 2.5–3% of flour weight")
-                    .font(.system(size: 11, design: .monospaced))
+                if isFromConversion {
+                    Text("Pre-filled from your volume recipe  ·  typical: 2.5–3%")
+                        .font(.system(size: 11, design: .monospaced))
+                } else {
+                    Text("Typical: 2.5–3% of flour weight")
+                        .font(.system(size: 11, design: .monospaced))
+                }
             }
 
             Section {
@@ -105,8 +116,13 @@ struct WaterSaltYeastStepView: View {
             } header: {
                 Text("Yeast")
             } footer: {
-                Text(yeastType.typicalRange)
-                    .font(.system(size: 11, design: .monospaced))
+                if isFromConversion {
+                    Text("Pre-filled from your volume recipe  ·  \(yeastType.typicalRange)")
+                        .font(.system(size: 11, design: .monospaced))
+                } else {
+                    Text(yeastType.typicalRange)
+                        .font(.system(size: 11, design: .monospaced))
+                }
             }
         }
         .onAppear {
