@@ -21,6 +21,11 @@ struct LibraryView: View {
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
     @State private var showFormulaWizard  = false
+    // Folder-move sheets
+    @State private var recipeToMove: Recipe? = nil
+    @State private var blendToMove: FlourBlend? = nil
+    @State private var processToMove: SavedProcess? = nil
+    @State private var prefermentToMove: SavedPreferment? = nil
 
     // MARK: - Folder option lists
 
@@ -171,6 +176,42 @@ struct LibraryView: View {
         .sheet(isPresented: $showStartDough) {
             StartDoughView().environmentObject(store)
         }
+        .sheet(item: $recipeToMove) { recipe in
+            FolderPickerSheet(
+                itemName: recipe.name,
+                currentFolder: recipe.folderName,
+                folders: recipeFolderOptions
+            ) { folder in
+                store.moveRecipeToFolder(recipe, folder: folder)
+            }
+        }
+        .sheet(item: $blendToMove) { blend in
+            FolderPickerSheet(
+                itemName: blend.name.isEmpty ? "Untitled Blend" : blend.name,
+                currentFolder: blend.folderName,
+                folders: blendFolderOptions
+            ) { folder in
+                store.moveBlendToFolder(blend, folder: folder)
+            }
+        }
+        .sheet(item: $processToMove) { process in
+            FolderPickerSheet(
+                itemName: process.name.isEmpty ? "Untitled Process" : process.name,
+                currentFolder: process.folderName,
+                folders: processFolderOptions
+            ) { folder in
+                store.moveProcessToFolder(process, folder: folder)
+            }
+        }
+        .sheet(item: $prefermentToMove) { pref in
+            FolderPickerSheet(
+                itemName: pref.name.isEmpty ? "Untitled Preferment" : pref.name,
+                currentFolder: pref.folderName,
+                folders: prefermentFolderOptions
+            ) { folder in
+                store.movePrefermentToFolder(pref, folder: folder)
+            }
+        }
     }
 
     // MARK: - Section routing
@@ -225,6 +266,7 @@ struct LibraryView: View {
                 .recipeRowActions(
                     recipe: recipe,
                     folders: recipeFolderOptions,
+                    onMoveRequest: { recipeToMove = recipe },
                     onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
                     onDelete: { recipeToDelete = recipe }
                 )
@@ -241,6 +283,7 @@ struct LibraryView: View {
                         .recipeRowActions(
                             recipe: recipe,
                             folders: recipeFolderOptions,
+                            onMoveRequest: { recipeToMove = recipe },
                             onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
                             onDelete: { recipeToDelete = recipe }
                         )
@@ -294,6 +337,14 @@ struct LibraryView: View {
                     .font(.caption).foregroundColor(.secondary).lineLimit(1)
             }
             .padding(.vertical, 2)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            if !blendFolderOptions.isEmpty || !blend.folderName.isEmpty {
+                Button { blendToMove = blend } label: {
+                    Label("Move", systemImage: "folder")
+                }
+                .tint(Color(hex: "D2B96A"))
+            }
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteBlend(blend) } label: {
@@ -353,6 +404,14 @@ struct LibraryView: View {
             }
             .padding(.vertical, 2)
         }
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            if !processFolderOptions.isEmpty || !process.folderName.isEmpty {
+                Button { processToMove = process } label: {
+                    Label("Move", systemImage: "folder")
+                }
+                .tint(Color(hex: "D2B96A"))
+            }
+        }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteProcess(process) } label: {
                 Label("Delete", systemImage: "trash")
@@ -411,6 +470,14 @@ struct LibraryView: View {
             }
             .padding(.vertical, 2)
         }
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            if !prefermentFolderOptions.isEmpty || !pref.folderName.isEmpty {
+                Button { prefermentToMove = pref } label: {
+                    Label("Move", systemImage: "folder")
+                }
+                .tint(Color(hex: "D2B96A"))
+            }
+        }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
                 Label("Delete", systemImage: "trash")
@@ -463,15 +530,28 @@ private extension View {
     func recipeRowActions(
         recipe: Recipe,
         folders: [String],
+        onMoveRequest: @escaping () -> Void,
         onMove: @escaping (String) -> Void,
         onDelete: @escaping () -> Void
     ) -> some View {
         self
+            // Leading swipe → opens the FolderPickerSheet (reliable on NavigationLink rows)
+            .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                if !folders.isEmpty || !recipe.folderName.isEmpty {
+                    Button {
+                        onMoveRequest()
+                    } label: {
+                        Label("Move", systemImage: "folder")
+                    }
+                    .tint(Color(hex: "D2B96A"))
+                }
+            }
             .swipeActions(edge: .trailing) {
                 Button(role: .destructive) { onDelete() } label: {
                     Label("Delete", systemImage: "trash")
                 }
             }
+            // Keep context menu as a secondary path; may or may not fire on a NavigationLink
             .contextMenu {
                 let destinations = folders.filter { $0 != recipe.folderName }
                 if !destinations.isEmpty || !recipe.folderName.isEmpty {
@@ -556,5 +636,67 @@ struct RecipeRowView: View {
                 .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
         }
         .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Folder Picker Sheet
+
+private struct FolderPickerSheet: View {
+    let itemName: String
+    let currentFolder: String
+    let folders: [String]
+    let onMove: (String) -> Void   // "" = remove from folder
+    @Environment(\.dismiss) private var dismiss
+
+    var destinations: [String] { folders.filter { $0 != currentFolder } }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if !currentFolder.isEmpty {
+                    Section {
+                        Button {
+                            onMove("")
+                            dismiss()
+                        } label: {
+                            Label("Remove from \"\(currentFolder)\"", systemImage: "folder.badge.minus")
+                                .foregroundColor(.orange)
+                                .font(.system(size: 14, design: .monospaced))
+                        }
+                    }
+                }
+
+                if destinations.isEmpty {
+                    Section {
+                        Text("No other folders — tap ⊕ folder badge on a section header to create one.")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                } else {
+                    Section("Move to") {
+                        ForEach(destinations, id: \.self) { folder in
+                            Button {
+                                onMove(folder)
+                                dismiss()
+                            } label: {
+                                Label(folder, systemImage: "folder")
+                                    .font(.system(size: 14, design: .monospaced))
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle(itemName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cancel") { dismiss() }
+                        .font(.system(size: 13, design: .monospaced))
+                }
+            }
+        }
+        .preferredColorScheme(.light)
+        .presentationDetents([.medium, .large])
     }
 }
