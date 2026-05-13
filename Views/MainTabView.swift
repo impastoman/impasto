@@ -34,6 +34,9 @@ struct ActiveSessionsView: View {
     @EnvironmentObject var sessionManager: SessionManager
     let onGoHome: () -> Void
     @State private var resumedSession: SessionViewModel? = nil
+    @State private var sessionToEnd:   SessionViewModel? = nil
+    @State private var sessionToLog:   SessionViewModel? = nil
+    @State private var showEndOptions = false
 
     var body: some View {
         NavigationStack {
@@ -62,11 +65,19 @@ struct ActiveSessionsView: View {
                                         .fill(Color.orange)
                                         .frame(width: 8, height: 8)
                                 }
-                                Button("▶  Resume") {
-                                    vm.isHidden = false
-                                    resumedSession = vm
+                                HStack(spacing: 12) {
+                                    Button("▶  Resume") {
+                                        vm.isHidden = false
+                                        resumedSession = vm
+                                    }
+                                    .buttonStyle(ImpastoButtonStyle(filled: true))
+
+                                    Button("End Session") {
+                                        sessionToEnd = vm
+                                        showEndOptions = true
+                                    }
+                                    .buttonStyle(ImpastoButtonStyle(filled: false))
                                 }
-                                .buttonStyle(ImpastoButtonStyle(filled: true))
                             }
                             .padding(.vertical, 6)
                         }
@@ -82,10 +93,31 @@ struct ActiveSessionsView: View {
                         .foregroundColor(.secondary)
                 }
             }
+            .confirmationDialog("End Session", isPresented: $showEndOptions, titleVisibility: .visible) {
+                Button("End and Log") {
+                    if let vm = sessionToEnd {
+                        vm.stopBaking()
+                        sessionToLog = vm
+                    }
+                    sessionToEnd = nil
+                }
+                Button("End without Logging", role: .destructive) {
+                    if let vm = sessionToEnd { sessionManager.end(vm) }
+                    sessionToEnd = nil
+                }
+                Button("Cancel", role: .cancel) { sessionToEnd = nil }
+            } message: {
+                Text("How would you like to close this session?")
+            }
         }
         .preferredColorScheme(.light)
         .fullScreenCover(item: $resumedSession) { vm in
             LiveSessionView(vm: vm)
+                .environmentObject(store)
+                .environmentObject(sessionManager)
+        }
+        .fullScreenCover(item: $sessionToLog) { vm in
+            PostBakeView(vm: vm, recipe: vm.recipe)
                 .environmentObject(store)
                 .environmentObject(sessionManager)
         }
