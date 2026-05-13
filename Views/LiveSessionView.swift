@@ -38,13 +38,15 @@ struct LiveSessionView: View {
                     }
                     .foregroundColor(.secondary)
                     .confirmationDialog("Leave session?", isPresented: $showLeaveAlert, titleVisibility: .visible) {
-                        Button("Keep Paused and Leave") {
+                        // Leave without touching the timer state
+                        Button("Leave Session") {
                             vm.isHidden = true
                             sessionManager.shouldReturnHome = true
                         }
-                        if !vm.isRunning {
-                            Button("Unpause and Leave") {
-                                vm.resume()
+                        // Pause first, then leave — only meaningful while running
+                        if vm.isRunning {
+                            Button("Pause & Leave Session") {
+                                vm.pause()
                                 vm.isHidden = true
                                 sessionManager.shouldReturnHome = true
                             }
