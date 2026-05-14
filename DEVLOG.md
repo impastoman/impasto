@@ -560,15 +560,37 @@ A photo-based share tool. The user selects a pizza photo (from a logged bake) as
 
 ### Entry points
 
-- **History view** — "Share" buttons pinned at the top of the view, always visible
-- **Logged pizza detail** — share option on any individual logged pizza entry
+Three ways to reach the photo builder:
+
+1. **Session end ("How'd it go?" view)** — a third button sits alongside "Save to History" and "↩ Exit Session": **"Share this session →"**
+2. **History view** — "Share" buttons pinned at the top of the view, always visible
+3. **Logged pizza detail** — share option on any individual logged pizza entry
+
+---
+
+### "Share this session" flow (from session end)
+
+When tapped from the session end view, the user is presented with two paths:
+
+**Share to device (save locally)**
+- Automatically selects the background photo: main session photo if one was taken; otherwise the first logged pizza photo; otherwise cream fallback
+- Pre-toggles default overlay blocks on: Style & method + Formula
+- Opens the photo builder with defaults already applied — user can adjust blocks or arrange before exporting
+- Export saves directly to the Photos app (no share sheet required for this path)
+
+**Share to social**
+- Same auto-photo selection and default block pre-toggle as above
+- Export opens the full iOS share sheet — Instagram, Messages, copy to clipboard, etc.
+
+The user can also go into the full editor from either path to toggle/arrange blocks before exporting.
 
 ---
 
 ### Background image
 
 - The pizza photo from the selected bake log entry is the canvas
-- If no photo was logged, offer a plain cream (`F5F1E8`) background as fallback
+- Auto-selection priority (for session-end share): main session photo → first logged pizza photo → cream (`F5F1E8`) fallback
+- In History / logged pizza entry flows, the photo from that specific log entry is pre-selected
 
 ---
 
@@ -606,11 +628,23 @@ The user toggles which blocks appear. Each block is white solid text on a grey b
 
 ---
 
+### Branding watermark
+
+**Always present on every exported image — not toggleable, not removable.**
+
+- Impasto name + logo mark in one corner (bottom-right default)
+- Font: obvious but non-intrusive — small enough to not compete with the photo or overlay blocks, large enough to be clearly legible
+- Style: white text, same monospaced font as the rest of the app, no background box (floats directly over the image)
+- Applies to all images produced by the photo builder regardless of entry point
+
+---
+
 ### Output
 
 - "Share →" renders the composed image and opens the iOS share sheet (`ShareLink` / `UIActivityViewController`)
-- User can save to Photos, share to Instagram, Messages, copy to clipboard, etc.
+- "Save to Photos" saves directly without the share sheet (device-local path)
 - The rendered image is not saved inside the app — it's a one-time export
+- Implementation note: use `ImageRenderer` (iOS 16+) to rasterize the composed `SwiftUI.View` to a `UIImage`
 
 ---
 
