@@ -554,15 +554,67 @@ A self-contained sourdough starter management layer that sits alongside the exis
 
 ## Social Photo Builder — Queued (version TBD)
 
-A shareable recipe card generator using the recipe detail view's existing card groupings as the content blocks.
+A photo-based share tool. The user selects a pizza photo (from a logged bake) as the background, then superimposes toggleable recipe info blocks over it. Output is a shareable image via the iOS share sheet.
 
-**Concept:**
-- Each recipe card group (Dough, Preferment, Process, Bake, etc.) can be individually toggled on/off for inclusion in the share image
-- The groupings as they appear in RecipeDetailView are the right ones — they're already intuitive and well-structured
-- **Exception: the Dough group must NOT show the buffer (dough loss factor)** — buffer is a production detail, not part of the recipe formula. The social card should show the clean formula only.
-- Layout, font, and color should follow the app's existing aesthetic (cream background, serif timer font for numbers, monospaced labels, gold accent)
+---
 
-**Deferred until:** social/sharing feature is scoped. No implementation work needed yet — this note is a heads-up for when the builder is started.
+### Entry points
+
+- **History view** — "Share" buttons pinned at the top of the view, always visible
+- **Logged pizza detail** — share option on any individual logged pizza entry
+
+---
+
+### Background image
+
+- The pizza photo from the selected bake log entry is the canvas
+- If no photo was logged, offer a plain cream (`F5F1E8`) background as fallback
+
+---
+
+### Overlay blocks
+
+The user toggles which blocks appear. Each block is white solid text on a grey box with opacity (think: frosted label, not a card). Available blocks:
+
+| Block | Content | Emoji |
+|---|---|---|
+| Style & method | e.g. "Neapolitan · Biga" | — |
+| Formula | Hydration %, ball count × weight, salt %, yeast type | — |
+| Flour blend | Name of saved flour blend | 🌾 |
+| Preferment | Name of preferment | relevant to type (e.g. 🫧 for poolish, 🍞 for biga) |
+| Process | Name of saved process | 📋 |
+| Session notes | Star rating, bake time, oven temp, user notes from the log | — |
+
+- **Exception: the Formula block must NOT show the buffer (dough loss factor)** — buffer is a production detail. The social card shows the clean formula only.
+- Blocks that have no data (e.g. no preferment on a direct method recipe) are hidden from the toggle list entirely
+
+---
+
+### Arrangement
+
+- Default layout: blocks stack in the lower third of the image
+- **Bonus (if feasible):** user can drag each block freely over the photo to reposition; last position remembered within the session
+
+---
+
+### Visual style
+
+- Block background: `Color(.systemGray).opacity(0.55)` or similar — visible but not overwhelming
+- Text: white, monospaced, same font family as the rest of the app
+- Block corners: `cornerRadius(6)` — consistent with app chip style
+- No gold accent in the share image — keep it neutral so it reads on any photo
+
+---
+
+### Output
+
+- "Share →" renders the composed image and opens the iOS share sheet (`ShareLink` / `UIActivityViewController`)
+- User can save to Photos, share to Instagram, Messages, copy to clipboard, etc.
+- The rendered image is not saved inside the app — it's a one-time export
+
+---
+
+**Deferred until:** social/sharing feature is actively scoped for development.
 
 ---
 
