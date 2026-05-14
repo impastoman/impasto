@@ -164,8 +164,9 @@ struct PreFlightView: View {
                     Text("Age")
                     Spacer()
                     TextField("hours", value: $data.prefermentAgeHours, format: .number)
-                        .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 80)
+                        .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 80)
                         .font(.system(.body, design: .monospaced))
+                        .inputBox()
                     Text("h").foregroundColor(.secondary)
                 }
                 if data.hasPHMeter {
@@ -173,8 +174,9 @@ struct PreFlightView: View {
                         Text("pH reading")
                         Spacer()
                         TextField("5.3", text: $data.prefermentPH)
-                            .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 80)
+                            .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 80)
                             .font(.system(.body, design: .monospaced))
+                            .inputBox()
                     }
                 }
             } else {
@@ -215,8 +217,9 @@ struct PreFlightView: View {
                     get: { toDisplayTemp(data.roomTempC) },
                     set: { data.roomTempC = fromDisplayTemp($0) }
                 ), format: .number)
-                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 60)
+                    .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 60)
                     .font(.system(.body, design: .monospaced))
+                    .inputBox()
                 Text(useCelsius ? "°C" : "°F").foregroundColor(.secondary)
             }
             Toggle("pH meter available", isOn: $data.hasPHMeter).tint(Color(hex: "D2B96A"))
@@ -250,9 +253,10 @@ struct PreFlightView: View {
                 Text("Balls")
                 Spacer()
                 TextField("\(recipe.ballCount)", value: $data.overrideBallCount, format: .number)
-                    .keyboardType(.numberPad).multilineTextAlignment(.trailing).frame(width: 60)
+                    .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(data.overrideBallCount != nil ? Color(hex: "D2B96A") : .primary)
+                    .inputBox()
             }
             HStack {
                 Text("Ball weight")
@@ -261,9 +265,10 @@ struct PreFlightView: View {
                     get: { ceil(weightUnit.toDisplay(data.overrideBallWeight ?? recipe.ballWeight)) },
                     set: { data.overrideBallWeight = weightUnit.toGrams(Double($0)) }
                 ), format: .number)
-                    .keyboardType(.numberPad).multilineTextAlignment(.trailing).frame(width: 60)
+                    .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
                     .font(.system(.body, design: .monospaced))
                     .foregroundColor(data.overrideBallWeight != nil ? Color(hex: "D2B96A") : .primary)
+                    .inputBox()
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
             }
             HStack {
@@ -278,9 +283,10 @@ struct PreFlightView: View {
                     get: { ceil(weightUnit.toDisplay(data.overrideBuffer.map { $0 * totalDough } ?? totalDough * 0.025)) },
                     set: { data.overrideBuffer = weightUnit.toGrams(Double($0)) / totalDough }
                 ), format: .number)
-                .keyboardType(.numberPad).multilineTextAlignment(.trailing).frame(width: 60)
+                .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
                 .font(.system(.body, design: .monospaced))
                 .foregroundColor(data.overrideBuffer != nil ? Color(hex: "D2B96A") : .primary)
+                .inputBox()
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
             }
         } header: {

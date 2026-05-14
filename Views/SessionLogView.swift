@@ -189,7 +189,9 @@ struct SessionLogView: View {
 
     var notesSection: some View {
         Section("Notes") {
-            TextField("Observations...", text: $notes, axis: .vertical).lineLimit(4...)
+            TextField("Observations...", text: $notes, axis: .vertical)
+                .lineLimit(4...)
+                .notesBox()
         }
     }
 

@@ -60,6 +60,7 @@ private struct BakeSetupDetailSection: View {
                     TextField("Oven brand & model", text: $setup.subMethod)
                         .multilineTextAlignment(.trailing)
                         .font(.system(.body, design: .monospaced))
+                        .inputBox()
                 }
             } else if !setup.method.subMethods.isEmpty {
                 Picker("Setup", selection: $setup.subMethod) {
@@ -76,9 +77,10 @@ private struct BakeSetupDetailSection: View {
                 Spacer()
                 TextField("45", value: $setup.preheatMinutes, format: .number)
                     .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
+                    .multilineTextAlignment(.center)
                     .frame(width: 52)
                     .font(.system(.body, design: .monospaced))
+                    .inputBox()
                 Text("min").foregroundColor(.secondary)
             }
 
@@ -87,15 +89,17 @@ private struct BakeSetupDetailSection: View {
                 Spacer()
                 TextField("260", value: $setup.ovenTempMin, format: .number)
                     .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
+                    .multilineTextAlignment(.center)
                     .frame(width: 52)
                     .font(.system(.body, design: .monospaced))
+                    .inputBox()
                 Text("–")
                 TextField("290", value: $setup.ovenTempMax, format: .number)
                     .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
+                    .multilineTextAlignment(.center)
                     .frame(width: 52)
                     .font(.system(.body, design: .monospaced))
+                    .inputBox()
                 Text(setup.tempUnit).foregroundColor(.secondary)
             }
 
@@ -105,9 +109,10 @@ private struct BakeSetupDetailSection: View {
                     Spacer()
                     TextField("optional", value: $setup.surfaceTemp, format: .number)
                         .keyboardType(.numberPad)
-                        .multilineTextAlignment(.trailing)
+                        .multilineTextAlignment(.center)
                         .frame(width: 64)
                         .font(.system(.body, design: .monospaced))
+                        .inputBox()
                     Text(setup.tempUnit).foregroundColor(.secondary)
                 }
             }
@@ -121,6 +126,7 @@ private struct BakeSetupDetailSection: View {
             TextField("Notes", text: $setup.notes, axis: .vertical)
                 .font(.system(size: 13, design: .monospaced))
                 .lineLimit(2...)
+                .notesBox()
         } header: {
             Text(setup.method.rawValue)
         }

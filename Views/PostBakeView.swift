@@ -8,8 +8,10 @@ struct PostBakeView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedPhoto: PhotosPickerItem? = nil
     @State private var photoData: Data? = nil
+    @State private var showPhotoOptions = false
+    @State private var showCamera = false
+    @State private var showLibraryPicker = false
     @State private var showSessionLog = false
     @State private var selectedPizza: PizzaEntry? = nil
 
@@ -55,6 +57,12 @@ struct PostBakeView: View {
         .sheet(item: $selectedPizza) { pizza in
             PizzaDetailView(entry: pizza)
         }
+        .sheet(isPresented: $showCamera) {
+            CameraPickerView(imageData: $photoData)
+        }
+        .sheet(isPresented: $showLibraryPicker) {
+            LibraryPickerView(imageData: $photoData)
+        }
     }
 
     var pizzaEntriesSection: some View {
@@ -97,7 +105,7 @@ struct PostBakeView: View {
 
     var photoSection: some View {
         Section {
-            PhotosPicker(selection: $selectedPhoto, matching: .images) {
+            Button { showPhotoOptions = true } label: {
                 if let photoData, let uiImage = UIImage(data: photoData) {
                     Image(uiImage: uiImage)
                         .resizable().scaledToFill()
@@ -114,10 +122,10 @@ struct PostBakeView: View {
                     .padding(.vertical, 8)
                 }
             }
-            .onChange(of: selectedPhoto) { _, item in
-                Task {
-                    photoData = try? await item?.loadTransferable(type: Data.self)
-                }
+            .buttonStyle(.plain)
+            .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
+                Button("Take Photo") { showCamera = true }
+                Button("Choose from Library") { showLibraryPicker = true }
             }
         } header: { Text("Photo") }
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))

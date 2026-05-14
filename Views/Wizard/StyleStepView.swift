@@ -59,9 +59,7 @@ struct StyleStepView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     TextField("My Style", text: $customStyleName)
                         .font(.system(.body, design: .monospaced))
-                        .padding(.horizontal, 10).padding(.vertical, 7)
-                        .background(Color(.secondarySystemFill))
-                        .cornerRadius(6)
+                        .textFieldBox()
 
                     Text("No style presets — balanced defaults are applied. Adjust hydration, ratios, and process after saving.")
                         .font(.system(size: 11, design: .monospaced))

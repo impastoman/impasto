@@ -39,6 +39,7 @@ struct TechniqueStepView: View {
                 if mixerType == .other {
                     TextField("Describe your mixer", text: $customMixerName)
                         .font(.system(.body, design: .monospaced))
+                        .textFieldBox()
                         .padding(.top, 2)
                 }
             }
@@ -79,9 +80,10 @@ struct TechniqueStepView: View {
                                   value: $autolyseMinutes,
                                   format: .number)
                             .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
+                            .multilineTextAlignment(.center)
                             .frame(width: 52)
                             .font(.system(.body, design: .monospaced))
+                            .inputBox()
                         Text("min").foregroundColor(.secondary)
                     }
                 }
@@ -111,6 +113,7 @@ struct TechniqueStepView: View {
                 TextField("Any notes for this stage...", text: $mixingNotes, axis: .vertical)
                     .font(.system(size: 13, design: .monospaced))
                     .lineLimit(3...)
+                    .notesBox()
             }
         }
     }

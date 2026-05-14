@@ -234,6 +234,7 @@ private struct AmountUnitRow: View {
                 .keyboardType(.default)
                 .font(.system(size: 14, design: .monospaced))
                 .frame(maxWidth: .infinity)
+                .inputBox()
 
             Picker("Unit", selection: $unit) {
                 ForEach(units, id: \.self) { u in

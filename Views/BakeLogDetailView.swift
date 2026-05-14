@@ -172,6 +172,7 @@ struct BakeLogDetailView: View {
                 TextField("What would you change next time?", text: $annotatedNotes, axis: .vertical)
                     .font(.system(size: 13, design: .monospaced))
                     .lineLimit(4...)
+                    .notesBox()
             }
 
             Section {

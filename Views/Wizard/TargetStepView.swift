@@ -47,6 +47,10 @@ struct TargetStepView: View {
                                       text: $weightText)
                                 .keyboardType(.decimalPad)
                                 .font(.system(size: 24, design: .monospaced))
+                                .padding(.vertical, 6).padding(.horizontal, 8)
+                                .background(Color(hex: "F0EDE4"))
+                                .cornerRadius(6)
+                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                                 .onChange(of: weightText) { _, val in
                                     if let d = Double(val), d > 0 {
                                         ballWeight = gramsFromDisplay(d)
@@ -69,6 +73,10 @@ struct TargetStepView: View {
                             TextField("—", text: $diameterText)
                                 .keyboardType(.decimalPad)
                                 .font(.system(size: 24, design: .monospaced))
+                                .padding(.vertical, 6).padding(.horizontal, 8)
+                                .background(Color(hex: "F0EDE4"))
+                                .cornerRadius(6)
+                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                             Text("\"")
                                 .font(.system(size: 14, design: .monospaced))
                                 .foregroundColor(.secondary)
@@ -104,9 +112,10 @@ struct TargetStepView: View {
                     Spacer()
                     TextField(formattedBufferDisplay(), text: $bufferGramsText)
                         .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
+                        .multilineTextAlignment(.center)
                         .frame(width: 60)
                         .font(.system(.body, design: .monospaced))
+                        .inputBox()
                         .onChange(of: bufferGramsText) { _, val in
                             if let d = Double(val), d >= 0, totalDough > 0 {
                                 buffer = gramsFromDisplay(d) / totalDough

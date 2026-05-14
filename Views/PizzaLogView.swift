@@ -22,8 +22,10 @@ struct PizzaLogView: View {
     @State private var newTagText = ""
     @State private var notes = ""
     @State private var ovenTempInput = ""
-    @State private var selectedPhoto: PhotosPickerItem? = nil
     @State private var photoData: Data? = nil
+    @State private var showPhotoOptions = false
+    @State private var showCamera = false
+    @State private var showLibraryPicker = false
     @State private var snapshotBakeTime: TimeInterval = 0
 
     var body: some View {
@@ -39,6 +41,8 @@ struct PizzaLogView: View {
             .navigationTitle("Log Pizza #\(vm.pizzaEntries.count + 1)")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { snapshotBakeTime = vm.bakeElapsed }
+            .sheet(isPresented: $showCamera) { CameraPickerView(imageData: $photoData) }
+            .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $photoData) }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("← Back") {
@@ -59,7 +63,7 @@ struct PizzaLogView: View {
 
     var photoSection: some View {
         Section {
-            PhotosPicker(selection: $selectedPhoto, matching: .images) {
+            Button { showPhotoOptions = true } label: {
                 if let photoData, let uiImage = UIImage(data: photoData) {
                     Image(uiImage: uiImage)
                         .resizable().scaledToFill()
@@ -76,8 +80,10 @@ struct PizzaLogView: View {
                     .padding(.vertical, 8)
                 }
             }
-            .onChange(of: selectedPhoto) { _, item in
-                Task { photoData = try? await item?.loadTransferable(type: Data.self) }
+            .buttonStyle(.plain)
+            .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
+                Button("Take Photo") { showCamera = true }
+                Button("Choose from Library") { showLibraryPicker = true }
             }
         } header: { Text("Photo") }
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -96,8 +102,9 @@ struct PizzaLogView: View {
                 Text("Oven temp achieved")
                 Spacer()
                 TextField("optional", text: $ovenTempInput)
-                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 64)
+                    .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 64)
                     .font(.system(.body, design: .monospaced))
+                    .inputBox()
                 Text("°").foregroundColor(.secondary)
             }
         }
@@ -207,6 +214,7 @@ struct PizzaLogView: View {
             TextField("Any notes about this pizza…", text: $notes, axis: .vertical)
                 .font(.system(size: 13, design: .monospaced))
                 .lineLimit(3...)
+                .notesBox()
         }
     }
 

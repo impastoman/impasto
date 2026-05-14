@@ -240,6 +240,7 @@ struct LiveSessionView: View {
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundColor(.primary)
                         .lineLimit(1...3)
+                        .notesBox()
                 }
             }
         }

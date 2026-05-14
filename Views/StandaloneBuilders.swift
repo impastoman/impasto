@@ -76,6 +76,7 @@ struct StandaloneBlendBuilderView: View {
                 Section("Name") {
                     TextField("e.g. Caputo 00 + Semolina", text: $blend.name)
                         .font(.system(.body, design: .monospaced))
+                        .textFieldBox()
                 }
 
                 Section {
@@ -214,6 +215,7 @@ struct StandaloneProcessBuilderView: View {
                 Section("Name") {
                     TextField("e.g. Cold Retard w/ Stretch & Fold", text: $name)
                         .font(.system(.body, design: .monospaced))
+                        .textFieldBox()
                 }
 
                 Section {
@@ -354,6 +356,7 @@ struct StandalonePrefermentBuilderView: View {
                 Section("Name") {
                     TextField("e.g. 50% Biga", text: $name)
                         .font(.system(.body, design: .monospaced))
+                        .textFieldBox()
                 }
 
                 Section {
@@ -459,6 +462,7 @@ struct StandalonePrefermentBuilderView: View {
                     TextField("Fermentation notes, timing tips…", text: $notes, axis: .vertical)
                         .font(.system(size: 13, design: .monospaced))
                         .lineLimit(3...)
+                        .notesBox()
                 }
             }
             .navigationTitle(isEditing ? "Edit Preferment" : "New Preferment")

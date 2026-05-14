@@ -1,4 +1,105 @@
 import SwiftUI
+import PhotosUI
+
+// MARK: - Shared field styling
+
+extension View {
+    /// Small box for inline number / short-text fields
+    func inputBox() -> some View {
+        self
+            .padding(.vertical, 4)
+            .padding(.horizontal, 4)
+            .background(Color(hex: "F0EDE4"))
+            .cornerRadius(5)
+            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+    }
+
+    /// Full-width box for notes / multiline text fields
+    func notesBox() -> some View {
+        self
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(hex: "F0EDE4"))
+            .cornerRadius(6)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.4), lineWidth: 1))
+    }
+
+    /// Standard box for full-width single-line text fields (names, etc.)
+    func textFieldBox() -> some View {
+        self
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(Color(hex: "F0EDE4"))
+            .cornerRadius(6)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+    }
+}
+
+// MARK: - Camera picker (UIImagePickerController)
+
+struct CameraPickerView: UIViewControllerRepresentable {
+    @Binding var imageData: Data?
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: CameraPickerView
+        init(_ parent: CameraPickerView) { self.parent = parent }
+
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            let img = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage
+            parent.imageData = img?.jpegData(compressionQuality: 0.85)
+            parent.dismiss()
+        }
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { parent.dismiss() }
+    }
+}
+
+// MARK: - Library picker (PHPickerViewController)
+
+struct LibraryPickerView: UIViewControllerRepresentable {
+    @Binding var imageData: Data?
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = .images
+        config.selectionLimit = 1
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: LibraryPickerView
+        init(_ parent: LibraryPickerView) { self.parent = parent }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.dismiss()
+            guard let result = results.first else { return }
+            result.itemProvider.loadObject(ofClass: UIImage.self) { obj, _ in
+                if let img = obj as? UIImage {
+                    DispatchQueue.main.async { self.parent.imageData = img.jpegData(compressionQuality: 0.85) }
+                }
+            }
+        }
+    }
+}
 
 struct ImpastoButtonStyle: ButtonStyle {
     let filled: Bool

@@ -11,6 +11,7 @@ struct WaterSaltYeastStepView: View {
     @State private var hydrationText: String = ""
     @State private var saltText: String = ""
     @State private var yeastText: String = ""
+    @State private var hydrateOwnWay: Bool = false
 
     var body: some View {
         List {
@@ -19,15 +20,26 @@ struct WaterSaltYeastStepView: View {
                 .listRowInsets(.init())
 
             Section {
-                VStack(spacing: 10) {
+                Toggle(isOn: $hydrateOwnWay) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Hydrate your own way")
+                            .font(.system(.body, design: .monospaced))
+                        Text("Enter any value from 1–999%")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .tint(Color(hex: "D2B96A"))
+
+                if hydrateOwnWay {
                     HStack {
                         Text("Final hydration")
                             .font(.system(.body, design: .monospaced))
                         Spacer()
-                        TextField("\(Int(styleDefault * 100))", text: $hydrationText)
+                        TextField("\(Int(finalHydration * 100))", text: $hydrationText)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.center)
-                            .frame(width: 52)
+                            .frame(width: 72)
                             .font(.system(.body, design: .monospaced))
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
@@ -36,32 +48,58 @@ struct WaterSaltYeastStepView: View {
                             .onChange(of: hydrationText) { _, val in
                                 let f = val.filter { $0.isNumber || $0 == "." }
                                 if f != val { hydrationText = f; return }
-                                if let d = Double(val), d > 0 { finalHydration = d / 100 }
+                                if let d = Double(val), d >= 1 { finalHydration = d / 100 }
                             }
                         Text("%").foregroundColor(.secondary)
                     }
-
-                    Slider(value: $finalHydration, in: 0.50...0.90, step: 0.01)
-                        .tint(Color(hex: "D2B96A"))
-                        .onChange(of: finalHydration) { _, val in
-                            hydrationText = "\(Int(val * 100))"
+                } else {
+                    VStack(spacing: 10) {
+                        HStack {
+                            Text("Final hydration")
+                                .font(.system(.body, design: .monospaced))
+                            Spacer()
+                            TextField("\(Int(styleDefault * 100))", text: $hydrationText)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 52)
+                                .font(.system(.body, design: .monospaced))
+                                .padding(.vertical, 4).padding(.horizontal, 4)
+                                .background(Color(hex: "F0EDE4"))
+                                .cornerRadius(5)
+                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                                .onChange(of: hydrationText) { _, val in
+                                    let f = val.filter { $0.isNumber || $0 == "." }
+                                    if f != val { hydrationText = f; return }
+                                    if let d = Double(val), d > 0 { finalHydration = min(d / 100, 0.90) }
+                                }
+                            Text("%").foregroundColor(.secondary)
                         }
 
-                    HStack(spacing: 0) {
-                        ForEach(hydrationZones, id: \.label) { zone in
-                            Text(zone.label)
-                                .font(.system(size: 9, design: .monospaced))
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
-                                .frame(maxWidth: .infinity)
+                        Slider(value: $finalHydration, in: 0.50...0.90, step: 0.01)
+                            .tint(Color(hex: "D2B96A"))
+                            .onChange(of: finalHydration) { _, val in
+                                hydrationText = "\(Int(val * 100))"
+                            }
+
+                        HStack(spacing: 0) {
+                            ForEach(hydrationZones, id: \.label) { zone in
+                                Text(zone.label)
+                                    .font(.system(size: 9, design: .monospaced))
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
+                                    .frame(maxWidth: .infinity)
+                            }
                         }
                     }
+                    .padding(.vertical, 6)
                 }
-                .padding(.vertical, 6)
             } header: {
                 Text("Water")
             } footer: {
-                if isFromConversion {
+                if hydrateOwnWay {
+                    Text("Slider hidden — any value from 1–999% accepted. The formula scales accordingly.")
+                        .font(.system(size: 11, design: .monospaced))
+                } else if isFromConversion {
                     Text("Pre-filled from your volume recipe  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
                         .font(.system(size: 11, design: .monospaced))
                 } else {
