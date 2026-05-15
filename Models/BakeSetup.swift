@@ -2,10 +2,18 @@ import Foundation
 
 enum BakeMethod: String, Codable, CaseIterable {
     case homeOven      = "Home Oven"
-    case pizzaOven     = "Dedicated Pizza Oven"
-    case portableOven  = "Portable Pizza Oven"
+    case pizzaOven     = "Dedicated Pizza Oven"   // rawValue kept for Codable compatibility
+    case portableOven  = "Portable Pizza Oven"    // rawValue kept for Codable compatibility
     case grill         = "Grill"
     case other         = "Other"
+
+    var displayName: String {
+        switch self {
+        case .pizzaOven:    return "Dedicated Oven"
+        case .portableOven: return "Portable Oven"
+        default:            return rawValue
+        }
+    }
 
     var subMethods: [String] {
         switch self {

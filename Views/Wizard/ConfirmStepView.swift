@@ -112,7 +112,7 @@ struct ConfirmStepView: View {
                     ForEach(bakeSetups) { setup in
                         VStack(alignment: .leading, spacing: 3) {
                             HStack {
-                                Text(setup.method.rawValue)
+                                Text(setup.method.displayName)
                                     .font(.system(size: 13, design: .monospaced))
                                 if !setup.subMethod.isEmpty {
                                     Text("· \(setup.subMethod)")

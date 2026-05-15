@@ -312,7 +312,7 @@ struct ConversionReviewView: View {
     private var warnings: [String] {
         var list: [String] = []
         if hydration < 0.55 || hydration > 0.92 {
-            list.append("Hydration of \(Int(hydration * 100))% is outside the typical pizza range (55–92%) — double-check your water amount.")
+            list.append("Hydration of \(Int(hydration * 100))% is outside the typical range (55–92%) — double-check your water amount.")
         }
         if saltPct > 0.04 {
             list.append("Salt at \(String(format: "%.2f", saltPct * 100))% is high — typical is 2–3%.")

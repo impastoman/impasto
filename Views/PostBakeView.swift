@@ -66,7 +66,7 @@ struct PostBakeView: View {
     }
 
     var pizzaEntriesSection: some View {
-        Section("Logged pizzas") {
+        Section("Logged bakes") {
             ForEach(vm.pizzaEntries) { entry in
                 Button {
                     selectedPizza = entry
@@ -84,7 +84,7 @@ struct PostBakeView: View {
                                 .overlay(Image(systemName: "photo").foregroundColor(.secondary))
                         }
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Pizza #\(entry.pizzaNumber)")
+                            Text("Bake #\(entry.pizzaNumber)")
                                 .font(.system(size: 14, design: .monospaced))
                                 .foregroundColor(.primary)
                             Text(shortTime(entry.bakeTimeSeconds))
@@ -204,7 +204,7 @@ struct PizzaDetailView: View {
                     }
                 }
             }
-            .navigationTitle("Pizza #\(entry.pizzaNumber)")
+            .navigationTitle("Bake #\(entry.pizzaNumber)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

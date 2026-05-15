@@ -182,7 +182,7 @@ struct SessionLogView: View {
                 LabeledContent("Oven temp", value: "\(Int(temp))°").font(.system(.body, design: .monospaced))
             }
             if !vm.pizzaEntries.isEmpty {
-                LabeledContent("Pizzas logged", value: "\(vm.pizzaEntries.count)").font(.system(.body, design: .monospaced))
+                LabeledContent("Bakes logged", value: "\(vm.pizzaEntries.count)").font(.system(.body, design: .monospaced))
             }
         }
     }

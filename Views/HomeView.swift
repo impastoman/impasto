@@ -49,7 +49,7 @@ struct HomeView: View {
                 Text("Impasto")
                     .font(.system(size: 52, design: .serif))
                     .foregroundColor(Color(hex: "2C2A24"))
-                Text("Pizza Dough Manager")
+                Text("Dough Manager")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(Color(hex: "9A9688"))
                     .tracking(2)

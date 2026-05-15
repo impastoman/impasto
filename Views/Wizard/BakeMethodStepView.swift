@@ -14,7 +14,7 @@ struct BakeMethodStepView: View {
                     let isSelected = bakeSetups.contains { $0.method == method }
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(method.rawValue).font(.headline)
+                            Text(method.displayName).font(.headline)
                             if !method.subMethods.isEmpty {
                                 Text(method.subMethods.joined(separator: " · "))
                                     .font(.caption).foregroundColor(.secondary)
@@ -128,7 +128,7 @@ private struct BakeSetupDetailSection: View {
                 .lineLimit(2...)
                 .notesBox()
         } header: {
-            Text(setup.method.rawValue)
+            Text(setup.method.displayName)
         }
     }
 }

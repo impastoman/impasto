@@ -312,7 +312,7 @@ struct LiveSessionView: View {
             if let setupId = vm.preFlight.selectedBakeSetupId,
                let setup = recipe.bakeSetups.first(where: { $0.id == setupId }) {
                 HStack {
-                    Text(setup.method.rawValue)
+                    Text(setup.method.displayName)
                         .font(.system(size: 14, design: .monospaced))
                         .foregroundColor(.secondary)
                     if !setup.subMethod.isEmpty {
@@ -340,7 +340,7 @@ struct LiveSessionView: View {
     var bakeActionRow: some View {
         VStack(spacing: 12) {
             if vm.bakingStarted {
-                Button("Log Pizza") {
+                Button("Log Bake") {
                     vm.stopBaking()
                     showPizzaLog = true
                 }

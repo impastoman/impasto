@@ -232,7 +232,7 @@ struct PreFlightView: View {
             ForEach(recipe.bakeSetups) { setup in
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(setup.method.rawValue).font(.system(.body, design: .monospaced))
+                        Text(setup.method.displayName).font(.system(.body, design: .monospaced))
                         if !setup.subMethod.isEmpty {
                             Text(setup.subMethod).font(.caption).foregroundColor(.secondary)
                         }

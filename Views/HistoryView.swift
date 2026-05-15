@@ -132,7 +132,7 @@ struct HistoryView: View {
 
             Spacer()
 
-            Text("Pizza #\(entry.pizzaNumber)")
+            Text("Bake #\(entry.pizzaNumber)")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
         }

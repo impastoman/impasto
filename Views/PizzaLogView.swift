@@ -38,7 +38,7 @@ struct PizzaLogView: View {
                 notesSection
                 logAndReturnSection
             }
-            .navigationTitle("Log Pizza #\(vm.pizzaEntries.count + 1)")
+            .navigationTitle("Log Bake #\(vm.pizzaEntries.count + 1)")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { snapshotBakeTime = vm.bakeElapsed }
             .sheet(isPresented: $showCamera) { CameraPickerView(imageData: $photoData) }
@@ -211,7 +211,7 @@ struct PizzaLogView: View {
 
     var notesSection: some View {
         Section("Notes") {
-            TextField("Any notes about this pizza…", text: $notes, axis: .vertical)
+            TextField("Any notes about this bake…", text: $notes, axis: .vertical)
                 .font(.system(size: 13, design: .monospaced))
                 .lineLimit(3...)
                 .notesBox()
