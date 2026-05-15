@@ -74,6 +74,8 @@ struct LiveSessionView: View {
             }
         }
         .preferredColorScheme(.light)
+        .onAppear  { UIApplication.shared.isIdleTimerDisabled = true  }
+        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         .fullScreenCover(isPresented: $showPostBake) {
             PostBakeView(vm: vm, recipe: recipe)
                 .environmentObject(store)
