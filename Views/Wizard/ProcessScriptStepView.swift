@@ -109,6 +109,14 @@ struct ProcessScriptStepView: View {
                     onRemove: {
                         processCards.remove(at: idx)
                         for i in processCards.indices { processCards[i].sortOrder = i }
+                    },
+                    onInsertBefore: {
+                        processCards.insert(ProcessCard(type: .freeform), at: idx)
+                        for i in processCards.indices { processCards[i].sortOrder = i }
+                    },
+                    onInsertAfter: {
+                        processCards.insert(ProcessCard(type: .freeform), at: min(idx + 1, processCards.count))
+                        for i in processCards.indices { processCards[i].sortOrder = i }
                     }
                 )
             }
@@ -131,7 +139,14 @@ struct ProcessScriptStepView: View {
                 }
             }
         } header: {
-            Text("Process")
+            HStack {
+                Text("Process steps")
+                Spacer()
+                Text("hold to insert")
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundColor(.secondary.opacity(0.5))
+                    .textCase(nil)
+            }
         }
     }
 
@@ -209,6 +224,8 @@ struct ProcessCardRow: View {
     let position: String
     let isLocked: Bool
     let onRemove: () -> Void
+    let onInsertBefore: () -> Void
+    let onInsertAfter: () -> Void
 
     @State private var expanded = false
 
@@ -251,14 +268,6 @@ struct ProcessCardRow: View {
                     }
                     .buttonStyle(.plain)
 
-                    Button(role: .destructive) {
-                        withAnimation { onRemove() }
-                    } label: {
-                        Image(systemName: "trash")
-                            .font(.caption)
-                            .foregroundColor(.red.opacity(0.7))
-                    }
-                    .buttonStyle(.plain)
                 }
             }
             .padding(.vertical, 6)
@@ -317,6 +326,16 @@ struct ProcessCardRow: View {
                     }
                 }
                 .padding(.bottom, 8)
+            }
+        }
+        .contextMenu {
+            if !isLocked {
+                Button { onInsertBefore() } label: {
+                    Label("Add Step Above", systemImage: "arrow.up.circle")
+                }
+                Button { onInsertAfter() } label: {
+                    Label("Add Step Below", systemImage: "plus.circle")
+                }
             }
         }
     }

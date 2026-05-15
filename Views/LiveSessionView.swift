@@ -270,18 +270,18 @@ struct LiveSessionView: View {
             }
 
             if vm.isLastCard {
-                Button("Proceed to Bake →") {
+                LongPressStepButton(label: "Proceed to Bake →", filled: true) {
                     vm.enterBakeStep()
                 }
-                .buttonStyle(ImpastoButtonStyle(filled: true))
             } else {
                 if vm.preFlight.sessionMode == .automatic && !vm.isRunning {
                     Button("Resume") { vm.resume() }
                         .buttonStyle(ImpastoButtonStyle(filled: false))
                 }
                 let isTimedAuto = vm.preFlight.sessionMode == .automatic && vm.currentCard?.type.isActionOnly == false
-                Button(isTimedAuto ? "Proceed →" : "Next Step →") { vm.completeCard() }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
+                LongPressStepButton(label: isTimedAuto ? "Proceed →" : "Next Step →", filled: true) {
+                    vm.completeCard()
+                }
             }
         }
     }
@@ -373,5 +373,48 @@ struct LiveSessionView: View {
     func timeString(_ t: TimeInterval) -> String {
         let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60; let s = Int(t) % 60
         return String(format: "%02d:%02d:%02d", h, m, s)
+    }
+}
+
+// MARK: - Long-press step advance button
+
+private struct LongPressStepButton: View {
+    let label: String
+    let filled: Bool
+    let action: () -> Void
+
+    @State private var progress: Double = 0
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Text(label)
+                .font(.system(size: 14, design: .monospaced))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
+                .background(filled ? Color(hex: "D2B96A") : Color.clear)
+                .foregroundColor(filled ? Color(hex: "111210") : Color(hex: "9A9688"))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(filled ? Color.clear : Color(hex: "4A4840"), lineWidth: 1)
+                )
+                .cornerRadius(6)
+
+            GeometryReader { geo in
+                Color(hex: filled ? "FFFFFF" : "D2B96A")
+                    .opacity(filled ? 0.28 : 0.35)
+                    .frame(width: geo.size.width * progress)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .allowsHitTesting(false)
+        }
+        .onLongPressGesture(minimumDuration: 2.0, pressing: { isPressing in
+            withAnimation(isPressing ? .linear(duration: 2.0) : .easeOut(duration: 0.15)) {
+                progress = isPressing ? 1.0 : 0.0
+            }
+        }, perform: {
+            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+            withAnimation(.easeOut(duration: 0.15)) { progress = 0.0 }
+            action()
+        })
     }
 }

@@ -73,12 +73,12 @@ struct LibraryView: View {
                     }
                 } else {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Reorder") { isReordering = true }
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 13, design: .monospaced))
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button { showAddMenu = true } label: { Image(systemName: "plus") }
+                        HStack(spacing: 16) {
+                            Button("Reorder") { isReordering = true }
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 13, design: .monospaced))
+                            Button { showAddMenu = true } label: { Image(systemName: "plus") }
+                        }
                     }
                 }
             }

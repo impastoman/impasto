@@ -142,7 +142,7 @@ struct BakeLogDetailView: View {
             }
 
             Section {
-                Button("Fork as New Recipe →") { showForkWizard = true }
+                Button("Copy Session into New Recipe →") { showForkWizard = true }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundColor(Color(hex: "D2B96A"))
                     .font(.system(size: 14, design: .monospaced))

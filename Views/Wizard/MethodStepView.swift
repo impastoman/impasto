@@ -16,6 +16,7 @@ struct MethodStepView: View {
     @State private var savePrefName: String = ""
     @State private var prefSaved: Bool = false
     @State private var useCustomPrefBlend: Bool = false
+    @State private var prefHydrateOwnWay: Bool = false
 
     enum PrefEntryMode { case pick, load, create }
 
@@ -142,6 +143,17 @@ struct MethodStepView: View {
 
     var hydrationSection: some View {
         Section {
+            Toggle(isOn: $prefHydrateOwnWay) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Hydrate your way")
+                        .font(.system(.body, design: .monospaced))
+                    Text("Enter any value from 1–999%")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .tint(Color(hex: "D2B96A"))
+
             VStack(spacing: 12) {
                 HStack {
                     Text(prefermentLabel)
@@ -153,7 +165,7 @@ struct MethodStepView: View {
                         TextField("\(Int(prefermentHydration * 100))", text: $hydrationText)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.center)
-                            .frame(width: 52)
+                            .frame(width: prefHydrateOwnWay ? 72 : 52)
                             .font(.system(size: 15, design: .monospaced))
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
@@ -163,7 +175,7 @@ struct MethodStepView: View {
                                 let f = val.filter { $0.isNumber || $0 == "." }
                                 if f != val { hydrationText = f; return }
                                 if let d = Double(val), d >= 1 {
-                                    prefermentHydration = d / 100
+                                    prefermentHydration = prefHydrateOwnWay ? d / 100 : min(d / 100, 1.20)
                                     method = derivedMethod
                                 }
                             }
@@ -173,34 +185,38 @@ struct MethodStepView: View {
                     }
                 }
 
-                Slider(value: $prefermentHydration, in: 0.40...1.20, step: 0.01)
-                    .tint(Color(hex: "D2B96A"))
-                    .onChange(of: prefermentHydration) { _, val in
-                        method = derivedMethod
-                        hydrationText = "\(Int(val * 100))"
-                    }
+                if !prefHydrateOwnWay {
+                    Slider(value: $prefermentHydration, in: 0.40...1.20, step: 0.01)
+                        .tint(Color(hex: "D2B96A"))
+                        .onChange(of: prefermentHydration) { _, val in
+                            method = derivedMethod
+                            hydrationText = "\(Int(val * 100))"
+                        }
 
-                Text(prefermentNote)
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
+                    Text(prefermentNote)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.secondary)
 
-                HStack(spacing: 0) {
-                    ForEach(hydrationZones, id: \.label) { zone in
-                        Text(zone.label)
-                            .font(.system(size: 9, design: .monospaced))
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
-                            .frame(maxWidth: .infinity)
+                    HStack(spacing: 0) {
+                        ForEach(hydrationZones, id: \.label) { zone in
+                            Text(zone.label)
+                                .font(.system(size: 9, design: .monospaced))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
+                                .frame(maxWidth: .infinity)
+                        }
                     }
+                    .padding(.top, 2)
                 }
-                .padding(.top, 2)
             }
             .padding(.vertical, 6)
         } header: {
             Text("Preferment hydration")
         } footer: {
             Group {
-                if prefermentHydration < 0.50 {
+                if prefHydrateOwnWay {
+                    Text("Slider hidden — any value from 1–999% accepted. The formula scales accordingly.")
+                } else if prefermentHydration < 0.50 {
                     Text("Below 50% the dough will be very stiff — handle with lightly floured hands")
                         .foregroundColor(.orange)
                 } else {
