@@ -1,8 +1,30 @@
 import Foundation
 import Combine
 
+// MARK: - Session Snapshot (persistence)
+
+struct SessionSnapshot: Codable {
+    var id: UUID
+    var recipe: Recipe
+    var preFlight: PreFlightData
+    var cards: [ProcessCard]
+    var currentIndex: Int
+    var accumulatedSeconds: TimeInterval
+    var pHReadings: [Double]
+    var actualDurations: [String: TimeInterval]   // UUID.uuidString keys
+    var pauseDurations: [TimeInterval]
+    var isInBakeStep: Bool
+    var bakingStarted: Bool
+    var accumulatedBakeSeconds: TimeInterval
+    var pizzaEntries: [PizzaEntry]
+    var isHidden: Bool
+    var savedAt: Date
+}
+
+// MARK: - View Model
+
 class SessionViewModel: ObservableObject, Identifiable {
-    let id: UUID = UUID()
+    let id: UUID
 
     @Published var cards: [ProcessCard]
     @Published var currentIndex: Int = 0
@@ -32,7 +54,13 @@ class SessionViewModel: ObservableObject, Identifiable {
     private var bakeStartDate: Date? = nil
     private var accumulatedBakeSeconds: TimeInterval = 0
 
+    // Persistence hook — called on every meaningful state change
+    var persistenceHook: (() -> Void)? = nil
+
+    // MARK: - Normal init
+
     init(recipe: Recipe, preFlight: PreFlightData = PreFlightData()) {
+        self.id = UUID()
         self.recipe = recipe
         self.preFlight = preFlight
         var enabled = recipe.processCards.filter { $0.isEnabled }.sorted { $0.sortOrder < $1.sortOrder }
@@ -42,6 +70,73 @@ class SessionViewModel: ObservableObject, Identifiable {
         self.cards = enabled
         if preFlight.sessionMode == .automatic { self.isRunning = false }
     }
+
+    // MARK: - Restore init
+
+    init(restoringFrom snapshot: SessionSnapshot) {
+        self.id = snapshot.id
+        self.recipe = snapshot.recipe
+        self.preFlight = snapshot.preFlight
+        self.cards = snapshot.cards
+        self.currentIndex = snapshot.currentIndex
+        self.accumulatedSeconds = snapshot.accumulatedSeconds
+        self.elapsed = snapshot.accumulatedSeconds
+        self.isRunning = false          // always restore paused
+        self.pHReadings = snapshot.pHReadings
+        var durations: [UUID: TimeInterval] = [:]
+        for (key, value) in snapshot.actualDurations {
+            if let uuid = UUID(uuidString: key) { durations[uuid] = value }
+        }
+        self.actualDurations = durations
+        self.pauseDurations = snapshot.pauseDurations
+        self.isInBakeStep = snapshot.isInBakeStep
+        self.bakingStarted = snapshot.bakingStarted
+        self.accumulatedBakeSeconds = snapshot.accumulatedBakeSeconds
+        self.bakeElapsed = snapshot.accumulatedBakeSeconds
+        self.pizzaEntries = snapshot.pizzaEntries
+        self.isHidden = snapshot.isHidden
+    }
+
+    // MARK: - Snapshot
+
+    func snapshot() -> SessionSnapshot {
+        // Capture in-flight elapsed time so nothing is lost mid-step
+        let currentAccumulated: TimeInterval
+        if isRunning, let start = stepStartDate {
+            currentAccumulated = accumulatedSeconds + Date().timeIntervalSince(start)
+        } else {
+            currentAccumulated = accumulatedSeconds
+        }
+        let currentBakeAccumulated: TimeInterval
+        if bakingStarted, let start = bakeStartDate {
+            currentBakeAccumulated = accumulatedBakeSeconds + Date().timeIntervalSince(start)
+        } else {
+            currentBakeAccumulated = accumulatedBakeSeconds
+        }
+        // Strip bakeLogs to avoid encoding historic photo data
+        var snapshotRecipe = recipe
+        snapshotRecipe.bakeLogs = []
+        return SessionSnapshot(
+            id: id,
+            recipe: snapshotRecipe,
+            preFlight: preFlight,
+            cards: cards,
+            currentIndex: currentIndex,
+            accumulatedSeconds: currentAccumulated,
+            pHReadings: pHReadings,
+            actualDurations: Dictionary(uniqueKeysWithValues:
+                actualDurations.map { ($0.key.uuidString, $0.value) }),
+            pauseDurations: pauseDurations,
+            isInBakeStep: isInBakeStep,
+            bakingStarted: bakingStarted,
+            accumulatedBakeSeconds: currentBakeAccumulated,
+            pizzaEntries: pizzaEntries,
+            isHidden: isHidden,
+            savedAt: Date()
+        )
+    }
+
+    // MARK: - Computed
 
     var currentCard: ProcessCard? { cards.indices.contains(currentIndex) ? cards[currentIndex] : nil }
     var isLastCard: Bool { currentIndex >= cards.count - 1 }
@@ -56,6 +151,8 @@ class SessionViewModel: ObservableObject, Identifiable {
     var isOvertime: Bool {
         targetDuration > 0 && elapsed > targetDuration
     }
+
+    // MARK: - Timer control
 
     func start() {
         isRunning = true
@@ -76,6 +173,7 @@ class SessionViewModel: ObservableObject, Identifiable {
         }
         timer?.cancel()
         pauseStart = Date()
+        persistenceHook?()
     }
 
     func resume() {
@@ -97,6 +195,7 @@ class SessionViewModel: ObservableObject, Identifiable {
         if sessionMode == .automatic, let next = currentCard, next.type.isActionOnly {
             pause()
         }
+        persistenceHook?()
     }
 
     func goBack() {
@@ -118,6 +217,7 @@ class SessionViewModel: ObservableObject, Identifiable {
 
     func enterBakeStep() {
         isInBakeStep = true
+        persistenceHook?()
     }
 
     func startBaking() {
@@ -137,6 +237,7 @@ class SessionViewModel: ObservableObject, Identifiable {
             bakeStartDate = nil
         }
         bakeTimer?.cancel()
+        persistenceHook?()
     }
 
     func resetBakeTimer() {
@@ -147,6 +248,7 @@ class SessionViewModel: ObservableObject, Identifiable {
 
     func logPizza(_ entry: PizzaEntry) {
         pizzaEntries.append(entry)
+        persistenceHook?()
     }
 
     func logPH(_ value: Double) {
