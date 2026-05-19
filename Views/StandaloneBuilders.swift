@@ -231,6 +231,14 @@ struct StandaloneProcessBuilderView: View {
                             onRemove: {
                                 processCards.remove(at: idx)
                                 for i in processCards.indices { processCards[i].sortOrder = i }
+                            },
+                            onInsertBefore: {
+                                processCards.insert(ProcessCard(type: .freeform), at: idx)
+                                for i in processCards.indices { processCards[i].sortOrder = i }
+                            },
+                            onInsertAfter: {
+                                processCards.insert(ProcessCard(type: .freeform), at: min(idx + 1, processCards.count))
+                                for i in processCards.indices { processCards[i].sortOrder = i }
                             }
                         )
                     }

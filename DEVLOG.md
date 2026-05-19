@@ -231,6 +231,33 @@ A record of what's been built, why, and the decisions that shaped it.
 
 ---
 
+## v0.9.2 — Font Setup + Build Fixes
+*Fonts registered, build errors resolved*
+
+**What shipped:**
+
+*Fonts added to project:*
+- 5 font files placed in `Fonts/` group in the Xcode project:
+  - `Fraunces_72pt-Regular.ttf` (PostScript: `Fraunces72pt-Regular`)
+  - `PlusJakartaSans-Light.ttf`, `PlusJakartaSans-Regular.ttf`, `PlusJakartaSans-Medium.ttf`, `PlusJakartaSans-SemiBold.ttf`
+- All registered in `Impasto.xcodeproj/project.pbxproj` — PBXFileReference, PBXBuildFile, PBXResourcesBuildPhase, Fonts group
+- `INFOPLIST_KEY_UIAppFonts` added to both Debug and Release build configs (space-separated filenames)
+- Font ledger added to `Shared/ImpastoStyle.swift`:
+  - `Font.fraunces(_ size:)` — Fraunces72pt-Regular (display/headline serif)
+  - `Font.jakarta(_ size:, weight:)` — accepts `.light / .regular / .medium / .semibold`
+
+*Build errors fixed:*
+- `Shared/FillerPaper.swift` was on disk but missing from the Xcode project — added via pbxproj (PBXFileReference, PBXBuildFile, Sources phase, Shared group)
+- `Views/ImportRecipeView.swift` — added to project via Xcode Add Files dialog
+- `Views/LiveSessionView.swift` — `.onChange(of: vm.currentIndex)` was dangling after the closing `}` of an `if` block inside a `@ViewBuilder`, causing "instance member 'onChange' cannot be used on type 'View'". Moved to the outer `VStack` in `timerBlock`
+- `Views/StandaloneBuilders.swift` — `ProcessCardRow` call was missing `onInsertBefore:` and `onInsertAfter:` parameters added in v0.9.1. Both added with the same insert-and-reindex pattern used in `ProcessScriptStepView`
+
+**Still to do:**
+- Apply font ledger across the app — swap `.system(design: .monospaced)` and `.system(design: .serif)` calls for `.jakarta()` and `.fraunces()` respectively
+- Delete `ViewModels/PostBakeView.swift` stale duplicate from disk (not in the project, just clutter)
+
+---
+
 ## v0.9.1 — Polish & Power-User Features
 *Keyboard done button, step alarms, timestamps, filler paper in wizard, import/export, session process editor*
 

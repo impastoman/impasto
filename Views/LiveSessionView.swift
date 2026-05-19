@@ -323,7 +323,6 @@ struct LiveSessionView: View {
                         }
                     }
                 }
-                .onChange(of: vm.currentIndex) { _, _ in alarmScheduled = false }
 
                 // Inline Start / Resume — shown whenever the timer is not running
                 if !vm.isRunning {
@@ -349,6 +348,7 @@ struct LiveSessionView: View {
                 }
             }
         }
+        .onChange(of: vm.currentIndex) { _, _ in alarmScheduled = false }
     }
 
     // MARK: - Note field

@@ -221,7 +221,26 @@ That's the real multiplier: not just speed, but coherence across a long build.
 
 ---
 
-*Updated May 2026 through v0.9.*
+*Updated May 2026 through v0.9.2.*
+
+---
+
+## Patterns Added in v0.9.2
+
+### Cross-machine session handoff via written notes
+Work done in one Claude session (on one machine) was cleanly handed off to another session (different machine, different context) via a structured plain-text summary. The summary included: files touched, PostScript font names, pbxproj changes made, exact build errors encountered, and the specific fix for each. Zero re-explanation needed on receipt.
+
+**Takeaway:** when switching sessions or machines mid-feature, a bulleted "here's what happened" note is enough to resume without loss. The more specific the note (PostScript names, file paths, error messages verbatim), the faster the pickup.
+
+---
+
+### Xcode project file (pbxproj) changes stay on the Mac
+`.xcodeproj` changes (target membership, PBXBuildFile, UIAppFonts in build settings) live in the Mac-side Xcode project and don't sync through the Windows code mirror. Font files registered in pbxproj need to be noted explicitly when handing off, because the Windows-side source files won't show them. The font ledger in `ImpastoStyle.swift` is the portable half — it compiles anywhere once the fonts are actually registered on the Mac side.
+
+---
+
+### `@ViewBuilder` if-blocks don't take modifiers
+A `.onChange(of:)` (or any modifier) attached after the closing `}` of an `if` block inside a `@ViewBuilder` function is a compile error: "instance member cannot be used on type View." The `if` block is a statement, not a `View` value — there's nothing to chain off of. Fix: move the modifier to the nearest enclosing `View` (typically the `VStack` or `ZStack` wrapping the `if`).
 
 ---
 
