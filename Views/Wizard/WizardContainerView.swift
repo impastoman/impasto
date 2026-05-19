@@ -152,7 +152,9 @@ struct WizardContainerView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .topLeading) {
+            VStack(spacing: 0) {
+                FillerPaperHeaderBand(title: wizardModeTitle)
+                ZStack(alignment: .topLeading) {
                 RuledPaperBackground()
                 Group {
                     switch step {
@@ -214,6 +216,7 @@ struct WizardContainerView: View {
                     default: EmptyView()
                     }
                 }
+                }
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -225,7 +228,6 @@ struct WizardContainerView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-            .safeAreaInset(edge: .top, spacing: 0) { FillerPaperHeaderBand(title: wizardModeTitle) }
             .safeAreaInset(edge: .bottom) { navBar }
             .keyboardDoneButton()
             .onChange(of: autolyse)  { _, val in regenerateCards(autolyse: val, bassinage: bassinage) }
