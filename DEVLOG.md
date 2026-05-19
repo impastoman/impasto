@@ -231,9 +231,78 @@ A record of what's been built, why, and the decisions that shaped it.
 
 ---
 
+## v0.9.1 — Polish & Power-User Features
+*Keyboard done button, step alarms, timestamps, filler paper in wizard, import/export, session process editor*
+
+**What shipped:**
+
+*Keyboard Done button:*
+- `keyboardDoneButton()` View extension in `ImpastoStyle.swift` — adds a "Done" button to the keyboard toolbar across all numeric inputs; dismisses first responder via `UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), ...)`
+- Applied to `PreFlightView` and `WizardContainerView` (covers all wizard steps)
+
+*Live session step alarm:*
+- Bell icon on timed steps — tap to schedule a `UNUserNotificationCenter` local notification at the moment the step countdown hits 0
+- Requests `.alert`, `.sound`, `.badge` permissions on first tap; gracefully no-ops if denied
+- Bell fill / bell outline toggles scheduled state; auto-resets on step advance
+- Cancel notification on tap-to-dismiss or step advance via `removePendingNotificationRequests`
+
+*Step wall-clock timestamps in session log:*
+- `SessionViewModel` gains `sessionStartDate: Date?` (set on first `start()` call) and `stepCompletionDates: [UUID: Date]` (set on each `completeCard()`)
+- `SessionLogView` shows wall-clock start time per step: step 0 uses `sessionStartDate`; step N uses completion date of step N-1
+- Both fields added to `SessionSnapshot` — survive app kills and restores
+
+*Filler paper theme — wizard:*
+- `WizardContainerView` wraps all step content in `ZStack` with `RuledPaperBackground()`; nav bar tinted `#8AAEC8`; `FillerPaperHeaderBand` via `.safeAreaInset(edge: .top)`
+- All 10 wizard step views: `.scrollContentBackground(.hidden)` + `.listRowBackground(Color.clear)` on standard sections
+- Special-tinted rows (D2B96A status rows, orange/yellow warnings) retain their existing backgrounds
+
+*Import Recipe:*
+- `ImportRecipeView` — two-screen flow: paste JSON text or browse `.json` file → preview (Overview, Formula, Process sections) → "Save to Library →"
+- `JSONDocumentPicker` wraps `UIDocumentPickerViewController(forOpeningContentTypes: [.json], asCopy: true)`
+- Always assigns fresh `UUID` and clears `bakeLogs` on import — no ID collisions, no history bleed
+- `↑ Import Recipe` button on home screen wired up (was a no-op placeholder)
+
+*Recipe export:*
+- `ShareLink` in `RecipeDetailView` toolbar — encodes recipe as JSON string, strips `bakeLogs` before export
+- Export + Import are the symmetric pair: export from Recipe Detail, import from Home Screen
+
+*Review & Edit Process in PreFlight:*
+- "Review & Edit Process" button in `summarySection` opens `SessionProcessEditorSheet`
+- Shows all enabled/filtered process cards with editable duration fields; overridden values highlighted gold
+- "Reset all to recipe defaults" clears overrides
+- Overrides stored as `[String: TimeInterval]` in `PreFlightData.sessionStepDurationOverrides` — session-only, recipe untouched
+- Applied in `SessionViewModel.init()` after card filtering
+
+*Fork carry actual times:*
+- `BakeLogDetailView.forkedRecipe()` iterates process cards, looks up matching title in `log.actualStageDurations`, applies `max(10, actual)` as `customDuration` — 10s floor prevents zero-duration cards
+
+*Seed v6:*
+- Default bulk fermentation changed from 12h → 8h (more realistic home schedule)
+- Seed key bumped v5 → v6; old key cleaned up on launch
+
+*Dev tooling:*
+- `Views/Dev/FontPreviewView.swift` — SwiftUI preview for Plus Jakarta Sans + Fraunces across weights in Stesura colors (delete before shipping)
+- `Views/Dev/font-preview.html` — browser-based font preview with live text input and In Context tab; loads fonts from local paths via `@font-face` (delete before shipping)
+
+**Key design decisions:**
+- Import uses the existing `Recipe: Codable` struct as the wire format — no separate schema to maintain. "Export = encode; Import = decode" is the entire protocol.
+- Step alarm is opt-in per step, not a setting — you decide at the moment the step starts whether you need a nudge. Auto-scheduling would be presumptuous on long steps like bulk ferment.
+- Session overrides live in `PreFlightData`, not in the recipe — consistent with the "session is a guest, recipe is the host" principle already in the design language.
+- Timestamps are derived from completion dates, not recorded at start — avoids complexity around pauses and restores; step N's start is definitionally step N-1's end.
+
+---
+
 ## Import Recipe — Queued (version TBD)
 
-**Entry point:** The `↑ Import Recipe` button on the home screen (currently a no-op placeholder) opens a sheet with two paths: **Load Impasto File** and **Transcribe a Recipe**. The transcription path is detailed below.
+*Note: JSON export/import shipped in v0.9.1 above. The section below describes a separate manual transcription flow for recipes found online or in books — still queued.*
+
+**Entry point:** From the `↑ Import Recipe` sheet, a second path: **Transcribe a Recipe**. The JSON import path is already live.
+
+---
+
+**Transcribe a Recipe — manual entry flow**
+
+Intent: allow users to enter a recipe they found online or in a book, including volume-based measurements, and convert it into Impasto's weight/percentage-based model. Deliberately simpler than the New Recipe wizard — anyone going through this flow is translating an existing recipe, not designing from scratch.
 
 ---
 
