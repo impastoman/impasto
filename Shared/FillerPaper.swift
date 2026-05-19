@@ -11,14 +11,16 @@ extension Color {
 
 // MARK: - Metrics
 
-private enum PM {
+enum PM {
     static let marginX:     CGFloat = 12
     static let lineSpacing: CGFloat = 32
 }
 
 // MARK: - Ruled background
 
-/// Full-bleed ruled paper canvas — blue horizontal lines + red vertical margin.
+/// Ruled paper canvas — blue horizontal lines + red vertical margin.
+/// Extends downward into the home indicator safe area only.
+/// Does NOT extend upward — caller controls top alignment via VStack.
 struct RuledPaperBackground: View {
     var body: some View {
         Canvas { context, size in
@@ -42,7 +44,7 @@ struct RuledPaperBackground: View {
             margin.addLine(to: CGPoint(x: PM.marginX, y: size.height))
             context.stroke(margin, with: .color(.paperMargin), lineWidth: 1.2)
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
@@ -55,7 +57,6 @@ struct FillerPaperHeaderBand: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            // Margin line continues through the header
             Rectangle()
                 .fill(Color.paperMargin)
                 .frame(width: 1.2)
@@ -77,26 +78,24 @@ struct FillerPaperHeaderBand: View {
 
 // MARK: - View modifier
 
-/// Applies the filler-paper theme:
-/// • ruled paper background fills the view
-/// • blue header band with title replaces the navigation title
-/// • nav bar tinted to match the header band (seamless)
+/// Applies the filler-paper theme via a VStack — header band fixed above content,
+/// ruled paper canvas behind the scrollable area. No safeAreaInset used.
 struct FillerPaperModifier: ViewModifier {
     let title: String
 
     func body(content: Content) -> some View {
-        ZStack(alignment: .topLeading) {
-            RuledPaperBackground()
-            content
+        VStack(spacing: 0) {
+            FillerPaperHeaderBand(title: title)
+            ZStack(alignment: .topLeading) {
+                RuledPaperBackground()
+                content
+            }
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.paperHeader, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            FillerPaperHeaderBand(title: title)
-        }
     }
 }
 

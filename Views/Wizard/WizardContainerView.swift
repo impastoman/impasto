@@ -154,12 +154,15 @@ struct WizardContainerView: View {
         NavigationStack {
             ZStack(alignment: .leading) {
                 Color.paperWhite.ignoresSafeArea()
-                // Fixed red margin line — decorative, mirrors the filler paper aesthetic
-                Rectangle()
-                    .fill(Color.paperMargin)
-                    .frame(width: 1.2)
-                    .padding(.leading, 12)
-                    .ignoresSafeArea()
+                // Fixed red margin line — full-height canvas, no frame constraints
+                Canvas { ctx, size in
+                    var path = Path()
+                    path.move(to: CGPoint(x: PM.marginX, y: 0))
+                    path.addLine(to: CGPoint(x: PM.marginX, y: size.height))
+                    ctx.stroke(path, with: .color(.paperMargin), lineWidth: 1.2)
+                }
+                .ignoresSafeArea(.container, edges: .bottom)
+                .allowsHitTesting(false)
                 Group {
                     switch step {
                     case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
