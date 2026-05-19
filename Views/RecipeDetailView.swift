@@ -90,7 +90,8 @@ struct RecipeDetailView: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .fillerPaper(title: recipe.name)
+        .navigationTitle(recipe.name)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if !isReadOnly {
                 ToolbarItem(placement: .topBarTrailing) {

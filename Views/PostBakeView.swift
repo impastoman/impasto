@@ -25,7 +25,8 @@ struct PostBakeView: View {
                 bakeTimeSection
             }
             .scrollContentBackground(.hidden)
-            .fillerPaper(title: "Bake Results")
+            .navigationTitle("Bake Results")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Skip") { showSessionLog = true }
@@ -212,7 +213,8 @@ struct PizzaDetailView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .fillerPaper(title: "Bake #\(entry.pizzaNumber)")
+            .navigationTitle("Bake #\(entry.pizzaNumber)")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }

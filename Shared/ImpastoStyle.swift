@@ -1,29 +1,6 @@
 import SwiftUI
 import PhotosUI
 
-// MARK: - Font ledger
-
-extension Font {
-    /// Fraunces — display / headline serif
-    /// PostScript name: Fraunces72pt-Regular
-    static func fraunces(_ size: CGFloat) -> Font {
-        .custom("Fraunces72pt-Regular", size: size)
-    }
-
-    /// Plus Jakarta Sans — UI / body sans-serif
-    /// Weights: .light / .regular / .medium / .semibold
-    static func jakarta(_ size: CGFloat, weight: Weight = .regular) -> Font {
-        let name: String
-        switch weight {
-        case .light:    name = "PlusJakartaSans-Light"
-        case .medium:   name = "PlusJakartaSans-Medium"
-        case .semibold: name = "PlusJakartaSans-SemiBold"
-        default:        name = "PlusJakartaSans-Regular"
-        }
-        return .custom(name, size: size)
-    }
-}
-
 // MARK: - Shared field styling
 
 extension View {
@@ -163,18 +140,6 @@ extension View {
                 .foregroundColor(Color(hex: "D2B96A"))
             }
         }
-    }
-}
-
-// MARK: - Wizard title environment key
-
-private struct WizardTitleKey: EnvironmentKey {
-    static let defaultValue: String = ""
-}
-extension EnvironmentValues {
-    var wizardTitle: String {
-        get { self[WizardTitleKey.self] }
-        set { self[WizardTitleKey.self] = newValue }
     }
 }
 

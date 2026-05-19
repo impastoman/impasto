@@ -51,7 +51,8 @@ struct SessionLogView: View {
                 saveSection
             }
             .scrollContentBackground(.hidden)
-            .fillerPaper(title: "How'd it go?")
+            .navigationTitle("How'd it go?")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
             if isTrue { dismiss() }

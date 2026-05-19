@@ -92,7 +92,8 @@ struct ImportRecipeView: View {
             .listRowBackground(Color.clear)
         }
         .scrollContentBackground(.hidden)
-        .fillerPaper(title: "Import Recipe")
+        .navigationTitle("Import Recipe")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button("Cancel") { dismiss() }
@@ -168,7 +169,8 @@ struct ImportRecipeView: View {
             .listRowBackground(Color.clear)
         }
         .scrollContentBackground(.hidden)
-        .fillerPaper(title: recipe.name)
+        .navigationTitle(recipe.name)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button("← Back") { parsedRecipe = nil }

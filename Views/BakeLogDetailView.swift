@@ -30,15 +30,8 @@ struct BakeLogDetailView: View {
             if selectedTab == 0 { asBakedTab }
             else { annotatedTab }
         }
-        .background { RuledPaperBackground() }
-        .navigationTitle("")
+        .navigationTitle(recipe.name)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color.paperHeader, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            FillerPaperHeaderBand(title: recipe.name)
-        }
         .sheet(isPresented: $showForkWizard) {
             let forked = forkedRecipe()
             WizardContainerView(mode: .fork(forked)) { newRecipe in
