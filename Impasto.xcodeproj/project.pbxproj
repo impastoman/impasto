@@ -51,6 +51,7 @@
 		9670CB5D2FBC2D77009EE043 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2B2FBC2D77009EE043 /* MainTabView.swift */; };
 		9670CB5E2FBC2D77009EE043 /* TargetStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1D2FBC2D77009EE043 /* TargetStepView.swift */; };
 		9670CB5F2FBC2D77009EE043 /* PostBakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2D2FBC2D77009EE043 /* PostBakeView.swift */; };
+		9670CB612FBC32E1009EE043 /* ImpastoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB602FBC32E1009EE043 /* ImpastoApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -99,15 +100,8 @@
 		9670CB302FBC2D77009EE043 /* SessionLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLogView.swift; sourceTree = "<group>"; };
 		9670CB312FBC2D77009EE043 /* StandaloneBuilders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandaloneBuilders.swift; sourceTree = "<group>"; };
 		9670CB322FBC2D77009EE043 /* VolumeConverterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeConverterView.swift; sourceTree = "<group>"; };
+		9670CB602FBC32E1009EE043 /* ImpastoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpastoApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		9670CAF72FBC2CCC009EE043 /* Impasto */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Impasto;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		9670CAF22FBC2CCC009EE043 /* Frameworks */ = {
@@ -123,7 +117,7 @@
 		9670CAEC2FBC2CCC009EE043 = {
 			isa = PBXGroup;
 			children = (
-				9670CAF72FBC2CCC009EE043 /* Impasto */,
+				9670CB602FBC32E1009EE043 /* ImpastoApp.swift */,
 				9670CAF62FBC2CCC009EE043 /* Products */,
 				9670CB0D2FBC2D77009EE043 /* Models */,
 				9670CB112FBC2D77009EE043 /* Shared */,
@@ -235,9 +229,6 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				9670CAF72FBC2CCC009EE043 /* Impasto */,
-			);
 			name = Impasto;
 			packageProductDependencies = (
 			);
@@ -321,6 +312,7 @@
 				9670CB4C2FBC2D77009EE043 /* ConfirmStepView.swift in Sources */,
 				9670CB4D2FBC2D77009EE043 /* SessionLogView.swift in Sources */,
 				9670CB4E2FBC2D77009EE043 /* SavedProcess.swift in Sources */,
+				9670CB612FBC32E1009EE043 /* ImpastoApp.swift in Sources */,
 				9670CB4F2FBC2D77009EE043 /* BakeMethodStepView.swift in Sources */,
 				9670CB502FBC2D77009EE043 /* PreFlightView.swift in Sources */,
 				9670CB512FBC2D77009EE043 /* LibraryView.swift in Sources */,
