@@ -78,9 +78,16 @@ struct PreFlightView: View {
         return recipe.method.minimumHours > recipe.timeline.minimumHours
     }
 
+    private var defaultSessionName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return "\(formatter.string(from: Date())) · \(recipe.name)"
+    }
+
     var body: some View {
         NavigationStack {
             List {
+                sessionNameSection
                 sessionModeSection
                 if hasPreferment { prefermentSection }
                 kitchenSection
@@ -128,6 +135,18 @@ struct PreFlightView: View {
         }
     }
 
+    // MARK: - Session name
+
+    var sessionNameSection: some View {
+        Section {
+            TextField(defaultSessionName, text: $data.sessionName)
+                .font(.system(.body, design: .monospaced))
+        } header: { Text("Session name") }
+          footer: { Text("Optional — shown in your session history") }
+    }
+
+    // MARK: - Session mode
+
     var sessionModeSection: some View {
         Section {
             Picker("Session mode", selection: $data.sessionMode) {
@@ -153,6 +172,8 @@ struct PreFlightView: View {
             }
         } header: { Text("Session mode") }
     }
+
+    // MARK: - Preferment
 
     var prefermentSection: some View {
         Section {
@@ -188,6 +209,8 @@ struct PreFlightView: View {
             }
         } header: { Text("\(recipe.method.rawValue) status") }
     }
+
+    // MARK: - Kitchen
 
     var kitchenSection: some View {
         Section("Kitchen") {
@@ -227,6 +250,8 @@ struct PreFlightView: View {
         }
     }
 
+    // MARK: - Bake method
+
     var bakeMethodSection: some View {
         Section {
             ForEach(recipe.bakeSetups) { setup in
@@ -246,6 +271,8 @@ struct PreFlightView: View {
             }
         } header: { Text("Bake method today") }
     }
+
+    // MARK: - Modifications
 
     var modificationsSection: some View {
         Section {
@@ -297,12 +324,14 @@ struct PreFlightView: View {
         }
     }
 
+    // MARK: - Summary
+
     var summarySection: some View {
         Section {
-            LabeledContent("Recipe",   value: recipe.name)
+            LabeledContent("Recipe",      value: recipe.name)
             LabeledContent("Rise method", value: recipe.method.rawValue)
-            LabeledContent("Timeline", value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
-            LabeledContent("Target", value: "\(data.overrideBallCount ?? recipe.ballCount) × \(Int(ceil(weightUnit.toDisplay(data.overrideBallWeight ?? recipe.ballWeight)))) \(weightUnit.rawValue)")
+            LabeledContent("Timeline",    value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
+            LabeledContent("Target",      value: "\(data.overrideBallCount ?? recipe.ballCount) × \(Int(ceil(weightUnit.toDisplay(data.overrideBallWeight ?? recipe.ballWeight)))) \(weightUnit.rawValue)")
             Button {
                 showChecklist = true
             } label: {
@@ -319,25 +348,64 @@ struct PreFlightView: View {
         .foregroundColor(.secondary)
     }
 
+    // MARK: - Begin button (long press)
+
     var beginButton: some View {
-        Button("Begin Session →") {
+        LongPressBeginButton {
             if timeConflict { showConflictAlert = true }
             else {
                 activeVM = sessionManager.start(recipe: resolvedRecipe, preFlight: data)
                 showSession = true
             }
         }
-        .buttonStyle(ImpastoButtonStyle(filled: true))
         .padding(.horizontal, 20).padding(.vertical, 12)
         .background(.ultraThinMaterial)
     }
 
+    // MARK: - Resolved recipe
+
     var resolvedRecipe: Recipe {
         var r = recipe
-        if let bc = data.overrideBallCount   { r.ballCount   = bc }
-        if let bw = data.overrideBallWeight  { r.ballWeight  = bw }
+        if let bc = data.overrideBallCount   { r.ballCount      = bc }
+        if let bw = data.overrideBallWeight  { r.ballWeight     = bw }
         if let h  = data.overrideHydration   { r.finalHydration = h }
-        if let b  = data.overrideBuffer      { r.buffer     = b }
+        if let b  = data.overrideBuffer      { r.buffer         = b }
         return r
+    }
+}
+
+// MARK: - Long-press begin button
+
+private struct LongPressBeginButton: View {
+    let action: () -> Void
+    @State private var progress: Double = 0
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Text("Begin Session →")
+                .font(.system(size: 14, design: .monospaced))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
+                .background(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "111210"))
+                .cornerRadius(6)
+
+            GeometryReader { geo in
+                Color(hex: "FFFFFF")
+                    .opacity(0.28)
+                    .frame(width: geo.size.width * progress)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .allowsHitTesting(false)
+        }
+        .onLongPressGesture(minimumDuration: 0.7, pressing: { isPressing in
+            withAnimation(isPressing ? .linear(duration: 0.7) : .easeOut(duration: 0.15)) {
+                progress = isPressing ? 1.0 : 0.0
+            }
+        }, perform: {
+            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+            withAnimation(.easeOut(duration: 0.15)) { progress = 0.0 }
+            action()
+        })
     }
 }

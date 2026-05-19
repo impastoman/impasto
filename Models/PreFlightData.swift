@@ -1,6 +1,6 @@
 import Foundation
 
-struct PreFlightData {
+struct PreFlightData: Codable {
     var prefermentReady: Bool = false
     var prefermentAgeHours: Double = 0
     var prefermentHydration: Double = 0.50
@@ -11,6 +11,8 @@ struct PreFlightData {
 
     var sessionMode: SessionMode = .manual
     var selectedBakeSetupId: UUID? = nil
+
+    var sessionName: String = ""
 
     // Last-minute overrides (nil = use recipe value)
     var overrideBallCount: Int? = nil

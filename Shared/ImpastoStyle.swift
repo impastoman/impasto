@@ -116,6 +116,7 @@ struct ImpastoButtonStyle: ButtonStyle {
                     .stroke(filled ? Color.clear : Color(hex: "4A4840"), lineWidth: 1)
             )
             .cornerRadius(6)
+            .contentShape(Rectangle())
             .opacity(configuration.isPressed ? 0.75 : 1.0)
     }
 }

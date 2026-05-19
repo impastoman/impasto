@@ -12,9 +12,18 @@ struct LiveSessionView: View {
     @State private var showEndBakingAlert = false
     @State private var showLeaveAlert = false
     @State private var showBackAlert = false
+    @State private var showNextStepPreview = false
+    @State private var showSessionNotepad = false
     @State private var sessionNotes: [UUID: String] = [:]
 
     var recipe: Recipe { vm.recipe }
+
+    // Next card helper
+    var nextCard: ProcessCard? {
+        let next = vm.currentIndex + 1
+        guard vm.cards.indices.contains(next) else { return nil }
+        return vm.cards[next]
+    }
 
     var body: some View {
         NavigationStack {
@@ -38,12 +47,10 @@ struct LiveSessionView: View {
                     }
                     .foregroundColor(.secondary)
                     .confirmationDialog("Leave session?", isPresented: $showLeaveAlert, titleVisibility: .visible) {
-                        // Leave without touching the timer state
                         Button("Leave Session") {
                             vm.isHidden = true
                             sessionManager.shouldReturnHome = true
                         }
-                        // Pause first, then leave — only meaningful while running
                         if vm.isRunning {
                             Button("Pause & Leave Session") {
                                 vm.pause()
@@ -62,13 +69,11 @@ struct LiveSessionView: View {
                         Button("Go Back", role: .cancel) {}
                     }
                 }
-                if !vm.isInBakeStep {
+                // Pause only visible when running — no Start in toolbar
+                if !vm.isInBakeStep && vm.isRunning {
                     ToolbarItem(placement: .topBarTrailing) {
-                        if vm.isRunning {
-                            Button("Pause") { vm.pause() }.foregroundColor(Color(hex: "D2B96A"))
-                        } else {
-                            Button("Start") { vm.start() }.foregroundColor(Color(hex: "D2B96A"))
-                        }
+                        Button("Pause") { vm.pause() }
+                            .foregroundColor(Color(hex: "D2B96A"))
                     }
                 }
             }
@@ -83,7 +88,6 @@ struct LiveSessionView: View {
         }
         .sheet(isPresented: $showPizzaLog) {
             PizzaLogView(vm: vm, recipe: recipe) {
-                // "← Back" or "Log & Return" — reset and immediately start the next lap
                 vm.resetBakeTimer()
                 vm.startBaking()
                 showPizzaLog = false
@@ -94,19 +98,6 @@ struct LiveSessionView: View {
             }
             .environmentObject(store)
             .environmentObject(sessionManager)
-        }
-        .onChange(of: sessionManager.sessions.count) { _, _ in
-            // Only self-dismiss from an external end (e.g. ended from Sessions tab).
-            // When shouldReturnHome is already true, the shouldReturnHome observer
-            // handles the orderly inside-out cascade — firing both at once causes a
-            // race that leaves PreFlightView stranded.
-            if !sessionManager.sessions.contains(where: { $0 === vm }),
-               !sessionManager.shouldReturnHome {
-                dismiss()
-            }
-        }
-        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
-            if isTrue { dismiss() }
         }
         .sheet(isPresented: $showRecipeSheet) {
             NavigationStack {
@@ -119,6 +110,80 @@ struct LiveSessionView: View {
                     }
             }
         }
+        .sheet(isPresented: $showSessionNotepad) {
+            NavigationStack {
+                VStack(alignment: .leading, spacing: 0) {
+                    TextEditor(text: $vm.sessionNote)
+                        .font(.system(size: 14, design: .monospaced))
+                        .padding(8)
+                        .scrollContentBackground(.hidden)
+                        .background(Color(hex: "F5F1E8"))
+                }
+                .background(Color(hex: "F5F1E8").ignoresSafeArea())
+                .navigationTitle("Session Notes")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") { showSessionNotepad = false }
+                            .foregroundColor(Color(hex: "D2B96A"))
+                    }
+                }
+            }
+            .preferredColorScheme(.light)
+        }
+        .sheet(isPresented: $showNextStepPreview) {
+            if let next = nextCard {
+                NavigationStack {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 24) {
+                            Text(next.title)
+                                .font(.system(size: 32, design: .serif))
+                                .foregroundColor(Color(hex: "2C2A24"))
+
+                            if next.duration > 0 {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "clock")
+                                        .foregroundColor(.secondary)
+                                    Text(timeString(next.duration))
+                                        .font(.system(size: 15, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+
+                            if !next.recipeNote.isEmpty {
+                                Divider()
+                                Text(next.recipeNote)
+                                    .font(.system(size: 14, design: .monospaced))
+                                    .foregroundColor(.primary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(28)
+                    }
+                    .background(Color(hex: "F5F1E8").ignoresSafeArea())
+                    .navigationTitle("Up Next")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Got it") { showNextStepPreview = false }
+                                .foregroundColor(Color(hex: "D2B96A"))
+                        }
+                    }
+                }
+                .preferredColorScheme(.light)
+            }
+        }
+        .onChange(of: sessionManager.sessions.count) { _, _ in
+            if !sessionManager.sessions.contains(where: { $0 === vm }),
+               !sessionManager.shouldReturnHome {
+                dismiss()
+            }
+        }
+        .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
+            if isTrue { dismiss() }
+        }
     }
 
     // MARK: - Process view
@@ -126,6 +191,8 @@ struct LiveSessionView: View {
     var processView: some View {
         VStack(spacing: 0) {
             cardTabs.padding(.top, 8)
+
+            // Icon row: recipe viewer + session notepad
             HStack {
                 Button {
                     showRecipeSheet = true
@@ -135,12 +202,44 @@ struct LiveSessionView: View {
                 .foregroundColor(.secondary)
                 .padding(.leading, 16)
                 .padding(.top, 6)
+
                 Spacer()
+
+                Button {
+                    showSessionNotepad = true
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                }
+                .foregroundColor(vm.sessionNote.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                .padding(.trailing, 16)
+                .padding(.top, 6)
             }
+
             Spacer()
             timerBlock
             Spacer()
             noteField.padding(.horizontal).padding(.top, 4)
+
+            // Up Next preview button
+            if let next = nextCard {
+                Button {
+                    showNextStepPreview = true
+                } label: {
+                    HStack(spacing: 4) {
+                        Text("Up next:")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.secondary)
+                        Text(next.title)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(Color(hex: "D2B96A"))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9))
+                            .foregroundColor(Color(hex: "D2B96A"))
+                    }
+                }
+                .padding(.top, 10)
+            }
+
             Spacer()
             actionRow.padding(.horizontal).padding(.bottom, 24)
         }
@@ -174,9 +273,9 @@ struct LiveSessionView: View {
     var displayTime: TimeInterval {
         if isCountdown {
             if vm.elapsed > vm.targetDuration {
-                return vm.elapsed - vm.targetDuration  // overtime: count up from 0
+                return vm.elapsed - vm.targetDuration
             }
-            return vm.targetDuration - vm.elapsed      // counting down
+            return vm.targetDuration - vm.elapsed
         }
         return vm.elapsed
     }
@@ -209,10 +308,27 @@ struct LiveSessionView: View {
                     }
                 }
 
-                if vm.preFlight.sessionMode == .automatic && !vm.isRunning && !vm.isLastCard {
-                    Text("PAUSED")
-                        .font(.system(size: 10, design: .monospaced)).tracking(2)
-                        .foregroundColor(.orange)
+                // Inline Start / Resume — shown whenever the timer is not running
+                if !vm.isRunning {
+                    Button {
+                        vm.resume()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 11))
+                            Text(vm.elapsed > 0 ? "RESUME" : "START")
+                                .font(.system(size: 10, design: .monospaced))
+                                .tracking(2)
+                        }
+                        .foregroundColor(Color(hex: "D2B96A"))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(hex: "D2B96A"), lineWidth: 1)
+                        )
+                    }
+                    .padding(.top, 8)
                 }
             }
         }
@@ -252,7 +368,6 @@ struct LiveSessionView: View {
 
     var actionRow: some View {
         HStack(spacing: 12) {
-            // Back button — always available when not on first card
             if vm.currentIndex > 0 {
                 let prevTitle = vm.cards[vm.currentIndex - 1].title
                 Button("← Back") {
@@ -276,10 +391,6 @@ struct LiveSessionView: View {
                     vm.enterBakeStep()
                 }
             } else {
-                if vm.preFlight.sessionMode == .automatic && !vm.isRunning {
-                    Button("Resume") { vm.resume() }
-                        .buttonStyle(ImpastoButtonStyle(filled: false))
-                }
                 let isTimedAuto = vm.preFlight.sessionMode == .automatic && vm.currentCard?.type.isActionOnly == false
                 LongPressStepButton(label: isTimedAuto ? "Proceed →" : "Next Step →", filled: true) {
                     vm.completeCard()

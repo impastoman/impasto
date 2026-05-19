@@ -16,7 +16,7 @@ struct HomeView: View {
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
 
-    private let appVersion = "0.8"
+    private let appVersion = "0.9"
 
     var body: some View {
         // ZStack wrapper is always in the hierarchy — the shouldReturnHome observer
@@ -46,7 +46,7 @@ struct HomeView: View {
             VStack(spacing: 16) {
                 Spacer()
 
-                Text("Impasto")
+                Text("Stesura")
                     .font(.system(size: 52, design: .serif))
                     .foregroundColor(Color(hex: "2C2A24"))
                 Text("Dough Manager")
@@ -61,29 +61,38 @@ struct HomeView: View {
 
                 if splashDone {
                     if !sessionManager.sessions.isEmpty {
-                        VStack(spacing: 8) {
+                        VStack(spacing: 0) {
                             HStack {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text("Sessions in progress")
-                                        .font(.system(size: 9, design: .monospaced))
-                                        .foregroundColor(Color(hex: "9A9688"))
-                                        .tracking(2)
-                                    Text("\(sessionManager.sessions.count) active")
-                                        .font(.system(size: 15, design: .monospaced))
-                                        .foregroundColor(Color(hex: "2C2A24"))
-                                }
+                                Text("Sessions in progress")
+                                    .font(.system(size: 9, design: .monospaced))
+                                    .foregroundColor(Color(hex: "9A9688"))
+                                    .tracking(2)
                                 Spacer()
                                 Circle()
                                     .fill(Color.orange)
-                                    .frame(width: 8, height: 8)
+                                    .frame(width: 7, height: 7)
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 14)
+                            .padding(.bottom, 10)
+
+                            ForEach(sessionManager.sessions) { vm in
+                                Divider().padding(.horizontal, 16)
+                                ActiveSessionRow(vm: vm)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 10)
+                            }
+
+                            Divider().padding(.horizontal, 16)
+
                             Button("▶  Check Sessions") {
                                 initialTab = 1
                                 showMainApp = true
                             }
                             .buttonStyle(ImpastoButtonStyle(filled: true))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
                         }
-                        .padding(16)
                         .background(Color.white)
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.orange.opacity(0.4), lineWidth: 1))
                         .cornerRadius(8)
@@ -169,6 +178,56 @@ struct HomeView: View {
         }
     }
 }
+
+// MARK: - Active session row (observes its own VM for live timer updates)
+
+private struct ActiveSessionRow: View {
+    @ObservedObject var vm: SessionViewModel
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(vm.recipe.name)
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundColor(Color(hex: "2C2A24"))
+                    .lineLimit(1)
+                Text(stepLabel)
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .tracking(1.5)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 3) {
+                Text(vm.isInBakeStep ? timeString(vm.bakeElapsed) : timeString(vm.elapsed))
+                    .font(.system(size: 14, design: .monospaced))
+                    .foregroundColor(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
+                if vm.isOvertime {
+                    Text("overtime")
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundColor(.orange)
+                }
+            }
+
+            Circle()
+                .fill(vm.isRunning ? Color(hex: "6DBF8A") : Color.orange)
+                .frame(width: 7, height: 7)
+        }
+    }
+
+    private var stepLabel: String {
+        if vm.isInBakeStep { return "BAKE" }
+        return vm.currentCard?.title.uppercased() ?? ""
+    }
+
+    private func timeString(_ t: TimeInterval) -> String {
+        let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60; let s = Int(t) % 60
+        return String(format: "%02d:%02d:%02d", h, m, s)
+    }
+}
+
+// MARK: -
 
 struct StartDoughView: View {
     @EnvironmentObject var store: RecipeStore

@@ -18,6 +18,7 @@ struct SessionSnapshot: Codable {
     var accumulatedBakeSeconds: TimeInterval
     var pizzaEntries: [PizzaEntry]
     var isHidden: Bool
+    var sessionNote: String
     var savedAt: Date
 }
 
@@ -41,6 +42,7 @@ class SessionViewModel: ObservableObject, Identifiable {
     @Published var pizzaEntries: [PizzaEntry] = []
 
     var isHidden: Bool = false
+    @Published var sessionNote: String = ""
 
     let recipe: Recipe
     let preFlight: PreFlightData
@@ -95,6 +97,7 @@ class SessionViewModel: ObservableObject, Identifiable {
         self.bakeElapsed = snapshot.accumulatedBakeSeconds
         self.pizzaEntries = snapshot.pizzaEntries
         self.isHidden = snapshot.isHidden
+        self.sessionNote = snapshot.sessionNote
     }
 
     // MARK: - Snapshot
@@ -132,6 +135,7 @@ class SessionViewModel: ObservableObject, Identifiable {
             accumulatedBakeSeconds: currentBakeAccumulated,
             pizzaEntries: pizzaEntries,
             isHidden: isHidden,
+            sessionNote: sessionNote,
             savedAt: Date()
         )
     }
