@@ -10,7 +10,6 @@
 		9670CB342FBC2D77009EE043 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB132FBC2D77009EE043 /* SessionManager.swift */; };
 		9670CB352FBC2D77009EE043 /* PrefermentRecipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB062FBC2D77009EE043 /* PrefermentRecipe.swift */; };
 		9670CB362FBC2D77009EE043 /* VolumeConverterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB322FBC2D77009EE043 /* VolumeConverterView.swift */; };
-		9670CB372FBC2D77009EE043 /* FillerPaper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB0E2FBC2D77009EE043 /* FillerPaper.swift */; };
 		9670CB382FBC2D77009EE043 /* TimelineStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1F2FBC2D77009EE043 /* TimelineStepView.swift */; };
 		9670CB392FBC2D77009EE043 /* FlourBlendStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB182FBC2D77009EE043 /* FlourBlendStepView.swift */; };
 		9670CB3A2FBC2D77009EE043 /* ImpastoStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB0F2FBC2D77009EE043 /* ImpastoStyle.swift */; };
@@ -66,7 +65,6 @@
 		9670CB0A2FBC2D77009EE043 /* SavedPreferment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPreferment.swift; sourceTree = "<group>"; };
 		9670CB0B2FBC2D77009EE043 /* SavedProcess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedProcess.swift; sourceTree = "<group>"; };
 		9670CB0C2FBC2D77009EE043 /* SessionStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStage.swift; sourceTree = "<group>"; };
-		9670CB0E2FBC2D77009EE043 /* FillerPaper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillerPaper.swift; sourceTree = "<group>"; };
 		9670CB0F2FBC2D77009EE043 /* ImpastoStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpastoStyle.swift; sourceTree = "<group>"; };
 		9670CB102FBC2D77009EE043 /* VolumeConversionTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeConversionTable.swift; sourceTree = "<group>"; };
 		9670CB122FBC2D77009EE043 /* RecipeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeStore.swift; sourceTree = "<group>"; };
@@ -154,7 +152,6 @@
 		9670CB112FBC2D77009EE043 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				9670CB0E2FBC2D77009EE043 /* FillerPaper.swift */,
 				9670CB0F2FBC2D77009EE043 /* ImpastoStyle.swift */,
 				9670CB102FBC2D77009EE043 /* VolumeConversionTable.swift */,
 			);
@@ -288,7 +285,6 @@
 				9670CB342FBC2D77009EE043 /* SessionManager.swift in Sources */,
 				9670CB352FBC2D77009EE043 /* PrefermentRecipe.swift in Sources */,
 				9670CB362FBC2D77009EE043 /* VolumeConverterView.swift in Sources */,
-				9670CB372FBC2D77009EE043 /* FillerPaper.swift in Sources */,
 				9670CB382FBC2D77009EE043 /* TimelineStepView.swift in Sources */,
 				9670CB392FBC2D77009EE043 /* FlourBlendStepView.swift in Sources */,
 				9670CB3A2FBC2D77009EE043 /* ImpastoStyle.swift in Sources */,
