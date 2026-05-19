@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var sessionManager: SessionManager
     @State var recipe: Recipe
     var isReadOnly: Bool = false
     @State private var showPreFlight = false
@@ -121,6 +122,7 @@ struct RecipeDetailView: View {
         .fullScreenCover(isPresented: $showPreFlight) {
             PreFlightView(recipe: recipe)
                 .environmentObject(store)
+                .environmentObject(sessionManager)
                 .preferredColorScheme(.light)
         }
         .sheet(isPresented: $showEditWizard) {

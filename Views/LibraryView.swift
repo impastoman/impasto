@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LibraryView: View {
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var sessionManager: SessionManager
     var onGoHome: (() -> Void)? = nil
     @State private var showAddMenu        = false
     @State private var showWizard         = false
@@ -175,7 +176,9 @@ struct LibraryView: View {
             StandalonePrefermentBuilderView(editing: pref).environmentObject(store)
         }
         .sheet(isPresented: $showStartDough) {
-            StartDoughView().environmentObject(store)
+            StartDoughView()
+                .environmentObject(store)
+                .environmentObject(sessionManager)
         }
         .sheet(item: $recipeToMove) { recipe in
             FolderPickerSheet(
