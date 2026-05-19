@@ -85,6 +85,7 @@ struct VolumeConverterView: View {
                 hintSection
             }
             .navigationTitle("Convert a Recipe")
+            .tint(Color(hex: "D2B96A"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

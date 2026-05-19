@@ -167,6 +167,8 @@ struct LiveSessionView: View {
                     .background(Color(hex: "F5F1E8").ignoresSafeArea())
                     .navigationTitle("Up Next")
                     .navigationBarTitleDisplayMode(.inline)
+                    .toolbarBackground(Color(hex: "F5F1E8"), for: .navigationBar)
+                    .toolbarBackground(.visible, for: .navigationBar)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button("Got it") { showNextStepPreview = false }
@@ -560,8 +562,9 @@ private struct LongPressStepButton: View {
             .clipShape(RoundedRectangle(cornerRadius: 6))
             .allowsHitTesting(false)
         }
-        .onLongPressGesture(minimumDuration: 2.0, pressing: { isPressing in
-            withAnimation(isPressing ? .linear(duration: 2.0) : .easeOut(duration: 0.15)) {
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .onLongPressGesture(minimumDuration: 0.45, pressing: { isPressing in
+            withAnimation(isPressing ? .linear(duration: 0.45) : .easeOut(duration: 0.15)) {
                 progress = isPressing ? 1.0 : 0.0
             }
         }, perform: {

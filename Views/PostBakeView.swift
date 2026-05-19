@@ -8,7 +8,8 @@ struct PostBakeView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
 
-    @State private var photoData: Data? = nil
+    @State private var photos: [Data] = []
+    @State private var pendingPhoto: Data? = nil   // bridge to single-image pickers
     @State private var showPhotoOptions = false
     @State private var showCamera = false
     @State private var showLibraryPicker = false
@@ -39,13 +40,16 @@ struct PostBakeView: View {
                 if isTrue { dismiss() }
             }
         }
+        .onChange(of: pendingPhoto) { _, data in
+            if let d = data { photos.append(d); pendingPhoto = nil }
+        }
         .sheet(isPresented: $showSessionLog) {
             SessionLogView(
                 vm: vm,
                 recipe: recipe,
                 bakeTimeSeconds: totalBakeTime,
                 ovenTempAchieved: nil,
-                photoData: photoData,
+                photos: photos,
                 onEndSession: {
                     sessionManager.end(vm)
                 }
@@ -57,10 +61,10 @@ struct PostBakeView: View {
             PizzaDetailView(entry: pizza)
         }
         .sheet(isPresented: $showCamera) {
-            CameraPickerView(imageData: $photoData)
+            CameraPickerView(imageData: $pendingPhoto)
         }
         .sheet(isPresented: $showLibraryPicker) {
-            LibraryPickerView(imageData: $photoData)
+            LibraryPickerView(imageData: $pendingPhoto)
         }
     }
 
@@ -105,29 +109,49 @@ struct PostBakeView: View {
 
     var photoSection: some View {
         Section {
-            Button { showPhotoOptions = true } label: {
-                if let photoData, let uiImage = UIImage(data: photoData) {
-                    Image(uiImage: uiImage)
-                        .resizable().scaledToFill()
-                        .frame(maxWidth: .infinity).frame(height: 180)
-                        .clipped().cornerRadius(6)
-                } else {
-                    HStack {
-                        Image(systemName: "camera").foregroundColor(Color(hex: "D2B96A"))
-                        Text(vm.pizzaEntries.isEmpty ? "Add a session photo" : "Add overall session photo")
-                            .font(.system(.body, design: .monospaced))
-                            .foregroundColor(Color(hex: "D2B96A"))
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(Array(photos.enumerated()), id: \.offset) { idx, data in
+                        if let uiImage = UIImage(data: data) {
+                            ZStack(alignment: .topTrailing) {
+                                Image(uiImage: uiImage)
+                                    .resizable().scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipped().cornerRadius(8)
+                                Button {
+                                    photos.remove(at: idx)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(.white, Color.black.opacity(0.55))
+                                }
+                                .padding(4)
+                            }
+                        }
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 8)
+                    // Add photo tile
+                    Button { showPhotoOptions = true } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 22))
+                                .foregroundColor(Color(hex: "D2B96A"))
+                            Text("Add")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundColor(Color(hex: "D2B96A"))
+                        }
+                        .frame(width: 100, height: 100)
+                        .background(Color(hex: "D2B96A").opacity(0.08))
+                        .cornerRadius(8)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "D2B96A").opacity(0.3), lineWidth: 1))
+                    }
+                    .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
+                        Button("Take Photo") { showCamera = true }
+                        Button("Choose from Library") { showLibraryPicker = true }
+                    }
                 }
+                .padding(.vertical, 4)
             }
-            .buttonStyle(.plain)
-            .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
-                Button("Take Photo") { showCamera = true }
-                Button("Choose from Library") { showLibraryPicker = true }
-            }
-        } header: { Text("Photo") }
+        } header: { Text("Photos") }
         .listRowBackground(Color.clear)
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }

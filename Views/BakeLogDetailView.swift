@@ -46,12 +46,24 @@ struct BakeLogDetailView: View {
 
     var asBakedTab: some View {
         List {
-            if let photo = log.photoData, let uiImage = UIImage(data: photo) {
+            let displayPhotos: [Data] = log.photos.isEmpty
+                ? [log.photoData].compactMap { $0 }
+                : log.photos
+            if !displayPhotos.isEmpty {
                 Section {
-                    Image(uiImage: uiImage)
-                        .resizable().scaledToFill()
-                        .frame(maxWidth: .infinity).frame(height: 200)
-                        .clipped().cornerRadius(6)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            ForEach(Array(displayPhotos.enumerated()), id: \.offset) { _, data in
+                                if let uiImage = UIImage(data: data) {
+                                    Image(uiImage: uiImage)
+                                        .resizable().scaledToFill()
+                                        .frame(width: 160, height: 160)
+                                        .clipped().cornerRadius(8)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))

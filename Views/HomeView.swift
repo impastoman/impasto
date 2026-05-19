@@ -235,9 +235,11 @@ private struct ActiveSessionRow: View {
 
 struct StartDoughView: View {
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
     @State private var showWizard = false
     @State private var selectedRecipe: Recipe? = nil
+    @State private var preFlightRecipe: Recipe? = nil
 
     var body: some View {
         NavigationStack {
@@ -278,17 +280,19 @@ struct StartDoughView: View {
                 }
                 if selectedRecipe != nil {
                     ToolbarItem(placement: .topBarTrailing) {
-                        NavigationLink("Begin Prep →") {
-                            if let r = selectedRecipe {
-                                PreFlightView(recipe: r).environmentObject(store)
-                            }
-                        }
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        Button("Begin Prep →") { preFlightRecipe = selectedRecipe }
+                            .foregroundColor(Color(hex: "D2B96A"))
+                            .font(.system(size: 13, design: .monospaced))
                     }
                 }
             }
         }
         .preferredColorScheme(.light)
+        .fullScreenCover(item: $preFlightRecipe) { r in
+            PreFlightView(recipe: r)
+                .environmentObject(store)
+                .environmentObject(sessionManager)
+        }
         .sheet(isPresented: $showWizard) {
             WizardContainerView { recipe in
                 store.add(recipe)

@@ -501,8 +501,9 @@ private struct LongPressBeginButton: View {
             .clipShape(RoundedRectangle(cornerRadius: 6))
             .allowsHitTesting(false)
         }
-        .onLongPressGesture(minimumDuration: 0.7, pressing: { isPressing in
-            withAnimation(isPressing ? .linear(duration: 0.7) : .easeOut(duration: 0.15)) {
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .onLongPressGesture(minimumDuration: 0.45, pressing: { isPressing in
+            withAnimation(isPressing ? .linear(duration: 0.45) : .easeOut(duration: 0.15)) {
                 progress = isPressing ? 1.0 : 0.0
             }
         }, perform: {

@@ -43,7 +43,8 @@ struct BakeLog: Identifiable, Codable {
     var crustColor: CrustColor = .even
     var bottomResult: BottomResult = .good
     var topResult: TopResult = .good
-    var photoData: Data? = nil
+    var photoData: Data? = nil          // legacy — first photo for backward compat
+    var photos: [Data] = []
     var pizzaEntries: [PizzaEntry] = []
 
     // Annotated (post-session reflection)

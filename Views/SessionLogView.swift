@@ -8,7 +8,7 @@ struct SessionLogView: View {
     let crustColor: CrustColor
     let bottomResult: BottomResult
     let topResult: TopResult
-    let photoData: Data?
+    let photos: [Data]
 
     @EnvironmentObject var store: RecipeStore
     @EnvironmentObject var sessionManager: SessionManager
@@ -26,7 +26,7 @@ struct SessionLogView: View {
          crustColor: CrustColor = .even,
          bottomResult: BottomResult = .good,
          topResult: TopResult = .good,
-         photoData: Data? = nil,
+         photos: [Data] = [],
          onEndSession: (() -> Void)? = nil) {
         self.vm = vm
         self.recipe = recipe
@@ -35,7 +35,7 @@ struct SessionLogView: View {
         self.crustColor = crustColor
         self.bottomResult = bottomResult
         self.topResult = topResult
-        self.photoData = photoData
+        self.photos = photos
         self.onEndSession = onEndSession
     }
 
@@ -260,7 +260,7 @@ struct SessionLogView: View {
             crustColor: crustColor,
             bottomResult: bottomResult,
             topResult: topResult,
-            photoData: photoData
+            photos: photos
         )
         store.addBakeLog(log, to: recipe.id)
         goHome()
