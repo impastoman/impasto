@@ -392,7 +392,7 @@ struct LiveSessionView: View {
                 Button("← Back") {
                     showBackAlert = true
                 }
-                .buttonStyle(ImpastoButtonStyle(filled: false))
+                .buttonStyle(StesuraButtonStyle(filled: false))
                 .confirmationDialog(
                     "Go back to \(prevTitle)?",
                     isPresented: $showBackAlert,
@@ -476,12 +476,12 @@ struct LiveSessionView: View {
                     vm.stopBaking()
                     showPizzaLog = true
                 }
-                .buttonStyle(ImpastoButtonStyle(filled: false))
+                .buttonStyle(StesuraButtonStyle(filled: false))
 
                 Button("End Baking") {
                     showEndBakingAlert = true
                 }
-                .buttonStyle(ImpastoButtonStyle(filled: true))
+                .buttonStyle(StesuraButtonStyle(filled: true))
                 .confirmationDialog("End baking?", isPresented: $showEndBakingAlert, titleVisibility: .visible) {
                     Button("End Baking", role: .destructive) {
                         let gen = UIImpactFeedbackGenerator(style: .medium)
@@ -495,7 +495,7 @@ struct LiveSessionView: View {
                 Button("Start Baking") {
                     vm.startBaking()
                 }
-                .buttonStyle(ImpastoButtonStyle(filled: true))
+                .buttonStyle(StesuraButtonStyle(filled: true))
             }
         }
     }

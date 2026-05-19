@@ -90,7 +90,7 @@ struct HomeView: View {
                                 initialTab = 1
                                 showMainApp = true
                             }
-                            .buttonStyle(ImpastoButtonStyle(filled: true))
+                            .buttonStyle(StesuraButtonStyle(filled: true))
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                         }
@@ -105,10 +105,10 @@ struct HomeView: View {
                 Divider().background(Color(hex: "D8D4C8"))
 
                 Button("Start Dough →") { showStartDough = true }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
+                    .buttonStyle(StesuraButtonStyle(filled: true))
 
                 Button("+ New Recipe") { showNewMenu = true }
-                    .buttonStyle(ImpastoButtonStyle(filled: false))
+                    .buttonStyle(StesuraButtonStyle(filled: false))
                     .confirmationDialog("Create New", isPresented: $showNewMenu, titleVisibility: .visible) {
                         Button("New Recipe") { showWizard = true }
                         Button("Convert a Volume Recipe") { showVolumeConverter = true }
@@ -119,7 +119,7 @@ struct HomeView: View {
                     }
 
                 Button("Library") { showMainApp = true }
-                    .buttonStyle(ImpastoButtonStyle(filled: false))
+                    .buttonStyle(StesuraButtonStyle(filled: false))
 
                 Button("↑  Import Recipe") { showImportRecipe = true }
                     .font(.system(size: 11, design: .monospaced))

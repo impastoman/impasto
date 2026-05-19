@@ -238,11 +238,11 @@ struct WizardContainerView: View {
         HStack(spacing: 12) {
             if step > 0 {
                 Button("← Back") { step -= 1 }
-                    .buttonStyle(ImpastoButtonStyle(filled: false))
+                    .buttonStyle(StesuraButtonStyle(filled: false))
             }
             if reviewMode && step != totalSteps - 1 {
                 Button("Return to Review →") { step = totalSteps - 1 }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
+                    .buttonStyle(StesuraButtonStyle(filled: true))
             } else if step < totalSteps - 1 {
                 Button("Next →") {
                     if step == 7 && !processWarnings.isEmpty {
@@ -251,19 +251,19 @@ struct WizardContainerView: View {
                         step += 1
                     }
                 }
-                .buttonStyle(ImpastoButtonStyle(filled: true))
+                .buttonStyle(StesuraButtonStyle(filled: true))
                 .disabled(step == 3 && !flourBlend.isValid)
             } else if isEditMode {
                 Button("Save as New →") { saveAsNew() }
-                    .buttonStyle(ImpastoButtonStyle(filled: false))
+                    .buttonStyle(StesuraButtonStyle(filled: false))
                 Button("Save Changes →") { save() }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
+                    .buttonStyle(StesuraButtonStyle(filled: true))
             } else if isForkMode {
                 Button("Save as New →") { saveAsNew() }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
+                    .buttonStyle(StesuraButtonStyle(filled: true))
             } else {
                 Button("Save Recipe →") { save() }
-                    .buttonStyle(ImpastoButtonStyle(filled: true))
+                    .buttonStyle(StesuraButtonStyle(filled: true))
             }
         }
         .padding(.horizontal, 20)

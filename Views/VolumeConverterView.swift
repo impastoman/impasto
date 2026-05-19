@@ -437,7 +437,7 @@ struct ConversionReviewView: View {
         Button("Build This Recipe →") {
             onConvert(formula)
         }
-        .buttonStyle(ImpastoButtonStyle(filled: true))
+        .buttonStyle(StesuraButtonStyle(filled: true))
         .padding(.top, 4)
     }
 

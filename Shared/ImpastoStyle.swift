@@ -101,7 +101,7 @@ struct LibraryPickerView: UIViewControllerRepresentable {
     }
 }
 
-struct ImpastoButtonStyle: ButtonStyle {
+struct StesuraButtonStyle: ButtonStyle {
     let filled: Bool
 
     func makeBody(configuration: Configuration) -> some View {

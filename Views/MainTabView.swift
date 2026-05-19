@@ -70,13 +70,13 @@ struct ActiveSessionsView: View {
                                         vm.isHidden = false
                                         resumedSession = vm
                                     }
-                                    .buttonStyle(ImpastoButtonStyle(filled: true))
+                                    .buttonStyle(StesuraButtonStyle(filled: true))
 
                                     Button("End Session") {
                                         sessionToEnd = vm
                                         showEndOptions = true
                                     }
-                                    .buttonStyle(ImpastoButtonStyle(filled: false))
+                                    .buttonStyle(StesuraButtonStyle(filled: false))
                                 }
                             }
                             .padding(.vertical, 6)

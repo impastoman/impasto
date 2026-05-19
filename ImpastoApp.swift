@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct ImpastoApp: App {
+struct StesuraApp: App {
     @StateObject private var store = RecipeStore()
     @StateObject private var sessionManager = SessionManager()
 
