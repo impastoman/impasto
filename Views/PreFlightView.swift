@@ -484,32 +484,31 @@ private struct LongPressBeginButton: View {
     @State private var progress: Double = 0
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            Text("Begin Session →")
-                .font(.system(size: 14, design: .monospaced))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 13)
-                .background(Color(hex: "D2B96A"))
-                .foregroundColor(Color(hex: "111210"))
-                .cornerRadius(6)
-
-            GeometryReader { geo in
-                Color(hex: "FFFFFF")
-                    .opacity(0.28)
-                    .frame(width: geo.size.width * progress)
+        Text("Begin Session →")
+            .font(.system(size: 14, design: .monospaced))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 13)
+            .background(Color(hex: "D2B96A"))
+            .foregroundColor(Color(hex: "111210"))
+            .cornerRadius(6)
+            .overlay(alignment: .leading) {
+                GeometryReader { geo in
+                    Color(hex: "FFFFFF")
+                        .opacity(0.28)
+                        .frame(width: geo.size.width * progress)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .allowsHitTesting(false)
             }
             .clipShape(RoundedRectangle(cornerRadius: 6))
-            .allowsHitTesting(false)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .onLongPressGesture(minimumDuration: 0.45, pressing: { isPressing in
-            withAnimation(isPressing ? .linear(duration: 0.45) : .easeOut(duration: 0.15)) {
-                progress = isPressing ? 1.0 : 0.0
-            }
-        }, perform: {
-            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-            withAnimation(.easeOut(duration: 0.15)) { progress = 0.0 }
-            action()
-        })
+            .onLongPressGesture(minimumDuration: 0.45, pressing: { isPressing in
+                withAnimation(isPressing ? .linear(duration: 0.45) : .easeOut(duration: 0.15)) {
+                    progress = isPressing ? 1.0 : 0.0
+                }
+            }, perform: {
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                withAnimation(.easeOut(duration: 0.15)) { progress = 0.0 }
+                action()
+            })
     }
 }

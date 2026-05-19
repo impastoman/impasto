@@ -541,28 +541,27 @@ private struct LongPressStepButton: View {
     @State private var progress: Double = 0
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            Text(label)
-                .font(.system(size: 14, design: .monospaced))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 13)
-                .background(filled ? Color(hex: "D2B96A") : Color.clear)
-                .foregroundColor(filled ? Color(hex: "111210") : Color(hex: "9A9688"))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(filled ? Color.clear : Color(hex: "4A4840"), lineWidth: 1)
-                )
-                .cornerRadius(6)
-
-            GeometryReader { geo in
-                Color(hex: filled ? "FFFFFF" : "D2B96A")
-                    .opacity(filled ? 0.28 : 0.35)
-                    .frame(width: geo.size.width * progress)
+        Text(label)
+            .font(.system(size: 14, design: .monospaced))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 13)
+            .background(filled ? Color(hex: "D2B96A") : Color.clear)
+            .foregroundColor(filled ? Color(hex: "111210") : Color(hex: "9A9688"))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(filled ? Color.clear : Color(hex: "4A4840"), lineWidth: 1)
+            )
+            .cornerRadius(6)
+            .overlay(alignment: .leading) {
+                GeometryReader { geo in
+                    Color(hex: filled ? "FFFFFF" : "D2B96A")
+                        .opacity(filled ? 0.28 : 0.35)
+                        .frame(width: geo.size.width * progress)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .allowsHitTesting(false)
             }
             .clipShape(RoundedRectangle(cornerRadius: 6))
-            .allowsHitTesting(false)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 6))
         .onLongPressGesture(minimumDuration: 0.45, pressing: { isPressing in
             withAnimation(isPressing ? .linear(duration: 0.45) : .easeOut(duration: 0.15)) {
                 progress = isPressing ? 1.0 : 0.0
