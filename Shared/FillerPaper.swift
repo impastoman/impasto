@@ -54,26 +54,24 @@ struct FillerPaperHeaderBand: View {
     let title: String
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            Color.paperHeader
-            HStack(spacing: 0) {
-                // Margin line continues through the header
-                Rectangle()
-                    .fill(Color.paperMargin)
-                    .frame(width: 1.2)
-                    .padding(.leading, PM.marginX)
+        HStack(spacing: 0) {
+            // Margin line continues through the header
+            Rectangle()
+                .fill(Color.paperMargin)
+                .frame(width: 1.2)
+                .padding(.leading, PM.marginX)
 
-                Text(title)
-                    .font(.system(size: 24, design: .serif))
-                    .foregroundColor(Color.paperWhite)
-                    .lineLimit(2)
-                    .padding(.leading, 12)
-                    .padding(.trailing, 16)
-                    .padding(.vertical, 14)
+            Text(title)
+                .font(.system(size: 24, design: .serif))
+                .foregroundColor(Color.paperWhite)
+                .lineLimit(2)
+                .padding(.leading, 12)
+                .padding(.trailing, 16)
+                .padding(.vertical, 14)
 
-                Spacer()
-            }
+            Spacer()
         }
+        .background(Color.paperHeader)
     }
 }
 
