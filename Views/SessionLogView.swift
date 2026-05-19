@@ -74,13 +74,24 @@ struct SessionLogView: View {
 
     var stageReportSection: some View {
         Section {
-            ForEach(vm.cards, id: \.id) { card in
-                let planned = card.duration
-                let actual  = vm.actualDurations[card.id]
-                if planned > 0 {
-                    VStack(alignment: .leading, spacing: 5) {
+            ForEach(Array(vm.cards.enumerated()), id: \.element.id) { index, card in
+                let planned   = card.duration
+                let actual    = vm.actualDurations[card.id]
+                let startTime = stepStartTime(for: index)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
                         Text(card.title)
                             .font(.system(size: 13, design: .monospaced))
+                        Spacer()
+                        if let t = startTime {
+                            Text(wallClock(t))
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    if planned > 0 {
                         HStack(spacing: 0) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Planned")
@@ -116,27 +127,36 @@ struct SessionLogView: View {
                                 }
                             }
                         }
-                    }
-                    .padding(.vertical, 2)
-                } else {
-                    HStack {
-                        Text(card.title)
-                            .font(.system(size: 13, design: .monospaced))
-                        Spacer()
+                    } else {
                         if let actual {
                             Text(shortTime(actual))
-                                .font(.system(size: 13, design: .monospaced))
+                                .font(.system(size: 12, design: .monospaced))
                                 .foregroundColor(.secondary)
                         } else {
-                            Text("—")
-                                .font(.system(size: 13, design: .monospaced))
+                            Text("action step")
+                                .font(.system(size: 11, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
                     }
                 }
+                .padding(.vertical, 2)
             }
         } header: { Text("Stage times") }
         .listRowBackground(Color.clear)
+    }
+
+    /// Wall-clock start time for step at index:
+    /// step 0 → sessionStartDate; step N → completion date of step N-1
+    func stepStartTime(for index: Int) -> Date? {
+        if index == 0 { return vm.sessionStartDate }
+        let prevCard = vm.cards[index - 1]
+        return vm.stepCompletionDates[prevCard.id]
+    }
+
+    func wallClock(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "h:mm a"
+        return f.string(from: date)
     }
 
     @ViewBuilder

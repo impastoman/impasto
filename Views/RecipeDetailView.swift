@@ -94,11 +94,16 @@ struct RecipeDetailView: View {
         .toolbar {
             if !isReadOnly {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        pendingName = recipe.name
-                        isRenamingTitle = true
-                    } label: {
-                        Image(systemName: "pencil")
+                    HStack(spacing: 4) {
+                        ShareLink(item: recipeExportString()) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        Button {
+                            pendingName = recipe.name
+                            isRenamingTitle = true
+                        } label: {
+                            Image(systemName: "pencil")
+                        }
                     }
                 }
             }
@@ -147,5 +152,13 @@ struct RecipeDetailView: View {
     func row(_ label: String, _ value: String) -> some View {
         LabeledContent(label, value: value)
             .font(.system(.body, design: .monospaced))
+    }
+
+    func recipeExportString() -> String {
+        var exportRecipe = recipe
+        exportRecipe.bakeLogs = []   // strip bake history
+        guard let data = try? JSONEncoder().encode(exportRecipe),
+              let json = String(data: data, encoding: .utf8) else { return "{}" }
+        return json
     }
 }

@@ -19,7 +19,9 @@ struct StyleStepView: View {
                     }
                 }
             }
+            .listRowBackground(Color.clear)
         }
+        .scrollContentBackground(.hidden)
     }
 
     func styleRow(_ style: PizzaStyle) -> some View {

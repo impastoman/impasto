@@ -67,7 +67,9 @@ struct TimelineStepView: View {
                     .buttonStyle(.plain)
                 }
             }
+            .listRowBackground(Color.clear)
         }
+        .scrollContentBackground(.hidden)
         .sheet(isPresented: $showTimingInfo) {
             TimingInfoSheet()
         }

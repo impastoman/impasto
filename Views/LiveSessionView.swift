@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct LiveSessionView: View {
     @ObservedObject var vm: SessionViewModel
@@ -15,6 +16,7 @@ struct LiveSessionView: View {
     @State private var showNextStepPreview = false
     @State private var showSessionNotepad = false
     @State private var sessionNotes: [UUID: String] = [:]
+    @State private var alarmScheduled = false
 
     var recipe: Recipe { vm.recipe }
 
@@ -299,14 +301,29 @@ struct LiveSessionView: View {
                     ProgressView(value: vm.progress)
                         .tint(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
                         .padding(.horizontal, 40)
-                    if vm.isOvertime {
-                        Text("+\(timeString(vm.elapsed - vm.targetDuration)) overtime")
-                            .font(.system(size: 11, design: .monospaced)).foregroundColor(.orange)
-                    } else {
-                        Text(isCountdown ? "of \(timeString(vm.targetDuration))" : "Target: \(timeString(vm.targetDuration))")
-                            .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                    HStack(spacing: 12) {
+                        if vm.isOvertime {
+                            Text("+\(timeString(vm.elapsed - vm.targetDuration)) overtime")
+                                .font(.system(size: 11, design: .monospaced)).foregroundColor(.orange)
+                        } else {
+                            Text(isCountdown ? "of \(timeString(vm.targetDuration))" : "Target: \(timeString(vm.targetDuration))")
+                                .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                        }
+                        // Set alarm bell
+                        Button {
+                            if alarmScheduled {
+                                cancelAlarm()
+                            } else {
+                                scheduleStepAlarm()
+                            }
+                        } label: {
+                            Image(systemName: alarmScheduled ? "bell.fill" : "bell")
+                                .font(.system(size: 12))
+                                .foregroundColor(alarmScheduled ? Color(hex: "D2B96A") : .secondary)
+                        }
                     }
                 }
+                .onChange(of: vm.currentIndex) { _, _ in alarmScheduled = false }
 
                 // Inline Start / Resume — shown whenever the timer is not running
                 if !vm.isRunning {
@@ -486,6 +503,29 @@ struct LiveSessionView: View {
     func timeString(_ t: TimeInterval) -> String {
         let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60; let s = Int(t) % 60
         return String(format: "%02d:%02d:%02d", h, m, s)
+    }
+
+    // MARK: - Alarm
+
+    func scheduleStepAlarm() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            guard granted else { return }
+            let remaining = max(1, vm.targetDuration - vm.elapsed)
+            let content = UNMutableNotificationContent()
+            content.title = vm.currentCard?.title ?? "Step Complete"
+            content.body = "\(vm.currentCard?.title ?? "Step") is done — next step up."
+            content.sound = .default
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: remaining, repeats: false)
+            let request = UNNotificationRequest(identifier: "stesura_step_alarm", content: content, trigger: trigger)
+            center.add(request) { _ in }
+            DispatchQueue.main.async { alarmScheduled = true }
+        }
+    }
+
+    func cancelAlarm() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["stesura_step_alarm"])
+        alarmScheduled = false
     }
 }
 

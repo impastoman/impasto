@@ -34,6 +34,7 @@ struct MethodStepView: View {
                         if !val { prefEntryMode = .pick }
                     }
             }
+            .listRowBackground(Color.clear)
 
             if usePreferment {
                 switch prefEntryMode {
@@ -59,6 +60,7 @@ struct MethodStepView: View {
                 } header: { Text("Direct method") }
             }
         }
+        .scrollContentBackground(.hidden)
         .onAppear {
             if hydrationText.isEmpty { hydrationText = "\(Int(prefermentHydration * 100))" }
             if ratioText.isEmpty { ratioText = "\(Int(prefermentRatio * 100))" }
@@ -118,6 +120,7 @@ struct MethodStepView: View {
                 }
             }
         } header: { Text("Preferment") }
+        .listRowBackground(Color.clear)
     }
 
     var prefStatusRow: some View {
@@ -355,6 +358,7 @@ struct MethodStepView: View {
             }
         } header: { Text("Save to Library") }
           footer: { Text("Optional — save this preferment for reuse in future recipes") }
+        .listRowBackground(Color.clear)
     }
 
     var derivedMethod: PrefermentMethod {

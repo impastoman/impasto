@@ -15,6 +15,7 @@ struct HomeView: View {
     @State private var initialTab: Int = 0
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
+    @State private var showImportRecipe = false
 
     private let appVersion = "0.9"
 
@@ -120,7 +121,7 @@ struct HomeView: View {
                 Button("Library") { showMainApp = true }
                     .buttonStyle(ImpastoButtonStyle(filled: false))
 
-                Button("↑  Import Recipe") {}
+                Button("↑  Import Recipe") { showImportRecipe = true }
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(Color(hex: "C4B89A"))
                 } // end splashDone
@@ -165,6 +166,9 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showPrefBuilder) {
             StandalonePrefermentBuilderView().environmentObject(store)
+        }
+        .sheet(isPresented: $showImportRecipe) {
+            ImportRecipeView().environmentObject(store)
         }
         .sheet(isPresented: $showStartDough) {
             StartDoughView()

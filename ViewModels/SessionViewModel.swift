@@ -20,6 +20,9 @@ struct SessionSnapshot: Codable {
     var isHidden: Bool
     var sessionNote: String
     var savedAt: Date
+    // Step timestamps
+    var sessionStartDate: Date?
+    var stepCompletionDates: [String: Date]       // UUID.uuidString keys
 }
 
 // MARK: - View Model
@@ -43,6 +46,10 @@ class SessionViewModel: ObservableObject, Identifiable {
 
     var isHidden: Bool = false
     @Published var sessionNote: String = ""
+
+    // Step timestamps (wall-clock)
+    @Published var stepCompletionDates: [UUID: Date] = [:]
+    var sessionStartDate: Date? = nil
 
     let recipe: Recipe
     let preFlight: PreFlightData
@@ -71,6 +78,13 @@ class SessionViewModel: ObservableObject, Identifiable {
         }
         self.cards = enabled
         if preFlight.sessionMode == .automatic { self.isRunning = false }
+        // Apply session-only step duration overrides from PreFlight
+        for i in self.cards.indices {
+            let key = self.cards[i].id.uuidString
+            if let override = preFlight.sessionStepDurationOverrides[key] {
+                self.cards[i].customDuration = override
+            }
+        }
     }
 
     // MARK: - Restore init
@@ -98,6 +112,12 @@ class SessionViewModel: ObservableObject, Identifiable {
         self.pizzaEntries = snapshot.pizzaEntries
         self.isHidden = snapshot.isHidden
         self.sessionNote = snapshot.sessionNote
+        self.sessionStartDate = snapshot.sessionStartDate
+        var completions: [UUID: Date] = [:]
+        for (key, value) in snapshot.stepCompletionDates {
+            if let uuid = UUID(uuidString: key) { completions[uuid] = value }
+        }
+        self.stepCompletionDates = completions
     }
 
     // MARK: - Snapshot
@@ -136,7 +156,10 @@ class SessionViewModel: ObservableObject, Identifiable {
             pizzaEntries: pizzaEntries,
             isHidden: isHidden,
             sessionNote: sessionNote,
-            savedAt: Date()
+            savedAt: Date(),
+            sessionStartDate: sessionStartDate,
+            stepCompletionDates: Dictionary(uniqueKeysWithValues:
+                stepCompletionDates.map { ($0.key.uuidString, $0.value) })
         )
     }
 
@@ -160,6 +183,7 @@ class SessionViewModel: ObservableObject, Identifiable {
 
     func start() {
         isRunning = true
+        if sessionStartDate == nil { sessionStartDate = Date() }
         stepStartDate = Date()
         timer = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
@@ -191,6 +215,7 @@ class SessionViewModel: ObservableObject, Identifiable {
     func completeCard() {
         guard let card = currentCard else { return }
         actualDurations[card.id] = elapsed
+        stepCompletionDates[card.id] = Date()
         guard !isLastCard else { return }
         currentIndex += 1
         accumulatedSeconds = 0

@@ -29,6 +29,7 @@ struct TargetStepView: View {
                 Stepper("\(ballCount) ball\(ballCount == 1 ? "" : "s")", value: $ballCount, in: 1...99)
                     .font(.system(.body, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
 
             Section {
                 Picker("Weight unit", selection: $unit) {
@@ -96,6 +97,7 @@ struct TargetStepView: View {
                 Text("Diameter is approximate · varies by stretch and thickness · leave blank to use estimate")
                     .font(.system(size: 11, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
 
             Section {
                 LabeledContent("Target dough", value: formattedWeight(totalDough) + " " + unit.rawValue)
@@ -132,7 +134,9 @@ struct TargetStepView: View {
                 Text("~2.5% of total dough weight is a good starting point · decreases as technique improves")
                     .font(.system(size: 11, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
         }
+        .scrollContentBackground(.hidden)
         .onAppear {
             weightText = formattedWeight(ballWeight)
             bufferGramsText = formattedBufferDisplay()

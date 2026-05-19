@@ -121,6 +121,28 @@ struct ImpastoButtonStyle: ButtonStyle {
     }
 }
 
+// MARK: - Keyboard dismiss
+
+extension View {
+    /// Adds a "Done" button to the top-right of the keyboard toolbar.
+    /// Apply to any view containing numberPad / decimalPad text fields.
+    func keyboardDoneButton() -> some View {
+        self.toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil, from: nil, for: nil
+                    )
+                }
+                .font(.system(size: 14, design: .monospaced))
+                .foregroundColor(Color(hex: "D2B96A"))
+            }
+        }
+    }
+}
+
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

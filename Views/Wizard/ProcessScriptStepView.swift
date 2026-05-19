@@ -27,6 +27,7 @@ struct ProcessScriptStepView: View {
                 saveToLibrarySection
             }
         }
+        .scrollContentBackground(.hidden)
         .environment(\.editMode, mode == .pick ? .constant(.inactive) : .constant(.active))
         .sheet(isPresented: $showLibraryPicker) {
             ProcessLibraryPickerView { selected in
@@ -76,6 +77,7 @@ struct ProcessScriptStepView: View {
                 }
             }
         } header: { Text("Process") }
+        .listRowBackground(Color.clear)
     }
 
     var statusRow: some View {
@@ -148,6 +150,7 @@ struct ProcessScriptStepView: View {
                     .textCase(nil)
             }
         }
+        .listRowBackground(Color.clear)
     }
 
     var saveToLibrarySection: some View {
@@ -174,6 +177,7 @@ struct ProcessScriptStepView: View {
             }
         } header: { Text("Save to Library") }
           footer: { Text("Optional — save this process for reuse in future recipes") }
+        .listRowBackground(Color.clear)
     }
 
     func positionLabel(for idx: Int) -> String {

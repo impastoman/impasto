@@ -40,11 +40,13 @@ struct BakeMethodStepView: View {
                 Text("You can save settings for multiple setups — choose which to use at prep.")
                     .font(.system(size: 11, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
 
             ForEach($bakeSetups) { $setup in
                 BakeSetupDetailSection(setup: $setup)
             }
         }
+        .scrollContentBackground(.hidden)
     }
 }
 
@@ -130,5 +132,6 @@ private struct BakeSetupDetailSection: View {
         } header: {
             Text(setup.method.displayName)
         }
+        .listRowBackground(Color.clear)
     }
 }

@@ -30,6 +30,7 @@ struct FlourBlendStepView: View {
                 saveToLibrarySection
             }
         }
+        .scrollContentBackground(.hidden)
         .sheet(isPresented: $showLibraryPicker) {
             BlendLibraryPickerView { selected in
                 flourBlend = selected
@@ -73,6 +74,7 @@ struct FlourBlendStepView: View {
                 }
             }
         } header: { Text("Flour blend") }
+        .listRowBackground(Color.clear)
     }
 
     var statusRow: some View {
@@ -107,6 +109,7 @@ struct FlourBlendStepView: View {
                 }
             }
         }
+        .listRowBackground(Color.clear)
     }
 
     var totalRow: some View {
@@ -151,6 +154,7 @@ struct FlourBlendStepView: View {
         } header: {
             Text("Additives  ·  % of total flour weight")
         }
+        .listRowBackground(Color.clear)
     }
 
     var hintsSection: some View {
@@ -200,6 +204,7 @@ struct FlourBlendStepView: View {
             }
         } header: { Text("Save to Library") }
           footer: { Text("Optional — save this blend for reuse in future recipes") }
+        .listRowBackground(Color.clear)
     }
 }
 

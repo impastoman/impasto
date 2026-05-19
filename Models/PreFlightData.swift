@@ -19,4 +19,7 @@ struct PreFlightData: Codable {
     var overrideBallWeight: Double? = nil
     var overrideHydration: Double? = nil
     var overrideBuffer: Double? = nil
+
+    // Session-only step duration overrides (UUID.uuidString → seconds)
+    var sessionStepDurationOverrides: [String: TimeInterval] = [:]
 }

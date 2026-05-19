@@ -107,6 +107,7 @@ struct WaterSaltYeastStepView: View {
                         .font(.system(size: 11, design: .monospaced))
                 }
             }
+            .listRowBackground(Color.clear)
 
             Section {
                 HStack {
@@ -140,6 +141,7 @@ struct WaterSaltYeastStepView: View {
                         .font(.system(size: 11, design: .monospaced))
                 }
             }
+            .listRowBackground(Color.clear)
 
             Section {
                 Picker("Type", selection: $yeastType) {
@@ -180,7 +182,9 @@ struct WaterSaltYeastStepView: View {
                         .font(.system(size: 11, design: .monospaced))
                 }
             }
+            .listRowBackground(Color.clear)
         }
+        .scrollContentBackground(.hidden)
         .onAppear {
             hydrationText = "\(Int(finalHydration * 100))"
             saltText      = String(format: "%.1f", saltPct * 100)

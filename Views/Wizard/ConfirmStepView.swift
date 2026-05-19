@@ -46,6 +46,7 @@ struct ConfirmStepView: View {
                 TextField("e.g. My Neapolitan", text: $name)
                     .font(.system(.body, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
 
             Section {
                 LabeledContent("Style",           value: styleLabel)
@@ -70,6 +71,7 @@ struct ConfirmStepView: View {
                 LabeledContent("Balls",           value: "\(ballCount) × \(Int(ballWeight))g")
                 LabeledContent("Loss factor",     value: "\(max(1, Int(buffer * Double(ballCount) * ballWeight)))g")
             } header: { sectionHeader("Summary", step: 0) }
+            .listRowBackground(Color.clear)
 
             if !flourBlend.components.isEmpty {
                 Section {
@@ -82,6 +84,7 @@ struct ConfirmStepView: View {
                     }
                 } header: { sectionHeader("Flour blend", step: 3) }
                 .font(.system(.body, design: .monospaced))
+                .listRowBackground(Color.clear)
             }
 
             Section {
@@ -106,6 +109,7 @@ struct ConfirmStepView: View {
                         .font(.system(size: 11, design: .monospaced))
                 }
             }
+            .listRowBackground(Color.clear)
 
             if !bakeSetups.isEmpty {
                 Section {
@@ -144,6 +148,7 @@ struct ConfirmStepView: View {
                         .padding(.vertical, 2)
                     }
                 } header: { sectionHeader("Bake setups", step: 8) }
+                .listRowBackground(Color.clear)
             }
 
             Section {
@@ -157,7 +162,9 @@ struct ConfirmStepView: View {
             } footer: {
                 Text("All values adjustable in Recipe Detail after saving.")
             }
+            .listRowBackground(Color.clear)
         }
+        .scrollContentBackground(.hidden)
     }
 
     func sectionHeader(_ title: String, step: Int) -> some View {

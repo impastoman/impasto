@@ -43,6 +43,7 @@ struct TechniqueStepView: View {
                         .padding(.top, 2)
                 }
             }
+            .listRowBackground(Color.clear)
 
             if finalHydration > 0.70 && mixerType == .hand {
                 Section {
@@ -88,6 +89,7 @@ struct TechniqueStepView: View {
                     }
                 }
             }
+            .listRowBackground(Color.clear)
 
             Section {
                 Toggle(isOn: $bassinage) {
@@ -108,6 +110,7 @@ struct TechniqueStepView: View {
                         .foregroundColor(.secondary)
                 }
             }
+            .listRowBackground(Color.clear)
 
             Section("Mixing notes") {
                 TextField("Any notes for this stage...", text: $mixingNotes, axis: .vertical)
@@ -115,6 +118,8 @@ struct TechniqueStepView: View {
                     .lineLimit(3...)
                     .notesBox()
             }
+            .listRowBackground(Color.clear)
         }
+        .scrollContentBackground(.hidden)
     }
 }

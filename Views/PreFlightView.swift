@@ -56,6 +56,7 @@ struct PreFlightView: View {
     @State private var showConflictAlert = false
     @State private var showSession = false
     @State private var showChecklist = false
+    @State private var showProcessEditor = false
     @State private var activeVM: SessionViewModel? = nil
     @State private var useCelsius = true
     @State private var weightUnit: WeightUnit = .grams
@@ -102,9 +103,17 @@ struct PreFlightView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
+            .keyboardDoneButton()
             .safeAreaInset(edge: .bottom) { beginButton }
             .sheet(isPresented: $showChecklist) {
                 IngredientsChecklistView(recipe: resolvedRecipe, weightUnit: weightUnit)
+            }
+            .sheet(isPresented: $showProcessEditor) {
+                SessionProcessEditorSheet(
+                    recipe: recipe,
+                    prefermentReady: data.prefermentReady,
+                    overrides: $data.sessionStepDurationOverrides
+                )
             }
             .alert("Time Conflict", isPresented: $showConflictAlert) {
                 Button("Proceed Anyway") {
@@ -343,6 +352,17 @@ struct PreFlightView: View {
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
+            Button {
+                showProcessEditor = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "list.bullet.rectangle")
+                        .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                    Text("Review & Edit Process")
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                }
+            }
         } header: { Text("Session overview") }
         .font(.system(.body, design: .monospaced))
         .foregroundColor(.secondary)
@@ -371,6 +391,89 @@ struct PreFlightView: View {
         if let h  = data.overrideHydration   { r.finalHydration = h }
         if let b  = data.overrideBuffer      { r.buffer         = b }
         return r
+    }
+}
+
+// MARK: - Session process editor
+
+struct SessionProcessEditorSheet: View {
+    let recipe: Recipe
+    let prefermentReady: Bool
+    @Binding var overrides: [String: TimeInterval]
+    @Environment(\.dismiss) private var dismiss
+
+    var enabledCards: [ProcessCard] {
+        var cards = recipe.processCards.filter { $0.isEnabled }.sorted { $0.sortOrder < $1.sortOrder }
+        if prefermentReady && recipe.method != .direct {
+            cards = cards.filter { $0.type != .autolyse && $0.type != .incorporateYeast }
+        }
+        return cards
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text("Adjust step durations for this session only. Changes don't affect the saved recipe.")
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.secondary)
+                }
+                .listRowBackground(Color.clear)
+
+                Section("Process steps") {
+                    ForEach(enabledCards) { card in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(card.title)
+                                    .font(.system(.body, design: .monospaced))
+                                if !card.subtitle.isEmpty {
+                                    Text(card.subtitle)
+                                        .font(.caption).foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                            if card.duration > 0 {
+                                TextField("", value: Binding(
+                                    get: { Int((overrides[card.id.uuidString] ?? card.duration) / 60) },
+                                    set: { overrides[card.id.uuidString] = Double($0) * 60 }
+                                ), format: .number)
+                                    .keyboardType(.numberPad)
+                                    .multilineTextAlignment(.center)
+                                    .frame(width: 52)
+                                    .font(.system(.body, design: .monospaced))
+                                    .foregroundColor(overrides[card.id.uuidString] != nil ? Color(hex: "D2B96A") : .primary)
+                                    .inputBox()
+                                Text("min").foregroundColor(.secondary).font(.caption)
+                            } else {
+                                Text("action").font(.caption).foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                if !overrides.isEmpty {
+                    Section {
+                        Button("Reset all to recipe defaults") {
+                            overrides = [:]
+                        }
+                        .foregroundColor(.orange)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .font(.system(size: 13, design: .monospaced))
+                    }
+                    .listRowBackground(Color.clear)
+                }
+            }
+            .navigationTitle("Process Steps")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .foregroundColor(Color(hex: "D2B96A"))
+                }
+            }
+            .keyboardDoneButton()
+        }
+        .preferredColorScheme(.light)
     }
 }
 

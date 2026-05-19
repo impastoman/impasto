@@ -235,6 +235,14 @@ struct BakeLogDetailView: View {
         r.finalHydration = log.finalHydration
         r.ballCount = log.ballCount
         r.ballWeight = log.ballWeight
+        // Carry actual stage durations from this bake session into the forked recipe
+        // (10 second minimum floor so no card gets set to zero)
+        for i in r.processCards.indices {
+            let title = r.processCards[i].title
+            if let actual = log.actualStageDurations[title], actual > 0 {
+                r.processCards[i].customDuration = max(10, actual)
+            }
+        }
         return r
     }
 

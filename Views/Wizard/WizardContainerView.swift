@@ -142,76 +142,92 @@ struct WizardContainerView: View {
         return warnings
     }
 
+    var wizardModeTitle: String {
+        switch mode {
+        case .new:  return "New Recipe"
+        case .edit: return "Edit Recipe"
+        case .fork: return "Modify Recipe"
+        }
+    }
+
     var body: some View {
         NavigationStack {
-            Group {
-                switch step {
-                case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
-                case 1: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight,
-                                       buffer: $buffer, style: style)
-                case 2: TimelineStepView(selected: $timeline)
-                case 3: FlourBlendStepView(flourBlend: $flourBlend, mode: $flourBlendMode)
-                case 4: WaterSaltYeastStepView(
-                            finalHydration: $finalHydration,
-                            saltPct: $saltPct,
-                            yeastPct: $yeastPct,
-                            yeastType: $yeastType,
-                            styleDefault: style.defaultFinalHydration,
-                            isFromConversion: hasConvertedFormula)
-                case 5: MethodStepView(usePreferment: $usePreferment,
-                                       prefermentHydration: $prefermentHydration,
-                                       method: $method,
-                                       prefEntryMode: $prefEntryMode,
-                                       timeline: $timeline,
-                                       prefermentRatio: $prefermentRatio,
-                                       prefermentFlourBlend: $prefermentFlourBlend)
-                case 6: TechniqueStepView(
-                            mixerType: $mixerType,
-                            autolyse: $autolyse,
-                            bassinage: $bassinage,
-                            autolyseMinutes: $autolyseMinutes,
-                            customMixerName: $customMixerName,
-                            mixingNotes: $mixingNotes,
-                            style: style,
-                            finalHydration: finalHydration)
-                case 7: ProcessScriptStepView(processCards: $processCards, mode: $processMode)
-                case 8: BakeMethodStepView(bakeSetups: $bakeSetups)
-                case 9: ConfirmStepView(
-                            name: $name,
-                            style: style,
-                            customStyleName: customStyleName,
-                            method: method,
-                            onJumpTo: { target in
-                                reviewMode = true
-                                step = target
-                            },
-                            mixerType: mixerType,
-                            autolyse: autolyse,
-                            bassinage: bassinage,
-                            finalHydration: finalHydration,
-                            saltPct: saltPct,
-                            yeastPct: yeastPct,
-                            yeastType: yeastType,
-                            timeline: timeline,
-                            ballCount: ballCount,
-                            ballWeight: ballWeight,
-                            buffer: buffer,
-                            flourBlend: flourBlend,
-                            prefermentFlourBlend: prefermentFlourBlend,
-                            prefermentRatio: prefermentRatio,
-                            bakeSetups: bakeSetups,
-                            processCards: processCards)
-                default: EmptyView()
+            ZStack(alignment: .topLeading) {
+                RuledPaperBackground()
+                Group {
+                    switch step {
+                    case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
+                    case 1: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight,
+                                           buffer: $buffer, style: style)
+                    case 2: TimelineStepView(selected: $timeline)
+                    case 3: FlourBlendStepView(flourBlend: $flourBlend, mode: $flourBlendMode)
+                    case 4: WaterSaltYeastStepView(
+                                finalHydration: $finalHydration,
+                                saltPct: $saltPct,
+                                yeastPct: $yeastPct,
+                                yeastType: $yeastType,
+                                styleDefault: style.defaultFinalHydration,
+                                isFromConversion: hasConvertedFormula)
+                    case 5: MethodStepView(usePreferment: $usePreferment,
+                                           prefermentHydration: $prefermentHydration,
+                                           method: $method,
+                                           prefEntryMode: $prefEntryMode,
+                                           timeline: $timeline,
+                                           prefermentRatio: $prefermentRatio,
+                                           prefermentFlourBlend: $prefermentFlourBlend)
+                    case 6: TechniqueStepView(
+                                mixerType: $mixerType,
+                                autolyse: $autolyse,
+                                bassinage: $bassinage,
+                                autolyseMinutes: $autolyseMinutes,
+                                customMixerName: $customMixerName,
+                                mixingNotes: $mixingNotes,
+                                style: style,
+                                finalHydration: finalHydration)
+                    case 7: ProcessScriptStepView(processCards: $processCards, mode: $processMode)
+                    case 8: BakeMethodStepView(bakeSetups: $bakeSetups)
+                    case 9: ConfirmStepView(
+                                name: $name,
+                                style: style,
+                                customStyleName: customStyleName,
+                                method: method,
+                                onJumpTo: { target in
+                                    reviewMode = true
+                                    step = target
+                                },
+                                mixerType: mixerType,
+                                autolyse: autolyse,
+                                bassinage: bassinage,
+                                finalHydration: finalHydration,
+                                saltPct: saltPct,
+                                yeastPct: yeastPct,
+                                yeastType: yeastType,
+                                timeline: timeline,
+                                ballCount: ballCount,
+                                ballWeight: ballWeight,
+                                buffer: buffer,
+                                flourBlend: flourBlend,
+                                prefermentFlourBlend: prefermentFlourBlend,
+                                prefermentRatio: prefermentRatio,
+                                bakeSetups: bakeSetups,
+                                processCards: processCards)
+                    default: EmptyView()
+                    }
                 }
             }
-            .navigationTitle("New Recipe")
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.paperHeader, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
                 }
             }
+            .safeAreaInset(edge: .top, spacing: 0) { FillerPaperHeaderBand(title: wizardModeTitle) }
             .safeAreaInset(edge: .bottom) { navBar }
+            .keyboardDoneButton()
             .onChange(of: autolyse)  { _, val in regenerateCards(autolyse: val, bassinage: bassinage) }
             .onChange(of: bassinage) { _, val in regenerateCards(autolyse: autolyse, bassinage: val) }
             .onChange(of: style)     { _, val in

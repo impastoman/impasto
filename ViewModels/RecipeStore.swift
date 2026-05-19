@@ -221,7 +221,7 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Seed defaults
 
-    private static let seedKey = "impasto_seeded_v5"
+    private static let seedKey = "impasto_seeded_v6"
 
     func seedDefaultsIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: Self.seedKey) else { return }
@@ -235,6 +235,7 @@ class RecipeStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v2")
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v3")
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v4")
+        UserDefaults.standard.removeObject(forKey: "impasto_seeded_v5")
 
         let blend = makeSeedBlend()
         addBlend(blend)
@@ -291,7 +292,7 @@ class RecipeStore: ObservableObject {
         card(.stretchAndFold,   duration: 0,        note: "one more rest and one more stretch and fold to go!")
         card(.benchRest,        duration: 20 * 60,  note: "good time to get a bowl ready to bulk ferment. Use a few drops of extra virgin olive oil and spread through bowl")
         card(.stretchAndFold,   duration: 0)
-        card(.bulkFermentation, duration: 12 * 3600, note: "place dough into bowl for bulk fermentation at room temperature. Pour a few droplets on top and cover")
+        card(.bulkFermentation, duration: 8 * 3600, note: "place dough into bowl for bulk fermentation at room temperature. Pour a few droplets on top and cover")
         card(.divide,                               note: "place dough onto a clean surface and use dough cutter to make number of desired dough balls. Use a scale to remove and add dough portions among each other to get desired size")
         card(.preShape,                             note: "Have as many 16oz deli containers with lids or similar ready with a drop of EVOO on the bottom to store balls in fridge. Shape each portion into a ball, building tension on the top, and place into container. Pour a drop of EVOO atop each dough ball before closing container")
         card(.coldFerment,      duration: 36 * 3600, note: "store refrigerated")
