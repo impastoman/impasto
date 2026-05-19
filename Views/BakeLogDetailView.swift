@@ -25,16 +25,20 @@ struct BakeLogDetailView: View {
                 Text("Annotated").tag(1)
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal).padding(.top, 8)
+            .padding(.horizontal).padding(.top, 10).padding(.bottom, 6)
 
-            if selectedTab == 0 {
-                asBakedTab
-            } else {
-                annotatedTab
-            }
+            if selectedTab == 0 { asBakedTab }
+            else { annotatedTab }
         }
-        .navigationTitle(recipe.name)
+        .background { RuledPaperBackground() }
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.paperHeader, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            FillerPaperHeaderBand(title: recipe.name)
+        }
         .sheet(isPresented: $showForkWizard) {
             let forked = forkedRecipe()
             WizardContainerView(mode: .fork(forked)) { newRecipe in
@@ -56,6 +60,7 @@ struct BakeLogDetailView: View {
                         .frame(maxWidth: .infinity).frame(height: 200)
                         .clipped().cornerRadius(6)
                 }
+                .listRowBackground(Color.clear)
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
 
@@ -67,6 +72,7 @@ struct BakeLogDetailView: View {
                     }
                 }
             }
+            .listRowBackground(Color.clear)
 
             Section("Bake") {
                 LabeledContent("Date", value: log.date.formatted(date: .abbreviated, time: .shortened))
@@ -86,6 +92,7 @@ struct BakeLogDetailView: View {
                         .font(.system(.body, design: .monospaced))
                 }
             }
+            .listRowBackground(Color.clear)
 
             Section("Dough") {
                 LabeledContent("Balls", value: "\(log.ballCount) × \(Int(log.ballWeight))g")
@@ -99,6 +106,7 @@ struct BakeLogDetailView: View {
                         .font(.system(.body, design: .monospaced))
                 }
             }
+            .listRowBackground(Color.clear)
 
             if !log.actualStageDurations.isEmpty {
                 Section("Stage times") {
@@ -120,9 +128,11 @@ struct BakeLogDetailView: View {
                         }
                     }
                 }
+                .listRowBackground(Color.clear)
             }
 
-            if !log.crustTags.isEmpty || !log.crumbTags.isEmpty || !log.customCrustTags.isEmpty || !log.customCrumbTags.isEmpty {
+            if !log.crustTags.isEmpty || !log.crumbTags.isEmpty ||
+               !log.customCrustTags.isEmpty || !log.customCrumbTags.isEmpty {
                 Section("Tags") {
                     if !log.crustTags.isEmpty || !log.customCrustTags.isEmpty {
                         tagRow(title: "Crust", tags: log.crustTags.map { $0.rawValue } + log.customCrustTags)
@@ -131,6 +141,7 @@ struct BakeLogDetailView: View {
                         tagRow(title: "Crumb", tags: log.crumbTags.map { $0.rawValue } + log.customCrumbTags)
                     }
                 }
+                .listRowBackground(Color.clear)
             }
 
             if !log.notes.isEmpty {
@@ -139,6 +150,7 @@ struct BakeLogDetailView: View {
                         .font(.system(size: 13, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
+                .listRowBackground(Color.clear)
             }
 
             Section {
@@ -150,7 +162,9 @@ struct BakeLogDetailView: View {
                 Text("Opens the recipe wizard pre-filled with bake log settings. Saves as a new recipe variant.")
                     .font(.system(size: 11, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
         }
+        .scrollContentBackground(.hidden)
     }
 
     // MARK: - Annotated tab
@@ -167,6 +181,7 @@ struct BakeLogDetailView: View {
                 }
                 .padding(.vertical, 4)
             }
+            .listRowBackground(Color.clear)
 
             Section("Reflection notes") {
                 TextField("What would you change next time?", text: $annotatedNotes, axis: .vertical)
@@ -174,15 +189,15 @@ struct BakeLogDetailView: View {
                     .lineLimit(4...)
                     .notesBox()
             }
+            .listRowBackground(Color.clear)
 
             Section {
-                Button(saved ? "Saved ✓" : "Save Annotation") {
-                    saveAnnotation()
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundColor(saved ? Color(hex: "D2B96A") : Color(hex: "D2B96A"))
-                .font(.system(size: 14, design: .monospaced))
+                Button(saved ? "Saved ✓" : "Save Annotation") { saveAnnotation() }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .foregroundColor(Color(hex: "D2B96A"))
+                    .font(.system(size: 14, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
 
             if let origRating = log.annotatedRating {
                 Section("Original reflection") {
@@ -198,8 +213,10 @@ struct BakeLogDetailView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                .listRowBackground(Color.clear)
             }
         }
+        .scrollContentBackground(.hidden)
     }
 
     // MARK: - Helpers

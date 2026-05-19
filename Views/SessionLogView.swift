@@ -50,8 +50,8 @@ struct SessionLogView: View {
                 notesSection
                 saveSection
             }
-            .navigationTitle("How'd it go?")
-            .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .fillerPaper(title: "How'd it go?")
         }
         .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
             if isTrue { dismiss() }
@@ -69,6 +69,7 @@ struct SessionLogView: View {
             }
             .padding(.vertical, 4)
         }
+        .listRowBackground(Color.clear)
     }
 
     var stageReportSection: some View {
@@ -77,7 +78,6 @@ struct SessionLogView: View {
                 let planned = card.duration
                 let actual  = vm.actualDurations[card.id]
                 if planned > 0 {
-                    // Timed step — show labeled planned / actual / delta
                     VStack(alignment: .leading, spacing: 5) {
                         Text(card.title)
                             .font(.system(size: 13, design: .monospaced))
@@ -119,7 +119,6 @@ struct SessionLogView: View {
                     }
                     .padding(.vertical, 2)
                 } else {
-                    // Action step — just title + actual time
                     HStack {
                         Text(card.title)
                             .font(.system(size: 13, design: .monospaced))
@@ -137,6 +136,7 @@ struct SessionLogView: View {
                 }
             }
         } header: { Text("Stage times") }
+        .listRowBackground(Color.clear)
     }
 
     @ViewBuilder
@@ -151,6 +151,7 @@ struct SessionLogView: View {
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             } header: { Text("Pause log") }
+            .listRowBackground(Color.clear)
         }
     }
 
@@ -169,6 +170,7 @@ struct SessionLogView: View {
                 LabeledContent("Room temp", value: String(format: "%.0f°C", vm.preFlight.roomTempC))
                     .font(.system(.body, design: .monospaced))
             }
+            .listRowBackground(Color.clear)
         }
     }
 
@@ -176,15 +178,19 @@ struct SessionLogView: View {
     var bakeResultsSection: some View {
         Section("Bake") {
             if bakeTimeSeconds > 0 {
-                LabeledContent("Bake time", value: shortTime(bakeTimeSeconds)).font(.system(.body, design: .monospaced))
+                LabeledContent("Bake time", value: shortTime(bakeTimeSeconds))
+                    .font(.system(.body, design: .monospaced))
             }
             if let temp = ovenTempAchieved {
-                LabeledContent("Oven temp", value: "\(Int(temp))°").font(.system(.body, design: .monospaced))
+                LabeledContent("Oven temp", value: "\(Int(temp))°")
+                    .font(.system(.body, design: .monospaced))
             }
             if !vm.pizzaEntries.isEmpty {
-                LabeledContent("Bakes logged", value: "\(vm.pizzaEntries.count)").font(.system(.body, design: .monospaced))
+                LabeledContent("Bakes logged", value: "\(vm.pizzaEntries.count)")
+                    .font(.system(.body, design: .monospaced))
             }
         }
+        .listRowBackground(Color.clear)
     }
 
     var notesSection: some View {
@@ -193,6 +199,7 @@ struct SessionLogView: View {
                 .lineLimit(4...)
                 .notesBox()
         }
+        .listRowBackground(Color.clear)
     }
 
     var saveSection: some View {
@@ -206,6 +213,7 @@ struct SessionLogView: View {
                 .foregroundColor(.secondary)
                 .font(.system(size: 13, design: .monospaced))
         }
+        .listRowBackground(Color.clear)
         .confirmationDialog("Save before leaving?", isPresented: $showGoHomeAlert, titleVisibility: .visible) {
             Button("Save to history") { save() }
             Button("Leave without saving", role: .destructive) { goHome() }
@@ -214,10 +222,6 @@ struct SessionLogView: View {
     }
 
     func goHome() {
-        // Set the flag BEFORE ending the session so LiveSessionView's
-        // sessions.count observer sees shouldReturnHome = true and skips
-        // its own dismiss(), letting the shouldReturnHome cascade handle
-        // the orderly inside-out unwinding instead.
         sessionManager.shouldReturnHome = true
         onEndSession?()
     }
@@ -259,6 +263,8 @@ struct SessionLogView: View {
         return delta > 0 ? .orange : Color(hex: "D2B96A")
     }
 }
+
+// MARK: - Shared tag components
 
 struct FlowTagRow<T: RawRepresentable & Hashable & CaseIterable>: View where T.RawValue == String {
     let tags: [T]

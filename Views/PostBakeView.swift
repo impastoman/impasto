@@ -24,16 +24,14 @@ struct PostBakeView: View {
                 photoSection
                 bakeTimeSection
             }
-            .navigationTitle("Bake results")
-            .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .fillerPaper(title: "Bake Results")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Skip") { showSessionLog = true }
-                        .foregroundColor(.secondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Next →") { showSessionLog = true }
-                        .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
             .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
@@ -101,6 +99,7 @@ struct PostBakeView: View {
                 .buttonStyle(.plain)
             }
         }
+        .listRowBackground(Color.clear)
     }
 
     var photoSection: some View {
@@ -128,6 +127,7 @@ struct PostBakeView: View {
                 Button("Choose from Library") { showLibraryPicker = true }
             }
         } header: { Text("Photo") }
+        .listRowBackground(Color.clear)
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }
 
@@ -142,6 +142,7 @@ struct PostBakeView: View {
             LabeledContent("Total bake time", value: timeString(totalBakeTime))
                 .font(.system(.body, design: .monospaced))
         }
+        .listRowBackground(Color.clear)
     }
 
     func timeString(_ t: TimeInterval) -> String {
@@ -155,6 +156,8 @@ struct PostBakeView: View {
         return String(format: "%dm %02ds", m, Int(t) % 60)
     }
 }
+
+// MARK: - Individual bake detail
 
 struct PizzaDetailView: View {
     let entry: PizzaEntry
@@ -170,6 +173,7 @@ struct PizzaDetailView: View {
                             .frame(maxWidth: .infinity)
                             .cornerRadius(8)
                     }
+                    .listRowBackground(Color.clear)
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
 
@@ -182,6 +186,7 @@ struct PizzaDetailView: View {
                     LabeledContent("Bottom", value: entry.bottomResult.rawValue)
                     LabeledContent("Top", value: entry.topResult.rawValue)
                 }
+                .listRowBackground(Color.clear)
                 .font(.system(.body, design: .monospaced))
 
                 if !entry.crustTags.isEmpty || !entry.crumbTags.isEmpty {
@@ -193,6 +198,7 @@ struct PizzaDetailView: View {
                             LabeledContent("Crumb", value: entry.crumbTags.map(\.rawValue).joined(separator: ", "))
                         }
                     }
+                    .listRowBackground(Color.clear)
                     .font(.system(.body, design: .monospaced))
                 }
 
@@ -202,10 +208,11 @@ struct PizzaDetailView: View {
                             .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
+                    .listRowBackground(Color.clear)
                 }
             }
-            .navigationTitle("Bake #\(entry.pizzaNumber)")
-            .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .fillerPaper(title: "Bake #\(entry.pizzaNumber)")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }

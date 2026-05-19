@@ -25,6 +25,7 @@ struct RecipeDetailView: View {
                 row("Autolyse", recipe.autolyse ? "\(recipe.autolyseMinutes) min" : "None")
                 row("Timeline", "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
             }
+            .listRowBackground(Color.clear)
 
             Section("Formula") {
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
@@ -35,6 +36,7 @@ struct RecipeDetailView: View {
                 row("Salt",  String(format: "%.1f%%", recipe.saltPct * 100))
                 row("Yeast", "\(recipe.yeastType.rawValue)  ·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
             }
+            .listRowBackground(Color.clear)
 
             if !recipe.flourBlend.components.isEmpty {
                 Section("Flour blend") {
@@ -46,6 +48,7 @@ struct RecipeDetailView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                .listRowBackground(Color.clear)
                 .font(.system(.body, design: .monospaced))
             }
 
@@ -53,6 +56,7 @@ struct RecipeDetailView: View {
                 row("Balls",       "\(recipe.ballCount) × \(Int(recipe.ballWeight))g")
                 row("Total dough", "\(Int(recipe.totalDoughWeight))g")
             }
+            .listRowBackground(Color.clear)
 
             if recipe.method != .direct {
                 Section("① \(recipe.method.rawValue)") {
@@ -60,6 +64,7 @@ struct RecipeDetailView: View {
                     row("Water", "\(Int(recipe.bigaWater))g")
                     row("Yeast", String(format: "%.1fg", recipe.bigaYeast))
                 }
+                .listRowBackground(Color.clear)
             }
 
             Section(recipe.method != .direct ? "② Final dough" : "Dough") {
@@ -67,6 +72,7 @@ struct RecipeDetailView: View {
                 row("Water", "\(Int(recipe.additionalWater))g")
                 row("Salt",  "\(Int(recipe.totalSalt))g")
             }
+            .listRowBackground(Color.clear)
 
             if !isReadOnly {
                 Section {
@@ -80,18 +86,21 @@ struct RecipeDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.secondary)
                 }
+                .listRowBackground(Color.clear)
             }
         }
-        .navigationTitle(recipe.name)
-        .navigationBarTitleDisplayMode(.large)
+        .scrollContentBackground(.hidden)
+        .fillerPaper(title: recipe.name)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                Button(recipe.name) {
-                    pendingName = recipe.name
-                    isRenamingTitle = true
+            if !isReadOnly {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        pendingName = recipe.name
+                        isRenamingTitle = true
+                    } label: {
+                        Image(systemName: "pencil")
+                    }
                 }
-                .font(.headline)
-                .foregroundColor(.primary)
             }
         }
         .alert("Rename Recipe", isPresented: $isRenamingTitle) {
