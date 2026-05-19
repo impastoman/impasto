@@ -1,0 +1,552 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9670CB342FBC2D77009EE043 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB132FBC2D77009EE043 /* SessionManager.swift */; };
+		9670CB352FBC2D77009EE043 /* PrefermentRecipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB062FBC2D77009EE043 /* PrefermentRecipe.swift */; };
+		9670CB362FBC2D77009EE043 /* VolumeConverterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB322FBC2D77009EE043 /* VolumeConverterView.swift */; };
+		9670CB372FBC2D77009EE043 /* FillerPaper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB0E2FBC2D77009EE043 /* FillerPaper.swift */; };
+		9670CB382FBC2D77009EE043 /* TimelineStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1F2FBC2D77009EE043 /* TimelineStepView.swift */; };
+		9670CB392FBC2D77009EE043 /* FlourBlendStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB182FBC2D77009EE043 /* FlourBlendStepView.swift */; };
+		9670CB3A2FBC2D77009EE043 /* ImpastoStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB0F2FBC2D77009EE043 /* ImpastoStyle.swift */; };
+		9670CB3B2FBC2D77009EE043 /* WaterSaltYeastStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB202FBC2D77009EE043 /* WaterSaltYeastStepView.swift */; };
+		9670CB3C2FBC2D77009EE043 /* RecipeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2F2FBC2D77009EE043 /* RecipeDetailView.swift */; };
+		9670CB3D2FBC2D77009EE043 /* RecipeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB122FBC2D77009EE043 /* RecipeStore.swift */; };
+		9670CB3E2FBC2D77009EE043 /* IngredientsChecklistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB282FBC2D77009EE043 /* IngredientsChecklistView.swift */; };
+		9670CB3F2FBC2D77009EE043 /* PreFlightData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB072FBC2D77009EE043 /* PreFlightData.swift */; };
+		9670CB402FBC2D77009EE043 /* ImportRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB272FBC2D77009EE043 /* ImportRecipeView.swift */; };
+		9670CB412FBC2D77009EE043 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB092FBC2D77009EE043 /* Recipe.swift */; };
+		9670CB422FBC2D77009EE043 /* SessionStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB0C2FBC2D77009EE043 /* SessionStage.swift */; };
+		9670CB432FBC2D77009EE043 /* BakeLogDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB242FBC2D77009EE043 /* BakeLogDetailView.swift */; };
+		9670CB442FBC2D77009EE043 /* MethodStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1A2FBC2D77009EE043 /* MethodStepView.swift */; };
+		9670CB452FBC2D77009EE043 /* StandaloneBuilders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB312FBC2D77009EE043 /* StandaloneBuilders.swift */; };
+		9670CB462FBC2D77009EE043 /* BakeSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB042FBC2D77009EE043 /* BakeSetup.swift */; };
+		9670CB472FBC2D77009EE043 /* FlourBlend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB052FBC2D77009EE043 /* FlourBlend.swift */; };
+		9670CB482FBC2D77009EE043 /* BakeLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB032FBC2D77009EE043 /* BakeLog.swift */; };
+		9670CB492FBC2D77009EE043 /* ProcessScriptStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1B2FBC2D77009EE043 /* ProcessScriptStepView.swift */; };
+		9670CB4A2FBC2D77009EE043 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB142FBC2D77009EE043 /* SessionViewModel.swift */; };
+		9670CB4B2FBC2D77009EE043 /* LiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2A2FBC2D77009EE043 /* LiveSessionView.swift */; };
+		9670CB4C2FBC2D77009EE043 /* ConfirmStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB172FBC2D77009EE043 /* ConfirmStepView.swift */; };
+		9670CB4D2FBC2D77009EE043 /* SessionLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB302FBC2D77009EE043 /* SessionLogView.swift */; };
+		9670CB4E2FBC2D77009EE043 /* SavedProcess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB0B2FBC2D77009EE043 /* SavedProcess.swift */; };
+		9670CB4F2FBC2D77009EE043 /* BakeMethodStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB162FBC2D77009EE043 /* BakeMethodStepView.swift */; };
+		9670CB502FBC2D77009EE043 /* PreFlightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2E2FBC2D77009EE043 /* PreFlightView.swift */; };
+		9670CB512FBC2D77009EE043 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB292FBC2D77009EE043 /* LibraryView.swift */; };
+		9670CB522FBC2D77009EE043 /* TechniqueStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1E2FBC2D77009EE043 /* TechniqueStepView.swift */; };
+		9670CB532FBC2D77009EE043 /* PizzaLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2C2FBC2D77009EE043 /* PizzaLogView.swift */; };
+		9670CB542FBC2D77009EE043 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB252FBC2D77009EE043 /* HistoryView.swift */; };
+		9670CB552FBC2D77009EE043 /* SavedPreferment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB0A2FBC2D77009EE043 /* SavedPreferment.swift */; };
+		9670CB562FBC2D77009EE043 /* StyleStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1C2FBC2D77009EE043 /* StyleStepView.swift */; };
+		9670CB572FBC2D77009EE043 /* ProcessCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB082FBC2D77009EE043 /* ProcessCard.swift */; };
+		9670CB582FBC2D77009EE043 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB262FBC2D77009EE043 /* HomeView.swift */; };
+		9670CB592FBC2D77009EE043 /* FlourStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB192FBC2D77009EE043 /* FlourStepView.swift */; };
+		9670CB5A2FBC2D77009EE043 /* VolumeConversionTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB102FBC2D77009EE043 /* VolumeConversionTable.swift */; };
+		9670CB5B2FBC2D77009EE043 /* WizardProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB222FBC2D77009EE043 /* WizardProgressView.swift */; };
+		9670CB5C2FBC2D77009EE043 /* WizardContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB212FBC2D77009EE043 /* WizardContainerView.swift */; };
+		9670CB5D2FBC2D77009EE043 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2B2FBC2D77009EE043 /* MainTabView.swift */; };
+		9670CB5E2FBC2D77009EE043 /* TargetStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1D2FBC2D77009EE043 /* TargetStepView.swift */; };
+		9670CB5F2FBC2D77009EE043 /* PostBakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2D2FBC2D77009EE043 /* PostBakeView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9670CAF52FBC2CCC009EE043 /* Impasto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Impasto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9670CB032FBC2D77009EE043 /* BakeLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BakeLog.swift; sourceTree = "<group>"; };
+		9670CB042FBC2D77009EE043 /* BakeSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BakeSetup.swift; sourceTree = "<group>"; };
+		9670CB052FBC2D77009EE043 /* FlourBlend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlourBlend.swift; sourceTree = "<group>"; };
+		9670CB062FBC2D77009EE043 /* PrefermentRecipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefermentRecipe.swift; sourceTree = "<group>"; };
+		9670CB072FBC2D77009EE043 /* PreFlightData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreFlightData.swift; sourceTree = "<group>"; };
+		9670CB082FBC2D77009EE043 /* ProcessCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessCard.swift; sourceTree = "<group>"; };
+		9670CB092FBC2D77009EE043 /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
+		9670CB0A2FBC2D77009EE043 /* SavedPreferment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPreferment.swift; sourceTree = "<group>"; };
+		9670CB0B2FBC2D77009EE043 /* SavedProcess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedProcess.swift; sourceTree = "<group>"; };
+		9670CB0C2FBC2D77009EE043 /* SessionStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStage.swift; sourceTree = "<group>"; };
+		9670CB0E2FBC2D77009EE043 /* FillerPaper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillerPaper.swift; sourceTree = "<group>"; };
+		9670CB0F2FBC2D77009EE043 /* ImpastoStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpastoStyle.swift; sourceTree = "<group>"; };
+		9670CB102FBC2D77009EE043 /* VolumeConversionTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeConversionTable.swift; sourceTree = "<group>"; };
+		9670CB122FBC2D77009EE043 /* RecipeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeStore.swift; sourceTree = "<group>"; };
+		9670CB132FBC2D77009EE043 /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
+		9670CB142FBC2D77009EE043 /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
+		9670CB162FBC2D77009EE043 /* BakeMethodStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BakeMethodStepView.swift; sourceTree = "<group>"; };
+		9670CB172FBC2D77009EE043 /* ConfirmStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmStepView.swift; sourceTree = "<group>"; };
+		9670CB182FBC2D77009EE043 /* FlourBlendStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlourBlendStepView.swift; sourceTree = "<group>"; };
+		9670CB192FBC2D77009EE043 /* FlourStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlourStepView.swift; sourceTree = "<group>"; };
+		9670CB1A2FBC2D77009EE043 /* MethodStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodStepView.swift; sourceTree = "<group>"; };
+		9670CB1B2FBC2D77009EE043 /* ProcessScriptStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessScriptStepView.swift; sourceTree = "<group>"; };
+		9670CB1C2FBC2D77009EE043 /* StyleStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleStepView.swift; sourceTree = "<group>"; };
+		9670CB1D2FBC2D77009EE043 /* TargetStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetStepView.swift; sourceTree = "<group>"; };
+		9670CB1E2FBC2D77009EE043 /* TechniqueStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechniqueStepView.swift; sourceTree = "<group>"; };
+		9670CB1F2FBC2D77009EE043 /* TimelineStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineStepView.swift; sourceTree = "<group>"; };
+		9670CB202FBC2D77009EE043 /* WaterSaltYeastStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterSaltYeastStepView.swift; sourceTree = "<group>"; };
+		9670CB212FBC2D77009EE043 /* WizardContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WizardContainerView.swift; sourceTree = "<group>"; };
+		9670CB222FBC2D77009EE043 /* WizardProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WizardProgressView.swift; sourceTree = "<group>"; };
+		9670CB242FBC2D77009EE043 /* BakeLogDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BakeLogDetailView.swift; sourceTree = "<group>"; };
+		9670CB252FBC2D77009EE043 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		9670CB262FBC2D77009EE043 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		9670CB272FBC2D77009EE043 /* ImportRecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportRecipeView.swift; sourceTree = "<group>"; };
+		9670CB282FBC2D77009EE043 /* IngredientsChecklistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientsChecklistView.swift; sourceTree = "<group>"; };
+		9670CB292FBC2D77009EE043 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		9670CB2A2FBC2D77009EE043 /* LiveSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSessionView.swift; sourceTree = "<group>"; };
+		9670CB2B2FBC2D77009EE043 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		9670CB2C2FBC2D77009EE043 /* PizzaLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PizzaLogView.swift; sourceTree = "<group>"; };
+		9670CB2D2FBC2D77009EE043 /* PostBakeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostBakeView.swift; sourceTree = "<group>"; };
+		9670CB2E2FBC2D77009EE043 /* PreFlightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreFlightView.swift; sourceTree = "<group>"; };
+		9670CB2F2FBC2D77009EE043 /* RecipeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDetailView.swift; sourceTree = "<group>"; };
+		9670CB302FBC2D77009EE043 /* SessionLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLogView.swift; sourceTree = "<group>"; };
+		9670CB312FBC2D77009EE043 /* StandaloneBuilders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandaloneBuilders.swift; sourceTree = "<group>"; };
+		9670CB322FBC2D77009EE043 /* VolumeConverterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeConverterView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		9670CAF72FBC2CCC009EE043 /* Impasto */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Impasto;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9670CAF22FBC2CCC009EE043 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9670CAEC2FBC2CCC009EE043 = {
+			isa = PBXGroup;
+			children = (
+				9670CAF72FBC2CCC009EE043 /* Impasto */,
+				9670CAF62FBC2CCC009EE043 /* Products */,
+				9670CB0D2FBC2D77009EE043 /* Models */,
+				9670CB112FBC2D77009EE043 /* Shared */,
+				9670CB152FBC2D77009EE043 /* ViewModels */,
+				9670CB332FBC2D77009EE043 /* Views */,
+			);
+			sourceTree = "<group>";
+		};
+		9670CAF62FBC2CCC009EE043 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9670CAF52FBC2CCC009EE043 /* Impasto.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9670CB0D2FBC2D77009EE043 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9670CB032FBC2D77009EE043 /* BakeLog.swift */,
+				9670CB042FBC2D77009EE043 /* BakeSetup.swift */,
+				9670CB052FBC2D77009EE043 /* FlourBlend.swift */,
+				9670CB062FBC2D77009EE043 /* PrefermentRecipe.swift */,
+				9670CB072FBC2D77009EE043 /* PreFlightData.swift */,
+				9670CB082FBC2D77009EE043 /* ProcessCard.swift */,
+				9670CB092FBC2D77009EE043 /* Recipe.swift */,
+				9670CB0A2FBC2D77009EE043 /* SavedPreferment.swift */,
+				9670CB0B2FBC2D77009EE043 /* SavedProcess.swift */,
+				9670CB0C2FBC2D77009EE043 /* SessionStage.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		9670CB112FBC2D77009EE043 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				9670CB0E2FBC2D77009EE043 /* FillerPaper.swift */,
+				9670CB0F2FBC2D77009EE043 /* ImpastoStyle.swift */,
+				9670CB102FBC2D77009EE043 /* VolumeConversionTable.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		9670CB152FBC2D77009EE043 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				9670CB122FBC2D77009EE043 /* RecipeStore.swift */,
+				9670CB132FBC2D77009EE043 /* SessionManager.swift */,
+				9670CB142FBC2D77009EE043 /* SessionViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		9670CB232FBC2D77009EE043 /* Wizard */ = {
+			isa = PBXGroup;
+			children = (
+				9670CB162FBC2D77009EE043 /* BakeMethodStepView.swift */,
+				9670CB172FBC2D77009EE043 /* ConfirmStepView.swift */,
+				9670CB182FBC2D77009EE043 /* FlourBlendStepView.swift */,
+				9670CB192FBC2D77009EE043 /* FlourStepView.swift */,
+				9670CB1A2FBC2D77009EE043 /* MethodStepView.swift */,
+				9670CB1B2FBC2D77009EE043 /* ProcessScriptStepView.swift */,
+				9670CB1C2FBC2D77009EE043 /* StyleStepView.swift */,
+				9670CB1D2FBC2D77009EE043 /* TargetStepView.swift */,
+				9670CB1E2FBC2D77009EE043 /* TechniqueStepView.swift */,
+				9670CB1F2FBC2D77009EE043 /* TimelineStepView.swift */,
+				9670CB202FBC2D77009EE043 /* WaterSaltYeastStepView.swift */,
+				9670CB212FBC2D77009EE043 /* WizardContainerView.swift */,
+				9670CB222FBC2D77009EE043 /* WizardProgressView.swift */,
+			);
+			path = Wizard;
+			sourceTree = "<group>";
+		};
+		9670CB332FBC2D77009EE043 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9670CB232FBC2D77009EE043 /* Wizard */,
+				9670CB242FBC2D77009EE043 /* BakeLogDetailView.swift */,
+				9670CB252FBC2D77009EE043 /* HistoryView.swift */,
+				9670CB262FBC2D77009EE043 /* HomeView.swift */,
+				9670CB272FBC2D77009EE043 /* ImportRecipeView.swift */,
+				9670CB282FBC2D77009EE043 /* IngredientsChecklistView.swift */,
+				9670CB292FBC2D77009EE043 /* LibraryView.swift */,
+				9670CB2A2FBC2D77009EE043 /* LiveSessionView.swift */,
+				9670CB2B2FBC2D77009EE043 /* MainTabView.swift */,
+				9670CB2C2FBC2D77009EE043 /* PizzaLogView.swift */,
+				9670CB2D2FBC2D77009EE043 /* PostBakeView.swift */,
+				9670CB2E2FBC2D77009EE043 /* PreFlightView.swift */,
+				9670CB2F2FBC2D77009EE043 /* RecipeDetailView.swift */,
+				9670CB302FBC2D77009EE043 /* SessionLogView.swift */,
+				9670CB312FBC2D77009EE043 /* StandaloneBuilders.swift */,
+				9670CB322FBC2D77009EE043 /* VolumeConverterView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9670CAF42FBC2CCC009EE043 /* Impasto */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9670CB002FBC2CCE009EE043 /* Build configuration list for PBXNativeTarget "Impasto" */;
+			buildPhases = (
+				9670CAF12FBC2CCC009EE043 /* Sources */,
+				9670CAF22FBC2CCC009EE043 /* Frameworks */,
+				9670CAF32FBC2CCC009EE043 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9670CAF72FBC2CCC009EE043 /* Impasto */,
+			);
+			name = Impasto;
+			packageProductDependencies = (
+			);
+			productName = Impasto;
+			productReference = 9670CAF52FBC2CCC009EE043 /* Impasto.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9670CAED2FBC2CCC009EE043 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					9670CAF42FBC2CCC009EE043 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+				};
+			};
+			buildConfigurationList = 9670CAF02FBC2CCC009EE043 /* Build configuration list for PBXProject "Impasto" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9670CAEC2FBC2CCC009EE043;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9670CAF62FBC2CCC009EE043 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9670CAF42FBC2CCC009EE043 /* Impasto */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9670CAF32FBC2CCC009EE043 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9670CAF12FBC2CCC009EE043 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9670CB342FBC2D77009EE043 /* SessionManager.swift in Sources */,
+				9670CB352FBC2D77009EE043 /* PrefermentRecipe.swift in Sources */,
+				9670CB362FBC2D77009EE043 /* VolumeConverterView.swift in Sources */,
+				9670CB372FBC2D77009EE043 /* FillerPaper.swift in Sources */,
+				9670CB382FBC2D77009EE043 /* TimelineStepView.swift in Sources */,
+				9670CB392FBC2D77009EE043 /* FlourBlendStepView.swift in Sources */,
+				9670CB3A2FBC2D77009EE043 /* ImpastoStyle.swift in Sources */,
+				9670CB3B2FBC2D77009EE043 /* WaterSaltYeastStepView.swift in Sources */,
+				9670CB3C2FBC2D77009EE043 /* RecipeDetailView.swift in Sources */,
+				9670CB3D2FBC2D77009EE043 /* RecipeStore.swift in Sources */,
+				9670CB3E2FBC2D77009EE043 /* IngredientsChecklistView.swift in Sources */,
+				9670CB3F2FBC2D77009EE043 /* PreFlightData.swift in Sources */,
+				9670CB402FBC2D77009EE043 /* ImportRecipeView.swift in Sources */,
+				9670CB412FBC2D77009EE043 /* Recipe.swift in Sources */,
+				9670CB422FBC2D77009EE043 /* SessionStage.swift in Sources */,
+				9670CB432FBC2D77009EE043 /* BakeLogDetailView.swift in Sources */,
+				9670CB442FBC2D77009EE043 /* MethodStepView.swift in Sources */,
+				9670CB452FBC2D77009EE043 /* StandaloneBuilders.swift in Sources */,
+				9670CB462FBC2D77009EE043 /* BakeSetup.swift in Sources */,
+				9670CB472FBC2D77009EE043 /* FlourBlend.swift in Sources */,
+				9670CB482FBC2D77009EE043 /* BakeLog.swift in Sources */,
+				9670CB492FBC2D77009EE043 /* ProcessScriptStepView.swift in Sources */,
+				9670CB4A2FBC2D77009EE043 /* SessionViewModel.swift in Sources */,
+				9670CB4B2FBC2D77009EE043 /* LiveSessionView.swift in Sources */,
+				9670CB4C2FBC2D77009EE043 /* ConfirmStepView.swift in Sources */,
+				9670CB4D2FBC2D77009EE043 /* SessionLogView.swift in Sources */,
+				9670CB4E2FBC2D77009EE043 /* SavedProcess.swift in Sources */,
+				9670CB4F2FBC2D77009EE043 /* BakeMethodStepView.swift in Sources */,
+				9670CB502FBC2D77009EE043 /* PreFlightView.swift in Sources */,
+				9670CB512FBC2D77009EE043 /* LibraryView.swift in Sources */,
+				9670CB522FBC2D77009EE043 /* TechniqueStepView.swift in Sources */,
+				9670CB532FBC2D77009EE043 /* PizzaLogView.swift in Sources */,
+				9670CB542FBC2D77009EE043 /* HistoryView.swift in Sources */,
+				9670CB552FBC2D77009EE043 /* SavedPreferment.swift in Sources */,
+				9670CB562FBC2D77009EE043 /* StyleStepView.swift in Sources */,
+				9670CB572FBC2D77009EE043 /* ProcessCard.swift in Sources */,
+				9670CB582FBC2D77009EE043 /* HomeView.swift in Sources */,
+				9670CB592FBC2D77009EE043 /* FlourStepView.swift in Sources */,
+				9670CB5A2FBC2D77009EE043 /* VolumeConversionTable.swift in Sources */,
+				9670CB5B2FBC2D77009EE043 /* WizardProgressView.swift in Sources */,
+				9670CB5C2FBC2D77009EE043 /* WizardContainerView.swift in Sources */,
+				9670CB5D2FBC2D77009EE043 /* MainTabView.swift in Sources */,
+				9670CB5E2FBC2D77009EE043 /* TargetStepView.swift in Sources */,
+				9670CB5F2FBC2D77009EE043 /* PostBakeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9670CAFE2FBC2CCE009EE043 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		9670CAFF2FBC2CCE009EE043 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9670CB012FBC2CCE009EE043 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = perfectlygoodpizza.Impasto;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9670CB022FBC2CCE009EE043 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = perfectlygoodpizza.Impasto;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9670CAF02FBC2CCC009EE043 /* Build configuration list for PBXProject "Impasto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9670CAFE2FBC2CCE009EE043 /* Debug */,
+				9670CAFF2FBC2CCE009EE043 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9670CB002FBC2CCE009EE043 /* Build configuration list for PBXNativeTarget "Impasto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9670CB012FBC2CCE009EE043 /* Debug */,
+				9670CB022FBC2CCE009EE043 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9670CAED2FBC2CCC009EE043 /* Project object */;
+}
