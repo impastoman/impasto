@@ -285,15 +285,10 @@ struct ProcessCardRow: View {
                             .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(.secondary)
                         Spacer()
-                        TextField("0", value: Binding(
-                            get: { Int(card.duration / 60) },
-                            set: { card.customDuration = Double($0) * 60 }
-                        ), format: .number)
-                        .keyboardType(.numberPad)
-                        .frame(width: 52)
-                        .font(.system(size: 13, design: .monospaced))
-                        .multilineTextAlignment(.trailing)
-                        Text("min").font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
+                        DurationField(seconds: Binding(
+                            get: { card.duration },
+                            set: { card.customDuration = $0 }
+                        ))
                     }
 
                     if card.type == .bassinage {
@@ -345,7 +340,11 @@ struct ProcessCardRow: View {
     }
 
     func shortDuration(_ t: TimeInterval) -> String {
-        let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60
+        if t >= 86_400 {
+            let d = Int(t) / 86_400; let h = (Int(t) % 86_400) / 3_600
+            return h > 0 ? "\(d)d \(h)h" : "\(d)d"
+        }
+        let h = Int(t) / 3_600; let m = (Int(t) % 3_600) / 60
         if h > 0 { return "\(h)h \(m)m" }
         return "\(m)m"
     }
@@ -387,6 +386,72 @@ struct AddStepSheet: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
                 }
+            }
+        }
+    }
+}
+
+// MARK: - Shared duration input (number field + min/hr/day unit picker)
+
+struct DurationField: View {
+    @Binding var seconds: Double
+    var valueColor: Color = .primary
+
+    enum DurUnit: String, CaseIterable {
+        case min, hr, day
+
+        func toSeconds(_ v: Int) -> Double {
+            switch self {
+            case .min: return Double(v) * 60
+            case .hr:  return Double(v) * 3_600
+            case .day: return Double(v) * 86_400
+            }
+        }
+        func fromSeconds(_ s: Double) -> Int {
+            switch self {
+            case .min: return max(0, Int(s / 60))
+            case .hr:  return max(0, Int(s / 3_600))
+            case .day: return max(0, Int(s / 86_400))
+            }
+        }
+        static func best(for s: Double) -> DurUnit {
+            if s >= 86_400 { return .day }
+            if s >= 3_600  { return .hr }
+            return .min
+        }
+    }
+
+    @State private var unit: DurUnit
+    @State private var value: Int
+
+    init(seconds: Binding<Double>, valueColor: Color = .primary) {
+        _seconds = seconds
+        self.valueColor = valueColor
+        let best = DurUnit.best(for: seconds.wrappedValue)
+        _unit  = State(initialValue: best)
+        _value = State(initialValue: best.fromSeconds(seconds.wrappedValue))
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            TextField("0", value: $value, format: .number)
+                .keyboardType(.numberPad)
+                .frame(width: 44)
+                .font(.system(size: 13, design: .monospaced))
+                .multilineTextAlignment(.trailing)
+                .foregroundColor(valueColor)
+                .onChange(of: value) { _, v in
+                    seconds = unit.toSeconds(v)
+                }
+            Picker("", selection: $unit) {
+                ForEach(DurUnit.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 120)
+            .onChange(of: unit) { _, u in
+                let converted = u.fromSeconds(seconds)
+                value = converted
+                seconds = u.toSeconds(converted)
             }
         }
     }

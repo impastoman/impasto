@@ -433,17 +433,14 @@ struct SessionProcessEditorSheet: View {
                             }
                             Spacer()
                             if card.duration > 0 {
-                                TextField("", value: Binding(
-                                    get: { Int((overrides[card.id.uuidString] ?? card.duration) / 60) },
-                                    set: { overrides[card.id.uuidString] = Double($0) * 60 }
-                                ), format: .number)
-                                    .keyboardType(.numberPad)
-                                    .multilineTextAlignment(.center)
-                                    .frame(width: 52)
-                                    .font(.system(.body, design: .monospaced))
-                                    .foregroundColor(overrides[card.id.uuidString] != nil ? Color(hex: "D2B96A") : .primary)
-                                    .inputBox()
-                                Text("min").foregroundColor(.secondary).font(.caption)
+                                DurationField(
+                                    seconds: Binding(
+                                        get: { overrides[card.id.uuidString] ?? card.duration },
+                                        set: { overrides[card.id.uuidString] = $0 }
+                                    ),
+                                    valueColor: overrides[card.id.uuidString] != nil
+                                        ? Color(hex: "D2B96A") : .primary
+                                )
                             } else {
                                 Text("action").font(.caption).foregroundColor(.secondary)
                             }
