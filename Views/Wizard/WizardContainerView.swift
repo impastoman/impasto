@@ -152,10 +152,14 @@ struct WizardContainerView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                FillerPaperHeaderBand(title: wizardModeTitle)
-                ZStack(alignment: .topLeading) {
-                RuledPaperBackground()
+            ZStack(alignment: .leading) {
+                Color.paperWhite.ignoresSafeArea()
+                // Fixed red margin line — decorative, mirrors the filler paper aesthetic
+                Rectangle()
+                    .fill(Color.paperMargin)
+                    .frame(width: 1.2)
+                    .padding(.leading, 12)
+                    .ignoresSafeArea()
                 Group {
                     switch step {
                     case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
@@ -216,8 +220,8 @@ struct WizardContainerView: View {
                     default: EmptyView()
                     }
                 }
-                }
             }
+            .environment(\.wizardTitle, wizardModeTitle)
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Color.paperHeader, for: .navigationBar)

@@ -166,6 +166,18 @@ extension View {
     }
 }
 
+// MARK: - Wizard title environment key
+
+private struct WizardTitleKey: EnvironmentKey {
+    static let defaultValue: String = ""
+}
+extension EnvironmentValues {
+    var wizardTitle: String {
+        get { self[WizardTitleKey.self] }
+        set { self[WizardTitleKey.self] = newValue }
+    }
+}
+
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
