@@ -8,7 +8,6 @@ struct SessionLogView: View {
     let crustColor: CrustColor
     let bottomResult: BottomResult
     let topResult: TopResult
-    let photos: [Data]
 
     @EnvironmentObject var store: RecipeStore
     @EnvironmentObject var sessionManager: SessionManager
@@ -19,6 +18,16 @@ struct SessionLogView: View {
     @State private var rating = 3
     @State private var showGoHomeAlert = false
     @State private var notes = ""
+
+    // Aggregated session gallery: starts with every photo across every
+    // logged bake plus whatever the user already added in PostBakeView,
+    // then the user can reorder, delete, or add more here. The first
+    // photo becomes the session's cover thumbnail.
+    @State private var aggregatedPhotos: [Data]
+    @State private var pendingPhoto: Data? = nil
+    @State private var showPhotoOptions = false
+    @State private var showCamera = false
+    @State private var showLibraryPicker = false
 
     init(vm: SessionViewModel, recipe: Recipe,
          bakeTimeSeconds: TimeInterval = 0,
@@ -35,14 +44,24 @@ struct SessionLogView: View {
         self.crustColor = crustColor
         self.bottomResult = bottomResult
         self.topResult = topResult
-        self.photos = photos
         self.onEndSession = onEndSession
+
+        // Merge: every per-bake photo (in pizza order) followed by the
+        // session-level photos already added in PostBakeView. Deduplicate
+        // by Data equality so a photo added once doesn't appear twice.
+        var seen: [Data] = []
+        for entry in vm.pizzaEntries {
+            for d in entry.displayPhotos where !seen.contains(d) { seen.append(d) }
+        }
+        for d in photos where !seen.contains(d) { seen.append(d) }
+        _aggregatedPhotos = State(initialValue: seen)
     }
 
     var body: some View {
         NavigationStack {
             List {
                 ratingSection
+                photoSection
                 stageReportSection
                 pauseSection
                 fermentSection
@@ -53,10 +72,45 @@ struct SessionLogView: View {
             .scrollContentBackground(.hidden)
             .navigationTitle("How'd it go?")
             .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
+                Button("Take Photo") { showCamera = true }
+                Button("Choose from Library") { showLibraryPicker = true }
+            }
+            .sheet(isPresented: $showCamera) { CameraPickerView(imageData: $pendingPhoto) }
+            .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $pendingPhoto) }
+        }
+        .onChange(of: pendingPhoto) { _, data in
+            if let d = data { aggregatedPhotos.append(d); pendingPhoto = nil }
         }
         .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
             if isTrue { dismiss() }
         }
+    }
+
+    var photoSection: some View {
+        Section {
+            if aggregatedPhotos.isEmpty {
+                Button { showPhotoOptions = true } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "photo.badge.plus").foregroundColor(Color(hex: "D2B96A"))
+                        Text("Add a session photo")
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(Color(hex: "D2B96A"))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 6)
+                }
+                .buttonStyle(.plain)
+            } else {
+                PhotoGalleryView(
+                    photos: $aggregatedPhotos,
+                    onAdd: { showPhotoOptions = true }
+                )
+            }
+        } header: { Text("Session photos") }
+          footer: { Text("Every photo from every bake is collected here. Drag to reorder — the first photo becomes the session thumbnail. Add more to capture the whole session.").font(.system(size: 11, design: .monospaced)).tipText() }
+        .listRowBackground(Color.clear)
+        .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }
 
     var ratingSection: some View {
@@ -260,7 +314,7 @@ struct SessionLogView: View {
             crustColor: crustColor,
             bottomResult: bottomResult,
             topResult: topResult,
-            photos: photos
+            photos: aggregatedPhotos
         )
         store.addBakeLog(log, to: recipe.id)
         goHome()

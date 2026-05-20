@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BakeLogDetailView: View {
-    let log: BakeLog
+    @State private var log: BakeLog
     let recipe: Recipe
     @EnvironmentObject var store: RecipeStore
 
@@ -12,7 +12,7 @@ struct BakeLogDetailView: View {
     @State private var showForkWizard = false
 
     init(log: BakeLog, recipe: Recipe) {
-        self.log = log
+        _log = State(initialValue: log)
         self.recipe = recipe
         _annotatedRating = State(initialValue: log.annotatedRating ?? log.rating)
         _annotatedNotes = State(initialValue: log.annotatedNotes)
@@ -32,6 +32,13 @@ struct BakeLogDetailView: View {
         }
         .navigationTitle(recipe.name)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            // Promote legacy single-photo logs into the photos array so the
+            // gallery can show + reorder them. Persisted on first reorder.
+            if log.photos.isEmpty, let legacy = log.photoData {
+                log.photos = [legacy]
+            }
+        }
         .sheet(isPresented: $showForkWizard) {
             let forked = forkedRecipe()
             WizardContainerView(mode: .fork(forked)) { newRecipe in
@@ -46,25 +53,23 @@ struct BakeLogDetailView: View {
 
     var asBakedTab: some View {
         List {
-            let displayPhotos: [Data] = log.photos.isEmpty
-                ? [log.photoData].compactMap { $0 }
-                : log.photos
-            if !displayPhotos.isEmpty {
+            if !log.photos.isEmpty {
                 Section {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
-                            ForEach(Array(displayPhotos.enumerated()), id: \.offset) { _, data in
-                                if let uiImage = UIImage(data: data) {
-                                    Image(uiImage: uiImage)
-                                        .resizable().scaledToFill()
-                                        .frame(width: 160, height: 160)
-                                        .clipped().cornerRadius(8)
-                                }
+                    PhotoGalleryView(
+                        photos: Binding(
+                            get: { log.photos },
+                            set: { newValue in
+                                log.photos = newValue
+                                log.photoData = newValue.first   // keep legacy cover in sync
+                                store.updateBakeLog(log, recipeId: recipe.id)
                             }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
+                        ),
+                        isEditable: false,
+                        allowsReorder: true,
+                        thumbnailSize: 140
+                    )
+                } header: { Text("Photos") }
+                  footer: { Text("Drag to reorder. The first photo is this bake's main thumbnail.").font(.system(size: 11, design: .monospaced)).tipText() }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
             }

@@ -13,8 +13,15 @@ struct PizzaEntry: Identifiable, Codable {
     var customCrustTags: [String] = []
     var customCrumbTags: [String] = []
     var notes: String = ""
-    var photoData: Data?
+    var photoData: Data?            // legacy — first photo for backward compat
+    var photos: [Data] = []         // first is the main thumbnail
     var loggedAt: Date = Date()
+
+    /// Photos to render. Prefers the new `photos` array; falls back to legacy
+    /// `photoData` if a pre-multi-photo entry was decoded.
+    var displayPhotos: [Data] {
+        photos.isEmpty ? [photoData].compactMap { $0 } : photos
+    }
 }
 
 struct BakeLog: Identifiable, Codable {
@@ -50,6 +57,12 @@ struct BakeLog: Identifiable, Codable {
     // Annotated (post-session reflection)
     var annotatedNotes: String = ""
     var annotatedRating: Int? = nil
+
+    /// Session-level photos to render. Prefers `photos`; falls back to legacy
+    /// `photoData`. First photo is the session's cover thumbnail.
+    var displayPhotos: [Data] {
+        photos.isEmpty ? [photoData].compactMap { $0 } : photos
+    }
 }
 
 enum SessionMode: String, Codable {

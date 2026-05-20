@@ -75,7 +75,7 @@ struct PostBakeView: View {
                     selectedPizza = entry
                 } label: {
                     HStack(spacing: 12) {
-                        if let data = entry.photoData, let img = UIImage(data: data) {
+                        if let data = entry.displayPhotos.first, let img = UIImage(data: data) {
                             Image(uiImage: img)
                                 .resizable().scaledToFill()
                                 .frame(width: 52, height: 52)
@@ -191,13 +191,14 @@ struct PizzaDetailView: View {
     var body: some View {
         NavigationStack {
             List {
-                if let data = entry.photoData, let img = UIImage(data: data) {
+                if !entry.displayPhotos.isEmpty {
                     Section {
-                        Image(uiImage: img)
-                            .resizable().scaledToFit()
-                            .frame(maxWidth: .infinity)
-                            .cornerRadius(8)
-                    }
+                        PhotoGalleryView(
+                            photos: .constant(entry.displayPhotos),
+                            isEditable: false,
+                            allowsReorder: false
+                        )
+                    } header: { Text("Photos") }
                     .listRowBackground(Color.clear)
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }

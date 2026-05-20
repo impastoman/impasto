@@ -189,3 +189,103 @@ extension View {
         if condition { transform(self) } else { self }
     }
 }
+
+// MARK: - Photo gallery (multi-photo with drag-to-reorder + cover badge)
+//
+// Used in PizzaLogView, PizzaDetailView, BakeLogDetailView, and SessionLogView.
+// The first photo (index 0) is treated as the "main thumbnail" / cover and
+// gets a gold MAIN badge. Drag any photo onto another to reorder; drop on the
+// first slot to make it the cover.
+
+struct PhotoGalleryView: View {
+    @Binding var photos: [Data]
+    /// Show per-photo delete (xmark) buttons + the trailing "+ Add" tile.
+    var isEditable: Bool = true
+    /// Allow drag-to-reorder.
+    var allowsReorder: Bool = true
+    /// Tap-target for the "+ Add" tile. If nil and isEditable is true, no add tile shows.
+    var onAdd: (() -> Void)? = nil
+    var thumbnailSize: CGFloat = 100
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(Array(photos.enumerated()), id: \.offset) { idx, data in
+                    if let uiImage = UIImage(data: data) {
+                        photoTile(uiImage: uiImage, idx: idx)
+                    }
+                }
+                if isEditable, let onAdd = onAdd {
+                    addTile(onTap: onAdd)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    @ViewBuilder
+    private func photoTile(uiImage: UIImage, idx: Int) -> some View {
+        ZStack(alignment: .topTrailing) {
+            ZStack(alignment: .bottomLeading) {
+                Image(uiImage: uiImage)
+                    .resizable().scaledToFill()
+                    .frame(width: thumbnailSize, height: thumbnailSize)
+                    .clipped()
+                    .cornerRadius(8)
+                if idx == 0 && photos.count > 1 {
+                    Text("MAIN")
+                        .font(.system(size: 9, design: .monospaced))
+                        .tracking(1)
+                        .padding(.horizontal, 5).padding(.vertical, 2)
+                        .background(Color(hex: "D2B96A"))
+                        .foregroundColor(.white)
+                        .cornerRadius(3)
+                        .padding(5)
+                }
+            }
+            if isEditable {
+                Button { photos.remove(at: idx) } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.white, Color.black.opacity(0.55))
+                }
+                .padding(4)
+            }
+        }
+        .if(allowsReorder) { tile in
+            tile.draggable("\(idx)")
+        }
+        .if(allowsReorder) { tile in
+            tile.dropDestination(for: String.self) { items, _ in
+                guard let srcStr = items.first, let srcIdx = Int(srcStr) else { return false }
+                movePhoto(from: srcIdx, to: idx)
+                return true
+            }
+        }
+    }
+
+    private func addTile(onTap: @escaping () -> Void) -> some View {
+        Button(action: onTap) {
+            VStack(spacing: 6) {
+                Image(systemName: "plus")
+                    .font(.system(size: 22))
+                    .foregroundColor(Color(hex: "D2B96A"))
+                Text("Add")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(Color(hex: "D2B96A"))
+            }
+            .frame(width: thumbnailSize, height: thumbnailSize)
+            .background(Color(hex: "D2B96A").opacity(0.08))
+            .cornerRadius(8)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "D2B96A").opacity(0.3), lineWidth: 1))
+        }
+    }
+
+    private func movePhoto(from src: Int, to dst: Int) {
+        guard src != dst,
+              photos.indices.contains(src),
+              photos.indices.contains(dst) else { return }
+        let item = photos.remove(at: src)
+        photos.insert(item, at: dst)
+    }
+}

@@ -22,7 +22,8 @@ struct PizzaLogView: View {
     @State private var newTagText = ""
     @State private var notes = ""
     @State private var ovenTempInput = ""
-    @State private var photoData: Data? = nil
+    @State private var photos: [Data] = []
+    @State private var pendingPhoto: Data? = nil   // bridge to single-image pickers
     @State private var showPhotoOptions = false
     @State private var showCamera = false
     @State private var showLibraryPicker = false
@@ -41,8 +42,11 @@ struct PizzaLogView: View {
             .navigationTitle("Log Bake #\(vm.pizzaEntries.count + 1)")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { snapshotBakeTime = vm.bakeElapsed }
-            .sheet(isPresented: $showCamera) { CameraPickerView(imageData: $photoData) }
-            .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $photoData) }
+            .onChange(of: pendingPhoto) { _, data in
+                if let d = data { photos.append(d); pendingPhoto = nil }
+            }
+            .sheet(isPresented: $showCamera) { CameraPickerView(imageData: $pendingPhoto) }
+            .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $pendingPhoto) }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("← Back") {
@@ -63,29 +67,16 @@ struct PizzaLogView: View {
 
     var photoSection: some View {
         Section {
-            Button { showPhotoOptions = true } label: {
-                if let photoData, let uiImage = UIImage(data: photoData) {
-                    Image(uiImage: uiImage)
-                        .resizable().scaledToFill()
-                        .frame(maxWidth: .infinity).frame(height: 180)
-                        .clipped().cornerRadius(6)
-                } else {
-                    HStack {
-                        Image(systemName: "camera").foregroundColor(Color(hex: "D2B96A"))
-                        Text("Add a photo")
-                            .font(.system(.body, design: .monospaced))
-                            .foregroundColor(Color(hex: "D2B96A"))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 8)
-                }
-            }
-            .buttonStyle(.plain)
+            PhotoGalleryView(
+                photos: $photos,
+                onAdd: { showPhotoOptions = true }
+            )
             .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
                 Button("Take Photo") { showCamera = true }
                 Button("Choose from Library") { showLibraryPicker = true }
             }
-        } header: { Text("Photo") }
+        } header: { Text("Photos") }
+        .listRowBackground(Color.clear)
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }
 
@@ -242,7 +233,8 @@ struct PizzaLogView: View {
             customCrustTags: Array(customCrustTags),
             customCrumbTags: Array(customCrumbTags),
             notes: notes,
-            photoData: photoData
+            photoData: photos.first,     // legacy mirror
+            photos: photos
         )
         vm.logPizza(entry)
     }
