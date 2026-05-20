@@ -51,7 +51,11 @@ struct LibraryView: View {
                     sectionView(for: section)
                 }
             }
-            .environment(\.editMode, .constant(isReordering ? .active : .inactive))
+            // EditMode is intentionally NOT toggled here. EditMode.active
+            // captures gestures on row bodies (for the right-edge handles
+            // and selection), which prevents .draggable from initiating a
+            // system drag. We use drag-and-drop instead — long-press a row
+            // in reorder mode to drag it onto a folder or section header.
             .navigationTitle("Library")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -367,9 +371,9 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
-                        .dropDestination(for: String.self) { items, _ in
-                            handleRecipeDrop(items: items, toFolder: folder)
-                        }
+                }
+                .dropDestination(for: String.self) { items, _ in
+                    handleRecipeDrop(items: items, toFolder: folder)
                 }
             }
 
@@ -422,9 +426,9 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
-                        .dropDestination(for: String.self) { items, _ in
-                            handleBlendDrop(items: items, toFolder: folder)
-                        }
+                }
+                .dropDestination(for: String.self) { items, _ in
+                    handleBlendDrop(items: items, toFolder: folder)
                 }
             }
 
@@ -508,9 +512,9 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
-                        .dropDestination(for: String.self) { items, _ in
-                            handleProcessDrop(items: items, toFolder: folder)
-                        }
+                }
+                .dropDestination(for: String.self) { items, _ in
+                    handleProcessDrop(items: items, toFolder: folder)
                 }
             }
 
@@ -594,9 +598,9 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
-                        .dropDestination(for: String.self) { items, _ in
-                            handlePrefermentDrop(items: items, toFolder: folder)
-                        }
+                }
+                .dropDestination(for: String.self) { items, _ in
+                    handlePrefermentDrop(items: items, toFolder: folder)
                 }
             }
 
