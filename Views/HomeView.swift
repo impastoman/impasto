@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
     @State private var showImportRecipe = false
+    @State private var showSettings = false
 
     private let appVersion = "0.9"
 
@@ -41,8 +42,19 @@ struct HomeView: View {
     }
 
     var launch: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             Color(hex: "F5F1E8").ignoresSafeArea()
+
+            if splashDone {
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 18))
+                        .foregroundColor(Color(hex: "9A9688"))
+                        .padding(12)
+                }
+                .padding(.trailing, 8)
+                .padding(.top, 8)
+            }
 
             VStack(spacing: 16) {
                 Spacer()
@@ -169,6 +181,9 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showImportRecipe) {
             ImportRecipeView().environmentObject(store)
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
         .sheet(isPresented: $showStartDough) {
             StartDoughView()
