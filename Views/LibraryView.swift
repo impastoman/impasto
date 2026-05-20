@@ -281,6 +281,30 @@ struct LibraryView: View {
         return true
     }
 
+    func handleBlendDrop(items: [String], toFolder folder: String) -> Bool {
+        guard let id = items.first.flatMap(UUID.init),
+              let b = store.savedBlends.first(where: { $0.id == id })
+        else { return false }
+        store.moveBlendToFolder(b, folder: folder)
+        return true
+    }
+
+    func handleProcessDrop(items: [String], toFolder folder: String) -> Bool {
+        guard let id = items.first.flatMap(UUID.init),
+              let p = store.savedProcesses.first(where: { $0.id == id })
+        else { return false }
+        store.moveProcessToFolder(p, folder: folder)
+        return true
+    }
+
+    func handlePrefermentDrop(items: [String], toFolder folder: String) -> Bool {
+        guard let id = items.first.flatMap(UUID.init),
+              let p = store.savedPreferments.first(where: { $0.id == id })
+        else { return false }
+        store.movePrefermentToFolder(p, folder: folder)
+        return true
+    }
+
     @ViewBuilder
     var recipesSection: some View {
         let grouped    = Dictionary(grouping: store.recipes) { $0.folderName }
@@ -364,19 +388,30 @@ struct LibraryView: View {
         let allFolders = Array(Set(store.blendFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        Section(header: sectionTypeHeader("Flour Blends")) {
+        Section(header:
+            sectionTypeHeader("Flour Blends")
+                .dropDestination(for: String.self) { items, _ in
+                    handleBlendDrop(items: items, toFolder: "")
+                }
+        ) {
             if store.savedBlends.isEmpty && allFolders.isEmpty {
                 Text("No saved blends yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-            ForEach(unfoldered) { blend in blendRow(blend) }
-                .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
+            ForEach(unfoldered) { blend in
+                blendRow(blend)
+                    .if(isReordering) { $0.draggable(blend.id.uuidString) }
+            }
+            .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
                 DisclosureGroup {
-                    ForEach(grouped[folder] ?? []) { blend in blendRow(blend) }
-                        .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
+                    ForEach(grouped[folder] ?? []) { blend in
+                        blendRow(blend)
+                            .if(isReordering) { $0.draggable(blend.id.uuidString) }
+                    }
+                    .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
                         .font(.system(.body, design: .monospaced))
@@ -385,7 +420,17 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
+                        .dropDestination(for: String.self) { items, _ in
+                            handleBlendDrop(items: items, toFolder: folder)
+                        }
                 }
+            }
+
+            if isReordering && !allFolders.isEmpty {
+                Text("Drag a blend onto a folder to move it in. Drop on the \"Flour Blends\" header to take it out.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .listRowBackground(Color.clear)
             }
         }
     }
@@ -427,19 +472,30 @@ struct LibraryView: View {
         let allFolders = Array(Set(store.processFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        Section(header: sectionTypeHeader("Processes")) {
+        Section(header:
+            sectionTypeHeader("Processes")
+                .dropDestination(for: String.self) { items, _ in
+                    handleProcessDrop(items: items, toFolder: "")
+                }
+        ) {
             if store.savedProcesses.isEmpty && allFolders.isEmpty {
                 Text("No saved processes yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-            ForEach(unfoldered) { process in processRow(process) }
-                .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
+            ForEach(unfoldered) { process in
+                processRow(process)
+                    .if(isReordering) { $0.draggable(process.id.uuidString) }
+            }
+            .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
                 DisclosureGroup {
-                    ForEach(grouped[folder] ?? []) { process in processRow(process) }
-                        .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
+                    ForEach(grouped[folder] ?? []) { process in
+                        processRow(process)
+                            .if(isReordering) { $0.draggable(process.id.uuidString) }
+                    }
+                    .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
                         .font(.system(.body, design: .monospaced))
@@ -448,7 +504,17 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
+                        .dropDestination(for: String.self) { items, _ in
+                            handleProcessDrop(items: items, toFolder: folder)
+                        }
                 }
+            }
+
+            if isReordering && !allFolders.isEmpty {
+                Text("Drag a process onto a folder to move it in. Drop on the \"Processes\" header to take it out.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .listRowBackground(Color.clear)
             }
         }
     }
@@ -490,19 +556,30 @@ struct LibraryView: View {
         let allFolders = Array(Set(store.prefermentFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        Section(header: sectionTypeHeader("Preferments")) {
+        Section(header:
+            sectionTypeHeader("Preferments")
+                .dropDestination(for: String.self) { items, _ in
+                    handlePrefermentDrop(items: items, toFolder: "")
+                }
+        ) {
             if store.savedPreferments.isEmpty && allFolders.isEmpty {
                 Text("No saved preferments yet.")
                     .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
-            ForEach(unfoldered) { pref in prefermentRow(pref) }
-                .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
+            ForEach(unfoldered) { pref in
+                prefermentRow(pref)
+                    .if(isReordering) { $0.draggable(pref.id.uuidString) }
+            }
+            .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
                 DisclosureGroup {
-                    ForEach(grouped[folder] ?? []) { pref in prefermentRow(pref) }
-                        .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
+                    ForEach(grouped[folder] ?? []) { pref in
+                        prefermentRow(pref)
+                            .if(isReordering) { $0.draggable(pref.id.uuidString) }
+                    }
+                    .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
                         .font(.system(.body, design: .monospaced))
@@ -511,7 +588,17 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
+                        .dropDestination(for: String.self) { items, _ in
+                            handlePrefermentDrop(items: items, toFolder: folder)
+                        }
                 }
+            }
+
+            if isReordering && !allFolders.isEmpty {
+                Text("Drag a preferment onto a folder to move it in. Drop on the \"Preferments\" header to take it out.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .listRowBackground(Color.clear)
             }
         }
     }
