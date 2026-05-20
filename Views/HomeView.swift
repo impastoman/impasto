@@ -42,19 +42,8 @@ struct HomeView: View {
     }
 
     var launch: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack {
             Color(hex: "F5F1E8").ignoresSafeArea()
-
-            if splashDone {
-                Button { showSettings = true } label: {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 18))
-                        .foregroundColor(Color(hex: "9A9688"))
-                        .padding(12)
-                }
-                .padding(.trailing, 8)
-                .padding(.top, 8)
-            }
 
             VStack(spacing: 16) {
                 Spacer()
@@ -146,6 +135,19 @@ struct HomeView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     withAnimation(.easeIn(duration: 0.4)) { splashDone = true }
                 }
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if splashDone {
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 18))
+                        .foregroundColor(Color(hex: "9A9688"))
+                        .padding(12)
+                }
+                .padding(.trailing, 8)
+                .padding(.top, 8)
+                .transition(.opacity)
             }
         }
         .sheet(isPresented: $showWizard) {

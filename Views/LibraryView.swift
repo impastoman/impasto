@@ -330,6 +330,7 @@ struct LibraryView: View {
                 .recipeRowActions(
                     recipe: recipe,
                     folders: recipeFolderOptions,
+                    isReordering: isReordering,
                     onMoveRequest: { recipeToMove = recipe },
                     onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
                     onDelete: { recipeToDelete = recipe },
@@ -349,6 +350,7 @@ struct LibraryView: View {
                         .recipeRowActions(
                             recipe: recipe,
                             folders: recipeFolderOptions,
+                            isReordering: isReordering,
                             onMoveRequest: { recipeToMove = recipe },
                             onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
                             onDelete: { recipeToDelete = recipe },
@@ -458,10 +460,12 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.5)
-                .onEnded { _ in isReordering = true }
-        )
+        .if(!isReordering) {
+            $0.simultaneousGesture(
+                LongPressGesture(minimumDuration: 0.5)
+                    .onEnded { _ in isReordering = true }
+            )
+        }
     }
 
     // MARK: - Processes
@@ -542,10 +546,12 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.5)
-                .onEnded { _ in isReordering = true }
-        )
+        .if(!isReordering) {
+            $0.simultaneousGesture(
+                LongPressGesture(minimumDuration: 0.5)
+                    .onEnded { _ in isReordering = true }
+            )
+        }
     }
 
     // MARK: - Preferments
@@ -626,10 +632,12 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.5)
-                .onEnded { _ in isReordering = true }
-        )
+        .if(!isReordering) {
+            $0.simultaneousGesture(
+                LongPressGesture(minimumDuration: 0.5)
+                    .onEnded { _ in isReordering = true }
+            )
+        }
     }
 
     // MARK: - Shared folder move menu (used in context menus)
@@ -666,6 +674,7 @@ private extension View {
     func recipeRowActions(
         recipe: Recipe,
         folders: [String],
+        isReordering: Bool,
         onMoveRequest: @escaping () -> Void,
         onMove: @escaping (String) -> Void,
         onDelete: @escaping () -> Void,
@@ -688,11 +697,15 @@ private extension View {
                     Label("Delete", systemImage: "trash")
                 }
             }
-            // Long-press anywhere on the row enters reorder mode
-            .simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.5)
-                    .onEnded { _ in onLongPress() }
-            )
+            // Long-press enters reorder mode, but ONLY when not already
+            // reordering — otherwise it would swallow the long-press that
+            // .draggable needs to initiate a drag.
+            .if(!isReordering) {
+                $0.simultaneousGesture(
+                    LongPressGesture(minimumDuration: 0.5)
+                        .onEnded { _ in onLongPress() }
+                )
+            }
     }
 }
 
