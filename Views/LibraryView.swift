@@ -22,6 +22,7 @@ struct LibraryView: View {
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
     @State private var showFormulaWizard  = false
+    @State private var showSettings       = false
     // Folder-move sheets
     @State private var recipeToMove: Recipe? = nil
     @State private var blendToMove: FlourBlend? = nil
@@ -63,11 +64,6 @@ struct LibraryView: View {
                 }
                 if isReordering {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Done") { isReordering = false }
-                            .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.system(size: 13, design: .monospaced))
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
                         Button("Sections ↕") { showSectionReorder = true }
                             .foregroundColor(.secondary)
                             .font(.system(size: 13, design: .monospaced))
@@ -77,9 +73,10 @@ struct LibraryView: View {
                         Button { showAddMenu = true } label: { Image(systemName: "plus") }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Reorder") { isReordering = true }
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 13, design: .monospaced))
+                        Button { showSettings = true } label: {
+                            Image(systemName: "gearshape")
+                        }
+                        .foregroundColor(.secondary)
                     }
                 }
             }
@@ -127,6 +124,30 @@ struct LibraryView: View {
             }
         }
         .preferredColorScheme(.light)
+        .safeAreaInset(edge: .bottom) {
+            if isReordering {
+                Button {
+                    isReordering = false
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Done Sorting")
+                            .font(.system(.body, design: .monospaced).weight(.semibold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color(hex: "D2B96A"))
+                    .cornerRadius(10)
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 8)
+                .background(.ultraThinMaterial)
+            }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+        }
         .sheet(isPresented: $showSectionReorder) {
             SectionReorderView(
                 order: Binding(get: { store.librarySectionOrder },
@@ -272,7 +293,8 @@ struct LibraryView: View {
                     folders: recipeFolderOptions,
                     onMoveRequest: { recipeToMove = recipe },
                     onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
-                    onDelete: { recipeToDelete = recipe }
+                    onDelete: { recipeToDelete = recipe },
+                    onLongPress: { isReordering = true }
                 )
             }
             .onMove { src, dst in store.moveRecipes(inFolder: "", from: src, to: dst) }
@@ -297,6 +319,10 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onEnded { _ in isReordering = true }
+                        )
                 }
             }
         }
@@ -327,6 +353,10 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onEnded { _ in isReordering = true }
+                        )
                 }
             }
         }
@@ -355,17 +385,10 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
-        .contextMenu {
-            folderMoveMenu(
-                currentFolder: blend.folderName,
-                options: blendFolderOptions,
-                onMove: { store.moveBlendToFolder(blend, folder: $0) }
-            )
-            Divider()
-            Button(role: .destructive) { store.deleteBlend(blend) } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.5)
+                .onEnded { _ in isReordering = true }
+        )
     }
 
     // MARK: - Processes
@@ -393,6 +416,10 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onEnded { _ in isReordering = true }
+                        )
                 }
             }
         }
@@ -421,17 +448,10 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
-        .contextMenu {
-            folderMoveMenu(
-                currentFolder: process.folderName,
-                options: processFolderOptions,
-                onMove: { store.moveProcessToFolder(process, folder: $0) }
-            )
-            Divider()
-            Button(role: .destructive) { store.deleteProcess(process) } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.5)
+                .onEnded { _ in isReordering = true }
+        )
     }
 
     // MARK: - Preferments
@@ -459,6 +479,10 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.5)
+                                .onEnded { _ in isReordering = true }
+                        )
                 }
             }
         }
@@ -487,17 +511,10 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
-        .contextMenu {
-            folderMoveMenu(
-                currentFolder: pref.folderName,
-                options: prefermentFolderOptions,
-                onMove: { store.movePrefermentToFolder(pref, folder: $0) }
-            )
-            Divider()
-            Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.5)
+                .onEnded { _ in isReordering = true }
+        )
     }
 
     // MARK: - Shared folder move menu (used in context menus)
@@ -536,7 +553,8 @@ private extension View {
         folders: [String],
         onMoveRequest: @escaping () -> Void,
         onMove: @escaping (String) -> Void,
-        onDelete: @escaping () -> Void
+        onDelete: @escaping () -> Void,
+        onLongPress: @escaping () -> Void
     ) -> some View {
         self
             // Leading swipe → opens the FolderPickerSheet (reliable on NavigationLink rows)
@@ -555,30 +573,11 @@ private extension View {
                     Label("Delete", systemImage: "trash")
                 }
             }
-            // Keep context menu as a secondary path; may or may not fire on a NavigationLink
-            .contextMenu {
-                let destinations = folders.filter { $0 != recipe.folderName }
-                if !destinations.isEmpty || !recipe.folderName.isEmpty {
-                    Menu {
-                        if !recipe.folderName.isEmpty {
-                            Button { onMove("") } label: {
-                                Label("Remove from Folder", systemImage: "folder.badge.minus")
-                            }
-                        }
-                        ForEach(destinations, id: \.self) { folder in
-                            Button { onMove(folder) } label: {
-                                Label(folder, systemImage: "folder")
-                            }
-                        }
-                    } label: {
-                        Label("Move to Folder", systemImage: "folder")
-                    }
-                }
-                Divider()
-                Button(role: .destructive) { onDelete() } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-            }
+            // Long-press anywhere on the row enters reorder mode
+            .simultaneousGesture(
+                LongPressGesture(minimumDuration: 0.5)
+                    .onEnded { _ in onLongPress() }
+            )
     }
 }
 
