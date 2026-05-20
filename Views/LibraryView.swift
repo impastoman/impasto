@@ -271,13 +271,28 @@ struct LibraryView: View {
 
     // MARK: - Recipes
 
+    /// Drop handler shared by folder labels and the section header.
+    /// Returns true if the dropped string decoded to a known recipe.
+    func handleRecipeDrop(items: [String], toFolder folder: String) -> Bool {
+        guard let id = items.first.flatMap(UUID.init),
+              let r = store.recipes.first(where: { $0.id == id })
+        else { return false }
+        store.moveRecipeToFolder(r, folder: folder)
+        return true
+    }
+
     @ViewBuilder
     var recipesSection: some View {
         let grouped    = Dictionary(grouping: store.recipes) { $0.folderName }
         let allFolders = Array(Set(store.recipeFolders + grouped.keys.filter { !$0.isEmpty })).sorted()
         let unfoldered = grouped[""] ?? []
 
-        Section(header: sectionTypeHeader("Recipes")) {
+        Section(header:
+            sectionTypeHeader("Recipes")
+                .dropDestination(for: String.self) { items, _ in
+                    handleRecipeDrop(items: items, toFolder: "")
+                }
+        ) {
             if store.recipes.isEmpty && allFolders.isEmpty {
                 Text("No recipes yet — tap + to create one.")
                     .font(.system(size: 13, design: .monospaced))
@@ -296,6 +311,7 @@ struct LibraryView: View {
                     onDelete: { recipeToDelete = recipe },
                     onLongPress: { isReordering = true }
                 )
+                .if(isReordering) { $0.draggable(recipe.id.uuidString) }
             }
             .onMove { src, dst in store.moveRecipes(inFolder: "", from: src, to: dst) }
 
@@ -314,6 +330,7 @@ struct LibraryView: View {
                             onDelete: { recipeToDelete = recipe },
                             onLongPress: { isReordering = true }
                         )
+                        .if(isReordering) { $0.draggable(recipe.id.uuidString) }
                     }
                     .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
                 } label: {
@@ -324,7 +341,17 @@ struct LibraryView: View {
                             LongPressGesture(minimumDuration: 0.5)
                                 .onEnded { _ in isReordering = true }
                         )
+                        .dropDestination(for: String.self) { items, _ in
+                            handleRecipeDrop(items: items, toFolder: folder)
+                        }
                 }
+            }
+
+            if isReordering && !allFolders.isEmpty {
+                Text("Drag a recipe onto a folder to move it in. Drop on the \"Recipes\" header to take it out.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .listRowBackground(Color.clear)
             }
         }
     }

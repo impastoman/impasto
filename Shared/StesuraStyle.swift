@@ -181,4 +181,11 @@ extension View {
     func tipText() -> some View {
         modifier(TipGateModifier())
     }
+
+    /// Apply a transform conditionally. Useful for gating modifiers like
+    /// `.draggable(...)` so they don't fire outside of reorder mode.
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition { transform(self) } else { self }
+    }
 }
