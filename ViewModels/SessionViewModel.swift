@@ -23,6 +23,11 @@ struct SessionSnapshot: Codable {
     // Step timestamps
     var sessionStartDate: Date?
     var stepCompletionDates: [String: Date]       // UUID.uuidString keys
+    // Persisted run/pause state. Defaulted to true so any snapshot decoded
+    // from before this field existed is treated as a running session
+    // (matching the invariant: only a manual pause should leave a session
+    // paused across app launches).
+    var isRunning: Bool = true
 }
 
 // MARK: - View Model
@@ -77,7 +82,6 @@ class SessionViewModel: ObservableObject, Identifiable {
             enabled = enabled.filter { $0.type != .autolyse && $0.type != .incorporateYeast }
         }
         self.cards = enabled
-        if preFlight.sessionMode == .automatic { self.isRunning = false }
         // Apply session-only step duration overrides from PreFlight
         for i in self.cards.indices {
             let key = self.cards[i].id.uuidString
@@ -97,7 +101,8 @@ class SessionViewModel: ObservableObject, Identifiable {
         self.currentIndex = snapshot.currentIndex
         self.accumulatedSeconds = snapshot.accumulatedSeconds
         self.elapsed = snapshot.accumulatedSeconds
-        self.isRunning = false          // always restore paused
+        // isRunning is finalized below after we decide whether to resume timers
+        self.isRunning = false
         self.pHReadings = snapshot.pHReadings
         var durations: [UUID: TimeInterval] = [:]
         for (key, value) in snapshot.actualDurations {
@@ -118,6 +123,22 @@ class SessionViewModel: ObservableObject, Identifiable {
             if let uuid = UUID(uuidString: key) { completions[uuid] = value }
         }
         self.stepCompletionDates = completions
+
+        // Bridge the wall-clock gap between snapshot save and now, then resume
+        // timers if the session was running. A session is only ever paused by
+        // a manual button press, so a snapshot with isRunning == true means
+        // the user expected time to keep advancing while the app was closed.
+        if snapshot.isRunning {
+            let bridge = max(0, Date().timeIntervalSince(snapshot.savedAt))
+            self.accumulatedSeconds += bridge
+            self.elapsed = self.accumulatedSeconds
+            if snapshot.bakingStarted {
+                self.accumulatedBakeSeconds += bridge
+                self.bakeElapsed = self.accumulatedBakeSeconds
+                self.startBaking()
+            }
+            self.start()
+        }
     }
 
     // MARK: - Snapshot
@@ -159,7 +180,8 @@ class SessionViewModel: ObservableObject, Identifiable {
             savedAt: Date(),
             sessionStartDate: sessionStartDate,
             stepCompletionDates: Dictionary(uniqueKeysWithValues:
-                stepCompletionDates.map { ($0.key.uuidString, $0.value) })
+                stepCompletionDates.map { ($0.key.uuidString, $0.value) }),
+            isRunning: isRunning
         )
     }
 
@@ -221,9 +243,9 @@ class SessionViewModel: ObservableObject, Identifiable {
         accumulatedSeconds = 0
         stepStartDate = isRunning ? Date() : nil
         elapsed = 0
-        if sessionMode == .automatic, let next = currentCard, next.type.isActionOnly {
-            pause()
-        }
+        // No auto-pause on action-only steps. The session timer keeps counting
+        // up so we can record true total session time. The user pauses
+        // manually if they want to stop the clock.
         persistenceHook?()
     }
 

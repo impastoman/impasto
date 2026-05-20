@@ -25,6 +25,10 @@ class SessionManager: ObservableObject {
     func start(recipe: Recipe, preFlight: PreFlightData) -> SessionViewModel {
         let vm = SessionViewModel(recipe: recipe, preFlight: preFlight)
         vm.persistenceHook = { [weak self] in self?.saveAll() }
+        // A session starts running from the moment it is created. The user
+        // pauses manually with the Pause button if they need to stop the
+        // clock; nothing else (mode, navigation, app close) should pause it.
+        vm.start()
         sessions.append(vm)
         saveAll()
         return vm
