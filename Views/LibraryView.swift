@@ -311,7 +311,8 @@ struct LibraryView: View {
                             folders: recipeFolderOptions,
                             onMoveRequest: { recipeToMove = recipe },
                             onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
-                            onDelete: { recipeToDelete = recipe }
+                            onDelete: { recipeToDelete = recipe },
+                            onLongPress: { isReordering = true }
                         )
                     }
                     .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
