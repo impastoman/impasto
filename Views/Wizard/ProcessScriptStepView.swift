@@ -64,6 +64,7 @@ struct ProcessScriptStepView: View {
                 Text("No saved processes yet — create one below or from the Library.")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
+                    .tipText()
             }
 
             Button {
@@ -148,6 +149,7 @@ struct ProcessScriptStepView: View {
                     .font(.system(size: 9, design: .monospaced))
                     .foregroundColor(.secondary.opacity(0.5))
                     .textCase(nil)
+                    .tipText()
             }
         }
         .listRowBackground(Color.clear)
@@ -176,7 +178,7 @@ struct ProcessScriptStepView: View {
                 .foregroundColor(Color(hex: "D2B96A"))
             }
         } header: { Text("Save to Library") }
-          footer: { Text("Optional — save this process for reuse in future recipes") }
+          footer: { Text("Optional — save this process for reuse in future recipes").tipText() }
         .listRowBackground(Color.clear)
     }
 

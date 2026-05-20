@@ -55,6 +55,7 @@ struct TechniqueStepView: View {
                     }
                 }
                 .listRowBackground(Color.yellow.opacity(0.08))
+                .tipText()
             }
 
             Section {
@@ -63,6 +64,7 @@ struct TechniqueStepView: View {
                         Text("Autolyse").font(.headline)
                         Text("Rest flour + water before adding salt and yeast. Improves extensibility.")
                             .font(.caption).foregroundColor(.secondary)
+                            .tipText()
                     }
                 }
                 .tint(Color(hex: "D2B96A"))
@@ -75,6 +77,7 @@ struct TechniqueStepView: View {
                             Text("suggested: \(style == .neapolitan ? 20 : 30) min")
                                 .font(.system(size: 11, design: .monospaced))
                                 .foregroundColor(.secondary)
+                                .tipText()
                         }
                         Spacer()
                         TextField("\(style == .neapolitan ? 20 : 30)",
@@ -97,6 +100,7 @@ struct TechniqueStepView: View {
                         Text("Bassinage").font(.headline)
                         Text("Reserve a portion of water and add gradually during kneading. Controls temperature and improves extensibility.")
                             .font(.caption).foregroundColor(.secondary)
+                            .tipText()
                     }
                 }
                 .tint(Color(hex: "D2B96A"))
@@ -108,6 +112,7 @@ struct TechniqueStepView: View {
                     Text("Adjustable per process step in the next screen.")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .tipText()
                 }
             }
             .listRowBackground(Color.clear)

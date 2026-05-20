@@ -60,6 +60,7 @@ struct FlourBlendStepView: View {
                 Text("No saved blends yet — create one below or from the Library.")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
+                    .tipText()
             }
 
             Button {
@@ -169,6 +170,7 @@ struct FlourBlendStepView: View {
                     }
                 }
                 .listRowBackground(Color.orange.opacity(0.06))
+                .tipText()
             }
             if !flourBlend.isValid {
                 Section {
@@ -203,7 +205,7 @@ struct FlourBlendStepView: View {
                 .disabled(!flourBlend.isValid)
             }
         } header: { Text("Save to Library") }
-          footer: { Text("Optional — save this blend for reuse in future recipes") }
+          footer: { Text("Optional — save this blend for reuse in future recipes").tipText() }
         .listRowBackground(Color.clear)
     }
 }

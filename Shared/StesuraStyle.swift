@@ -154,3 +154,31 @@ extension Color {
         self.init(red: r, green: g, blue: b)
     }
 }
+
+// MARK: - Tip gating
+//
+// Wrap any "grey caption tip" — explanatory helper text under a field, a
+// Section footer, an inline warning — with `.tipText()`. When the user
+// turns off "Show tips" in Settings, the view collapses to EmptyView()
+// so only field labels remain.
+//
+// Usage:
+//   Text("Optional — save this for reuse")
+//       .font(.system(size: 11, design: .monospaced))
+//       .foregroundColor(.secondary)
+//       .tipText()
+
+private struct TipGateModifier: ViewModifier {
+    @AppStorage("showTips") private var showTips: Bool = true
+    func body(content: Content) -> some View {
+        if showTips { content }
+    }
+}
+
+extension View {
+    /// Hides this view when the user has turned off "Show tips" in Settings.
+    /// Use only for explainer captions — never for required field labels.
+    func tipText() -> some View {
+        modifier(TipGateModifier())
+    }
+}

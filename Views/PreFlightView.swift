@@ -151,7 +151,7 @@ struct PreFlightView: View {
             TextField(defaultSessionName, text: $data.sessionName)
                 .font(.system(.body, design: .monospaced))
         } header: { Text("Session name") }
-          footer: { Text("Optional — shown in your session history") }
+          footer: { Text("Optional — shown in your session history").tipText() }
     }
 
     // MARK: - Session mode
@@ -172,12 +172,14 @@ struct PreFlightView: View {
                     Text("Timers advance automatically. A pause button is always available — pause times are logged.")
                         .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                 }
+                .tipText()
             } else {
                 HStack(spacing: 8) {
                     Image(systemName: "info.circle").foregroundColor(.secondary).font(.caption)
                     Text("Timers run for reference only. Tap 'Next Step' when you're ready to advance.")
                         .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                 }
+                .tipText()
             }
         } header: { Text("Session mode") }
     }
@@ -313,6 +315,7 @@ struct PreFlightView: View {
                     Text("stuck to bowl, hands, scraper")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .tipText()
                 }
                 Spacer()
                 TextField("\(Int(ceil(weightUnit.toDisplay(totalDough * 0.025))))", value: Binding(
@@ -330,6 +333,7 @@ struct PreFlightView: View {
         } footer: {
             Text("Gold values override the recipe for this session only.")
                 .font(.system(size: 11, design: .monospaced))
+                .tipText()
         }
     }
 

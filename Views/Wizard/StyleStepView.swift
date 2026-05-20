@@ -66,6 +66,7 @@ struct StyleStepView: View {
                     Text("No style presets — balanced defaults are applied. Adjust hydration, ratios, and process after saving.")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .tipText()
                 }
             }
         }

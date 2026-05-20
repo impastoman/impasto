@@ -37,6 +37,7 @@ struct ImportRecipeView: View {
                 Text("Import a recipe that was exported from Stesura. Paste the JSON below, or pick a .json file.")
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundColor(.secondary)
+                    .tipText()
             }
             .listRowBackground(Color.clear)
 
@@ -88,6 +89,7 @@ struct ImportRecipeView: View {
             } footer: {
                 Text("Use the Share → Export button in Recipe Detail to get the JSON for any recipe.")
                     .font(.system(size: 11, design: .monospaced))
+                    .tipText()
             }
             .listRowBackground(Color.clear)
         }

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stesura — Font Preview</title>
+<style>
+
+/* ── Load fonts from the zip folders — edit paths if needed ── */
+/* Fraunces static cuts */
+@font-face { font-family: 'Fraunces'; font-weight: 300; font-style: normal;
+  src: url('./fonts/Fraunces/static/Fraunces-Light.ttf'); }
+@font-face { font-family: 'Fraunces'; font-weight: 400; font-style: normal;
+  src: url('./fonts/Fraunces/static/Fraunces-Regular.ttf'); }
+@font-face { font-family: 'Fraunces'; font-weight: 600; font-style: normal;
+  src: url('./fonts/Fraunces/static/Fraunces-SemiBold.ttf'); }
+@font-face { font-family: 'Fraunces'; font-weight: 300; font-style: italic;
+  src: url('./fonts/Fraunces/static/Fraunces-LightItalic.ttf'); }
+@font-face { font-family: 'Fraunces'; font-weight: 400; font-style: italic;
+  src: url('./fonts/Fraunces/static/Fraunces-Italic.ttf'); }
+@font-face { font-family: 'Fraunces'; font-weight: 600; font-style: italic;
+  src: url('./fonts/Fraunces/static/Fraunces-SemiBoldItalic.ttf'); }
+
+/* Plus Jakarta Sans */
+@font-face { font-family: 'Jakarta'; font-weight: 300;
+  src: url('./fonts/PlusJakartaSans/static/PlusJakartaSans-Light.ttf'); }
+@font-face { font-family: 'Jakarta'; font-weight: 400;
+  src: url('./fonts/PlusJakartaSans/static/PlusJakartaSans-Regular.ttf'); }
+@font-face { font-family: 'Jakarta'; font-weight: 500;
+  src: url('./fonts/PlusJakartaSans/static/PlusJakartaSans-Medium.ttf'); }
+@font-face { font-family: 'Jakarta'; font-weight: 600;
+  src: url('./fonts/PlusJakartaSans/static/PlusJakartaSans-SemiBold.ttf'); }
+@font-face { font-family: 'Jakarta'; font-weight: 700;
+  src: url('./fonts/PlusJakartaSans/static/PlusJakartaSans-Bold.ttf'); }
+@font-face { font-family: 'Jakarta'; font-weight: 800;
+  src: url('./fonts/PlusJakartaSans/static/PlusJakartaSans-ExtraBold.ttf'); }
+
+/* ── Palette ── */
+:root {
+  --paper:      #F5F1E8;
+  --paper-deep: #F0EDE4;
+  --ink:        #2C2A24;
+  --ink-light:  #9A9688;
+  --gold:       #D2B96A;
+  --rule:       rgba(196,184,154,0.35);
+  --header:     #8AAEC8;
+  --orange:     rgba(255,150,50,0.08);
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Jakarta', system-ui, sans-serif;
+  font-size: 14px;
+  /* ruled lines */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    var(--rule) 27px,
+    var(--rule) 28px
+  );
+  min-height: 100vh;
+}
+
+/* ── Layout ── */
+.page { max-width: 680px; margin: 0 auto; padding: 0 0 80px; }
+
+/* ── Header band ── */
+.band {
+  background: var(--header);
+  color: white;
+  padding: 14px 24px;
+  font-family: 'Jakarta', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 16px;
+}
+.band input {
+  flex: 1;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 6px;
+  color: white;
+  font-family: 'Jakarta', sans-serif;
+  font-size: 13px;
+  padding: 5px 10px;
+  outline: none;
+}
+.band input::placeholder { color: rgba(255,255,255,0.6); }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  background: var(--paper-deep);
+  border-bottom: 1px solid var(--rule);
+  position: sticky; top: 48px; z-index: 9;
+}
+.tab {
+  flex: 1; padding: 10px 4px 8px;
+  text-align: center;
+  font-family: 'Jakarta', sans-serif;
+  font-size: 11px; font-weight: 400;
+  color: var(--ink-light);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  user-select: none;
+}
+.tab.active { color: var(--gold); font-weight: 600; border-color: var(--gold); }
+
+/* ── Sections ── */
+.panel { display: none; padding: 0 24px; }
+.panel.active { display: block; }
+
+.section-label {
+  font-family: 'Jakarta', sans-serif;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  padding-top: 24px; padding-bottom: 8px;
+}
+
+.sample {
+  padding: 8px 0 6px;
+  border-bottom: 1px solid rgba(196,184,154,0.2);
+}
+.sample-label {
+  font-family: 'Jakarta', sans-serif;
+  font-size: 9px; color: #C4B89A;
+  letter-spacing: 0.4px;
+  margin-bottom: 3px;
+}
+.sample-divider {
+  border: none; border-top: 1px solid rgba(196,184,154,0.4);
+  margin: 16px 0;
+}
+
+/* ── Mock cards ── */
+.card {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.card-header {
+  background: var(--header);
+  color: white;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-body { background: var(--paper-deep); }
+.card-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--rule);
+  font-family: 'Jakarta', sans-serif;
+}
+.card-row:last-child { border-bottom: none; }
+.card-label { font-size: 14px; color: var(--ink-light); font-weight: 400; }
+.card-value { font-size: 14px; color: var(--ink); font-weight: 500; }
+
+.session-card {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.session-top {
+  background: var(--paper-deep);
+  padding: 14px 16px 10px;
+}
+.session-bottom {
+  background: var(--paper);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.mixed-card {
+  background: var(--paper-deep);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 16px;
+}
+.mixed-card p {
+  font-family: 'Jakarta', sans-serif;
+  font-size: 14px; font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 8px 0 12px;
+}
+.mixed-card .row {
+  display: flex; justify-content: space-between;
+  font-family: 'Jakarta', sans-serif; font-size: 12px;
+}
+.mixed-card .row span:first-child { color: var(--ink-light); }
+.mixed-card .row span:last-child  { color: var(--gold); font-weight: 500; }
+
+/* ── Wordmark mock ── */
+.wordmark-mock {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="band">
+    FONT PREVIEW
+    <input type="text" id="customText" placeholder="Type to preview…" oninput="updateText(this.value)">
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">Fraunces</div>
+    <div class="tab" onclick="switchTab(1)">Jakarta Sans</div>
+    <div class="tab" onclick="switchTab(2)">In Context</div>
+  </div>
+
+  <!-- ══════════════════════════════ FRAUNCES ══════════════════════════════ -->
+  <div class="panel active" id="panel-0">
+
+    <div class="section-label">Display / Headlines</div>
+
+    <div class="sample">
+      <div class="sample-label">Light · 36pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:300;font-size:36px;">Neapolitan</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular · 36pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:36px;">Neapolitan</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">SemiBold · 36pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:600;font-size:36px;">Neapolitan</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular Italic · 36pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-style:italic;font-size:36px;">Neapolitan</div>
+    </div>
+
+    <hr class="sample-divider">
+    <div class="section-label">App wordmark · 52pt</div>
+
+    <div class="sample">
+      <div class="sample-label">Light · 52pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:300;font-size:52px;">Stesura</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular · 52pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:52px;">Stesura</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Italic · 52pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-style:italic;font-size:52px;">Stesura</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Light Italic · 52pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:300;font-style:italic;font-size:52px;">Stesura</div>
+    </div>
+
+    <hr class="sample-divider">
+    <div class="section-label">Recipe names · 22pt</div>
+
+    <div class="sample">
+      <div class="sample-label">Light · 22pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:300;font-size:22px;">72hr Cold Ferment Neapolitan</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular · 22pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:22px;">72hr Cold Ferment Neapolitan</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Italic · 22pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-style:italic;font-size:22px;">72hr Cold Ferment Neapolitan</div>
+    </div>
+
+    <hr class="sample-divider">
+    <div class="section-label">Body / Paragraph · 15pt</div>
+
+    <div class="sample">
+      <div class="sample-label">Light · 15pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:300;font-size:15px;line-height:1.7;">Place dough into a lightly oiled container, cover, and rest at room temperature. Perform stretch and fold every 30 minutes.</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular · 15pt</div>
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:15px;line-height:1.7;">Place dough into a lightly oiled container, cover, and rest at room temperature. Perform stretch and fold every 30 minutes.</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════ JAKARTA SANS ══════════════════════════════ -->
+  <div class="panel" id="panel-1">
+
+    <div class="section-label">Weight ladder · 17pt</div>
+
+    <div class="sample">
+      <div class="sample-label">Light · 17pt</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:300;font-size:17px;">Bulk Fermentation</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular · 17pt</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:400;font-size:17px;">Bulk Fermentation</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Medium · 17pt</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:500;font-size:17px;">Bulk Fermentation</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">SemiBold · 17pt</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:600;font-size:17px;">Bulk Fermentation</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Bold · 17pt</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:700;font-size:17px;">Bulk Fermentation</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">ExtraBold · 17pt</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:800;font-size:17px;">Bulk Fermentation</div>
+    </div>
+
+    <hr class="sample-divider">
+    <div class="section-label">vs. current system monospaced · 17pt</div>
+
+    <div class="sample">
+      <div class="sample-label">System monospaced — current</div>
+      <div class="preview" style="font-family:'Courier New',monospace;font-size:17px;">Bulk Fermentation</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Jakarta Regular — proposed</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:400;font-size:17px;">Bulk Fermentation</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Jakarta Medium — proposed</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:500;font-size:17px;">Bulk Fermentation</div>
+    </div>
+
+    <hr class="sample-divider">
+    <div class="section-label">Small UI text · 11–13pt</div>
+
+    <div class="sample">
+      <div class="sample-label">Regular · 11pt — section footer</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:400;font-size:11px;color:var(--ink-light);">Optional — save this blend for reuse in future recipes</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular · 12pt — step label</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:400;font-size:12px;color:var(--ink-light);letter-spacing:0.8px;">STRETCH &amp; FOLD · 45M</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">SemiBold · 12pt — step label</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:600;font-size:12px;color:var(--ink-light);letter-spacing:0.8px;">STRETCH &amp; FOLD · 45M</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Medium · 13pt — action</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:500;font-size:13px;color:var(--gold);">Preview Recipe →</div>
+    </div>
+
+    <hr class="sample-divider">
+    <div class="section-label">Numbers · Timers / Weights</div>
+
+    <div class="sample">
+      <div class="sample-label">Light · 28pt — timer</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:300;font-size:28px;">00:45:00</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Regular · 28pt — timer</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:400;font-size:28px;">00:45:00</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Medium · 34pt — session hero</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:300;font-size:34px;color:var(--gold);">07:58:34</div>
+    </div>
+    <div class="sample">
+      <div class="sample-label">Medium · 14pt — session row</div>
+      <div class="preview" style="font-family:'Jakarta';font-weight:500;font-size:14px;color:var(--gold);">01:23:47</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════ IN CONTEXT ══════════════════════════════ -->
+  <div class="panel" id="panel-2">
+
+    <div class="section-label">Home screen wordmark</div>
+    <div class="wordmark-mock" style="margin-bottom:16px;">
+      <div class="preview" style="font-family:'Fraunces';font-weight:300;font-size:52px;color:var(--ink);">Stesura</div>
+      <div style="font-family:'Jakarta';font-weight:400;font-size:11px;color:var(--ink-light);letter-spacing:2px;margin-top:6px;">DOUGH MANAGER</div>
+      <div style="font-family:'Jakarta';font-weight:400;font-size:10px;color:#C4B89A;margin-top:4px;">v0.9</div>
+    </div>
+
+    <div class="section-label">Recipe card</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:20px;">72hr Cold Ferment</div>
+        <div style="font-family:'Jakarta';font-weight:400;font-size:11px;opacity:0.75;">Neapolitan</div>
+      </div>
+      <div class="card-body">
+        <div class="card-row"><span class="card-label">Style</span><span class="card-value">Neapolitan</span></div>
+        <div class="card-row"><span class="card-label">Method</span><span class="card-value">Hand-kneaded</span></div>
+        <div class="card-row"><span class="card-label">Timeline</span><span class="card-value">72 hr · 3 days</span></div>
+        <div class="card-row"><span class="card-label">Target</span><span class="card-value">4 × 280g</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">Live session step</div>
+    <div class="session-card" style="margin-bottom:16px;">
+      <div class="session-top">
+        <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:24px;color:var(--ink);">Bulk Fermentation</div>
+        <div style="font-family:'Jakarta';font-weight:400;font-size:12px;color:var(--ink-light);margin-top:3px;">8 hours remaining</div>
+      </div>
+      <div class="session-bottom">
+        <div class="preview" style="font-family:'Jakarta';font-weight:300;font-size:34px;color:var(--gold);">07:58:34</div>
+        <div style="text-align:right;">
+          <div style="font-family:'Jakarta';font-weight:500;font-size:13px;color:#6DBF8A;">– 0:01:26</div>
+          <div style="font-family:'Jakarta';font-weight:400;font-size:10px;color:var(--ink-light);">under</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Wizard section header</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:18px;">New Recipe</div>
+        <div style="font-family:'Jakarta';font-weight:400;font-size:11px;opacity:0.75;">Step 3 of 10</div>
+      </div>
+      <div class="card-body">
+        <div class="card-row"><span class="card-label">Flour type</span><span class="card-value">00 Flour</span></div>
+        <div class="card-row"><span class="card-label">Percentage</span><span class="card-value">100%</span></div>
+        <div class="card-row"><span class="card-label">Gluten</span><span class="card-value">12.5%</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">Mixed pairing — Fraunces title + Jakarta body</div>
+    <div class="mixed-card" style="margin-bottom:16px;">
+      <div class="preview" style="font-family:'Fraunces';font-weight:400;font-size:20px;color:var(--ink);">Autolyse</div>
+      <p>Mix flour and water, hold back salt and yeast. Rest covered for 20–60 minutes before adding remaining ingredients.</p>
+      <div class="row"><span>Duration</span><span>30 min</span></div>
+    </div>
+
+    <div class="section-label">Process step list rows</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-body">
+        <div class="card-row">
+          <span style="font-family:'Jakarta';font-weight:400;font-size:13px;color:var(--gold);">1</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:15px;color:var(--ink);flex:1;padding:0 12px;">Autolyse</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:12px;color:var(--ink-light);">30m</span>
+        </div>
+        <div class="card-row">
+          <span style="font-family:'Jakarta';font-weight:400;font-size:13px;color:var(--gold);">2</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:15px;color:var(--ink);flex:1;padding:0 12px;">Mix</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:12px;color:var(--ink-light);">action</span>
+        </div>
+        <div class="card-row">
+          <span style="font-family:'Jakarta';font-weight:400;font-size:13px;color:var(--gold);">3</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:15px;color:var(--ink);flex:1;padding:0 12px;">Stretch &amp; Fold</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:12px;color:var(--ink-light);">45m</span>
+        </div>
+        <div class="card-row">
+          <span style="font-family:'Jakarta';font-weight:400;font-size:13px;color:var(--gold);">4</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:15px;color:var(--ink);flex:1;padding:0 12px;">Bulk Fermentation</span>
+          <span style="font-family:'Jakarta';font-weight:400;font-size:12px;color:var(--ink-light);">8h 0m</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', i===j));
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', i===j));
+}
+
+function updateText(val) {
+  if (!val.trim()) return;
+  document.querySelectorAll('.preview').forEach(el => el.textContent = val);
+}
+</script>
+</body>
+</html>

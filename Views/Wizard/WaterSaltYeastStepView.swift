@@ -27,6 +27,7 @@ struct WaterSaltYeastStepView: View {
                         Text("Enter any value from 1–999%")
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(.secondary)
+                            .tipText()
                     }
                 }
                 .tint(Color(hex: "D2B96A"))
@@ -96,16 +97,17 @@ struct WaterSaltYeastStepView: View {
             } header: {
                 Text("Water")
             } footer: {
-                if hydrateOwnWay {
-                    Text("Slider hidden — any value from 1–999% accepted. The formula scales accordingly.")
-                        .font(.system(size: 11, design: .monospaced))
-                } else if isFromConversion {
-                    Text("Pre-filled from your volume recipe  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
-                        .font(.system(size: 11, design: .monospaced))
-                } else {
-                    Text("Style default: \(Int(styleDefault * 100))%  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
-                        .font(.system(size: 11, design: .monospaced))
+                Group {
+                    if hydrateOwnWay {
+                        Text("Slider hidden — any value from 1–999% accepted. The formula scales accordingly.")
+                    } else if isFromConversion {
+                        Text("Pre-filled from your volume recipe  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
+                    } else {
+                        Text("Style default: \(Int(styleDefault * 100))%  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
+                    }
                 }
+                .font(.system(size: 11, design: .monospaced))
+                .tipText()
             }
             .listRowBackground(Color.clear)
 
@@ -133,13 +135,15 @@ struct WaterSaltYeastStepView: View {
             } header: {
                 Text("Salt")
             } footer: {
-                if isFromConversion {
-                    Text("Pre-filled from your volume recipe  ·  typical: 2.5–3%")
-                        .font(.system(size: 11, design: .monospaced))
-                } else {
-                    Text("Typical: 2.5–3% of flour weight")
-                        .font(.system(size: 11, design: .monospaced))
+                Group {
+                    if isFromConversion {
+                        Text("Pre-filled from your volume recipe  ·  typical: 2.5–3%")
+                    } else {
+                        Text("Typical: 2.5–3% of flour weight")
+                    }
                 }
+                .font(.system(size: 11, design: .monospaced))
+                .tipText()
             }
             .listRowBackground(Color.clear)
 
@@ -174,13 +178,15 @@ struct WaterSaltYeastStepView: View {
             } header: {
                 Text("Yeast")
             } footer: {
-                if isFromConversion {
-                    Text("Pre-filled from your volume recipe  ·  \(yeastType.typicalRange)")
-                        .font(.system(size: 11, design: .monospaced))
-                } else {
-                    Text(yeastType.typicalRange)
-                        .font(.system(size: 11, design: .monospaced))
+                Group {
+                    if isFromConversion {
+                        Text("Pre-filled from your volume recipe  ·  \(yeastType.typicalRange)")
+                    } else {
+                        Text(yeastType.typicalRange)
+                    }
                 }
+                .font(.system(size: 11, design: .monospaced))
+                .tipText()
             }
             .listRowBackground(Color.clear)
         }

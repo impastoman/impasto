@@ -96,6 +96,7 @@ struct TargetStepView: View {
             } footer: {
                 Text("Diameter is approximate · varies by stretch and thickness · leave blank to use estimate")
                     .font(.system(size: 11, design: .monospaced))
+                    .tipText()
             }
             .listRowBackground(Color.clear)
 
@@ -110,6 +111,7 @@ struct TargetStepView: View {
                         Text("stuck to bowl, hands, scraper")
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(.secondary)
+                            .tipText()
                     }
                     Spacer()
                     TextField(formattedBufferDisplay(), text: $bufferGramsText)
@@ -133,6 +135,7 @@ struct TargetStepView: View {
             } footer: {
                 Text("~2.5% of total dough weight is a good starting point · decreases as technique improves")
                     .font(.system(size: 11, design: .monospaced))
+                    .tipText()
             }
             .listRowBackground(Color.clear)
         }

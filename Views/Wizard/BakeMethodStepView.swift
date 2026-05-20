@@ -39,6 +39,7 @@ struct BakeMethodStepView: View {
             } footer: {
                 Text("You can save settings for multiple setups — choose which to use at prep.")
                     .font(.system(size: 11, design: .monospaced))
+                    .tipText()
             }
             .listRowBackground(Color.clear)
 

@@ -166,6 +166,7 @@ struct BakeLogDetailView: View {
             } footer: {
                 Text("Opens the recipe wizard pre-filled with bake log settings. Saves as a new recipe variant.")
                     .font(.system(size: 11, design: .monospaced))
+                    .tipText()
             }
             .listRowBackground(Color.clear)
         }

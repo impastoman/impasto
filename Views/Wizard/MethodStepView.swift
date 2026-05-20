@@ -57,6 +57,7 @@ struct MethodStepView: View {
                             .font(.system(size: 12, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
+                    .tipText()
                 } header: { Text("Direct method") }
             }
         }
@@ -105,6 +106,7 @@ struct MethodStepView: View {
                 Text("No saved preferments yet — create one below or from the Library.")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
+                    .tipText()
             }
 
             Button {
@@ -153,6 +155,7 @@ struct MethodStepView: View {
                     Text("Enter any value from 1–999%")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .tipText()
                 }
             }
             .tint(Color(hex: "D2B96A"))
@@ -199,6 +202,7 @@ struct MethodStepView: View {
                     Text(prefermentNote)
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundColor(.secondary)
+                        .tipText()
 
                     HStack(spacing: 0) {
                         ForEach(hydrationZones, id: \.label) { zone in
@@ -227,6 +231,7 @@ struct MethodStepView: View {
                 }
             }
             .font(.system(size: 11, design: .monospaced))
+            .tipText()
         }
     }
 
@@ -267,7 +272,7 @@ struct MethodStepView: View {
             }
             .padding(.vertical, 4)
         } header: { Text("Preferment ratio") }
-          footer: { Text("Percentage of total flour that goes into the preferment. Typical: 20–40%  ·  tap field to type any value from 1–999%").font(.system(size: 11, design: .monospaced)) }
+          footer: { Text("Percentage of total flour that goes into the preferment. Typical: 20–40%  ·  tap field to type any value from 1–999%").font(.system(size: 11, design: .monospaced)).tipText() }
     }
 
     @ViewBuilder
@@ -357,7 +362,7 @@ struct MethodStepView: View {
                 .foregroundColor(Color(hex: "D2B96A"))
             }
         } header: { Text("Save to Library") }
-          footer: { Text("Optional — save this preferment for reuse in future recipes") }
+          footer: { Text("Optional — save this preferment for reuse in future recipes").tipText() }
         .listRowBackground(Color.clear)
     }
 
