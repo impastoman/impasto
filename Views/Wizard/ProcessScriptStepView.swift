@@ -167,6 +167,7 @@ struct ProcessScriptStepView: View {
             } else {
                 TextField("Name this process to save...", text: $saveProcessName)
                     .font(.system(size: 13, design: .monospaced))
+                    .textFieldBox()
                 Button("Save to Library") {
                     let savedProcess = SavedProcess(
                         name: saveProcessName.isEmpty ? "Untitled Process" : saveProcessName,
@@ -254,6 +255,7 @@ struct ProcessCardRow: View {
                             set: { card.customTitle = $0.isEmpty ? nil : $0 }
                         ))
                         .font(.system(.body, design: .monospaced))
+                        .textFieldBox()
                     }
                 }
 
@@ -324,6 +326,7 @@ struct ProcessCardRow: View {
                         TextField("Add a note for this step...", text: $card.recipeNote, axis: .vertical)
                             .font(.system(size: 13, design: .monospaced))
                             .lineLimit(2...)
+                            .notesBox()
                     }
                 }
                 .padding(.bottom, 8)
@@ -440,8 +443,9 @@ struct DurationField: View {
                 .keyboardType(.numberPad)
                 .frame(width: 44)
                 .font(.system(size: 13, design: .monospaced))
-                .multilineTextAlignment(.trailing)
+                .multilineTextAlignment(.center)
                 .foregroundColor(valueColor)
+                .inputBox()
                 .onChange(of: value) { _, v in
                     seconds = unit.toSeconds(v)
                 }

@@ -383,9 +383,10 @@ struct StandalonePrefermentBuilderView: View {
                             HStack(spacing: 2) {
                                 TextField("50", text: $hydrationText)
                                     .keyboardType(.numberPad)
-                                    .multilineTextAlignment(.trailing)
+                                    .multilineTextAlignment(.center)
                                     .frame(width: 44)
                                     .font(.system(size: 15, design: .monospaced))
+                                    .inputBox()
                                     .onChange(of: hydrationText) { _, val in
                                         if let d = Double(val), d >= 40, d <= 120 {
                                             hydration = d / 100

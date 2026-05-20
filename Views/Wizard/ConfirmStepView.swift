@@ -45,6 +45,7 @@ struct ConfirmStepView: View {
             Section("Name your recipe") {
                 TextField("e.g. My Neapolitan", text: $name)
                     .font(.system(.body, design: .monospaced))
+                    .textFieldBox()
             }
             .listRowBackground(Color.clear)
 

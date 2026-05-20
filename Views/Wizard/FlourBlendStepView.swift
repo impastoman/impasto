@@ -195,6 +195,7 @@ struct FlourBlendStepView: View {
             } else {
                 TextField("Name this blend to save...", text: $saveBlendName)
                     .font(.system(size: 13, design: .monospaced))
+                    .textFieldBox()
                 Button("Save to Library") {
                     var toSave = flourBlend
                     toSave.name = saveBlendName.isEmpty ? "Untitled Blend" : saveBlendName
@@ -288,11 +289,14 @@ struct FlourComponentRow: View {
                     .keyboardType(.decimalPad)
                     .frame(width: 72)
                     .font(.system(size: 13, design: .monospaced))
+                    .multilineTextAlignment(.center)
+                    .inputBox()
                 Text("% gluten").font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                 Spacer()
                 TextField("brand / note", text: $component.brand)
                     .font(.system(size: 13, design: .monospaced))
                     .multilineTextAlignment(.trailing)
+                    .textFieldBox()
             }
 
             if !component.type.typicalGlutenRange.isEmpty {
@@ -344,6 +348,7 @@ struct AdditiveRow: View {
             HStack {
                 TextField("note", text: $additive.note)
                     .font(.system(size: 13, design: .monospaced))
+                    .textFieldBox()
                 if !additive.type.typicalRange.isEmpty {
                     Text("Typical: \(additive.type.typicalRange)")
                         .font(.system(size: 11, design: .monospaced))

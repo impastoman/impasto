@@ -119,7 +119,13 @@ struct LiveSessionView: View {
                         .font(.system(size: 14, design: .monospaced))
                         .padding(8)
                         .scrollContentBackground(.hidden)
-                        .background(Color(hex: "F5F1E8"))
+                        .background(Color(hex: "F0EDE4"))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color(hex: "D2B96A").opacity(0.4), lineWidth: 1)
+                        )
+                        .padding(12)
                 }
                 .background(Color(hex: "F5F1E8").ignoresSafeArea())
                 .navigationTitle("Session Notes")
