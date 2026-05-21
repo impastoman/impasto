@@ -29,6 +29,7 @@ struct SessionLogView: View {
     @State private var showCamera = false
     @State private var showLibraryPicker = false
     @State private var viewerItem: PhotoViewerItem? = nil
+    @State private var showShare = false
 
     init(vm: SessionViewModel, recipe: Recipe,
          bakeTimeSeconds: TimeInterval = 0,
@@ -298,6 +299,11 @@ struct SessionLogView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(Color(hex: "D2B96A"))
 
+            Button("Share this session →") { showShare = true }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .foregroundColor(Color(hex: "D2B96A"))
+                .font(.system(size: 13, design: .monospaced))
+
             Button("↩ Exit Session") { showGoHomeAlert = true }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(.secondary)
@@ -308,6 +314,24 @@ struct SessionLogView: View {
             Button("Save to history") { save() }
             Button("Leave without saving", role: .destructive) { goHome() }
             Button("Cancel", role: .cancel) { }
+        }
+        .fullScreenCover(isPresented: $showShare) {
+            // Build a preview BakeLog from current in-session state — never saved.
+            let previewLog = vm.buildBakeLog(
+                rating: rating,
+                crustTags: [],
+                crumbTags: [],
+                customCrustTags: [],
+                customCrumbTags: [],
+                notes: notes,
+                bakeTimeSeconds: bakeTimeSeconds,
+                ovenTempAchieved: ovenTempAchieved,
+                crustColor: crustColor,
+                bottomResult: bottomResult,
+                topResult: topResult,
+                photos: aggregatedPhotos
+            )
+            PhotoShareView(log: previewLog, recipe: recipe, scope: .wholeSession)
         }
     }
 

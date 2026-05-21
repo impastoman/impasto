@@ -697,7 +697,71 @@ The color logic (`vm.isOvertime ? .orange : Color(hex: "D2B96A")`) already exist
 
 ---
 
-## Social Photo Builder — Queued (version TBD)
+## Seed Recipe Tweak — "Perfectly good process" — Queued (next build)
+
+Bump the first kneading step's duration to **10 minutes** (up from current 9 min).
+
+**Location:** `ViewModels/RecipeStore.swift` → `makeSeedProcess()` — the first `.kneading` card (immediately after `.bassinage`).
+
+```swift
+// Current
+card(.kneading, duration: 9 * 60, note: "This is part 1 of kneading; …")
+
+// Change to
+card(.kneading, duration: 10 * 60, note: "This is part 1 of kneading; …")
+```
+
+The follow-on `.kneading` (post-salt, 1 min) is unchanged.
+
+**Note on user phrasing:** the request said "10 minutes instead of 8" but the current value in code is 9 minutes (likely the user was remembering an earlier version). Final value is unambiguously 10 — applying the literal target.
+
+**Seed re-application:** because `seedKey` gates re-seeding by version (`impasto_seeded_v5`, etc.), bumping this requires either (a) incrementing the seedKey version so existing users get the new value, or (b) accepting that only fresh installs see the change. Mention which path is preferred when scoping.
+
+---
+
+## Social Photo Builder — Shipped (v0.9.x)
+
+Initial build wired across three entry points: SessionLogView (mid-session
+"How'd it go?" — uses a preview BakeLog built from current in-memory
+state), BakeLogDetailView (saved history, toolbar gear), and HistoryView
+(per-log "Share this session →" link under each section).
+
+Implementation lives in `Views/Sharing/PhotoShareView.swift`:
+- `ShareAspect` enum (1:1, 4:5, 9:16, native) — segmented picker in editor;
+  360pt preview × 3× scale = 1080px on long side for IG-friendly export
+- `ShareBlock` + `ShareBlockExtractor` — derives content from
+  BakeLog/Recipe/scope. Blocks with no underlying data are omitted;
+  Formula block excludes buffer per spec
+- `ShareCanvasView` — composable view used for both editor preview AND
+  ImageRenderer rasterization. Watermark "Baked with **Stesura**"
+  ("Baked with" de-emphasized, "Stesura" bold) pinned bottom-right
+- `DraggableShareBlock` — DragGesture with dragOrigin snapshot, clamped to
+  6%–94% of canvas. Position remembered for the session
+- `PhotoShareView` — full editor with aspect picker, scope picker
+  (whole-session vs per-pizza), block toggles, drag-to-reposition,
+  PhotoPicker fallback for no-photo bakes, ImageRenderer + iOS share
+  sheet export via UIActivityViewController
+
+Per the v1 decisions:
+- Stars render as ★★★★☆ glyphs (no numeric)
+- Preferment block has no emoji (other emoji blocks: 🌾 flour, 📋 process)
+- Save-to-Photos path skipped; iOS share sheet handles it natively
+- No-photo bake: PhotosPicker prompt, photo not persisted back to bake
+
+Per-pizza scope: PhotoShareView accepts `scope: ShareScope` at init; if
+the BakeLog has pizzaEntries, an in-editor segmented picker lets the
+user re-scope between whole-session and any specific bake. Block content
+re-derives via `.onChange(of: scope)`.
+
+Not yet wired:
+- PizzaDetailView's own Share button (sharing a single pizza directly
+  from its detail sheet). Users can currently achieve the same result
+  via session share + "Bake #X" scope picker. Trivial to add later by
+  threading `log` + `recipe` through PizzaDetailView's init.
+
+---
+
+## Original Spec (kept for reference)
 
 A photo-based share tool. The user selects a pizza photo (from a logged bake) as the background, then superimposes toggleable recipe info blocks over it. Output is a shareable image via the iOS share sheet.
 

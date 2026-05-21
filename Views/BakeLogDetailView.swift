@@ -11,6 +11,7 @@ struct BakeLogDetailView: View {
     @State private var saved = false
     @State private var showForkWizard = false
     @State private var viewerItem: PhotoViewerItem? = nil
+    @State private var showShare = false
 
     init(log: BakeLog, recipe: Recipe) {
         _log = State(initialValue: log)
@@ -33,6 +34,17 @@ struct BakeLogDetailView: View {
         }
         .navigationTitle(recipe.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showShare = true } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                .foregroundColor(Color(hex: "D2B96A"))
+            }
+        }
+        .fullScreenCover(isPresented: $showShare) {
+            PhotoShareView(log: log, recipe: recipe, scope: .wholeSession)
+        }
         .onAppear {
             // Promote legacy single-photo logs into the photos array so the
             // gallery can show + reorder them. Persisted on first reorder.

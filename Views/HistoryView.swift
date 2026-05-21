@@ -4,6 +4,15 @@ struct HistoryView: View {
     @EnvironmentObject var store: RecipeStore
     var onGoHome: (() -> Void)? = nil
     @State private var selectedPizza: PizzaEntry? = nil
+    @State private var shareContext: ShareLogContext? = nil
+
+    /// Identifiable wrapper for fullScreenCover(item:) — pairs the log + recipe
+    /// the user wants to share.
+    struct ShareLogContext: Identifiable {
+        let id: UUID    // = log.id
+        let log: BakeLog
+        let recipe: Recipe
+    }
 
     var allLogs: [(BakeLog, Recipe)] {
         store.recipes
@@ -33,6 +42,18 @@ struct HistoryView: View {
                                 .font(.system(size: 12, design: .monospaced))
                                 .foregroundColor(Color(hex: "D2B96A"))
                         }
+
+                        Button {
+                            shareContext = ShareLogContext(id: log.id, log: log, recipe: recipe)
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share this session →")
+                            }
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(Color(hex: "D2B96A"))
+                        }
+                        .buttonStyle(.plain)
                     } header: {
                         sessionHeader(log: log, recipe: recipe)
                     }
@@ -74,6 +95,9 @@ struct HistoryView: View {
                 },
                 set: { store.updatePizzaEntry($0) }
             ))
+        }
+        .fullScreenCover(item: $shareContext) { ctx in
+            PhotoShareView(log: ctx.log, recipe: ctx.recipe, scope: .wholeSession)
         }
     }
 
