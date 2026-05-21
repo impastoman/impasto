@@ -61,7 +61,19 @@ struct HistoryView: View {
             }
         }
         .sheet(item: $selectedPizza) { pizza in
-            PizzaDetailView(entry: pizza)
+            // Look up the live entry by id across all recipes' bake logs;
+            // write back through the store so Make main / reorder persists.
+            PizzaDetailView(entry: Binding(
+                get: {
+                    for (log, _) in allLogs {
+                        if let found = log.pizzaEntries.first(where: { $0.id == pizza.id }) {
+                            return found
+                        }
+                    }
+                    return pizza
+                },
+                set: { store.updatePizzaEntry($0) }
+            ))
         }
     }
 

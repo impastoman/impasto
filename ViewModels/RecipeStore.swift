@@ -69,6 +69,21 @@ class RecipeStore: ObservableObject {
         recipes[ri].bakeLogs[li] = log; saveRecipes()
     }
 
+    /// Walks recipes → bakeLogs → pizzaEntries to find and replace a
+    /// PizzaEntry by its UUID. Used by the history pizza-detail sheet
+    /// where the caller doesn't know which recipe/log owns the entry.
+    func updatePizzaEntry(_ entry: PizzaEntry) {
+        for ri in recipes.indices {
+            for li in recipes[ri].bakeLogs.indices {
+                if let ei = recipes[ri].bakeLogs[li].pizzaEntries.firstIndex(where: { $0.id == entry.id }) {
+                    recipes[ri].bakeLogs[li].pizzaEntries[ei] = entry
+                    saveRecipes()
+                    return
+                }
+            }
+        }
+    }
+
     // MARK: - Preferment Recipes (legacy full model)
 
     func addPreferment(_ p: PrefermentRecipe) { prefermentRecipes.append(p); savePreferments() }
