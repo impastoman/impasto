@@ -28,6 +28,7 @@ struct SessionLogView: View {
     @State private var showPhotoOptions = false
     @State private var showCamera = false
     @State private var showLibraryPicker = false
+    @State private var viewerItem: PhotoViewerItem? = nil
 
     init(vm: SessionViewModel, recipe: Recipe,
          bakeTimeSeconds: TimeInterval = 0,
@@ -78,6 +79,17 @@ struct SessionLogView: View {
             }
             .sheet(isPresented: $showCamera) { CameraPickerView(imageData: $pendingPhoto) }
             .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $pendingPhoto) }
+            .fullScreenCover(item: $viewerItem) { item in
+                FullScreenPhotoViewer(
+                    photo: item.photo,
+                    canMakeMain: item.id != 0,
+                    onMakeMain: {
+                        guard aggregatedPhotos.indices.contains(item.id) else { return }
+                        let moved = aggregatedPhotos.remove(at: item.id)
+                        aggregatedPhotos.insert(moved, at: 0)
+                    }
+                )
+            }
         }
         .onChange(of: pendingPhoto) { _, data in
             if let d = data { aggregatedPhotos.append(d); pendingPhoto = nil }
@@ -104,11 +116,14 @@ struct SessionLogView: View {
             } else {
                 PhotoGalleryView(
                     photos: $aggregatedPhotos,
-                    onAdd: { showPhotoOptions = true }
+                    onAdd: { showPhotoOptions = true },
+                    onTap: { idx in
+                        viewerItem = PhotoViewerItem(id: idx, photo: aggregatedPhotos[idx])
+                    }
                 )
             }
         } header: { Text("Session photos") }
-          footer: { Text("Every photo from every bake is collected here. Drag to reorder — the first photo becomes the session thumbnail. Add more to capture the whole session.").font(.system(size: 11, design: .monospaced)).tipText() }
+          footer: { Text("Every photo from every bake is collected here. Tap to view full-size or pick a session thumbnail. Drag to reorder. Add more to capture the whole session.").font(.system(size: 11, design: .monospaced)).tipText() }
         .listRowBackground(Color.clear)
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }

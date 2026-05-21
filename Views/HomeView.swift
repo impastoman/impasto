@@ -221,7 +221,7 @@ private struct ActiveSessionRow: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text(vm.isInBakeStep ? timeString(vm.bakeElapsed) : timeString(vm.elapsed))
+                Text(previewTime)
                     .font(.system(size: 14, design: .monospaced))
                     .foregroundColor(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
                 if vm.isOvertime {
@@ -242,9 +242,37 @@ private struct ActiveSessionRow: View {
         return vm.currentCard?.title.uppercased() ?? ""
     }
 
+    /// Minimized session preview:
+    ///   • Bake step → count UP (no target duration)
+    ///   • Current step has a duration → count DOWN to 0; flip to +MM:SS overtime
+    ///   • Current step is action-only (duration == 0) → count UP
+    /// Mode-agnostic — works the same in Automatic and Manual.
+    private var previewTime: String {
+        if vm.isInBakeStep { return timeString(vm.bakeElapsed) }
+        let target = vm.currentCard?.duration ?? 0
+        if target > 0 {
+            let remaining = target - vm.elapsed
+            if remaining >= 0 {
+                return countdown(remaining)
+            } else {
+                return "+" + countdown(-remaining)
+            }
+        }
+        return timeString(vm.elapsed)
+    }
+
     private func timeString(_ t: TimeInterval) -> String {
         let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60; let s = Int(t) % 60
         return String(format: "%02d:%02d:%02d", h, m, s)
+    }
+
+    /// Compact MM:SS (or HH:MM:SS when ≥ 1 hour). Used by the countdown branch
+    /// where the user cares about remaining minutes, not the H placeholder.
+    private func countdown(_ t: TimeInterval) -> String {
+        let total = Int(t.rounded())
+        let h = total / 3600; let m = (total % 3600) / 60; let s = total % 60
+        if h > 0 { return String(format: "%d:%02d:%02d", h, m, s) }
+        return String(format: "%02d:%02d", m, s)
     }
 }
 

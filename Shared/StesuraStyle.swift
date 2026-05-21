@@ -205,6 +205,9 @@ struct PhotoGalleryView: View {
     var allowsReorder: Bool = true
     /// Tap-target for the "+ Add" tile. If nil and isEditable is true, no add tile shows.
     var onAdd: (() -> Void)? = nil
+    /// Tap on a photo tile body → opens the full-screen viewer with this index.
+    /// When omitted, the tile body is non-tappable (delete + drag still work).
+    var onTap: ((Int) -> Void)? = nil
     var thumbnailSize: CGFloat = 100
 
     var body: some View {
@@ -226,23 +229,32 @@ struct PhotoGalleryView: View {
     @ViewBuilder
     private func photoTile(uiImage: UIImage, idx: Int) -> some View {
         ZStack(alignment: .topTrailing) {
-            ZStack(alignment: .bottomLeading) {
-                Image(uiImage: uiImage)
-                    .resizable().scaledToFill()
-                    .frame(width: thumbnailSize, height: thumbnailSize)
-                    .clipped()
-                    .cornerRadius(8)
-                if idx == 0 && photos.count > 1 {
-                    Text("MAIN")
-                        .font(.system(size: 9, design: .monospaced))
-                        .tracking(1)
-                        .padding(.horizontal, 5).padding(.vertical, 2)
-                        .background(Color(hex: "D2B96A"))
-                        .foregroundColor(.white)
-                        .cornerRadius(3)
-                        .padding(5)
+            // Image (and MAIN badge) — tappable to open the full-screen viewer
+            // when onTap is provided. Wrapped in a Button so child gestures
+            // (delete X) layered above can still intercept their own taps.
+            Button {
+                onTap?(idx)
+            } label: {
+                ZStack(alignment: .bottomLeading) {
+                    Image(uiImage: uiImage)
+                        .resizable().scaledToFill()
+                        .frame(width: thumbnailSize, height: thumbnailSize)
+                        .clipped()
+                        .cornerRadius(8)
+                    if idx == 0 && photos.count > 1 {
+                        Text("MAIN")
+                            .font(.system(size: 9, design: .monospaced))
+                            .tracking(1)
+                            .padding(.horizontal, 5).padding(.vertical, 2)
+                            .background(Color(hex: "D2B96A"))
+                            .foregroundColor(.white)
+                            .cornerRadius(3)
+                            .padding(5)
+                    }
                 }
             }
+            .buttonStyle(.plain)
+            .disabled(onTap == nil)
             if isEditable {
                 Button { photos.remove(at: idx) } label: {
                     Image(systemName: "xmark.circle.fill")
@@ -287,5 +299,91 @@ struct PhotoGalleryView: View {
               photos.indices.contains(dst) else { return }
         let item = photos.remove(at: src)
         photos.insert(item, at: dst)
+    }
+}
+
+// MARK: - Full-screen photo viewer + cover picker
+//
+// Used together with PhotoGalleryView's `onTap`. Tapping a thumbnail
+// presents this viewer; if the tapped photo isn't already at index 0,
+// the "Make main?" button moves it to position 0 (the cover).
+// Persistence happens automatically through the parent's binding setter.
+
+/// Identifiable wrapper so `.fullScreenCover(item:)` can present the viewer
+/// keyed on the tapped tile's index.
+struct PhotoViewerItem: Identifiable, Equatable {
+    let id: Int
+    let photo: Data
+}
+
+struct FullScreenPhotoViewer: View {
+    let photo: Data
+    /// True when this photo is NOT yet the main thumbnail (idx > 0).
+    /// When false, the button is replaced by a "Main photo" badge.
+    let canMakeMain: Bool
+    /// Invoked when the user taps "Make main?". Mutate the source array
+    /// in this closure — the viewer will then dismiss itself.
+    let onMakeMain: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            if let img = UIImage(data: photo) {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .overlay(alignment: .topLeading) {
+            Button { dismiss() } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Color.black.opacity(0.5))
+                    .clipShape(Circle())
+            }
+            .padding(.leading, 16)
+            .padding(.top, 16)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            Group {
+                if canMakeMain {
+                    Button {
+                        onMakeMain()
+                        dismiss()
+                    } label: {
+                        Text("Make main?")
+                            .font(.system(size: 13, design: .monospaced))
+                            .tracking(1)
+                            .foregroundColor(Color(hex: "D2B96A"))
+                            .padding(.horizontal, 18).padding(.vertical, 10)
+                            .background(Color.black.opacity(0.6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 22)
+                                    .stroke(Color(hex: "D2B96A"), lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 22))
+                    }
+                } else {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(Color(hex: "D2B96A"))
+                        Text("Main photo")
+                            .font(.system(size: 13, design: .monospaced))
+                            .tracking(1)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 18).padding(.vertical, 10)
+                    .background(Color.black.opacity(0.6))
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
+                }
+            }
+            .padding(.trailing, 16)
+            .padding(.bottom, 24)
+        }
+        .preferredColorScheme(.dark)
     }
 }

@@ -10,6 +10,7 @@ struct BakeLogDetailView: View {
     @State private var annotatedNotes: String
     @State private var saved = false
     @State private var showForkWizard = false
+    @State private var viewerItem: PhotoViewerItem? = nil
 
     init(log: BakeLog, recipe: Recipe) {
         _log = State(initialValue: log)
@@ -47,6 +48,19 @@ struct BakeLogDetailView: View {
             }
             .environmentObject(store)
         }
+        .fullScreenCover(item: $viewerItem) { item in
+            FullScreenPhotoViewer(
+                photo: item.photo,
+                canMakeMain: item.id != 0,
+                onMakeMain: {
+                    guard log.photos.indices.contains(item.id) else { return }
+                    let moved = log.photos.remove(at: item.id)
+                    log.photos.insert(moved, at: 0)
+                    log.photoData = log.photos.first
+                    store.updateBakeLog(log, recipeId: recipe.id)
+                }
+            )
+        }
     }
 
     // MARK: - As Baked tab
@@ -66,10 +80,13 @@ struct BakeLogDetailView: View {
                         ),
                         isEditable: false,
                         allowsReorder: true,
+                        onTap: { idx in
+                            viewerItem = PhotoViewerItem(id: idx, photo: log.photos[idx])
+                        },
                         thumbnailSize: 140
                     )
                 } header: { Text("Photos") }
-                  footer: { Text("Drag to reorder. The first photo is this bake's main thumbnail.").font(.system(size: 11, design: .monospaced)).tipText() }
+                  footer: { Text("Tap any photo to view it full-size or set it as the main thumbnail. Drag photos to reorder.").font(.system(size: 11, design: .monospaced)).tipText() }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
             }

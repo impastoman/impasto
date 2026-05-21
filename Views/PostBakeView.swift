@@ -58,7 +58,16 @@ struct PostBakeView: View {
             .environmentObject(sessionManager)
         }
         .sheet(item: $selectedPizza) { pizza in
-            PizzaDetailView(entry: pizza)
+            // Bridge selectedPizza (value snapshot) → a write-back binding
+            // into vm.pizzaEntries so Make-main / reorder persists.
+            PizzaDetailView(entry: Binding(
+                get: { vm.pizzaEntries.first(where: { $0.id == pizza.id }) ?? pizza },
+                set: { newValue in
+                    if let idx = vm.pizzaEntries.firstIndex(where: { $0.id == pizza.id }) {
+                        vm.pizzaEntries[idx] = newValue
+                    }
+                }
+            ))
         }
         .sheet(isPresented: $showCamera) {
             CameraPickerView(imageData: $pendingPhoto)
@@ -185,8 +194,9 @@ struct PostBakeView: View {
 // MARK: - Individual bake detail
 
 struct PizzaDetailView: View {
-    let entry: PizzaEntry
+    @Binding var entry: PizzaEntry
     @Environment(\.dismiss) private var dismiss
+    @State private var viewerItem: PhotoViewerItem? = nil
 
     var body: some View {
         NavigationStack {
@@ -194,11 +204,21 @@ struct PizzaDetailView: View {
                 if !entry.displayPhotos.isEmpty {
                     Section {
                         PhotoGalleryView(
-                            photos: .constant(entry.displayPhotos),
+                            photos: Binding(
+                                get: { entry.displayPhotos },
+                                set: { newValue in
+                                    entry.photos = newValue
+                                    entry.photoData = newValue.first
+                                }
+                            ),
                             isEditable: false,
-                            allowsReorder: false
+                            allowsReorder: true,
+                            onTap: { idx in
+                                viewerItem = PhotoViewerItem(id: idx, photo: entry.displayPhotos[idx])
+                            }
                         )
                     } header: { Text("Photos") }
+                      footer: { Text("Tap a photo to view it full-size or set it as this bake's main thumbnail. Drag to reorder.").font(.system(size: 11, design: .monospaced)).tipText() }
                     .listRowBackground(Color.clear)
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
@@ -247,6 +267,20 @@ struct PizzaDetailView: View {
             }
         }
         .preferredColorScheme(.light)
+        .fullScreenCover(item: $viewerItem) { item in
+            FullScreenPhotoViewer(
+                photo: item.photo,
+                canMakeMain: item.id != 0,
+                onMakeMain: {
+                    var arr = entry.displayPhotos
+                    guard arr.indices.contains(item.id) else { return }
+                    let moved = arr.remove(at: item.id)
+                    arr.insert(moved, at: 0)
+                    entry.photos = arr
+                    entry.photoData = arr.first
+                }
+            )
+        }
     }
 
     func shortTime(_ t: TimeInterval) -> String {
