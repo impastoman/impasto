@@ -744,6 +744,38 @@ The user toggles which blocks appear. Each block is white solid text on a grey b
 
 ---
 
+### Tap-to-fullscreen + "Make main?" cover picker (Queued, ships with social sharing)
+
+A lightweight cover-picker UX to pair with the social photo builder, so users can curate which photo represents a bake / session before exporting.
+
+**Two contexts, same interaction:**
+
+1. **Bake history detail** (`BakeLogDetailView` "As Baked" tab — and any per-bake photo gallery, e.g. `PizzaDetailView`)
+   - Tap any photo in the gallery → opens a full-screen viewer
+   - Off to the side (corner button or trailing toolbar): **"Make main?"**
+   - Tap → that photo becomes the bake's main thumbnail (moves to index 0 in `BakeLog.photos`, with legacy `photoData` kept in sync via the same pattern already used by drag-reorder)
+
+2. **Session review** (`SessionLogView` "How'd it go?" — the aggregated session gallery added in the multi-photo pass)
+   - Tap any photo → full-screen viewer
+   - **"Make main?"** button → that photo becomes the session cover (moves to index 0 in `aggregatedPhotos`, which then flows into `BakeLog.photos` on save)
+
+**Why "Make main?" and not "Set as cover":**
+- Reads as a question — matches the Stesura voice (educational, not prescriptive)
+- The drag-to-reorder gallery already lets power users drag to position 0 — this tap-flow is the discoverable alternative for users who don't think to drag
+
+**Implementation sketch:**
+- Reuse `PhotoGalleryView` thumbnails as tap targets — wrap each tile in a `Button` action that opens a `FullScreenPhotoViewer` sheet, passing the photo and current index
+- `FullScreenPhotoViewer`:
+  - Image fills the screen (aspect-fit, black background)
+  - Top-trailing toolbar: **Done** to dismiss
+  - One side button (probably trailing toolbar or floating bottom-right): **"Make main?"** — disabled when index == 0
+  - Optional swipe-between-photos (TabView with `.tabViewStyle(.page)`)
+- On confirm: mutate the binding (`photos.move(fromOffsets: [idx], toOffset: 0)`) — the existing PhotoGalleryView binding setter already handles persistence (store.updateBakeLog for history, aggregatedPhotos for session)
+
+**Ties into:** the Social Photo Builder above — once a user has picked a "main" via this flow, the share feature's auto-photo selection (main session photo → first pizza photo → cream fallback) uses that explicit choice as the highest-priority source.
+
+---
+
 **Deferred until:** social/sharing feature is actively scoped for development.
 
 ---
