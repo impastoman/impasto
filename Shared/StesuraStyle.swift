@@ -243,7 +243,12 @@ struct PhotoGalleryView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                ForEach(Array(photos.enumerated()), id: \.offset) { idx, data in
+                // ID by the Data itself, not the offset, so reordering doesn't
+                // confuse SwiftUI into reusing the same position-cached tile.
+                // Two identical photos in one gallery would clash, but for
+                // user-shot pizza photos that's effectively never going to
+                // happen (different timestamps / compression bytes).
+                ForEach(Array(photos.enumerated()), id: \.element) { idx, data in
                     if let uiImage = UIImage(data: data) {
                         photoTile(uiImage: uiImage, idx: idx)
                     }
@@ -382,8 +387,14 @@ struct FullScreenPhotoViewer: View {
             Group {
                 if canMakeMain {
                     Button {
-                        onMakeMain()
+                        // Dismiss first, then run the mutation after the
+                        // cover finishes transitioning out. Mutating parent
+                        // @State while the cover is still presenting causes
+                        // SwiftUI to drop the update in some cases.
                         dismiss()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            onMakeMain()
+                        }
                     } label: {
                         Text("Make main?")
                             .font(.system(size: 13, design: .monospaced))
