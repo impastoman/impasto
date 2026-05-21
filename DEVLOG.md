@@ -648,6 +648,55 @@ A self-contained sourdough starter management layer that sits alongside the exis
 
 ---
 
+## Session-in-Progress Countdown Preview — Queued (next build)
+
+The `ActiveSessionRow` on the Welcome screen (the "Sessions in progress" card) currently always shows a count-up timer (`vm.elapsed` formatted as `HH:MM:SS`). This should switch behavior based on the current step's duration.
+
+**New behavior — applies regardless of Automatic vs. Manual mode:**
+
+- **If the current process step has an assigned duration** (`vm.currentCard?.duration > 0`)
+  - Show **countdown to 0** from the assigned duration: `remaining = duration - elapsed`
+  - Format: `MM:SS` while remaining > 0; clamp to `00:00` once reached
+  - **If overtime** (`elapsed > duration`): show `+MM:SS` in amber/orange (same overtime treatment as the live session view) — the row already shows "overtime" subtext when `vm.isOvertime`; keep that
+  - Rationale: when the live session is minimized, "time until the next thing happens" is more actionable than "time since this thing started"
+
+- **If the current process step has no duration** (`duration == 0`, action-only steps)
+  - Keep current behavior: count up from `00:00:00`
+  - Action-only steps have no target, so a countdown is meaningless
+
+**Implementation location:** `Views/HomeView.swift` → `ActiveSessionRow.timeString(_:)` and the `Text(vm.isInBakeStep ? timeString(vm.bakeElapsed) : timeString(vm.elapsed))` line.
+
+**Implementation sketch:**
+```swift
+private var previewTime: String {
+    if vm.isInBakeStep {
+        return timeString(vm.bakeElapsed)   // unchanged: bake step always counts up
+    }
+    let target = vm.currentCard?.duration ?? 0
+    if target > 0 {
+        let remaining = target - vm.elapsed
+        if remaining >= 0 {
+            return countdownString(remaining)        // "MM:SS"
+        } else {
+            return "+" + countdownString(-remaining) // "+MM:SS" overtime
+        }
+    }
+    return timeString(vm.elapsed)           // no-duration step → count up
+}
+```
+
+The color logic (`vm.isOvertime ? .orange : Color(hex: "D2B96A")`) already exists and will continue to work since `vm.isOvertime` is computed the same way (`elapsed > duration`).
+
+**Out of scope for this change:** the in-session LiveSessionView already does countdown-vs-count-up correctly per mode; that stays as-is. This only touches the minimized "Session in progress" preview on Home.
+
+**Testing notes:**
+- Start a session, navigate to home → preview should show countdown from step duration
+- Let the step go past its duration → preview should flip to `+MM:SS` orange
+- Advance to an action-only step (e.g. "Combine") → preview should count up from `00:00:00`
+- Enter bake step → preview should count up bake time as it does today
+
+---
+
 ## Social Photo Builder — Queued (version TBD)
 
 A photo-based share tool. The user selects a pizza photo (from a logged bake) as the background, then superimposes toggleable recipe info blocks over it. Output is a shareable image via the iOS share sheet.
