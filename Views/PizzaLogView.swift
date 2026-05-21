@@ -42,6 +42,7 @@ struct PizzaLogView: View {
             .navigationTitle("Log Bake #\(vm.pizzaEntries.count + 1)")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { snapshotBakeTime = vm.bakeElapsed }
+            .keyboardDoneButton()
             .onChange(of: pendingPhoto) { _, data in
                 if let d = data { photos.append(d); pendingPhoto = nil }
             }

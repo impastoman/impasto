@@ -143,6 +143,36 @@ extension View {
     }
 }
 
+// MARK: - Tap-anywhere-to-dismiss-keyboard
+//
+// Installs a UIKit tap gesture recognizer on every window in the active
+// scene. The recognizer calls endEditing(_:) on the window, which dismisses
+// any active first responder (i.e. closes the keyboard).
+//
+// `cancelsTouchesInView = false` means the tap still flows through to
+// SwiftUI buttons / list rows / TextFields — so focusing a different field
+// works normally (the previous keyboard dismisses, then the newly tapped
+// field opens its own). Tapping outside any field just dismisses.
+
+extension UIApplication {
+    /// Call once at app startup (e.g. from the App's init or the root view's
+    /// onAppear) to install global tap-outside-to-dismiss-keyboard behavior.
+    func installDismissKeyboardOnTap() {
+        guard let scene = connectedScenes.first as? UIWindowScene else { return }
+        for window in scene.windows {
+            // Avoid double-installing across hot reloads / multiple onAppear fires.
+            if window.gestureRecognizers?.contains(where: { $0.name == "StesuraDismissKeyboardTap" }) == true {
+                continue
+            }
+            let tap = UITapGestureRecognizer(target: window, action: #selector(UIView.endEditing(_:)))
+            tap.name = "StesuraDismissKeyboardTap"
+            tap.cancelsTouchesInView = false
+            tap.requiresExclusiveTouchType = false
+            window.addGestureRecognizer(tap)
+        }
+    }
+}
+
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

@@ -11,6 +11,11 @@ struct StesuraApp: App {
                 .environmentObject(store)
                 .environmentObject(sessionManager)
                 .preferredColorScheme(.light)
+                .onAppear {
+                    // Install global tap-anywhere-to-dismiss-keyboard.
+                    // Idempotent — safe to call repeatedly.
+                    UIApplication.shared.installDismissKeyboardOnTap()
+                }
         }
     }
 }
