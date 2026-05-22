@@ -309,40 +309,42 @@ struct DraggableShareBlock: View {
         return editor.blocks[index]
     }
 
-    /// The visible tile (no positioning, no gestures). Used as the base
-    /// for both the editor-side draggable view and the rasterized output.
+    /// The visible tile. Font sizes and padding are multiplied by
+    /// block.scale so the tile's ACTUAL layout frame grows/shrinks —
+    /// not just the visual rendering. Means the overlay resize handle
+    /// follows the real bottom-right corner, and the tap area (the
+    /// content shape) matches what the user sees.
     private var tile: some View {
-        VStack(spacing: 3) {
-            HStack(spacing: 5) {
+        let s = block.scale
+        return VStack(spacing: 3 * s) {
+            HStack(spacing: 5 * s) {
                 if let emoji = block.type.emoji {
-                    Text(emoji).font(.system(size: 12))
+                    Text(emoji).font(.system(size: 12 * s))
                 }
                 Text(block.title.uppercased())
-                    .font(.system(size: 10, design: .monospaced))
-                    .tracking(1.4)
+                    .font(.system(size: 10 * s, design: .monospaced))
+                    .tracking(1.4 * s)
                     .foregroundColor(.white.opacity(0.78))
             }
             Text(block.body)
-                .font(.system(size: 13, design: .monospaced).weight(.medium))
+                .font(.system(size: 13 * s, design: .monospaced).weight(.medium))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 12 * s)
+        .padding(.vertical, 8 * s)
         .background(Color.black.opacity(0.55))
-        .cornerRadius(6)
+        .cornerRadius(6 * s)
     }
 
     var body: some View {
         tile
-            // Scale the tile to the user-chosen size. scaleEffect doesn't
-            // change the layout frame, but anchor: .center keeps the tile
-            // visually anchored at its position point as it grows/shrinks.
-            .scaleEffect(block.scale, anchor: .center)
             .contentShape(Rectangle())
             // Bottom-right resize handle. Only when draggable (editor),
-            // never in the rasterized export.
+            // never in the rasterized export. Anchored to the tile's
+            // ACTUAL bottom-trailing corner — since the tile's frame
+            // is what grew, the handle follows.
             .overlay(alignment: .bottomTrailing) {
                 if draggable {
                     resizeHandle
@@ -430,8 +432,7 @@ struct PhotoShareView: View {
     @StateObject private var editor: ShareEditorModel
 
     @State private var pickerItem: PhotosPickerItem?
-    @State private var showShareSheet = false
-    @State private var renderedImage: UIImage? = nil
+    @State private var shareItem: SharePayload? = nil
     @State private var rendering = false
     private let isPerPizzaCapable: Bool
 
@@ -539,10 +540,8 @@ struct PhotoShareView: View {
                 }
             }
         }
-        .sheet(isPresented: $showShareSheet) {
-            if let image = renderedImage {
-                ActivityShareSheet(items: [image])
-            }
+        .sheet(item: $shareItem) { payload in
+            ActivityShareSheet(items: [payload.image])
         }
     }
 
@@ -719,21 +718,14 @@ struct PhotoShareView: View {
 
     @MainActor
     private func renderAndShare() {
-        // Two attempts at ImageRenderer-based rasterization both produced
-        // a black bitmap on first invocation. Switched to the canonical
-        // UIKit pattern: UIHostingController + UIGraphicsImageRenderer +
-        // drawHierarchy(afterScreenUpdates: true). The afterScreenUpdates
-        // flag tells UIKit to flush any pending layout/render commits
-        // BEFORE snapshotting — which is exactly what was missing from
-        // the ImageRenderer path.
-        //
-        // The hosting controller's view must be in the window briefly
-        // for SwiftUI to render its hierarchy. We attach it off-screen
-        // at the bottom of the key window, snapshot, then remove.
-
+        // Render to UIImage via UIHostingController + drawHierarchy
+        // (afterScreenUpdates: true). Sheet presentation is via
+        // .sheet(item: $shareItem) — setting shareItem to a non-nil
+        // value atomically triggers the sheet WITH the image already
+        // baked into the payload. No more nil-race between setting
+        // an image and toggling a boolean.
         if let image = renderViaHostingController() {
-            renderedImage = image
-            showShareSheet = true
+            shareItem = SharePayload(image: image)
         }
     }
 
@@ -804,6 +796,15 @@ struct PhotoShareView: View {
 }
 
 // MARK: - UIActivityViewController bridge
+
+/// Identifiable wrapper so .sheet(item:) can present the share sheet
+/// atomically — the sheet and its image are bound together; the sheet
+/// doesn't open until the image is set, eliminating the race that made
+/// the first tap show a black sheet.
+struct SharePayload: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
 
 struct ActivityShareSheet: UIViewControllerRepresentable {
     let items: [Any]
