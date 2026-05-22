@@ -61,6 +61,7 @@ enum ShareScope: Equatable {
 }
 
 enum ShareBlockType: String, CaseIterable, Identifiable, Hashable {
+    case recipeName   = "Recipe name"
     case styleMethod  = "Style & method"
     case formula      = "Formula"
     case flourBlend   = "Flour blend"
@@ -128,6 +129,19 @@ struct ShareBlockExtractor {
         func nextX() -> CGFloat {
             defer { leftSide.toggle() }
             return leftSide ? 0.32 : 0.68
+        }
+
+        // Recipe name (default OFF — toggle from the block list).
+        // Sits above Style & Method when enabled, default-positioned in
+        // the upper third so it reads as a title.
+        if !recipe.name.isEmpty {
+            out.append(ShareBlock(
+                type: .recipeName,
+                title: ShareBlockType.recipeName.rawValue,
+                body: recipe.name,
+                enabled: false,
+                position: CGPoint(x: 0.5, y: 0.14)
+            ))
         }
 
         // Style & method (pre-enabled — keep centered)
