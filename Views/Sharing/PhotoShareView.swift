@@ -629,34 +629,46 @@ struct PhotoShareView: View {
 
     @MainActor
     private func renderAndShare() {
-        // ImageRenderer rasterizes the canvas at the aspect's export scale
-        // (360pt × 3× = 1080px on the long side).
+        // ImageRenderer at 360pt × 3× = 1080px on the long side.
         //
-        // The first uiImage call after a renderer is constructed sometimes
-        // returns a black/empty image because SwiftUI hasn't laid out the
-        // proposed-size view yet. We trigger a warmup render (discarded),
-        // then capture the real one. Both calls are sync — total cost is
-        // a few ms on device.
+        // First-render-is-black problem: the previous synchronous warmup
+        // didn't actually warm anything up because both .uiImage calls
+        // ran in the same runloop tick — SwiftUI never had a chance to
+        // lay out the view or finish decoding embedded UIImage(data:).
+        //
+        // Fix: pre-decode the photo (preparingForDisplay forces immediate
+        // CGImage decoding), construct the renderer, trigger an initial
+        // render, then capture the real image AFTER giving the main
+        // runloop a tick to settle. Capture is wrapped in a 100ms
+        // asyncAfter so SwiftUI's render pass completes between warmup
+        // and final capture.
+
+        // 1. Pre-decode the photo so the rasterizer never catches it mid-load
+        if let data = selectedPhoto {
+            _ = UIImage(data: data)?.preparingForDisplay()
+        }
+
+        // 2. Build the renderer with an explicit frame
         let canvas = ShareCanvasView(
             photo: selectedPhoto,
             blocks: $blocks,
             canvasSize: canvasSize,
             draggable: false
         )
+        .frame(width: canvasSize.width, height: canvasSize.height)
+
         let renderer = ImageRenderer(content: canvas)
         renderer.scale = aspect.exportScale
         renderer.proposedSize = ProposedViewSize(canvasSize)
 
-        _ = renderer.uiImage   // warmup — discard result
-        guard let uiImage = renderer.uiImage else { return }
+        // 3. Trigger initial render (forces SwiftUI layout)
+        _ = renderer.uiImage
 
-        renderedImage = uiImage
-        // Defer presenting the sheet until the next runloop so SwiftUI
-        // observes renderedImage being set BEFORE the sheet evaluates
-        // its content closure. Without this, the first present can show
-        // a black sheet because renderedImage was still nil when the
-        // closure ran.
-        DispatchQueue.main.async {
+        // 4. Defer the real capture into the next runloop window so the
+        //    layout pass has actually completed before we read uiImage.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            guard let image = renderer.uiImage else { return }
+            renderedImage = image
             showShareSheet = true
         }
     }
