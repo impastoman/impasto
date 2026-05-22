@@ -227,22 +227,23 @@ struct ShareBlockExtractor {
 // MARK: - Canvas (used for both preview and rasterization)
 
 struct ShareCanvasView: View {
-    let photo: Data?
-    @Binding var blocks: [ShareBlock]
+    @ObservedObject var editor: ShareEditorModel
     let canvasSize: CGSize
     var draggable: Bool = true
 
     var body: some View {
         ZStack {
             background
-                .allowsHitTesting(false)   // photo / cream should never eat taps
+                .allowsHitTesting(false)
 
-            // ForEach($blocks) iterates with Binding<ShareBlock> — idiomatic
-            // SwiftUI 16+ pattern that propagates per-element mutations.
-            ForEach($blocks) { $block in
+            // Iterate enabled blocks by their index in editor.blocks so we
+            // can write back via editor.blocks[i] = ... — guaranteed to
+            // trigger @Published.
+            ForEach(Array(editor.blocks.enumerated()), id: \.element.id) { idx, block in
                 if block.enabled {
                     DraggableShareBlock(
-                        block: $block,
+                        editor: editor,
+                        index: idx,
                         canvasSize: canvasSize,
                         draggable: draggable
                     )
@@ -254,14 +255,14 @@ struct ShareCanvasView: View {
             watermarkLabel
                 .padding(.trailing, 10)
                 .padding(.bottom, 8)
-                .allowsHitTesting(false)  // critical — must not block block drags
+                .allowsHitTesting(false)
         }
         .clipped()
     }
 
     @ViewBuilder
     private var background: some View {
-        if let data = photo, let img = UIImage(data: data) {
+        if let data = editor.selectedPhoto, let img = UIImage(data: data) {
             Image(uiImage: img)
                 .resizable()
                 .scaledToFill()
@@ -293,16 +294,25 @@ struct ShareCanvasView: View {
 }
 
 /// One draggable, normalized-position block tile.
+/// Reads + writes through editor.blocks[index] directly — no SwiftUI
+/// Binding chain, no risk of toggle/drag mutations being lost in transit.
 struct DraggableShareBlock: View {
-    @Binding var block: ShareBlock
+    @ObservedObject var editor: ShareEditorModel
+    let index: Int
     let canvasSize: CGSize
     var draggable: Bool
 
     @State private var dragOrigin: CGPoint? = nil
 
+    private var block: ShareBlock {
+        guard editor.blocks.indices.contains(index) else {
+            // Defensive fallback for race during re-render.
+            return ShareBlock(type: .styleMethod, title: "", body: "", enabled: false, position: .zero)
+        }
+        return editor.blocks[index]
+    }
+
     var body: some View {
-        // .offset (not .position) so the tile keeps its natural size and only
-        // its own visible region intercepts touches.
         VStack(spacing: 3) {
             HStack(spacing: 5) {
                 if let emoji = block.type.emoji {
@@ -321,27 +331,23 @@ struct DraggableShareBlock: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.black.opacity(0.55))   // a touch more opaque
+        .background(Color.black.opacity(0.55))
         .cornerRadius(6)
-        // Make the entire visible tile area hit-testable (not just the text).
         .contentShape(Rectangle())
-        // Center of canvas = (0.5, 0.5). Offset from center by
-        // (position - 0.5) * size to land at the desired normalized point.
         .offset(
             x: (block.position.x - 0.5) * canvasSize.width,
             y: (block.position.y - 0.5) * canvasSize.height
         )
-        // Gesture always attached (no .if wrapper that could break view
-        // identity). The draggable flag is checked inside the handler.
         .gesture(
             DragGesture(minimumDistance: 1, coordinateSpace: .local)
                 .onChanged { value in
                     guard draggable else { return }
-                    if dragOrigin == nil { dragOrigin = block.position }
+                    guard editor.blocks.indices.contains(index) else { return }
+                    if dragOrigin == nil { dragOrigin = editor.blocks[index].position }
                     guard let origin = dragOrigin else { return }
                     let newX = origin.x + value.translation.width / canvasSize.width
                     let newY = origin.y + value.translation.height / canvasSize.height
-                    block.position = CGPoint(
+                    editor.blocks[index].position = CGPoint(
                         x: min(max(0.08, newX), 0.92),
                         y: min(max(0.08, newY), 0.92)
                     )
@@ -353,25 +359,39 @@ struct DraggableShareBlock: View {
 
 // MARK: - Editor
 
+/// Holds the editor's mutable state outside of SwiftUI's @State machinery.
+/// @State + ForEach($collection) binding propagation was unreliable for
+/// this view on iOS 26 — toggle animations completed but binding writes
+/// didn't reach the underlying array. Switched to @Published on an
+/// ObservableObject, which uses Combine for explicit change notification.
+final class ShareEditorModel: ObservableObject {
+    @Published var blocks: [ShareBlock] = []
+    @Published var aspect: ShareAspect = .square
+    @Published var scope: ShareScope
+    @Published var selectedPhoto: Data? = nil
+
+    init(scope: ShareScope) {
+        self.scope = scope
+    }
+}
+
 struct PhotoShareView: View {
     let log: BakeLog
     let recipe: Recipe
 
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var editor: ShareEditorModel
 
-    @State private var scope: ShareScope
-    @State private var aspect: ShareAspect = .square
-    @State private var blocks: [ShareBlock] = []
-    @State private var selectedPhoto: Data?
     @State private var pickerItem: PhotosPickerItem?
     @State private var showShareSheet = false
     @State private var renderedImage: UIImage? = nil
+    @State private var rendering = false
     private let isPerPizzaCapable: Bool
 
     init(log: BakeLog, recipe: Recipe, scope: ShareScope) {
         self.log = log
         self.recipe = recipe
-        _scope = State(initialValue: scope)
+        _editor = StateObject(wrappedValue: ShareEditorModel(scope: scope))
         self.isPerPizzaCapable = {
             if case .singlePizza = scope { return true }
             return !log.pizzaEntries.isEmpty
@@ -380,12 +400,12 @@ struct PhotoShareView: View {
 
     /// Cached photo aspect ratio for the .native canvas.
     private var photoAspect: CGFloat {
-        guard let data = selectedPhoto, let img = UIImage(data: data),
+        guard let data = editor.selectedPhoto, let img = UIImage(data: data),
               img.size.height > 0 else { return 1.0 }
         return img.size.width / img.size.height
     }
 
-    private var canvasSize: CGSize { aspect.previewSize(for: photoAspect) }
+    private var canvasSize: CGSize { editor.aspect.previewSize(for: photoAspect) }
 
     var body: some View {
         NavigationStack {
@@ -455,20 +475,20 @@ struct PhotoShareView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
-            if blocks.isEmpty {
-                blocks = ShareBlockExtractor.blocks(for: log, recipe: recipe, scope: scope)
+            if editor.blocks.isEmpty {
+                editor.blocks = ShareBlockExtractor.blocks(for: log, recipe: recipe, scope: editor.scope)
             }
-            if selectedPhoto == nil {
-                selectedPhoto = log.displayPhotos.first ?? coverFromPizza()
+            if editor.selectedPhoto == nil {
+                editor.selectedPhoto = log.displayPhotos.first ?? coverFromPizza()
             }
         }
-        .onChange(of: scope) { _, newScope in
-            blocks = ShareBlockExtractor.blocks(for: log, recipe: recipe, scope: newScope)
+        .onChange(of: editor.scope) { _, newScope in
+            editor.blocks = ShareBlockExtractor.blocks(for: log, recipe: recipe, scope: newScope)
         }
         .onChange(of: pickerItem) { _, item in
             Task {
                 if let data = try? await item?.loadTransferable(type: Data.self) {
-                    await MainActor.run { selectedPhoto = data }
+                    await MainActor.run { editor.selectedPhoto = data }
                 }
             }
         }
@@ -480,40 +500,35 @@ struct PhotoShareView: View {
     }
 
     private func coverFromPizza() -> Data? {
-        if case .singlePizza(let entry) = scope {
+        if case .singlePizza(let entry) = editor.scope {
             return entry.displayPhotos.first
         }
         return log.pizzaEntries.flatMap(\.displayPhotos).first
     }
 
-    private var photoIsMissing: Bool { selectedPhoto == nil }
+    private var photoIsMissing: Bool { editor.selectedPhoto == nil }
 
     // MARK: subviews
 
     private var aspectPicker: some View {
-        // Custom segmented row. Uses .onTapGesture on a styled Text rather
-        // than Button(.plain) — the latter had inconsistent hit detection
-        // inside a ScrollView on some iOS builds. Gold pill on the active
-        // aspect, dim white on the rest.
         HStack(spacing: 6) {
             ForEach(ShareAspect.allCases) { a in
                 Text(a.rawValue)
-                    .font(.system(size: 12, design: .monospaced).weight(aspect == a ? .semibold : .regular))
+                    .font(.system(size: 12, design: .monospaced).weight(editor.aspect == a ? .semibold : .regular))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
-                    .background(aspect == a ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
-                    .foregroundColor(aspect == a ? .black : .white.opacity(0.7))
+                    .background(editor.aspect == a ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
+                    .foregroundColor(editor.aspect == a ? .black : .white.opacity(0.7))
                     .cornerRadius(6)
                     .contentShape(Rectangle())
-                    .onTapGesture { aspect = a }
+                    .onTapGesture { editor.aspect = a }
             }
         }
     }
 
     private var canvasFrame: some View {
         ShareCanvasView(
-            photo: selectedPhoto,
-            blocks: $blocks,
+            editor: editor,
             canvasSize: canvasSize,
             draggable: true
         )
@@ -591,7 +606,7 @@ struct PhotoShareView: View {
     private func scopeBinding() -> Binding<Int> {
         Binding(
             get: {
-                if case .singlePizza(let entry) = scope,
+                if case .singlePizza(let entry) = editor.scope,
                    let i = log.pizzaEntries.firstIndex(where: { $0.id == entry.id }) {
                     return i + 1
                 }
@@ -599,9 +614,9 @@ struct PhotoShareView: View {
             },
             set: { newTag in
                 if newTag == 0 {
-                    scope = .wholeSession
+                    editor.scope = .wholeSession
                 } else if log.pizzaEntries.indices.contains(newTag - 1) {
-                    scope = .singlePizza(log.pizzaEntries[newTag - 1])
+                    editor.scope = .singlePizza(log.pizzaEntries[newTag - 1])
                 }
             }
         )
@@ -615,8 +630,15 @@ struct PhotoShareView: View {
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.2)
             VStack(spacing: 8) {
-                ForEach($blocks) { $block in
-                    Toggle(isOn: $block.enabled) {
+                // Iterate by index so we can mutate editor.blocks[i] directly
+                // through the ObservableObject @Published path — no
+                // intermediate SwiftUI Binding chain to potentially drop
+                // the write.
+                ForEach(Array(editor.blocks.enumerated()), id: \.element.id) { idx, block in
+                    Toggle(isOn: Binding(
+                        get: { editor.blocks[idx].enabled },
+                        set: { editor.blocks[idx].enabled = $0 }
+                    )) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(block.title)
                                 .font(.system(size: 12, design: .monospaced))
@@ -671,13 +693,12 @@ struct PhotoShareView: View {
     @MainActor
     private func renderViaHostingController() -> UIImage? {
         // Pre-decode the photo so it can't be caught mid-load.
-        if let data = selectedPhoto {
+        if let data = editor.selectedPhoto {
             _ = UIImage(data: data)?.preparingForDisplay()
         }
 
         let canvas = ShareCanvasView(
-            photo: selectedPhoto,
-            blocks: $blocks,
+            editor: editor,
             canvasSize: canvasSize,
             draggable: false
         )
@@ -689,9 +710,6 @@ struct PhotoShareView: View {
         controller.view.bounds = bounds
         controller.view.backgroundColor = .clear
 
-        // Find a window to attach the hosting view to. Without this,
-        // SwiftUI doesn't realize the view tree and drawHierarchy
-        // returns blank.
         guard let scene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
                 .first(where: { $0.activationState == .foregroundActive }),
@@ -699,7 +717,6 @@ struct PhotoShareView: View {
                 ?? scene.windows.first
         else { return nil }
 
-        // Attach off-screen (just below the visible area). Doesn't flicker.
         controller.view.frame = CGRect(
             x: 0,
             y: window.bounds.height + 10,
@@ -708,15 +725,25 @@ struct PhotoShareView: View {
         )
         window.addSubview(controller.view)
 
-        // Force layout
         controller.view.setNeedsLayout()
         controller.view.layoutIfNeeded()
 
-        // Rasterize at export scale (360pt × 3× = 1080px on long side)
+        // Double-snapshot: first draw warms SwiftUI's layout pass for any
+        // pending updates (image decode, font glyphs, blur layers).
+        // Second draw is the one we keep. Both calls are sync — total
+        // overhead is a couple ms.
         let format = UIGraphicsImageRendererFormat()
-        format.scale = aspect.exportScale
+        format.scale = editor.aspect.exportScale
         format.opaque = false
         let renderer = UIGraphicsImageRenderer(size: canvasSize, format: format)
+
+        _ = renderer.image { _ in
+            controller.view.drawHierarchy(
+                in: controller.view.bounds,
+                afterScreenUpdates: true
+            )
+        }
+
         let image = renderer.image { _ in
             controller.view.drawHierarchy(
                 in: controller.view.bounds,
