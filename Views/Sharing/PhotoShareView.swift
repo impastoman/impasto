@@ -248,14 +248,25 @@ struct ShareCanvasView: View {
     let canvasSize: CGSize
     var draggable: Bool = true
 
+    // Snapshots taken at gesture start so consecutive pinches/pans compose.
+    @State private var zoomBase: CGFloat = 1.0
+    @State private var panBase: CGSize = .zero
+
     var body: some View {
         ZStack {
+            // Background is now hit-testable (only in editor mode) so the
+            // pan + pinch gestures attached to it can fire. Block tiles
+            // sit ABOVE the background in the ZStack so their own taps /
+            // drags still win — only touches on bare photo area reach
+            // these gestures.
             background
-                .allowsHitTesting(false)
+                .allowsHitTesting(draggable)
+                .if(draggable) { bg in
+                    bg.gesture(
+                        SimultaneousGesture(magnification, pan)
+                    )
+                }
 
-            // Iterate enabled blocks by their index in editor.blocks so we
-            // can write back via editor.blocks[i] = ... — guaranteed to
-            // trigger @Published.
             ForEach(Array(editor.blocks.enumerated()), id: \.element.id) { idx, block in
                 if block.enabled {
                     DraggableShareBlock(
@@ -284,11 +295,63 @@ struct ShareCanvasView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: canvasSize.width, height: canvasSize.height)
+                // Pinch + pan: scale the image then offset it. The ZStack's
+                // outer .clipped() crops overflow to the canvas frame, so
+                // edges never show through.
+                .scaleEffect(editor.photoZoom, anchor: .center)
+                .offset(editor.photoOffset)
+                .frame(width: canvasSize.width, height: canvasSize.height)
                 .clipped()
         } else {
             Color(hex: "F5F1E8")
                 .frame(width: canvasSize.width, height: canvasSize.height)
         }
+    }
+
+    /// Two-finger pinch to zoom. Multiplies zoomBase (snapshot at start)
+    /// by the gesture's value, clamped to 1.0…3.0. onEnded snapshots the
+    /// final zoom so the next pinch composes on top.
+    private var magnification: some Gesture {
+        MagnificationGesture()
+            .onChanged { value in
+                let newZoom = max(1.0, min(3.0, zoomBase * value))
+                editor.photoZoom = newZoom
+                editor.photoOffset = clampOffset(panBase, zoom: newZoom)
+            }
+            .onEnded { _ in
+                zoomBase = editor.photoZoom
+                panBase = editor.photoOffset
+            }
+    }
+
+    /// One-finger drag to pan the (zoomed) photo. Inert at zoom 1.0.
+    /// Edge-clamped so the photo can't be moved past its own edges.
+    private var pan: some Gesture {
+        DragGesture(minimumDistance: 1)
+            .onChanged { value in
+                guard editor.photoZoom > 1.0 else { return }
+                let candidate = CGSize(
+                    width: panBase.width + value.translation.width,
+                    height: panBase.height + value.translation.height
+                )
+                editor.photoOffset = clampOffset(candidate, zoom: editor.photoZoom)
+            }
+            .onEnded { _ in
+                panBase = editor.photoOffset
+            }
+    }
+
+    /// Constrain offset so the visible canvas never extends past the
+    /// photo's edges. At zoom 1.0 the photo exactly fills the canvas →
+    /// only valid offset is (0, 0). At zoom > 1.0 there's overhang on
+    /// every side; offset can range within ±overhang.
+    private func clampOffset(_ offset: CGSize, zoom: CGFloat) -> CGSize {
+        let overflowX = max(0, (canvasSize.width * zoom - canvasSize.width) / 2)
+        let overflowY = max(0, (canvasSize.height * zoom - canvasSize.height) / 2)
+        return CGSize(
+            width:  min(max(-overflowX, offset.width),  overflowX),
+            height: min(max(-overflowY, offset.height), overflowY)
+        )
     }
 
     /// "Baked with Stesura" pinned bottom-right. Not toggleable.
@@ -460,6 +523,14 @@ final class ShareEditorModel: ObservableObject {
     @Published var scope: ShareScope
     @Published var selectedPhoto: Data? = nil
 
+    /// Photo zoom inside the canvas, 1.0…3.0. 1.0 = fits the canvas
+    /// per scaledToFill; > 1.0 crops tighter via pinch/spread.
+    @Published var photoZoom: CGFloat = 1.0
+
+    /// Pan offset for the (zoomed) photo within the canvas. Edge-clamped
+    /// so the user can't reveal canvas background past the photo edges.
+    @Published var photoOffset: CGSize = .zero
+
     init(scope: ShareScope) {
         self.scope = scope
     }
@@ -523,10 +594,22 @@ struct PhotoShareView: View {
                         if photoIsMissing {
                             pickPhotoPrompt
                         } else {
-                            PhotosPicker(selection: $pickerItem, matching: .images) {
-                                Label("Replace photo", systemImage: "photo")
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .foregroundColor(.white.opacity(0.7))
+                            HStack(spacing: 16) {
+                                PhotosPicker(selection: $pickerItem, matching: .images) {
+                                    Label("Replace photo", systemImage: "photo")
+                                        .font(.system(size: 12, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
+                                if editor.photoZoom > 1.0 || editor.photoOffset != .zero {
+                                    Button {
+                                        editor.photoZoom = 1.0
+                                        editor.photoOffset = .zero
+                                    } label: {
+                                        Label("Reset zoom", systemImage: "arrow.counterclockwise")
+                                            .font(.system(size: 12, design: .monospaced))
+                                            .foregroundColor(Color(hex: "D2B96A"))
+                                    }
+                                }
                             }
                         }
 
