@@ -35,6 +35,20 @@ enum ShareAspect: String, CaseIterable, Identifiable {
 enum ShareScope: Equatable {
     case wholeSession
     case singlePizza(PizzaEntry)
+
+    // Custom == because PizzaEntry doesn't conform to Equatable.
+    // Comparing by the pizza's UUID is sufficient — two scopes are
+    // "the same" iff they point at the same pizza (or both are whole-session).
+    static func == (lhs: ShareScope, rhs: ShareScope) -> Bool {
+        switch (lhs, rhs) {
+        case (.wholeSession, .wholeSession):
+            return true
+        case let (.singlePizza(a), .singlePizza(b)):
+            return a.id == b.id
+        default:
+            return false
+        }
+    }
 }
 
 enum ShareBlockType: String, CaseIterable, Identifiable, Hashable {
