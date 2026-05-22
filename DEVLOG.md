@@ -1005,9 +1005,35 @@ Currently there's no block for the recipe's name itself (Style & Method shows `"
 - Consider: should the recipe-name block default to ENABLED? The user implied they want it as a toggle, suggesting OFF by default. Confirm at implementation time.
 - Decide ordering — probably first in the block list so it appears prominently in the toggle list (and visually at the top of the default stack on canvas).
 
+### 4. Snap-to-align between blocks while dragging
+
+When dragging a block, snap its center to align with the center of any other enabled block — horizontal centerline, vertical centerline, or both. Optional Sketch/Figma-style thin gold guideline that appears while the snap is active.
+
+**Implementation:**
+- During `DragGesture.onChanged` in `DraggableShareBlock`, after computing the new candidate position but BEFORE writing it back to `editor.blocks[index]`, check against every other enabled block:
+  ```swift
+  let snapThreshold: CGFloat = 0.015  // normalized units — ~5pt on a 320pt canvas
+  var snappedX = newX
+  var snappedY = newY
+  for (i, other) in editor.blocks.enumerated() where i != index && other.enabled {
+      if abs(other.position.x - newX) < snapThreshold { snappedX = other.position.x }
+      if abs(other.position.y - newY) < snapThreshold { snappedY = other.position.y }
+  }
+  editor.blocks[index].position = CGPoint(x: snappedX, y: snappedY)
+  ```
+- Snap to the FIRST match per axis — don't worry about ties.
+- Threshold in normalized units so it scales with aspect (looser on tall canvases, tighter on small ones — acceptable for v1).
+
+**Optional guideline UI** (only if cheap to add):
+- `@Published var activeSnap: (x: CGFloat?, y: CGFloat?) = (nil, nil)` on `ShareEditorModel`
+- Set during onChanged when a snap happens; clear in onEnded
+- In `ShareCanvasView`, overlay 1pt gold lines at those normalized x/y positions when non-nil, spanning the full canvas. `.allowsHitTesting(false)` so they don't eat drags.
+
+**Edge case:** snap should only fire when the user is actively dragging — clear `activeSnap` in `onEnded` so the guideline disappears on release.
+
 ### Trigger conditions for next session
 
-All three are small (each ~30-50 lines). Land them as separate commits so each can be tested independently. No DEVLOG / scope changes needed — just code.
+All four are small (each ~30-50 lines). Land them as separate commits so each can be tested independently. No DEVLOG / scope changes needed — just code.
 
 ---
 
