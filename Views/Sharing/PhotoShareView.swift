@@ -263,17 +263,19 @@ struct ShareCanvasView: View {
     /// Lives in an .overlay (NOT as a ZStack sibling sized to the canvas) so
     /// its frame can't intercept taps meant for the block tiles.
     private var watermarkLabel: some View {
-        HStack(spacing: 3) {
+        // Doubled from the v1 sizing per user request — more readable on
+        // small phone previews and on shared images.
+        HStack(spacing: 5) {
             Text("Baked with")
-                .font(.system(size: 8, design: .monospaced))
+                .font(.system(size: 16, design: .monospaced))
                 .foregroundColor(.white.opacity(0.72))
                 .tracking(0.5)
             Text("Stesura")
-                .font(.system(size: 13, design: .monospaced).weight(.bold))
+                .font(.system(size: 26, design: .monospaced).weight(.bold))
                 .foregroundColor(.white)
                 .tracking(1)
         }
-        .shadow(color: .black.opacity(0.5), radius: 2.5, x: 0, y: 1)
+        .shadow(color: .black.opacity(0.55), radius: 4, x: 0, y: 1)
     }
 }
 
@@ -286,34 +288,35 @@ struct DraggableShareBlock: View {
     @State private var dragOrigin: CGPoint? = nil
 
     var body: some View {
-        VStack(spacing: 2) {
-            HStack(spacing: 4) {
+        VStack(spacing: 3) {
+            HStack(spacing: 5) {
                 if let emoji = block.type.emoji {
-                    Text(emoji).font(.system(size: 10))
+                    Text(emoji).font(.system(size: 12))
                 }
                 Text(block.title.uppercased())
-                    .font(.system(size: 8, design: .monospaced))
-                    .tracking(1.2)
-                    .foregroundColor(.white.opacity(0.75))
+                    .font(.system(size: 10, design: .monospaced))
+                    .tracking(1.4)
+                    .foregroundColor(.white.opacity(0.78))
             }
             Text(block.body)
-                .font(.system(size: 11, design: .monospaced).weight(.medium))
+                .font(.system(size: 13, design: .monospaced).weight(.medium))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color(.systemGray).opacity(0.55))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.black.opacity(0.45))
         .cornerRadius(6)
         .position(
             x: block.position.x * canvasSize.width,
             y: block.position.y * canvasSize.height
         )
         .if(draggable) { tile in
-            tile.gesture(
-                // minimumDistance: 1 — recognizes immediately but allows
-                // a literal-zero touch to still pass to the parent if any.
+            // .highPriorityGesture beats ancestor gestures (NavigationStack,
+            // any ScrollView, etc.) so the block always claims drags before
+            // anything else can intercept them.
+            tile.highPriorityGesture(
                 DragGesture(minimumDistance: 1, coordinateSpace: .local)
                     .onChanged { value in
                         if dragOrigin == nil { dragOrigin = block.position }
@@ -372,32 +375,44 @@ struct PhotoShareView: View {
             ZStack {
                 Color(hex: "1A1A1A").ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 20) {
+                VStack(spacing: 0) {
+                    // Aspect picker + canvas are kept OUTSIDE the ScrollView.
+                    // Reasons: (a) the ScrollView's pan gesture was winning
+                    // over block DragGestures, so blocks couldn't be dragged,
+                    // and (b) child views inside a ScrollView don't always
+                    // re-render reliably on binding-driven state changes —
+                    // putting the canvas in the deterministic VStack-only
+                    // path fixes both.
+                    VStack(spacing: 12) {
                         aspectPicker
-
+                            .padding(.horizontal, 16)
+                            .padding(.top, 12)
                         canvasFrame
-
-                        if photoIsMissing {
-                            pickPhotoPrompt
-                        } else {
-                            PhotosPicker(selection: $pickerItem, matching: .images) {
-                                Label("Replace photo", systemImage: "photo")
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .foregroundColor(.white.opacity(0.7))
-                            }
-                        }
-
-                        if isPerPizzaCapable {
-                            scopePicker
-                        }
-
-                        blockTogglesSection
-
-                        helperFooter
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 20)
+
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            if photoIsMissing {
+                                pickPhotoPrompt
+                            } else {
+                                PhotosPicker(selection: $pickerItem, matching: .images) {
+                                    Label("Replace photo", systemImage: "photo")
+                                        .font(.system(size: 12, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
+                            }
+
+                            if isPerPizzaCapable {
+                                scopePicker
+                            }
+
+                            blockTogglesSection
+
+                            helperFooter
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 20)
+                    }
                 }
             }
             .navigationTitle("Share")
