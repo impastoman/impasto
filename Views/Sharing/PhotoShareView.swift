@@ -91,12 +91,13 @@ struct ShareBlockExtractor {
     /// Builds the block list from a BakeLog + Recipe + scope.
     /// Style & Method and Formula default to enabled; the rest default to off
     /// per the spec. Blocks with no underlying data are omitted entirely.
+    /// All default y positions stay within 0.55…0.88 so even the bottom-most
+    /// block stays visible inside the canvas (clamp window is 0.08…0.92).
     static func blocks(for log: BakeLog, recipe: Recipe, scope: ShareScope) -> [ShareBlock] {
         var out: [ShareBlock] = []
-        // Stack the defaults in the lower third, centered.
         let centerX: CGFloat = 0.5
-        var y: CGFloat = 0.66
-        let yStep: CGFloat = 0.08
+        var y: CGFloat = 0.55
+        let yStep: CGFloat = 0.06
 
         // Style & method
         let styleName = recipe.style == .custom && !recipe.customStyleName.isEmpty
@@ -288,6 +289,10 @@ struct DraggableShareBlock: View {
     @State private var dragOrigin: CGPoint? = nil
 
     var body: some View {
+        // .offset (not .position) so the tile keeps its natural size and only
+        // its own visible region intercepts touches. .position would have
+        // each tile fill the entire canvas frame and gestures from N tiles
+        // would all overlap, killing dragging entirely.
         VStack(spacing: 3) {
             HStack(spacing: 5) {
                 if let emoji = block.type.emoji {
@@ -308,14 +313,13 @@ struct DraggableShareBlock: View {
         .padding(.vertical, 8)
         .background(Color.black.opacity(0.45))
         .cornerRadius(6)
-        .position(
-            x: block.position.x * canvasSize.width,
-            y: block.position.y * canvasSize.height
+        // Center of canvas = (0.5, 0.5). Offset from center by
+        // (position - 0.5) * size to land at the desired normalized point.
+        .offset(
+            x: (block.position.x - 0.5) * canvasSize.width,
+            y: (block.position.y - 0.5) * canvasSize.height
         )
         .if(draggable) { tile in
-            // .highPriorityGesture beats ancestor gestures (NavigationStack,
-            // any ScrollView, etc.) so the block always claims drags before
-            // anything else can intercept them.
             tile.highPriorityGesture(
                 DragGesture(minimumDistance: 1, coordinateSpace: .local)
                     .onChanged { value in
@@ -324,8 +328,8 @@ struct DraggableShareBlock: View {
                         let newX = origin.x + value.translation.width / canvasSize.width
                         let newY = origin.y + value.translation.height / canvasSize.height
                         block.position = CGPoint(
-                            x: min(max(0.06, newX), 0.94),
-                            y: min(max(0.06, newY), 0.94)
+                            x: min(max(0.08, newX), 0.92),
+                            y: min(max(0.08, newY), 0.92)
                         )
                     }
                     .onEnded { _ in dragOrigin = nil }
@@ -629,26 +633,31 @@ struct PhotoShareView: View {
 
     @MainActor
     private func renderAndShare() {
-        // ImageRenderer at 360pt × 3× = 1080px on the long side.
+        // Two attempts at ImageRenderer-based rasterization both produced
+        // a black bitmap on first invocation. Switched to the canonical
+        // UIKit pattern: UIHostingController + UIGraphicsImageRenderer +
+        // drawHierarchy(afterScreenUpdates: true). The afterScreenUpdates
+        // flag tells UIKit to flush any pending layout/render commits
+        // BEFORE snapshotting — which is exactly what was missing from
+        // the ImageRenderer path.
         //
-        // First-render-is-black problem: the previous synchronous warmup
-        // didn't actually warm anything up because both .uiImage calls
-        // ran in the same runloop tick — SwiftUI never had a chance to
-        // lay out the view or finish decoding embedded UIImage(data:).
-        //
-        // Fix: pre-decode the photo (preparingForDisplay forces immediate
-        // CGImage decoding), construct the renderer, trigger an initial
-        // render, then capture the real image AFTER giving the main
-        // runloop a tick to settle. Capture is wrapped in a 100ms
-        // asyncAfter so SwiftUI's render pass completes between warmup
-        // and final capture.
+        // The hosting controller's view must be in the window briefly
+        // for SwiftUI to render its hierarchy. We attach it off-screen
+        // at the bottom of the key window, snapshot, then remove.
 
-        // 1. Pre-decode the photo so the rasterizer never catches it mid-load
+        if let image = renderViaHostingController() {
+            renderedImage = image
+            showShareSheet = true
+        }
+    }
+
+    @MainActor
+    private func renderViaHostingController() -> UIImage? {
+        // Pre-decode the photo so it can't be caught mid-load.
         if let data = selectedPhoto {
             _ = UIImage(data: data)?.preparingForDisplay()
         }
 
-        // 2. Build the renderer with an explicit frame
         let canvas = ShareCanvasView(
             photo: selectedPhoto,
             blocks: $blocks,
@@ -656,21 +665,50 @@ struct PhotoShareView: View {
             draggable: false
         )
         .frame(width: canvasSize.width, height: canvasSize.height)
+        .environment(\.colorScheme, .light)
 
-        let renderer = ImageRenderer(content: canvas)
-        renderer.scale = aspect.exportScale
-        renderer.proposedSize = ProposedViewSize(canvasSize)
+        let controller = UIHostingController(rootView: canvas)
+        let bounds = CGRect(origin: .zero, size: canvasSize)
+        controller.view.bounds = bounds
+        controller.view.backgroundColor = .clear
 
-        // 3. Trigger initial render (forces SwiftUI layout)
-        _ = renderer.uiImage
+        // Find a window to attach the hosting view to. Without this,
+        // SwiftUI doesn't realize the view tree and drawHierarchy
+        // returns blank.
+        guard let scene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+              let window = scene.windows.first(where: { $0.isKeyWindow })
+                ?? scene.windows.first
+        else { return nil }
 
-        // 4. Defer the real capture into the next runloop window so the
-        //    layout pass has actually completed before we read uiImage.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            guard let image = renderer.uiImage else { return }
-            renderedImage = image
-            showShareSheet = true
+        // Attach off-screen (just below the visible area). Doesn't flicker.
+        controller.view.frame = CGRect(
+            x: 0,
+            y: window.bounds.height + 10,
+            width: canvasSize.width,
+            height: canvasSize.height
+        )
+        window.addSubview(controller.view)
+
+        // Force layout
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+
+        // Rasterize at export scale (360pt × 3× = 1080px on long side)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = aspect.exportScale
+        format.opaque = false
+        let renderer = UIGraphicsImageRenderer(size: canvasSize, format: format)
+        let image = renderer.image { _ in
+            controller.view.drawHierarchy(
+                in: controller.view.bounds,
+                afterScreenUpdates: true
+            )
         }
+
+        controller.view.removeFromSuperview()
+        return image
     }
 }
 
