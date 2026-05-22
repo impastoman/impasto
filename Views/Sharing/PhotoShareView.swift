@@ -291,6 +291,29 @@ struct ShareCanvasView: View {
                     )
                 }
             }
+
+            // Snap guidelines — thin gold lines that appear while a block
+            // is being dragged and snapped to another block's center.
+            // .allowsHitTesting(false) so they never interfere with drags.
+            // Only in editor mode (draggable=true) — never in export.
+            if draggable {
+                if let snapX = editor.activeSnapX {
+                    Rectangle()
+                        .fill(Color(hex: "D2B96A").opacity(0.85))
+                        .frame(width: 1)
+                        .frame(maxHeight: .infinity)
+                        .position(x: snapX * canvasSize.width, y: canvasSize.height / 2)
+                        .allowsHitTesting(false)
+                }
+                if let snapY = editor.activeSnapY {
+                    Rectangle()
+                        .fill(Color(hex: "D2B96A").opacity(0.85))
+                        .frame(height: 1)
+                        .frame(maxWidth: .infinity)
+                        .position(x: canvasSize.width / 2, y: snapY * canvasSize.height)
+                        .allowsHitTesting(false)
+                }
+            }
         }
         .frame(width: canvasSize.width, height: canvasSize.height)
         .overlay(alignment: .bottomTrailing) {
@@ -465,14 +488,40 @@ struct DraggableShareBlock: View {
                         guard editor.blocks.indices.contains(index) else { return }
                         if dragOrigin == nil { dragOrigin = editor.blocks[index].position }
                         guard let origin = dragOrigin else { return }
-                        let newX = origin.x + value.translation.width / canvasSize.width
-                        let newY = origin.y + value.translation.height / canvasSize.height
-                        editor.blocks[index].position = CGPoint(
-                            x: min(max(0.08, newX), 0.92),
-                            y: min(max(0.08, newY), 0.92)
-                        )
+                        let candidateX = origin.x + value.translation.width / canvasSize.width
+                        let candidateY = origin.y + value.translation.height / canvasSize.height
+                        let clampedX = min(max(0.08, candidateX), 0.92)
+                        let clampedY = min(max(0.08, candidateY), 0.92)
+
+                        // Snap each axis to the nearest other enabled block's
+                        // center if within snapThreshold. Track which axes
+                        // are snapping for the guideline overlay.
+                        let snapThreshold: CGFloat = 0.015
+                        var snappedX = clampedX
+                        var snappedY = clampedY
+                        var snapXMarker: CGFloat? = nil
+                        var snapYMarker: CGFloat? = nil
+                        for (i, other) in editor.blocks.enumerated()
+                        where i != index && other.enabled {
+                            if abs(other.position.x - clampedX) < snapThreshold {
+                                snappedX = other.position.x
+                                snapXMarker = other.position.x
+                            }
+                            if abs(other.position.y - clampedY) < snapThreshold {
+                                snappedY = other.position.y
+                                snapYMarker = other.position.y
+                            }
+                        }
+                        editor.blocks[index].position = CGPoint(x: snappedX, y: snappedY)
+                        editor.activeSnapX = snapXMarker
+                        editor.activeSnapY = snapYMarker
                     }
-                    .onEnded { _ in dragOrigin = nil }
+                    .onEnded { _ in
+                        dragOrigin = nil
+                        // Clear guidelines on release.
+                        editor.activeSnapX = nil
+                        editor.activeSnapY = nil
+                    }
             )
             // Tap cycles text alignment: center → leading → trailing → center.
             // .simultaneousGesture so it doesn't block the DragGesture above.
@@ -544,6 +593,13 @@ final class ShareEditorModel: ObservableObject {
     /// Pan offset for the (zoomed) photo within the canvas. Edge-clamped
     /// so the user can't reveal canvas background past the photo edges.
     @Published var photoOffset: CGSize = .zero
+
+    /// While a block is being dragged, the normalized x and/or y where
+    /// it has snapped to align with another block's center. Drives the
+    /// thin gold guideline overlays on the canvas. nil = no active snap
+    /// on that axis. Cleared on drag end.
+    @Published var activeSnapX: CGFloat? = nil
+    @Published var activeSnapY: CGFloat? = nil
 
     init(scope: ShareScope) {
         self.scope = scope
