@@ -933,6 +933,84 @@ or skip entirely if the earlier passes are enough.
 
 ---
 
+## Social Photo Builder — Queued for next session (v0.9.x polish)
+
+Three small additions to the now-working share editor:
+
+### 1. Tap a text block to cycle its text alignment
+
+Currently every block's body text is `.multilineTextAlignment(.center)`. User wants to cycle: **center → left → right → center** by tapping the block (not the drag handle).
+
+**Implementation:**
+- Add `var alignment: TextAlignment = .center` to `ShareBlock` (model)
+- Apply via `.multilineTextAlignment(block.alignment)` in the tile's body Text
+- Add a `.onTapGesture` to the tile body (not the resize handle). Must NOT conflict with the existing DragGesture — `.onTapGesture` and `DragGesture` already coexist in SwiftUI without help, but if there are issues, use `.simultaneousGesture(TapGesture()...)`.
+- Tap → bump alignment to the next value:
+  ```swift
+  switch editor.blocks[index].alignment {
+  case .center:  editor.blocks[index].alignment = .leading
+  case .leading: editor.blocks[index].alignment = .trailing
+  case .trailing: editor.blocks[index].alignment = .center
+  default:        editor.blocks[index].alignment = .center
+  }
+  ```
+
+**Note on hAlign:** when alignment is leading/trailing, the title HStack ("FLOUR BLEND") should also align accordingly so the block reads consistent. Use a `var hAlignment: HorizontalAlignment` derived from `block.alignment`.
+
+### 2. Pinch / spread to zoom the photo inside the canvas
+
+The background photo currently uses `.scaledToFill().frame(canvasSize).clipped()` — fills the canvas, crops the overflow. User wants to **pinch in** to zoom out (see more of the photo, possibly letterboxed in cream), and **spread (pinch out)** to zoom in (crop tighter). The photo must stay within the canvas frame (no exposed edges).
+
+**Implementation:**
+- Add `@Published var photoZoom: CGFloat = 1.0` to `ShareEditorModel`
+- Optional: `@Published var photoOffset: CGSize = .zero` if we also want pan-to-position (probably yes — at high zoom the user wants to choose what's centered)
+- In `ShareCanvasView.background`, apply `.scaleEffect(editor.photoZoom).offset(editor.photoOffset)` to the Image
+- Add `MagnificationGesture` to the canvas (NOT to the block tiles — they need their own drag handling). Combine via `.simultaneousGesture` so it coexists with block drags.
+  ```swift
+  MagnificationGesture()
+      .onChanged { value in
+          editor.photoZoom = max(1.0, min(3.0, value))
+      }
+      .onEnded { _ in
+          // No-op or persist
+      }
+  ```
+- Clamp zoom to `1.0...3.0` so the user can't zoom out past the frame's edges (1.0 = .scaledToFill which fills the canvas, less than 1.0 would leave gaps).
+- Add a "Reset zoom" button below the canvas, in the controls section.
+
+**Edge clamping for offset:** at zoom > 1.0, the photo extends beyond the canvas. We want the user to pan within the visible area but not see past the photo's edges. Math:
+```swift
+let overflowX = (canvasW * zoom - canvasW) / 2
+let overflowY = (canvasH * zoom - canvasH) / 2
+photoOffset.x = clamp(photoOffset.x, -overflowX, overflowX)
+photoOffset.y = clamp(photoOffset.y, -overflowY, overflowY)
+```
+
+### 3. Add a "Recipe name" block
+
+Currently there's no block for the recipe's name itself (Style & Method shows `"Neapolitan · Biga"` but not `"My Best Margherita"` or whatever the user named it).
+
+**Implementation:**
+- Add `.recipeName` case to `ShareBlockType` (with `nil` emoji, like all others)
+- In `ShareBlockExtractor.blocks(for:recipe:scope:)`, prepend or append a block:
+  ```swift
+  out.append(ShareBlock(
+      type: .recipeName,
+      title: "Recipe",                  // small caps title above
+      body: recipe.name,                // the recipe's name
+      enabled: false,                    // default OFF; user toggles on
+      position: CGPoint(x: 0.5, y: y)
+  ))
+  ```
+- Consider: should the recipe-name block default to ENABLED? The user implied they want it as a toggle, suggesting OFF by default. Confirm at implementation time.
+- Decide ordering — probably first in the block list so it appears prominently in the toggle list (and visually at the top of the default stack on canvas).
+
+### Trigger conditions for next session
+
+All three are small (each ~30-50 lines). Land them as separate commits so each can be tested independently. No DEVLOG / scope changes needed — just code.
+
+---
+
 ## Social Photo Builder — Shipped (v0.9.x)
 
 Initial build wired across three entry points: SessionLogView (mid-session
