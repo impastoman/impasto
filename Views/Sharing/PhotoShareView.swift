@@ -221,10 +221,10 @@ struct ShareCanvasView: View {
     var body: some View {
         ZStack {
             background
+                .allowsHitTesting(false)   // photo / cream should never eat taps
 
-            // ForEach($blocks) iterates with Binding<ShareBlock>, which is
-            // the idiomatic SwiftUI 16+ pattern for arrays of mutable
-            // structs — the indices-based approach was missing changes.
+            // ForEach($blocks) iterates with Binding<ShareBlock> — idiomatic
+            // SwiftUI 16+ pattern that propagates per-element mutations.
             ForEach($blocks) { $block in
                 if block.enabled {
                     DraggableShareBlock(
@@ -234,10 +234,14 @@ struct ShareCanvasView: View {
                     )
                 }
             }
-
-            watermark
         }
         .frame(width: canvasSize.width, height: canvasSize.height)
+        .overlay(alignment: .bottomTrailing) {
+            watermarkLabel
+                .padding(.trailing, 10)
+                .padding(.bottom, 8)
+                .allowsHitTesting(false)  // critical — must not block block drags
+        }
         .clipped()
     }
 
@@ -251,27 +255,25 @@ struct ShareCanvasView: View {
                 .clipped()
         } else {
             Color(hex: "F5F1E8")
+                .frame(width: canvasSize.width, height: canvasSize.height)
         }
     }
 
     /// "Baked with Stesura" pinned bottom-right. Not toggleable.
-    private var watermark: some View {
-        VStack(alignment: .trailing, spacing: -2) {
-            HStack(spacing: 3) {
-                Text("Baked with")
-                    .font(.system(size: 8, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.72))
-                    .tracking(0.5)
-                Text("Stesura")
-                    .font(.system(size: 13, design: .monospaced).weight(.bold))
-                    .foregroundColor(.white)
-                    .tracking(1)
-            }
-            .shadow(color: .black.opacity(0.5), radius: 2.5, x: 0, y: 1)
+    /// Lives in an .overlay (NOT as a ZStack sibling sized to the canvas) so
+    /// its frame can't intercept taps meant for the block tiles.
+    private var watermarkLabel: some View {
+        HStack(spacing: 3) {
+            Text("Baked with")
+                .font(.system(size: 8, design: .monospaced))
+                .foregroundColor(.white.opacity(0.72))
+                .tracking(0.5)
+            Text("Stesura")
+                .font(.system(size: 13, design: .monospaced).weight(.bold))
+                .foregroundColor(.white)
+                .tracking(1)
         }
-        .frame(width: canvasSize.width, height: canvasSize.height, alignment: .bottomTrailing)
-        .padding(.trailing, 10)
-        .padding(.bottom, 8)
+        .shadow(color: .black.opacity(0.5), radius: 2.5, x: 0, y: 1)
     }
 }
 
@@ -310,7 +312,9 @@ struct DraggableShareBlock: View {
         )
         .if(draggable) { tile in
             tile.gesture(
-                DragGesture()
+                // minimumDistance: 1 — recognizes immediately but allows
+                // a literal-zero touch to still pass to the parent if any.
+                DragGesture(minimumDistance: 1, coordinateSpace: .local)
                     .onChanged { value in
                         if dragOrigin == nil { dragOrigin = block.position }
                         guard let origin = dragOrigin else { return }
@@ -451,25 +455,21 @@ struct PhotoShareView: View {
     // MARK: subviews
 
     private var aspectPicker: some View {
-        // Custom-rolled segmented row instead of native Picker — the system
-        // segmented control in a dark sheet was rendering with low contrast
-        // (selected/unselected nearly identical) and selection taps didn't
-        // visibly register. This version is unambiguous: gold pill on the
-        // active aspect, dim white on the rest, monospaced label.
+        // Custom segmented row. Uses .onTapGesture on a styled Text rather
+        // than Button(.plain) — the latter had inconsistent hit detection
+        // inside a ScrollView on some iOS builds. Gold pill on the active
+        // aspect, dim white on the rest.
         HStack(spacing: 6) {
             ForEach(ShareAspect.allCases) { a in
-                Button {
-                    aspect = a
-                } label: {
-                    Text(a.rawValue)
-                        .font(.system(size: 12, design: .monospaced).weight(aspect == a ? .semibold : .regular))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(aspect == a ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
-                        .foregroundColor(aspect == a ? .black : .white.opacity(0.7))
-                        .cornerRadius(6)
-                }
-                .buttonStyle(.plain)
+                Text(a.rawValue)
+                    .font(.system(size: 12, design: .monospaced).weight(aspect == a ? .semibold : .regular))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(aspect == a ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
+                    .foregroundColor(aspect == a ? .black : .white.opacity(0.7))
+                    .cornerRadius(6)
+                    .contentShape(Rectangle())
+                    .onTapGesture { aspect = a }
             }
         }
     }
@@ -537,19 +537,19 @@ struct PhotoShareView: View {
         }
     }
 
-    /// Shared tile used by aspect + scope segmented rows.
+    /// Shared tile used by the scope segmented row. Same .onTapGesture
+    /// approach as the aspect picker for hit-detection reliability.
     private func segmentTile(label: String, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
-        Button(action: onTap) {
-            Text(label)
-                .font(.system(size: 11, design: .monospaced).weight(isSelected ? .semibold : .regular))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 4)
-                .background(isSelected ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
-                .foregroundColor(isSelected ? .black : .white.opacity(0.7))
-                .cornerRadius(6)
-        }
-        .buttonStyle(.plain)
+        Text(label)
+            .font(.system(size: 11, design: .monospaced).weight(isSelected ? .semibold : .regular))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 4)
+            .background(isSelected ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
+            .foregroundColor(isSelected ? .black : .white.opacity(0.7))
+            .cornerRadius(6)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onTap)
     }
 
     private func scopeBinding() -> Binding<Int> {
@@ -614,8 +614,14 @@ struct PhotoShareView: View {
 
     @MainActor
     private func renderAndShare() {
-        // ImageRenderer rasterizes the canvas as a UIImage at the aspect's
-        // export scale. 360pt × 3× = 1080px on the long side.
+        // ImageRenderer rasterizes the canvas at the aspect's export scale
+        // (360pt × 3× = 1080px on the long side).
+        //
+        // The first uiImage call after a renderer is constructed sometimes
+        // returns a black/empty image because SwiftUI hasn't laid out the
+        // proposed-size view yet. We trigger a warmup render (discarded),
+        // then capture the real one. Both calls are sync — total cost is
+        // a few ms on device.
         let canvas = ShareCanvasView(
             photo: selectedPhoto,
             blocks: $blocks,
@@ -626,8 +632,16 @@ struct PhotoShareView: View {
         renderer.scale = aspect.exportScale
         renderer.proposedSize = ProposedViewSize(canvasSize)
 
-        if let uiImage = renderer.uiImage {
-            renderedImage = uiImage
+        _ = renderer.uiImage   // warmup — discard result
+        guard let uiImage = renderer.uiImage else { return }
+
+        renderedImage = uiImage
+        // Defer presenting the sheet until the next runloop so SwiftUI
+        // observes renderedImage being set BEFORE the sheet evaluates
+        // its content closure. Without this, the first present can show
+        // a black sheet because renderedImage was still nil when the
+        // closure ran.
+        DispatchQueue.main.async {
             showShareSheet = true
         }
     }
