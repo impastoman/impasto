@@ -719,6 +719,220 @@ The follow-on `.kneading` (post-salt, 1 min) is unchanged.
 
 ---
 
+## Performance — Queued (post-feature-freeze, before v1.0)
+
+The app isn't slow, but it has noticeable jitter on photo-heavy paths
+(galleries, full-screen viewer, share editor, history scrolling). Three
+concrete bottlenecks compound:
+
+1. **Photos live inline in UserDefaults JSON.** Every `store.update`,
+   `addBakeLog`, `updatePizzaEntry`, etc. calls `saveRecipes()` which
+   runs `JSONEncoder().encode(recipes)` on the main thread and writes
+   the result to UserDefaults. `BakeLog.photos` and `PizzaEntry.photos`
+   are `[Data]` stored inline. JSON Base64-encodes each photo (1 MB
+   JPEG → ~1.4 MB of Base64 text). A user with 10 bakes × 4 photos
+   stuffs 40–60 MB inside one UserDefaults blob. Each save stalls the
+   main thread for hundreds of ms.
+
+2. **Image decoding has no cache.** `UIImage(data: photoData)` runs
+   inside every `ForEach` of every gallery / row / viewer / canvas, on
+   every body re-evaluation. Decode is main-thread.
+
+3. **`RecipeStore` publishes too coarsely.** `@Published var recipes`
+   notifies every observer (HomeView, LibraryView, HistoryView,
+   BakeLogDetailView, PhotoShareView) when *any* property of *any*
+   recipe changes. Combined with #2 → a single tap cascades dozens of
+   decodes.
+
+Smaller stuff:
+- Saves aren't debounced — typing in a notes field triggers
+  persistenceHook → encode-everything per keystroke.
+- Encoding + UserDefaults.set is fully synchronous on the main thread.
+
+### The plan (ordered by impact / effort)
+
+#### Pass 1 — Photo extraction (biggest single lever)
+
+Move photos out of the JSON blob and onto disk as individual JPEG files,
+referenced by UUID. Existing inline `Data` arrays remain on the models
+for backward-compat decoding; new code reads/writes through a
+`PhotoStore`.
+
+**New file:** `ViewModels/PhotoStore.swift`
+```swift
+class PhotoStore {
+    static let shared = PhotoStore()
+    private let dir: URL  // Documents/photos/
+
+    /// Save a Data blob → return the UUID filename it was stored as.
+    func save(_ data: Data) -> UUID
+    /// Load a photo by UUID. Returns nil if missing.
+    func load(_ id: UUID) -> Data?
+    /// Delete by UUID (called from BakeLog/PizzaEntry deletion paths).
+    func delete(_ id: UUID)
+}
+```
+
+**Model changes:**
+- Add `var photoIDs: [UUID] = []` to `BakeLog` and `PizzaEntry`
+- Keep `var photos: [Data] = []` for backward-compat decoding only
+- `displayPhotos` computed property changes to resolve from `photoIDs`
+  via PhotoStore, falling back to `photos` for legacy entries
+
+**Migration (run once on app launch):**
+- On first launch after this lands, walk every recipe's bakeLogs and
+  pizzaEntries. For each entry where `photoIDs.isEmpty && !photos.isEmpty`:
+  - Save each `Data` to disk → collect UUIDs
+  - Replace `photos = []`, set `photoIDs = [those UUIDs]`
+  - Persist once at the end
+- Mark `impasto_photos_migrated_v1` = true in UserDefaults to skip
+  on subsequent launches
+
+**Write paths to update** (all PhotoStore.shared.save then store UUIDs):
+- `PizzaLogView.savePizzaEntry`
+- `SessionLogView.save` (aggregatedPhotos → UUIDs → BakeLog.photoIDs)
+- `BakeLogDetailView` photo reorder/Make-main (no longer rewrites
+  photo data, just reorders UUIDs)
+- `PhotoShareView` no-op (read-only consumer)
+
+**Read paths to update:**
+- Every callsite that does `entry.photos` or `entry.displayPhotos`
+  switches to a helper `entry.photoData(at:)` or `entry.allPhotoData()`
+  that resolves from PhotoStore. Returns lightweight `[Data?]` or
+  `[UUID]` depending on need.
+
+**Result:** saves drop from 50ms–1s to <5ms because the JSON is now
+~1 KB per recipe instead of ~10 MB. UserDefaults stops being abused.
+Photos load on demand, not all-at-once at app launch.
+
+#### Pass 2 — Image decode cache
+
+**New file:** `Shared/ImageCache.swift`
+```swift
+final class ImageCache {
+    static let shared = ImageCache()
+    private let cache = NSCache<NSUUID, UIImage>()
+
+    init() {
+        cache.countLimit = 200
+        cache.totalCostLimit = 50 * 1024 * 1024  // 50 MB
+    }
+
+    func image(for id: UUID, loader: () -> Data?) -> UIImage? {
+        if let cached = cache.object(forKey: id as NSUUID) { return cached }
+        guard let data = loader(),
+              let img = UIImage(data: data) else { return nil }
+        cache.setObject(img, forKey: id as NSUUID,
+                        cost: data.count)
+        return img
+    }
+
+    func invalidate(_ id: UUID) {
+        cache.removeObject(forKey: id as NSUUID)
+    }
+}
+```
+
+After Pass 1 lands, every `UIImage(data: ...)` site switches to
+`ImageCache.shared.image(for: photoID) { PhotoStore.shared.load(photoID) }`.
+
+PhotoGalleryView, FullScreenPhotoViewer, ShareCanvasView, BakeLogDetail
+photo row, History row thumbnails — all become near-instant on re-render
+because the decoded UIImage is reused.
+
+NSCache auto-evicts under memory pressure, so we don't need manual
+lifecycle management.
+
+#### Pass 3 — Debounce saves
+
+Add a debouncer to RecipeStore:
+```swift
+private var savePending: DispatchWorkItem?
+private func scheduleRecipesSave() {
+    savePending?.cancel()
+    let work = DispatchWorkItem { [weak self] in self?.saveRecipesNow() }
+    savePending = work
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
+}
+private func saveRecipesNow() {
+    DispatchQueue.global(qos: .utility).async { [weak self] in
+        guard let self else { return }
+        if let d = try? JSONEncoder().encode(self.recipes) {
+            UserDefaults.standard.set(d, forKey: self.recipeKey)
+        }
+    }
+}
+```
+
+Replace every existing `saveRecipes()` call internally with
+`scheduleRecipesSave()`. The 250ms quiet-period coalesces bursts (typing,
+rapid reorders, slider drags) into one save.
+
+Critical writes (`addBakeLog`, `delete`) should call `saveRecipesNow()`
+synchronously after the mutation to guarantee durability.
+
+#### Pass 4 — Background encoding (bundled with Pass 3)
+
+`saveRecipesNow` already moves the encode + UserDefaults.set to a
+background queue in the snippet above. Done as part of Pass 3.
+
+#### Pass 5 — Split RecipeStore (lower priority)
+
+Currently one ObservableObject holds recipes, blends, processes,
+preferments, folder lists, custom tags, etc. Editing any blend
+re-renders any view observing the store.
+
+Split into:
+- `RecipeStore` (recipes only)
+- `BlendStore` (blends + blendFolders)
+- `ProcessStore` (processes + processFolders)
+- `PrefermentStore` (preferments + prefermentFolders)
+- `LibraryUIStore` (sectionOrder, custom tags — UI-state-only)
+
+Each becomes its own `@StateObject` at the app root, injected via
+`.environmentObject` per view's actual dependency.
+
+Largest scope of all the passes (touches every environment injection
+site) and the smallest felt impact relative to Pass 1+2. Save for last
+or skip entirely if the earlier passes are enough.
+
+### Order of execution
+
+1. Land all queued features first (per-pizza share button if added,
+   any remaining v0.9.x polish, etc.).
+2. Pass 1 in its own commit + manual test on a populated database
+   (verify migration runs once, photos still appear everywhere).
+3. Pass 2 in its own commit.
+4. Pass 3+4 combined in one commit.
+5. Pass 5 only if perf still feels lacking — otherwise defer.
+
+### Testing notes
+
+- Test on a real device, not the simulator. The simulator hides
+  UserDefaults perf issues because it's running on a Mac with fast disk.
+- Profile with Instruments → Time Profiler at least once during each
+  pass to confirm main-thread time on the photo-heavy screens drops.
+- Verify the migration is idempotent — run the app twice in a row, the
+  second launch should skip migration entirely.
+- Verify photo deletion path: when a BakeLog is deleted, its photo
+  files should be deleted from disk. (PhotoStore.delete on each UUID
+  before removing the BakeLog.)
+- Verify legacy users (people running the build before Pass 1) get
+  their photos migrated without losing any.
+
+### What "felt fast" looks like
+
+- Tapping into a recipe → BakeLogDetailView appears in one frame, no
+  hitch as photos load
+- Scrolling history with 50+ logs is buttery — currently it stutters
+  every few rows as it decodes thumbnails
+- Toggling a share block updates the canvas immediately, no decode
+  flash
+- Typing in a notes field has zero noticeable lag (currently each
+  keystroke triggers a 50–200ms save)
+
+---
+
 ## Social Photo Builder — Shipped (v0.9.x)
 
 Initial build wired across three entry points: SessionLogView (mid-session
