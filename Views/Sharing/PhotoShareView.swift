@@ -99,15 +99,21 @@ struct ShareBlockExtractor {
     /// Builds the block list from a BakeLog + Recipe + scope.
     /// Style & Method and Formula default to enabled; the rest default to off
     /// per the spec. Blocks with no underlying data are omitted entirely.
-    /// All default y positions stay within 0.55…0.88 so even the bottom-most
-    /// block stays visible inside the canvas (clamp window is 0.08…0.92).
+    /// Defaults stagger horizontally (alternating left/right of center) and
+    /// vertically (yStep 0.10) so newly toggled blocks don't land underneath
+    /// already-visible ones.
     static func blocks(for log: BakeLog, recipe: Recipe, scope: ShareScope) -> [ShareBlock] {
         var out: [ShareBlock] = []
-        let centerX: CGFloat = 0.5
-        var y: CGFloat = 0.55
-        let yStep: CGFloat = 0.06
+        var y: CGFloat = 0.50
+        let yStep: CGFloat = 0.10
+        // Alternate x to keep stacked toggles visually distinct out of the box.
+        var leftSide = false
+        func nextX() -> CGFloat {
+            defer { leftSide.toggle() }
+            return leftSide ? 0.32 : 0.68
+        }
 
-        // Style & method
+        // Style & method (pre-enabled — keep centered)
         let styleName = recipe.style == .custom && !recipe.customStyleName.isEmpty
             ? recipe.customStyleName
             : recipe.style.rawValue
@@ -117,15 +123,12 @@ struct ShareBlockExtractor {
             title: ShareBlockType.styleMethod.rawValue,
             body: "\(styleName) · \(methodPart)",
             enabled: true,
-            position: CGPoint(x: centerX, y: y)
+            position: CGPoint(x: 0.5, y: y)
         ))
         y += yStep
 
-        // Formula. Excluded by spec:
-        //   - buffer / dough-loss factor (production detail)
-        //   - dough quantity (ball count × ball weight) — not interesting on
-        //     the share card; readers care about the recipe's character,
-        //     not how many you happened to make today
+        // Formula (pre-enabled — keep centered).
+        // Excluded: buffer (production detail) + ball count × weight.
         let hyd   = "\(Int(recipe.finalHydration * 100))% hydration"
         let salt  = String(format: "%.1f%% salt", recipe.saltPct * 100)
         let yeast = recipe.yeastType.rawValue.lowercased()
@@ -134,23 +137,25 @@ struct ShareBlockExtractor {
             title: ShareBlockType.formula.rawValue,
             body: "\(hyd) · \(salt) · \(yeast)",
             enabled: true,
-            position: CGPoint(x: centerX, y: y)
+            position: CGPoint(x: 0.5, y: y)
         ))
         y += yStep
 
-        // Flour blend (only if named)
+        // Remaining blocks default-off + stagger horizontally so toggling
+        // a couple on doesn't land them directly underneath the centered
+        // pair above.
+
         if !recipe.flourBlend.name.isEmpty {
             out.append(ShareBlock(
                 type: .flourBlend,
                 title: ShareBlockType.flourBlend.rawValue,
                 body: recipe.flourBlend.name,
                 enabled: false,
-                position: CGPoint(x: centerX, y: y)
+                position: CGPoint(x: nextX(), y: y)
             ))
             y += yStep
         }
 
-        // Preferment (skip on direct method)
         if recipe.method != .direct {
             let pct = Int(recipe.bigaRatio * 100)
             let body = pct > 0 ? "\(recipe.method.rawValue) · \(pct)%" : recipe.method.rawValue
@@ -159,13 +164,11 @@ struct ShareBlockExtractor {
                 title: ShareBlockType.preferment.rawValue,
                 body: body,
                 enabled: false,
-                position: CGPoint(x: centerX, y: y)
+                position: CGPoint(x: nextX(), y: y)
             ))
             y += yStep
         }
 
-        // Process — show step count as a lightweight description
-        // (Recipe doesn't currently store the linked SavedProcess name.)
         let enabledSteps = recipe.processCards.filter { $0.isEnabled }.count
         if enabledSteps > 0 {
             out.append(ShareBlock(
@@ -173,12 +176,11 @@ struct ShareBlockExtractor {
                 title: ShareBlockType.process.rawValue,
                 body: "\(enabledSteps) steps",
                 enabled: false,
-                position: CGPoint(x: centerX, y: y)
+                position: CGPoint(x: nextX(), y: y)
             ))
             y += yStep
         }
 
-        // Notes block — content depends on scope
         switch scope {
         case .wholeSession:
             var parts: [String] = [starGlyphs(log.rating)]
@@ -190,7 +192,7 @@ struct ShareBlockExtractor {
                 title: "Session",
                 body: body,
                 enabled: false,
-                position: CGPoint(x: centerX, y: y)
+                position: CGPoint(x: nextX(), y: y)
             ))
         case .singlePizza(let entry):
             var parts: [String] = [starGlyphs(log.rating)]
@@ -202,7 +204,7 @@ struct ShareBlockExtractor {
                 title: "Bake #\(entry.pizzaNumber)",
                 body: parts.joined(separator: " · "),
                 enabled: false,
-                position: CGPoint(x: centerX, y: y)
+                position: CGPoint(x: nextX(), y: y)
             ))
         }
 
@@ -275,19 +277,18 @@ struct ShareCanvasView: View {
     /// Lives in an .overlay (NOT as a ZStack sibling sized to the canvas) so
     /// its frame can't intercept taps meant for the block tiles.
     private var watermarkLabel: some View {
-        // Doubled from the v1 sizing per user request — more readable on
-        // small phone previews and on shared images.
-        HStack(spacing: 5) {
+        // Reverted to original (smaller) sizing per user preference.
+        HStack(spacing: 3) {
             Text("Baked with")
-                .font(.system(size: 16, design: .monospaced))
+                .font(.system(size: 8, design: .monospaced))
                 .foregroundColor(.white.opacity(0.72))
                 .tracking(0.5)
             Text("Stesura")
-                .font(.system(size: 26, design: .monospaced).weight(.bold))
+                .font(.system(size: 13, design: .monospaced).weight(.bold))
                 .foregroundColor(.white)
                 .tracking(1)
         }
-        .shadow(color: .black.opacity(0.55), radius: 4, x: 0, y: 1)
+        .shadow(color: .black.opacity(0.5), radius: 2.5, x: 0, y: 1)
     }
 }
 
@@ -301,9 +302,7 @@ struct DraggableShareBlock: View {
 
     var body: some View {
         // .offset (not .position) so the tile keeps its natural size and only
-        // its own visible region intercepts touches. .position would have
-        // each tile fill the entire canvas frame and gestures from N tiles
-        // would all overlap, killing dragging entirely.
+        // its own visible region intercepts touches.
         VStack(spacing: 3) {
             HStack(spacing: 5) {
                 if let emoji = block.type.emoji {
@@ -322,30 +321,33 @@ struct DraggableShareBlock: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.black.opacity(0.45))
+        .background(Color.black.opacity(0.55))   // a touch more opaque
         .cornerRadius(6)
+        // Make the entire visible tile area hit-testable (not just the text).
+        .contentShape(Rectangle())
         // Center of canvas = (0.5, 0.5). Offset from center by
         // (position - 0.5) * size to land at the desired normalized point.
         .offset(
             x: (block.position.x - 0.5) * canvasSize.width,
             y: (block.position.y - 0.5) * canvasSize.height
         )
-        .if(draggable) { tile in
-            tile.highPriorityGesture(
-                DragGesture(minimumDistance: 1, coordinateSpace: .local)
-                    .onChanged { value in
-                        if dragOrigin == nil { dragOrigin = block.position }
-                        guard let origin = dragOrigin else { return }
-                        let newX = origin.x + value.translation.width / canvasSize.width
-                        let newY = origin.y + value.translation.height / canvasSize.height
-                        block.position = CGPoint(
-                            x: min(max(0.08, newX), 0.92),
-                            y: min(max(0.08, newY), 0.92)
-                        )
-                    }
-                    .onEnded { _ in dragOrigin = nil }
-            )
-        }
+        // Gesture always attached (no .if wrapper that could break view
+        // identity). The draggable flag is checked inside the handler.
+        .gesture(
+            DragGesture(minimumDistance: 1, coordinateSpace: .local)
+                .onChanged { value in
+                    guard draggable else { return }
+                    if dragOrigin == nil { dragOrigin = block.position }
+                    guard let origin = dragOrigin else { return }
+                    let newX = origin.x + value.translation.width / canvasSize.width
+                    let newY = origin.y + value.translation.height / canvasSize.height
+                    block.position = CGPoint(
+                        x: min(max(0.08, newX), 0.92),
+                        y: min(max(0.08, newY), 0.92)
+                    )
+                }
+                .onEnded { _ in dragOrigin = nil }
+        )
     }
 }
 
