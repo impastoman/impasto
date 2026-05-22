@@ -222,10 +222,13 @@ struct ShareCanvasView: View {
         ZStack {
             background
 
-            ForEach(blocks.indices, id: \.self) { i in
-                if blocks[i].enabled {
+            // ForEach($blocks) iterates with Binding<ShareBlock>, which is
+            // the idiomatic SwiftUI 16+ pattern for arrays of mutable
+            // structs — the indices-based approach was missing changes.
+            ForEach($blocks) { $block in
+                if block.enabled {
                     DraggableShareBlock(
-                        block: $blocks[i],
+                        block: $block,
                         canvasSize: canvasSize,
                         draggable: draggable
                     )
@@ -448,13 +451,27 @@ struct PhotoShareView: View {
     // MARK: subviews
 
     private var aspectPicker: some View {
-        Picker("Aspect", selection: $aspect) {
+        // Custom-rolled segmented row instead of native Picker — the system
+        // segmented control in a dark sheet was rendering with low contrast
+        // (selected/unselected nearly identical) and selection taps didn't
+        // visibly register. This version is unambiguous: gold pill on the
+        // active aspect, dim white on the rest, monospaced label.
+        HStack(spacing: 6) {
             ForEach(ShareAspect.allCases) { a in
-                Text(a.rawValue).tag(a)
+                Button {
+                    aspect = a
+                } label: {
+                    Text(a.rawValue)
+                        .font(.system(size: 12, design: .monospaced).weight(aspect == a ? .semibold : .regular))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(aspect == a ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
+                        .foregroundColor(aspect == a ? .black : .white.opacity(0.7))
+                        .cornerRadius(6)
+                }
+                .buttonStyle(.plain)
             }
         }
-        .pickerStyle(.segmented)
-        .colorScheme(.dark)
     }
 
     private var canvasFrame: some View {
@@ -502,15 +519,37 @@ struct PhotoShareView: View {
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.2)
-            Picker("", selection: scopeBinding()) {
-                Text("Whole session").tag(0)
+
+            // Same custom segmented style as aspectPicker for consistent
+            // contrast and reliable tap handling.
+            let binding = scopeBinding()
+            HStack(spacing: 6) {
+                segmentTile(label: "Whole session", isSelected: binding.wrappedValue == 0) {
+                    binding.wrappedValue = 0
+                }
                 ForEach(Array(log.pizzaEntries.enumerated()), id: \.offset) { idx, entry in
-                    Text("Bake #\(entry.pizzaNumber)").tag(idx + 1)
+                    let tag = idx + 1
+                    segmentTile(label: "Bake #\(entry.pizzaNumber)", isSelected: binding.wrappedValue == tag) {
+                        binding.wrappedValue = tag
+                    }
                 }
             }
-            .pickerStyle(.segmented)
-            .colorScheme(.dark)
         }
+    }
+
+    /// Shared tile used by aspect + scope segmented rows.
+    private func segmentTile(label: String, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
+        Button(action: onTap) {
+            Text(label)
+                .font(.system(size: 11, design: .monospaced).weight(isSelected ? .semibold : .regular))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 4)
+                .background(isSelected ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
+                .foregroundColor(isSelected ? .black : .white.opacity(0.7))
+                .cornerRadius(6)
+        }
+        .buttonStyle(.plain)
     }
 
     private func scopeBinding() -> Binding<Int> {
@@ -540,13 +579,13 @@ struct PhotoShareView: View {
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.2)
             VStack(spacing: 8) {
-                ForEach(blocks.indices, id: \.self) { i in
-                    Toggle(isOn: $blocks[i].enabled) {
+                ForEach($blocks) { $block in
+                    Toggle(isOn: $block.enabled) {
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(blocks[i].title)
+                            Text(block.title)
                                 .font(.system(size: 12, design: .monospaced))
                                 .foregroundColor(.white)
-                            Text(blocks[i].body)
+                            Text(block.body)
                                 .font(.system(size: 10, design: .monospaced))
                                 .foregroundColor(.white.opacity(0.5))
                                 .lineLimit(1)
