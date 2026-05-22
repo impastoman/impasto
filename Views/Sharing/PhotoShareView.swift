@@ -13,22 +13,30 @@ enum ShareAspect: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    /// In-editor preview size (points). Export multiplies these by `exportScale`.
-    /// 360pt × 3× scale = 1080px — matches Instagram standard sizes.
+    /// In-editor preview size (points). Smaller than before (was 360pt) so
+    /// the canvas doesn't dominate the screen on tall aspects and the
+    /// scrollable controls still have visible room. Export scale is bumped
+    /// to compensate so output stays ~1080px on the long edge.
     func previewSize(for photoAspect: CGFloat) -> CGSize {
         switch self {
-        case .square:   return CGSize(width: 360, height: 360)  // → 1080×1080
-        case .portrait: return CGSize(width: 360, height: 450)  // → 1080×1350
-        case .vertical: return CGSize(width: 360, height: 640)  // → 1080×1920
+        case .square:   return CGSize(width: 280, height: 280)   // → 1120×1120 at 4×
+        case .portrait: return CGSize(width: 280, height: 350)   // → 1120×1400 at 4×
+        case .vertical: return CGSize(width: 240, height: 427)   // → 1080×1920 at 4.5×
         case .native:
             // photoAspect = width / height; clamp to sensible bounds
             let clamped = max(0.5, min(2.0, photoAspect))
-            return CGSize(width: 360, height: 360 / clamped)
+            return CGSize(width: 280, height: 280 / clamped)
         }
     }
 
-    /// Pixel scale factor for export (ImageRenderer.scale).
-    var exportScale: CGFloat { 3.0 }
+    /// Pixel scale factor used by the rasterizer. ~4× keeps export close
+    /// to 1080px on the long edge despite the smaller preview canvas.
+    var exportScale: CGFloat {
+        switch self {
+        case .vertical: return 4.5
+        default:        return 4.0
+        }
+    }
 }
 
 /// Which subject the share blocks describe.
@@ -376,49 +384,53 @@ struct PhotoShareView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color(hex: "1A1A1A").ignoresSafeArea()
+            // Flat VStack layout — no ZStack-for-background hack, no nested
+            // VStack inside ZStack which made the ScrollView seem to scroll
+            // BEHIND the canvas. Background applied via .background modifier
+            // on the outer VStack. Explicit Divider + .layoutPriority give
+            // SwiftUI an unambiguous answer to "what owns the screen height".
+            VStack(spacing: 0) {
+                aspectPicker
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
 
-                VStack(spacing: 0) {
-                    // Aspect picker + canvas are kept OUTSIDE the ScrollView.
-                    // Reasons: (a) the ScrollView's pan gesture was winning
-                    // over block DragGestures, so blocks couldn't be dragged,
-                    // and (b) child views inside a ScrollView don't always
-                    // re-render reliably on binding-driven state changes —
-                    // putting the canvas in the deterministic VStack-only
-                    // path fixes both.
-                    VStack(spacing: 12) {
-                        aspectPicker
-                            .padding(.horizontal, 16)
-                            .padding(.top, 12)
-                        canvasFrame
-                    }
+                canvasFrame
+                    .layoutPriority(1)   // canvas always gets its requested height
 
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            if photoIsMissing {
-                                pickPhotoPrompt
-                            } else {
-                                PhotosPicker(selection: $pickerItem, matching: .images) {
-                                    Label("Replace photo", systemImage: "photo")
-                                        .font(.system(size: 12, design: .monospaced))
-                                        .foregroundColor(.white.opacity(0.7))
-                                }
+                // Explicit visual separator so the canvas can't visually
+                // bleed into the scrolling area below.
+                Rectangle()
+                    .fill(Color.white.opacity(0.08))
+                    .frame(height: 1)
+
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if photoIsMissing {
+                            pickPhotoPrompt
+                        } else {
+                            PhotosPicker(selection: $pickerItem, matching: .images) {
+                                Label("Replace photo", systemImage: "photo")
+                                    .font(.system(size: 12, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.7))
                             }
-
-                            if isPerPizzaCapable {
-                                scopePicker
-                            }
-
-                            blockTogglesSection
-
-                            helperFooter
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 20)
+
+                        if isPerPizzaCapable {
+                            scopePicker
+                        }
+
+                        blockTogglesSection
+
+                        helperFooter
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 18)
                 }
+                .layoutPriority(0)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(hex: "1A1A1A").ignoresSafeArea())
             .navigationTitle("Share")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
