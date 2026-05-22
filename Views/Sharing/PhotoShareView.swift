@@ -121,15 +121,18 @@ struct ShareBlockExtractor {
         ))
         y += yStep
 
-        // Formula (NO buffer — production detail)
+        // Formula. Excluded by spec:
+        //   - buffer / dough-loss factor (production detail)
+        //   - dough quantity (ball count × ball weight) — not interesting on
+        //     the share card; readers care about the recipe's character,
+        //     not how many you happened to make today
         let hyd   = "\(Int(recipe.finalHydration * 100))% hydration"
-        let balls = "\(recipe.ballCount) × \(Int(recipe.ballWeight))g"
         let salt  = String(format: "%.1f%% salt", recipe.saltPct * 100)
         let yeast = recipe.yeastType.rawValue.lowercased()
         out.append(ShareBlock(
             type: .formula,
             title: ShareBlockType.formula.rawValue,
-            body: "\(hyd) · \(balls) · \(salt) · \(yeast)",
+            body: "\(hyd) · \(salt) · \(yeast)",
             enabled: true,
             position: CGPoint(x: centerX, y: y)
         ))
