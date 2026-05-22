@@ -70,16 +70,9 @@ enum ShareBlockType: String, CaseIterable, Identifiable, Hashable {
 
     var id: String { rawValue }
 
-    var emoji: String? {
-        switch self {
-        case .styleMethod:   return nil
-        case .formula:       return nil
-        case .flourBlend:    return "🌾"
-        case .preferment:    return nil    // per spec — no emoji
-        case .process:       return "📋"
-        case .sessionNotes:  return nil
-        }
-    }
+    /// Emojis removed per user — block titles read cleaner without them.
+    /// Keeping the property in case we want to add them back later.
+    var emoji: String? { nil }
 }
 
 struct ShareBlock: Identifiable, Equatable {
@@ -90,6 +83,8 @@ struct ShareBlock: Identifiable, Equatable {
     var enabled: Bool
     /// Normalized 0…1 position within the canvas. Center anchor.
     var position: CGPoint
+    /// 1.0 = default size. Adjusted by dragging the block's corner handle.
+    var scale: CGFloat = 1.0
 
     static func == (lhs: ShareBlock, rhs: ShareBlock) -> Bool { lhs.id == rhs.id }
 }
@@ -304,6 +299,7 @@ struct DraggableShareBlock: View {
     var draggable: Bool
 
     @State private var dragOrigin: CGPoint? = nil
+    @State private var scaleOrigin: CGFloat? = nil
 
     private var block: ShareBlock {
         guard editor.blocks.indices.contains(index) else {
@@ -313,7 +309,9 @@ struct DraggableShareBlock: View {
         return editor.blocks[index]
     }
 
-    var body: some View {
+    /// The visible tile (no positioning, no gestures). Used as the base
+    /// for both the editor-side draggable view and the rasterized output.
+    private var tile: some View {
         VStack(spacing: 3) {
             HStack(spacing: 5) {
                 if let emoji = block.type.emoji {
@@ -334,27 +332,75 @@ struct DraggableShareBlock: View {
         .padding(.vertical, 8)
         .background(Color.black.opacity(0.55))
         .cornerRadius(6)
-        .contentShape(Rectangle())
-        .offset(
-            x: (block.position.x - 0.5) * canvasSize.width,
-            y: (block.position.y - 0.5) * canvasSize.height
-        )
-        .gesture(
-            DragGesture(minimumDistance: 1, coordinateSpace: .local)
-                .onChanged { value in
-                    guard draggable else { return }
-                    guard editor.blocks.indices.contains(index) else { return }
-                    if dragOrigin == nil { dragOrigin = editor.blocks[index].position }
-                    guard let origin = dragOrigin else { return }
-                    let newX = origin.x + value.translation.width / canvasSize.width
-                    let newY = origin.y + value.translation.height / canvasSize.height
-                    editor.blocks[index].position = CGPoint(
-                        x: min(max(0.08, newX), 0.92),
-                        y: min(max(0.08, newY), 0.92)
-                    )
+    }
+
+    var body: some View {
+        tile
+            // Scale the tile to the user-chosen size. scaleEffect doesn't
+            // change the layout frame, but anchor: .center keeps the tile
+            // visually anchored at its position point as it grows/shrinks.
+            .scaleEffect(block.scale, anchor: .center)
+            .contentShape(Rectangle())
+            // Bottom-right resize handle. Only when draggable (editor),
+            // never in the rasterized export.
+            .overlay(alignment: .bottomTrailing) {
+                if draggable {
+                    resizeHandle
+                        .offset(x: 6, y: 6)  // half-outside the corner
                 }
-                .onEnded { _ in dragOrigin = nil }
-        )
+            }
+            .offset(
+                x: (block.position.x - 0.5) * canvasSize.width,
+                y: (block.position.y - 0.5) * canvasSize.height
+            )
+            // Move gesture on the tile body — drag the visible block to
+            // reposition. Resize handle's gesture (below) wins for touches
+            // that start on the handle because it's a child view on top.
+            .gesture(
+                DragGesture(minimumDistance: 1, coordinateSpace: .local)
+                    .onChanged { value in
+                        guard draggable else { return }
+                        guard editor.blocks.indices.contains(index) else { return }
+                        if dragOrigin == nil { dragOrigin = editor.blocks[index].position }
+                        guard let origin = dragOrigin else { return }
+                        let newX = origin.x + value.translation.width / canvasSize.width
+                        let newY = origin.y + value.translation.height / canvasSize.height
+                        editor.blocks[index].position = CGPoint(
+                            x: min(max(0.08, newX), 0.92),
+                            y: min(max(0.08, newY), 0.92)
+                        )
+                    }
+                    .onEnded { _ in dragOrigin = nil }
+            )
+    }
+
+    /// Small gold circle with a diagonal-arrow icon. Drag it diagonally
+    /// to scale the tile — out for bigger, in for smaller. Clamped to
+    /// 0.5×…2.5× so blocks can't disappear or eat the canvas.
+    private var resizeHandle: some View {
+        Circle()
+            .fill(Color(hex: "D2B96A"))
+            .frame(width: 18, height: 18)
+            .overlay(
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(.white)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+            .contentShape(Circle())
+            .gesture(
+                DragGesture(minimumDistance: 1, coordinateSpace: .local)
+                    .onChanged { value in
+                        guard editor.blocks.indices.contains(index) else { return }
+                        if scaleOrigin == nil { scaleOrigin = editor.blocks[index].scale }
+                        guard let origin = scaleOrigin else { return }
+                        // Sum dx + dy / 160 → ~+1.0 scale per 160pt diagonal.
+                        let delta = (value.translation.width + value.translation.height) / 160
+                        let newScale = max(0.5, min(2.5, origin + delta))
+                        editor.blocks[index].scale = newScale
+                    }
+                    .onEnded { _ in scaleOrigin = nil }
+            )
     }
 }
 
