@@ -85,6 +85,27 @@ struct ShareBlock: Identifiable, Equatable {
     var position: CGPoint
     /// 1.0 = default size. Adjusted by dragging the block's corner handle.
     var scale: CGFloat = 1.0
+    /// Text alignment within the tile. Cycles on tap.
+    var alignment: TextAlignment = .center
+
+    /// Horizontal alignment derived from `alignment`, for VStack/HStack
+    /// content positioning (title row + body match the chosen alignment).
+    var hAlignment: HorizontalAlignment {
+        switch alignment {
+        case .leading:  return .leading
+        case .trailing: return .trailing
+        case .center:   return .center
+        }
+    }
+
+    /// Frame alignment value for `.frame(maxWidth:alignment:)`.
+    var frameAlignment: Alignment {
+        switch alignment {
+        case .leading:  return .leading
+        case .trailing: return .trailing
+        case .center:   return .center
+        }
+    }
 
     static func == (lhs: ShareBlock, rhs: ShareBlock) -> Bool { lhs.id == rhs.id }
 }
@@ -314,9 +335,11 @@ struct DraggableShareBlock: View {
     /// not just the visual rendering. Means the overlay resize handle
     /// follows the real bottom-right corner, and the tap area (the
     /// content shape) matches what the user sees.
+    /// Inner content alignment follows block.alignment so the title +
+    /// body both move to leading / center / trailing together.
     private var tile: some View {
         let s = block.scale
-        return VStack(spacing: 3 * s) {
+        return VStack(alignment: block.hAlignment, spacing: 3 * s) {
             HStack(spacing: 5 * s) {
                 if let emoji = block.type.emoji {
                     Text(emoji).font(.system(size: 12 * s))
@@ -329,7 +352,7 @@ struct DraggableShareBlock: View {
             Text(block.body)
                 .font(.system(size: 13 * s, design: .monospaced).weight(.medium))
                 .foregroundColor(.white)
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(block.alignment)
                 .lineLimit(2)
         }
         .padding(.horizontal, 12 * s)
@@ -355,9 +378,9 @@ struct DraggableShareBlock: View {
                 x: (block.position.x - 0.5) * canvasSize.width,
                 y: (block.position.y - 0.5) * canvasSize.height
             )
-            // Move gesture on the tile body — drag the visible block to
-            // reposition. Resize handle's gesture (below) wins for touches
-            // that start on the handle because it's a child view on top.
+            // Move gesture on the tile body. Resize handle's gesture is on
+            // its own child view (on top) and wins for touches that start
+            // on the handle.
             .gesture(
                 DragGesture(minimumDistance: 1, coordinateSpace: .local)
                     .onChanged { value in
@@ -374,6 +397,24 @@ struct DraggableShareBlock: View {
                     }
                     .onEnded { _ in dragOrigin = nil }
             )
+            // Tap cycles text alignment: center → leading → trailing → center.
+            // .simultaneousGesture so it doesn't block the DragGesture above.
+            .simultaneousGesture(
+                TapGesture()
+                    .onEnded {
+                        guard draggable else { return }
+                        guard editor.blocks.indices.contains(index) else { return }
+                        editor.blocks[index].alignment = nextAlignment(editor.blocks[index].alignment)
+                    }
+            )
+    }
+
+    private func nextAlignment(_ current: TextAlignment) -> TextAlignment {
+        switch current {
+        case .center:   return .leading
+        case .leading:  return .trailing
+        case .trailing: return .center
+        }
     }
 
     /// Small gold circle with a diagonal-arrow icon. Drag it diagonally
