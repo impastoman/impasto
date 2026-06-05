@@ -22,7 +22,7 @@ struct PizzaLogView: View {
     @State private var newTagText = ""
     @State private var notes = ""
     @State private var ovenTempInput = ""
-    @State private var photos: [Data] = []
+    @State private var photoIDs: [UUID] = []
     @State private var pendingPhoto: Data? = nil   // bridge to single-image pickers
     @State private var showPhotoOptions = false
     @State private var showCamera = false
@@ -44,7 +44,10 @@ struct PizzaLogView: View {
             .onAppear { snapshotBakeTime = vm.bakeElapsed }
             .keyboardDoneButton()
             .onChange(of: pendingPhoto) { _, data in
-                if let d = data { photos.append(d); pendingPhoto = nil }
+                if let d = data {
+                    photoIDs.append(PhotoStore.shared.save(d))
+                    pendingPhoto = nil
+                }
             }
             .sheet(isPresented: $showCamera) { CameraPickerView(imageData: $pendingPhoto) }
             .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $pendingPhoto) }
@@ -69,7 +72,7 @@ struct PizzaLogView: View {
     var photoSection: some View {
         Section {
             PhotoGalleryView(
-                photos: $photos,
+                photoIDs: $photoIDs,
                 onAdd: { showPhotoOptions = true }
             )
             .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
@@ -222,6 +225,8 @@ struct PizzaLogView: View {
     }
 
     func savePizzaEntry() {
+        // Photos were saved to disk as they were added (see onChange of
+        // pendingPhoto). The PizzaEntry just stores the UUIDs.
         let entry = PizzaEntry(
             pizzaNumber: vm.pizzaEntries.count + 1,
             bakeTimeSeconds: snapshotBakeTime,
@@ -234,8 +239,9 @@ struct PizzaLogView: View {
             customCrustTags: Array(customCrustTags),
             customCrumbTags: Array(customCrumbTags),
             notes: notes,
-            photoData: photos.first,     // legacy mirror
-            photos: photos
+            photoData: nil,
+            photos: [],
+            photoIDs: photoIDs
         )
         vm.logPizza(entry)
     }

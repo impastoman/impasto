@@ -135,12 +135,14 @@ struct HistoryView: View {
 
     func pizzaRow(entry: PizzaEntry) -> some View {
         HStack(spacing: 12) {
-            // Thumbnail
+            // Thumbnail — read via ImageCache (UUID → UIImage), fall back
+            // to the legacy photoData field for any pre-migration entry.
             Group {
-                if let data = entry.photoData, let img = UIImage(data: data) {
-                    Image(uiImage: img)
-                        .resizable()
-                        .scaledToFill()
+                if let coverID = entry.photoIDs.first,
+                   let img = ImageCache.shared.image(for: coverID) {
+                    Image(uiImage: img).resizable().scaledToFill()
+                } else if let data = entry.photoData, let img = UIImage(data: data) {
+                    Image(uiImage: img).resizable().scaledToFill()
                 } else {
                     Color(hex: "ECEAE3")
                         .overlay(Image(systemName: "photo").foregroundColor(.secondary).font(.jakarta(.regular, size: 12)))
@@ -180,10 +182,11 @@ struct HistoryView: View {
     func legacyBakeRow(log: BakeLog) -> some View {
         HStack(spacing: 12) {
             Group {
-                if let data = log.photoData, let img = UIImage(data: data) {
-                    Image(uiImage: img)
-                        .resizable()
-                        .scaledToFill()
+                if let coverID = log.photoIDs.first,
+                   let img = ImageCache.shared.image(for: coverID) {
+                    Image(uiImage: img).resizable().scaledToFill()
+                } else if let data = log.photoData, let img = UIImage(data: data) {
+                    Image(uiImage: img).resizable().scaledToFill()
                 } else {
                     Color(hex: "ECEAE3")
                         .overlay(Image(systemName: "photo").foregroundColor(.secondary).font(.jakarta(.regular, size: 12)))

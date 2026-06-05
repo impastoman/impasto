@@ -8,7 +8,7 @@ struct PostBakeView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @Environment(\.dismiss) private var dismiss
 
-    @State private var photos: [Data] = []
+    @State private var photoIDs: [UUID] = []
     @State private var pendingPhoto: Data? = nil   // bridge to single-image pickers
     @State private var showPhotoOptions = false
     @State private var showCamera = false
@@ -41,7 +41,10 @@ struct PostBakeView: View {
             }
         }
         .onChange(of: pendingPhoto) { _, data in
-            if let d = data { photos.append(d); pendingPhoto = nil }
+            if let d = data {
+                photoIDs.append(PhotoStore.shared.save(d))
+                pendingPhoto = nil
+            }
         }
         .sheet(isPresented: $showSessionLog) {
             SessionLogView(
@@ -49,7 +52,7 @@ struct PostBakeView: View {
                 recipe: recipe,
                 bakeTimeSeconds: totalBakeTime,
                 ovenTempAchieved: nil,
-                photos: photos,
+                photoIDs: photoIDs,
                 onEndSession: {
                     sessionManager.end(vm)
                 }
@@ -84,7 +87,8 @@ struct PostBakeView: View {
                     selectedPizza = entry
                 } label: {
                     HStack(spacing: 12) {
-                        if let data = entry.displayPhotos.first, let img = UIImage(data: data) {
+                        if let coverID = entry.photoIDs.first,
+                           let img = ImageCache.shared.image(for: coverID) {
                             Image(uiImage: img)
                                 .resizable().scaledToFill()
                                 .frame(width: 52, height: 52)
@@ -118,49 +122,15 @@ struct PostBakeView: View {
 
     var photoSection: some View {
         Section {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(Array(photos.enumerated()), id: \.offset) { idx, data in
-                        if let uiImage = UIImage(data: data) {
-                            ZStack(alignment: .topTrailing) {
-                                Image(uiImage: uiImage)
-                                    .resizable().scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .clipped().cornerRadius(8)
-                                Button {
-                                    photos.remove(at: idx)
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundStyle(.white, Color.black.opacity(0.55))
-                                }
-                                .padding(4)
-                            }
-                        }
-                    }
-                    // Add photo tile
-                    Button { showPhotoOptions = true } label: {
-                        VStack(spacing: 6) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 22))
-                                .foregroundColor(Color(hex: "7FA2BD"))
-                            Text("Add")
-                                .font(.jakarta(.regular, size: 11))
-                                .foregroundColor(Color(hex: "7FA2BD"))
-                        }
-                        .frame(width: 100, height: 100)
-                        .background(Color(hex: "7FA2BD").opacity(0.08))
-                        .cornerRadius(8)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "7FA2BD").opacity(0.3), lineWidth: 1))
-                    }
-                    .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
-                        Button("Take Photo") { showCamera = true }
-                        Button("Choose from Library") { showLibraryPicker = true }
-                    }
-                }
-                .padding(.vertical, 4)
+            PhotoGalleryView(
+                photoIDs: $photoIDs,
+                onAdd: { showPhotoOptions = true }
+            )
+            .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
+                Button("Take Photo") { showCamera = true }
+                Button("Choose from Library") { showLibraryPicker = true }
             }
-        } header: { Text("Photos") }
+        } header: { Text("Photos").font(.jakarta(.semibold, size: 13)) }
         .listRowBackground(Color.clear)
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }
@@ -201,23 +171,18 @@ struct PizzaDetailView: View {
     var body: some View {
         NavigationStack {
             List {
-                if !entry.displayPhotos.isEmpty {
+                if !entry.photoIDs.isEmpty {
                     Section {
                         PhotoGalleryView(
-                            photos: Binding(
-                                get: { entry.displayPhotos },
-                                set: { newValue in
-                                    entry.photos = newValue
-                                    entry.photoData = newValue.first
-                                }
-                            ),
+                            photoIDs: $entry.photoIDs,
                             isEditable: false,
                             allowsReorder: true,
                             onTap: { idx in
-                                viewerItem = PhotoViewerItem(id: idx, photo: entry.displayPhotos[idx])
+                                guard entry.photoIDs.indices.contains(idx) else { return }
+                                viewerItem = PhotoViewerItem(id: idx, photoID: entry.photoIDs[idx])
                             }
                         )
-                    } header: { Text("Photos") }
+                    } header: { Text("Photos").font(.jakarta(.semibold, size: 13)) }
                       footer: { Text("Tap a photo to view it full-size or set it as this bake's main thumbnail. Drag to reorder.").font(.jakarta(.regular, size: 11)).tipText() }
                     .listRowBackground(Color.clear)
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -269,15 +234,12 @@ struct PizzaDetailView: View {
         .preferredColorScheme(.light)
         .fullScreenCover(item: $viewerItem) { item in
             FullScreenPhotoViewer(
-                photo: item.photo,
+                photoID: item.photoID,
                 canMakeMain: item.id != 0,
                 onMakeMain: {
-                    var arr = entry.displayPhotos
-                    guard arr.indices.contains(item.id) else { return }
-                    let moved = arr.remove(at: item.id)
-                    arr.insert(moved, at: 0)
-                    entry.photos = arr
-                    entry.photoData = arr.first
+                    guard entry.photoIDs.indices.contains(item.id) else { return }
+                    let moved = entry.photoIDs.remove(at: item.id)
+                    entry.photoIDs.insert(moved, at: 0)
                 }
             )
         }

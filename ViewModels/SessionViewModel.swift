@@ -311,7 +311,7 @@ class SessionViewModel: ObservableObject, Identifiable {
                       notes: String, bakeTimeSeconds: TimeInterval,
                       ovenTempAchieved: Double?, crustColor: CrustColor,
                       bottomResult: BottomResult, topResult: TopResult,
-                      photos: [Data] = []) -> BakeLog {
+                      photoIDs: [UUID] = []) -> BakeLog {
         var planned: [String: TimeInterval] = [:]
         var actual: [String: TimeInterval] = [:]
         for card in cards {
@@ -340,8 +340,9 @@ class SessionViewModel: ObservableObject, Identifiable {
             crustColor: crustColor,
             bottomResult: bottomResult,
             topResult: topResult,
-            photoData: photos.first,
-            photos: photos,
+            photoData: nil,
+            photos: [],
+            photoIDs: photoIDs,
             pizzaEntries: pizzaEntries
         )
     }

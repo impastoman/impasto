@@ -20,10 +20,11 @@ struct SessionLogView: View {
     @State private var notes = ""
 
     // Aggregated session gallery: starts with every photo across every
-    // logged bake plus whatever the user already added in PostBakeView,
-    // then the user can reorder, delete, or add more here. The first
-    // photo becomes the session's cover thumbnail.
-    @State private var aggregatedPhotos: [Data]
+    // logged bake plus the session-level photos collected in PostBakeView,
+    // dedup'd. User can reorder, delete, add more. First photo becomes
+    // the session's cover thumbnail. Stored as UUIDs — each resolves to
+    // a JPEG on disk via PhotoStore.
+    @State private var aggregatedPhotoIDs: [UUID]
     @State private var pendingPhoto: Data? = nil
     @State private var showPhotoOptions = false
     @State private var showCamera = false
@@ -37,7 +38,7 @@ struct SessionLogView: View {
          crustColor: CrustColor = .even,
          bottomResult: BottomResult = .good,
          topResult: TopResult = .good,
-         photos: [Data] = [],
+         photoIDs: [UUID] = [],
          onEndSession: (() -> Void)? = nil) {
         self.vm = vm
         self.recipe = recipe
@@ -48,15 +49,14 @@ struct SessionLogView: View {
         self.topResult = topResult
         self.onEndSession = onEndSession
 
-        // Merge: every per-bake photo (in pizza order) followed by the
-        // session-level photos already added in PostBakeView. Deduplicate
-        // by Data equality so a photo added once doesn't appear twice.
-        var seen: [Data] = []
+        // Per-bake photos (in pizza order) followed by the session-level
+        // photos already collected in PostBakeView. Dedup by UUID.
+        var seen: [UUID] = []
         for entry in vm.pizzaEntries {
-            for d in entry.displayPhotos where !seen.contains(d) { seen.append(d) }
+            for id in entry.photoIDs where !seen.contains(id) { seen.append(id) }
         }
-        for d in photos where !seen.contains(d) { seen.append(d) }
-        _aggregatedPhotos = State(initialValue: seen)
+        for id in photoIDs where !seen.contains(id) { seen.append(id) }
+        _aggregatedPhotoIDs = State(initialValue: seen)
     }
 
     var body: some View {
@@ -82,18 +82,21 @@ struct SessionLogView: View {
             .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $pendingPhoto) }
             .fullScreenCover(item: $viewerItem) { item in
                 FullScreenPhotoViewer(
-                    photo: item.photo,
+                    photoID: item.photoID,
                     canMakeMain: item.id != 0,
                     onMakeMain: {
-                        guard aggregatedPhotos.indices.contains(item.id) else { return }
-                        let moved = aggregatedPhotos.remove(at: item.id)
-                        aggregatedPhotos.insert(moved, at: 0)
+                        guard aggregatedPhotoIDs.indices.contains(item.id) else { return }
+                        let moved = aggregatedPhotoIDs.remove(at: item.id)
+                        aggregatedPhotoIDs.insert(moved, at: 0)
                     }
                 )
             }
         }
         .onChange(of: pendingPhoto) { _, data in
-            if let d = data { aggregatedPhotos.append(d); pendingPhoto = nil }
+            if let d = data {
+                aggregatedPhotoIDs.append(PhotoStore.shared.save(d))
+                pendingPhoto = nil
+            }
         }
         .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
             if isTrue { dismiss() }
@@ -102,13 +105,13 @@ struct SessionLogView: View {
 
     var photoSection: some View {
         Section {
-            if aggregatedPhotos.isEmpty {
+            if aggregatedPhotoIDs.isEmpty {
                 Button { showPhotoOptions = true } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "photo.badge.plus").foregroundColor(Color(hex: "7FA2BD"))
+                        Image(systemName: "photo.badge.plus").foregroundColor(Color.ruleBlue)
                         Text("Add a session photo")
                             .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(Color(hex: "7FA2BD"))
+                            .foregroundColor(Color.ruleBlue)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 6)
@@ -116,14 +119,15 @@ struct SessionLogView: View {
                 .buttonStyle(.plain)
             } else {
                 PhotoGalleryView(
-                    photos: $aggregatedPhotos,
+                    photoIDs: $aggregatedPhotoIDs,
                     onAdd: { showPhotoOptions = true },
                     onTap: { idx in
-                        viewerItem = PhotoViewerItem(id: idx, photo: aggregatedPhotos[idx])
+                        guard aggregatedPhotoIDs.indices.contains(idx) else { return }
+                        viewerItem = PhotoViewerItem(id: idx, photoID: aggregatedPhotoIDs[idx])
                     }
                 )
             }
-        } header: { Text("Session photos") }
+        } header: { Text("Session photos").font(.jakarta(.semibold, size: 13)) }
           footer: { Text("Every photo from every bake is collected here. Tap to view full-size or pick a session thumbnail. Drag to reorder. Add more to capture the whole session.").font(.jakarta(.regular, size: 11)).tipText() }
         .listRowBackground(Color.clear)
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -353,7 +357,7 @@ struct SessionLogView: View {
             crustColor: crustColor,
             bottomResult: bottomResult,
             topResult: topResult,
-            photos: aggregatedPhotos
+            photoIDs: aggregatedPhotoIDs
         )
         store.addBakeLog(log, to: recipe.id)
         goHome()

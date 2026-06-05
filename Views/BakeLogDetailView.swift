@@ -46,10 +46,21 @@ struct BakeLogDetailView: View {
             PhotoShareView(log: log, recipe: recipe, scope: .wholeSession)
         }
         .onAppear {
-            // Promote legacy single-photo logs into the photos array so the
-            // gallery can show + reorder them. Persisted on first reorder.
-            if log.photos.isEmpty, let legacy = log.photoData {
-                log.photos = [legacy]
+            // Legacy backstop: if this log is on a build released before
+            // the photos-to-disk migration and has any remaining inline
+            // photo data, push it through PhotoStore now and populate
+            // photoIDs. Migration usually catches this at app launch,
+            // but covers the case of a log decoded from elsewhere.
+            if log.photoIDs.isEmpty {
+                let legacy: [Data] = log.photos.isEmpty
+                    ? [log.photoData].compactMap { $0 }
+                    : log.photos
+                if !legacy.isEmpty {
+                    log.photoIDs = legacy.map { PhotoStore.shared.save($0) }
+                    log.photos = []
+                    log.photoData = nil
+                    store.updateBakeLog(log, recipeId: recipe.id)
+                }
             }
         }
         .sheet(isPresented: $showForkWizard) {
@@ -62,13 +73,12 @@ struct BakeLogDetailView: View {
         }
         .fullScreenCover(item: $viewerItem) { item in
             FullScreenPhotoViewer(
-                photo: item.photo,
+                photoID: item.photoID,
                 canMakeMain: item.id != 0,
                 onMakeMain: {
-                    guard log.photos.indices.contains(item.id) else { return }
-                    let moved = log.photos.remove(at: item.id)
-                    log.photos.insert(moved, at: 0)
-                    log.photoData = log.photos.first
+                    guard log.photoIDs.indices.contains(item.id) else { return }
+                    let moved = log.photoIDs.remove(at: item.id)
+                    log.photoIDs.insert(moved, at: 0)
                     store.updateBakeLog(log, recipeId: recipe.id)
                 }
             )
@@ -79,25 +89,25 @@ struct BakeLogDetailView: View {
 
     var asBakedTab: some View {
         List {
-            if !log.photos.isEmpty {
+            if !log.photoIDs.isEmpty {
                 Section {
                     PhotoGalleryView(
-                        photos: Binding(
-                            get: { log.photos },
+                        photoIDs: Binding(
+                            get: { log.photoIDs },
                             set: { newValue in
-                                log.photos = newValue
-                                log.photoData = newValue.first   // keep legacy cover in sync
+                                log.photoIDs = newValue
                                 store.updateBakeLog(log, recipeId: recipe.id)
                             }
                         ),
                         isEditable: false,
                         allowsReorder: true,
                         onTap: { idx in
-                            viewerItem = PhotoViewerItem(id: idx, photo: log.photos[idx])
+                            guard log.photoIDs.indices.contains(idx) else { return }
+                            viewerItem = PhotoViewerItem(id: idx, photoID: log.photoIDs[idx])
                         },
                         thumbnailSize: 140
                     )
-                } header: { Text("Photos") }
+                } header: { Text("Photos").font(.jakarta(.semibold, size: 13)) }
                   footer: { Text("Tap any photo to view it full-size or set it as the main thumbnail. Drag photos to reorder.").font(.jakarta(.regular, size: 11)).tipText() }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))

@@ -25,7 +25,66 @@ class RecipeStore: ObservableObject {
     private let sectionOrderKey    = "impasto_section_order_v1"
     private let folderRegistryKey  = "impasto_folder_registry_v1"
 
-    init() { load(); seedDefaultsIfNeeded() }
+    /// UserDefaults flag set true after the photos-to-disk migration has
+    /// completed. Bumped to v3 if we ever need to re-migrate.
+    private let photosMigratedKey = "impasto_photos_migrated_v2"
+
+    init() {
+        load()
+        migratePhotosToDiskIfNeeded()
+        seedDefaultsIfNeeded()
+    }
+
+    /// One-time migration: walk every recipe's bakeLogs and pizzaEntries,
+    /// write any inline photo Data to disk via PhotoStore, populate the
+    /// new photoIDs arrays, and clear the legacy photos/photoData fields
+    /// so subsequent saves don't re-serialize the JPEG bytes as Base64.
+    ///
+    /// Saves only happen if at least one entry was migrated — avoids a
+    /// pointless rewrite for users who already have no photos.
+    private func migratePhotosToDiskIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: photosMigratedKey) else { return }
+
+        var changed = false
+        for ri in recipes.indices {
+            for li in recipes[ri].bakeLogs.indices {
+                // BakeLog session-level photos
+                let log = recipes[ri].bakeLogs[li]
+                if log.photoIDs.isEmpty {
+                    let legacy: [Data] = log.photos.isEmpty
+                        ? [log.photoData].compactMap { $0 }
+                        : log.photos
+                    if !legacy.isEmpty {
+                        let ids = legacy.map { PhotoStore.shared.save($0) }
+                        recipes[ri].bakeLogs[li].photoIDs = ids
+                        recipes[ri].bakeLogs[li].photos = []
+                        recipes[ri].bakeLogs[li].photoData = nil
+                        changed = true
+                    }
+                }
+
+                // Per-PizzaEntry photos
+                for ei in recipes[ri].bakeLogs[li].pizzaEntries.indices {
+                    let entry = recipes[ri].bakeLogs[li].pizzaEntries[ei]
+                    if entry.photoIDs.isEmpty {
+                        let legacy: [Data] = entry.photos.isEmpty
+                            ? [entry.photoData].compactMap { $0 }
+                            : entry.photos
+                        if !legacy.isEmpty {
+                            let ids = legacy.map { PhotoStore.shared.save($0) }
+                            recipes[ri].bakeLogs[li].pizzaEntries[ei].photoIDs = ids
+                            recipes[ri].bakeLogs[li].pizzaEntries[ei].photos = []
+                            recipes[ri].bakeLogs[li].pizzaEntries[ei].photoData = nil
+                            changed = true
+                        }
+                    }
+                }
+            }
+        }
+
+        if changed { saveRecipes() }
+        UserDefaults.standard.set(true, forKey: photosMigratedKey)
+    }
 
     var activeRecipe: Recipe? {
         guard let id = activeRecipeId else { return nil }

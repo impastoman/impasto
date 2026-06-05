@@ -332,29 +332,25 @@ extension View {
 // first slot to make it the cover.
 
 struct PhotoGalleryView: View {
-    @Binding var photos: [Data]
+    @Binding var photoIDs: [UUID]
     /// Show per-photo delete (xmark) buttons + the trailing "+ Add" tile.
     var isEditable: Bool = true
     /// Allow drag-to-reorder.
     var allowsReorder: Bool = true
-    /// Tap-target for the "+ Add" tile. If nil and isEditable is true, no add tile shows.
+    /// Tap-target for the "+ Add" tile.
     var onAdd: (() -> Void)? = nil
     /// Tap on a photo tile body → opens the full-screen viewer with this index.
-    /// When omitted, the tile body is non-tappable (delete + drag still work).
     var onTap: ((Int) -> Void)? = nil
     var thumbnailSize: CGFloat = 100
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                // ID by the Data itself, not the offset, so reordering doesn't
-                // confuse SwiftUI into reusing the same position-cached tile.
-                // Two identical photos in one gallery would clash, but for
-                // user-shot pizza photos that's effectively never going to
-                // happen (different timestamps / compression bytes).
-                ForEach(Array(photos.enumerated()), id: \.element) { idx, data in
-                    if let uiImage = UIImage(data: data) {
-                        photoTile(uiImage: uiImage, idx: idx)
+                // ID by the photo's UUID — stable across reorders, no
+                // chance of duplicate-Data confusion.
+                ForEach(Array(photoIDs.enumerated()), id: \.element) { idx, id in
+                    if let uiImage = ImageCache.shared.image(for: id) {
+                        photoTile(uiImage: uiImage, idx: idx, id: id)
                     }
                 }
                 if isEditable, let onAdd = onAdd {
@@ -366,11 +362,8 @@ struct PhotoGalleryView: View {
     }
 
     @ViewBuilder
-    private func photoTile(uiImage: UIImage, idx: Int) -> some View {
+    private func photoTile(uiImage: UIImage, idx: Int, id: UUID) -> some View {
         ZStack(alignment: .topTrailing) {
-            // Image (and MAIN badge) — tappable to open the full-screen viewer
-            // when onTap is provided. Wrapped in a Button so child gestures
-            // (delete X) layered above can still intercept their own taps.
             Button {
                 onTap?(idx)
             } label: {
@@ -380,12 +373,12 @@ struct PhotoGalleryView: View {
                         .frame(width: thumbnailSize, height: thumbnailSize)
                         .clipped()
                         .cornerRadius(8)
-                    if idx == 0 && photos.count > 1 {
+                    if idx == 0 && photoIDs.count > 1 {
                         Text("MAIN")
                             .font(.jakarta(.regular, size: 9))
                             .tracking(1)
                             .padding(.horizontal, 5).padding(.vertical, 2)
-                            .background(Color(hex: "7FA2BD"))
+                            .background(Color.ruleBlue)
                             .foregroundColor(.white)
                             .cornerRadius(3)
                             .padding(5)
@@ -395,7 +388,11 @@ struct PhotoGalleryView: View {
             .buttonStyle(.plain)
             .disabled(onTap == nil)
             if isEditable {
-                Button { photos.remove(at: idx) } label: {
+                Button {
+                    PhotoStore.shared.delete(id)
+                    ImageCache.shared.invalidate(id)
+                    photoIDs.remove(at: idx)
+                } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 18))
                         .foregroundStyle(.white, Color.black.opacity(0.55))
@@ -420,24 +417,24 @@ struct PhotoGalleryView: View {
             VStack(spacing: 6) {
                 Image(systemName: "plus")
                     .font(.system(size: 22))
-                    .foregroundColor(Color(hex: "7FA2BD"))
+                    .foregroundColor(Color.ruleBlue)
                 Text("Add")
                     .font(.jakarta(.regular, size: 11))
-                    .foregroundColor(Color(hex: "7FA2BD"))
+                    .foregroundColor(Color.ruleBlue)
             }
             .frame(width: thumbnailSize, height: thumbnailSize)
-            .background(Color(hex: "7FA2BD").opacity(0.08))
+            .background(Color.ruleBlue.opacity(0.08))
             .cornerRadius(8)
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "7FA2BD").opacity(0.3), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.ruleBlue.opacity(0.3), lineWidth: 1))
         }
     }
 
     private func movePhoto(from src: Int, to dst: Int) {
         guard src != dst,
-              photos.indices.contains(src),
-              photos.indices.contains(dst) else { return }
-        let item = photos.remove(at: src)
-        photos.insert(item, at: dst)
+              photoIDs.indices.contains(src),
+              photoIDs.indices.contains(dst) else { return }
+        let item = photoIDs.remove(at: src)
+        photoIDs.insert(item, at: dst)
     }
 }
 
@@ -449,14 +446,16 @@ struct PhotoGalleryView: View {
 // Persistence happens automatically through the parent's binding setter.
 
 /// Identifiable wrapper so `.fullScreenCover(item:)` can present the viewer
-/// keyed on the tapped tile's index.
+/// keyed on the tapped tile's index. Carries the photo's PhotoStore UUID
+/// so the viewer renders via ImageCache (and persistence flows by id, not
+/// raw Data).
 struct PhotoViewerItem: Identifiable, Equatable {
     let id: Int
-    let photo: Data
+    let photoID: UUID
 }
 
 struct FullScreenPhotoViewer: View {
-    let photo: Data
+    let photoID: UUID
     /// True when this photo is NOT yet the main thumbnail (idx > 0).
     /// When false, the button is replaced by a "Main photo" badge.
     let canMakeMain: Bool
@@ -468,7 +467,7 @@ struct FullScreenPhotoViewer: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            if let img = UIImage(data: photo) {
+            if let img = ImageCache.shared.image(for: photoID) {
                 Image(uiImage: img)
                     .resizable()
                     .scaledToFit()
