@@ -179,7 +179,7 @@ struct RecipeDetailView: View {
     func row(_ label: String, _ value: String) -> some View {
         LabeledContent(label, value: value)
             .font(.jakarta(.regular, size: 17))
-            .alignmentGuide(.listRowSeparatorLeading) { _ in 22 }
+            .alignmentGuide(.listRowSeparatorLeading) { _ in 1 }
     }
 
     func recipeExportString() -> String {
