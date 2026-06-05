@@ -402,7 +402,7 @@ struct ShareCanvasView: View {
                 .foregroundColor(.white.opacity(0.72))
                 .tracking(0.5)
             Text("Stesura")
-                .font(.jakarta(.bold, size: 13))
+                .font(.fraunces(.semibold, size: 15))
                 .foregroundColor(.white)
                 .tracking(1)
         }
@@ -442,15 +442,15 @@ struct DraggableShareBlock: View {
         return VStack(alignment: block.hAlignment, spacing: 3 * s) {
             HStack(spacing: 5 * s) {
                 if let emoji = block.type.emoji {
-                    Text(emoji).font(.system(size: 12 * s))
+                    Text(emoji).font(.jakarta(.regular, size: 12 * s))
                 }
                 Text(block.title.uppercased())
-                    .font(.system(size: 10 * s, design: .monospaced))
+                    .font(.jakarta(.semibold, size: 10 * s))
                     .tracking(1.4 * s)
                     .foregroundColor(.white.opacity(0.78))
             }
             Text(block.body)
-                .font(.system(size: 13 * s, design: .monospaced).weight(.medium))
+                .font(.jakarta(.medium, size: 13 * s))
                 .foregroundColor(.white)
                 .multilineTextAlignment(block.alignment)
                 .lineLimit(2)
@@ -754,7 +754,7 @@ struct PhotoShareView: View {
         HStack(spacing: 6) {
             ForEach(ShareAspect.allCases) { a in
                 Text(a.rawValue)
-                    .font(.system(size: 12, design: .monospaced).weight(editor.aspect == a ? .semibold : .regular))
+                    .font(editor.aspect == a ? .jakarta(.semibold, size: 12) : .jakarta(.regular, size: 12))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
                     .background(editor.aspect == a ? Color(hex: "7FA2BD") : Color.white.opacity(0.08))
@@ -832,7 +832,7 @@ struct PhotoShareView: View {
     /// approach as the aspect picker for hit-detection reliability.
     private func segmentTile(label: String, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
         Text(label)
-            .font(.system(size: 11, design: .monospaced).weight(isSelected ? .semibold : .regular))
+            .font(isSelected ? .jakarta(.semibold, size: 11) : .jakarta(.regular, size: 11))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .padding(.horizontal, 4)
