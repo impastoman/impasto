@@ -28,8 +28,6 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
-            .listSectionSeparator(.visible)
-            .listSectionSeparatorTint(Color.ruleBlue)
 
             Section(header: Text("Formula").font(.jakarta(.semibold, size: 13))) {
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
@@ -42,8 +40,6 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
-            .listSectionSeparator(.visible)
-            .listSectionSeparatorTint(Color.ruleBlue)
 
             if !recipe.flourBlend.components.isEmpty {
                 Section(header: Text("Flour blend").font(.jakarta(.semibold, size: 13))) {
@@ -57,8 +53,6 @@ struct RecipeDetailView: View {
                 }
                 .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
-            .listSectionSeparator(.visible)
-            .listSectionSeparatorTint(Color.ruleBlue)
                 .font(.jakarta(.regular, size: 17))
             }
 
@@ -68,8 +62,6 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
-            .listSectionSeparator(.visible)
-            .listSectionSeparatorTint(Color.ruleBlue)
 
             if recipe.method != .direct {
                 Section(header: Text("① \(recipe.method.rawValue)").font(.jakarta(.semibold, size: 13))) {
@@ -79,8 +71,6 @@ struct RecipeDetailView: View {
                 }
                 .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
-            .listSectionSeparator(.visible)
-            .listSectionSeparatorTint(Color.ruleBlue)
             }
 
             Section(recipe.method != .direct ? "② Final dough" : "Dough") {
@@ -90,8 +80,6 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
-            .listSectionSeparator(.visible)
-            .listSectionSeparatorTint(Color.ruleBlue)
 
             if !isReadOnly {
                 Section {
@@ -107,8 +95,6 @@ struct RecipeDetailView: View {
                 }
                 .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
-            .listSectionSeparator(.visible)
-            .listSectionSeparatorTint(Color.ruleBlue)
             }
         }
         .scrollContentBackground(.hidden)
