@@ -80,13 +80,13 @@ struct LibraryView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                diagnosticDropZone
-                List {
-                    ForEach(store.librarySectionOrder, id: \.self) { section in
-                        sectionView(for: section)
-                    }
+            List {
+                ForEach(store.librarySectionOrder, id: \.self) { section in
+                    sectionView(for: section)
                 }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                diagnosticDropZone
             }
             // EditMode is intentionally NOT toggled here. EditMode.active
             // captures gestures on row bodies (for the right-edge handles
