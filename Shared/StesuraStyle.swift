@@ -1,6 +1,82 @@
 import SwiftUI
 import PhotosUI
 
+// MARK: - Custom fonts
+//
+// Fraunces — expressive serif. Used for display / title surfaces (welcome
+// logo, big section headers, recipe-detail titles). Has multiple optical
+// sizes; we use the standard family.
+//
+// Plus Jakarta Sans — clean humanist sans. Used for body text, labels,
+// buttons, tips, secondary copy.
+//
+// System monospaced — kept for numeric values, timers, tabular columns
+// where alignment matters more than personality.
+//
+// Wire fonts via these helpers rather than hardcoding PostScript names
+// at call sites. One place to update if we ever swap families.
+
+extension Font {
+    enum FrauncesWeight {
+        case thin, light, regular, semibold, bold, black
+        case thinItalic, lightItalic, italic, semiboldItalic, boldItalic, blackItalic
+
+        var psName: String {
+            switch self {
+            case .thin:           return "Fraunces-Thin"
+            case .light:          return "Fraunces-Light"
+            case .regular:        return "Fraunces-Regular"
+            case .semibold:       return "Fraunces-SemiBold"
+            case .bold:           return "Fraunces-Bold"
+            case .black:          return "Fraunces-9ptBlack"
+            case .thinItalic:     return "Fraunces-ThinItalic"
+            case .lightItalic:    return "Fraunces-LightItalic"
+            case .italic:         return "Fraunces-Italic"
+            case .semiboldItalic: return "Fraunces-SemiBoldItalic"
+            case .boldItalic:     return "Fraunces-BoldItalic"
+            case .blackItalic:    return "Fraunces-9ptBlackItalic"
+            }
+        }
+    }
+
+    enum JakartaWeight {
+        case extraLight, light, regular, medium, semibold, bold, extraBold
+        case extraLightItalic, lightItalic, italic, mediumItalic, semiboldItalic, boldItalic, extraBoldItalic
+
+        /// PostScript names come from the variable-font's static fallback
+        /// dump. The naming convention is unusual (`-Regular_Bold` etc.)
+        /// but accurate as installed.
+        var psName: String {
+            switch self {
+            case .extraLight:        return "PlusJakartaSans-Regular_ExtraLight"
+            case .light:             return "PlusJakartaSans-Regular_Light"
+            case .regular:           return "PlusJakartaSans-Regular"
+            case .medium:            return "PlusJakartaSans-Regular_Medium"
+            case .semibold:          return "PlusJakartaSans-Regular_SemiBold"
+            case .bold:              return "PlusJakartaSans-Regular_Bold"
+            case .extraBold:         return "PlusJakartaSans-Regular_ExtraBold"
+            case .extraLightItalic:  return "PlusJakartaSans-Italic_ExtraLight-Italic"
+            case .lightItalic:       return "PlusJakartaSans-Italic_Light-Italic"
+            case .italic:            return "PlusJakartaSans-Italic"
+            case .mediumItalic:      return "PlusJakartaSans-Italic_Medium-Italic"
+            case .semiboldItalic:    return "PlusJakartaSans-Italic_SemiBold-Italic"
+            case .boldItalic:        return "PlusJakartaSans-Italic_Bold-Italic"
+            case .extraBoldItalic:   return "PlusJakartaSans-Italic_ExtraBold-Italic"
+            }
+        }
+    }
+
+    /// Fraunces — serif. Display + title surfaces.
+    static func fraunces(_ weight: FrauncesWeight = .regular, size: CGFloat) -> Font {
+        .custom(weight.psName, size: size)
+    }
+
+    /// Plus Jakarta Sans — sans. Body text + labels + buttons.
+    static func jakarta(_ weight: JakartaWeight = .regular, size: CGFloat) -> Font {
+        .custom(weight.psName, size: size)
+    }
+}
+
 // MARK: - Shared field styling
 
 extension View {

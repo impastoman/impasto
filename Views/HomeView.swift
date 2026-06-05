@@ -49,14 +49,14 @@ struct HomeView: View {
                 Spacer()
 
                 Text("Stesura")
-                    .font(.system(size: 52, design: .serif))
+                    .font(.fraunces(.semibold, size: 56))
                     .foregroundColor(Color(hex: "2C2A24"))
                 Text("Dough Manager")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.medium, size: 11))
                     .foregroundColor(Color(hex: "9A9688"))
                     .tracking(2)
                 Text("v\(appVersion)")
-                    .font(.system(size: 10, design: .monospaced))
+                    .font(.jakarta(.regular, size: 10))
                     .foregroundColor(Color(hex: "C4B89A"))
 
                 Spacer()
