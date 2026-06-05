@@ -26,7 +26,7 @@ struct MethodStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section("Use a preferment?") {
+            Section(header: Text("Use a preferment?").font(.jakarta(.semibold, size: 13))) {
                 Toggle("Yes — use a preferment", isOn: $usePreferment)
                     .tint(Color(hex: "D2B96A"))
                     .onChange(of: usePreferment) { _, val in

@@ -16,7 +16,7 @@ struct TechniqueStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section("How will you mix?") {
+            Section(header: Text("How will you mix?").font(.jakarta(.semibold, size: 13))) {
                 ForEach(MixerType.allCases, id: \.self) { mixer in
                     HStack {
                         VStack(alignment: .leading, spacing: 3) {
@@ -117,7 +117,7 @@ struct TechniqueStepView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Mixing notes") {
+            Section(header: Text("Mixing notes").font(.jakarta(.semibold, size: 13))) {
                 TextField("Any notes for this stage...", text: $mixingNotes, axis: .vertical)
                     .font(.jakarta(.regular, size: 13))
                     .lineLimit(3...)

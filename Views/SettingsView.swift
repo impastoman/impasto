@@ -15,7 +15,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Display") {
+                Section(header: Text("Display").font(.jakarta(.semibold, size: 13))) {
                     Toggle("Show tips", isOn: $showTips)
                         .tint(Color(hex: "D2B96A"))
                         .font(.jakarta(.regular, size: 17))
@@ -31,7 +31,7 @@ struct SettingsView: View {
                     .listRowBackground(Color.clear)
                 }
 
-                Section("Prep session defaults") {
+                Section(header: Text("Prep session defaults").font(.jakarta(.semibold, size: 13))) {
                     Picker("Units", selection: $prepUnits) {
                         Text("Metric").tag("metric")
                         Text("Imperial").tag("imperial")

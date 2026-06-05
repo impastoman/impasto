@@ -82,7 +82,7 @@ struct PizzaLogView: View {
     }
 
     var bakeInfoSection: some View {
-        Section("Bake info") {
+        Section(header: Text("Bake info").font(.jakarta(.semibold, size: 13))) {
             HStack {
                 Text("Bake time")
                 Spacer()
@@ -103,7 +103,7 @@ struct PizzaLogView: View {
     }
 
     var visualSection: some View {
-        Section("How did this one look?") {
+        Section(header: Text("How did this one look?").font(.jakarta(.semibold, size: 13))) {
             HStack {
                 Text("Crust color")
                 Spacer()
@@ -133,7 +133,7 @@ struct PizzaLogView: View {
 
     var tagsSection: some View {
         Group {
-            Section("Crust") {
+            Section(header: Text("Crust").font(.jakarta(.semibold, size: 13))) {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
                     ForEach(CrustTag.allCases, id: \.self) { tag in
                         tagChip(tag.rawValue, selected: crustTags.contains(tag)) {
@@ -153,7 +153,7 @@ struct PizzaLogView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Crumb") {
+            Section(header: Text("Crumb").font(.jakarta(.semibold, size: 13))) {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
                     ForEach(CrumbTag.allCases, id: \.self) { tag in
                         tagChip(tag.rawValue, selected: crumbTags.contains(tag)) {
@@ -202,7 +202,7 @@ struct PizzaLogView: View {
     }
 
     var notesSection: some View {
-        Section("Notes") {
+        Section(header: Text("Notes").font(.jakarta(.semibold, size: 13))) {
             TextField("Any notes about this bake…", text: $notes, axis: .vertical)
                 .font(.jakarta(.regular, size: 13))
                 .lineLimit(3...)

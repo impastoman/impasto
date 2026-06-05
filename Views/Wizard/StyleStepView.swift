@@ -10,7 +10,7 @@ struct StyleStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section("What style?") {
+            Section(header: Text("What style?").font(.jakarta(.semibold, size: 13))) {
                 ForEach(PizzaStyle.allCases, id: \.self) { style in
                     if style == .custom {
                         customRow

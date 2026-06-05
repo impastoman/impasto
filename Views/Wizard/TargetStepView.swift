@@ -25,7 +25,7 @@ struct TargetStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section("How many balls?") {
+            Section(header: Text("How many balls?").font(.jakarta(.semibold, size: 13))) {
                 Stepper("\(ballCount) ball\(ballCount == 1 ? "" : "s")", value: $ballCount, in: 1...99)
                     .font(.jakarta(.regular, size: 17))
             }

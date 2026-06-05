@@ -73,7 +73,7 @@ struct StandaloneBlendBuilderView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Name") {
+                Section(header: Text("Name").font(.jakarta(.semibold, size: 13))) {
                     TextField("e.g. Caputo 00 + Semolina", text: $blend.name)
                         .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
@@ -83,7 +83,7 @@ struct StandaloneBlendBuilderView: View {
                     FolderPickerRow(folderName: $blend.folderName, existingFolders: blendFolders)
                 }
 
-                Section("Flour blend") {
+                Section(header: Text("Flour blend").font(.jakarta(.semibold, size: 13))) {
                     ForEach($blend.components) { $component in
                         FlourComponentRow(component: $component) {
                             blend.components.removeAll { $0.id == component.id }
@@ -212,7 +212,7 @@ struct StandaloneProcessBuilderView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Name") {
+                Section(header: Text("Name").font(.jakarta(.semibold, size: 13))) {
                     TextField("e.g. Cold Retard w/ Stretch & Fold", text: $name)
                         .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
@@ -361,7 +361,7 @@ struct StandalonePrefermentBuilderView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Name") {
+                Section(header: Text("Name").font(.jakarta(.semibold, size: 13))) {
                     TextField("e.g. 50% Biga", text: $name)
                         .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
@@ -414,7 +414,7 @@ struct StandalonePrefermentBuilderView: View {
                 }
 
                 // Flour blend — which flours go into this preferment
-                Section("Flour") {
+                Section(header: Text("Flour").font(.jakarta(.semibold, size: 13))) {
                     ForEach($flourBlend.components) { $component in
                         FlourComponentRow(component: $component) {
                             flourBlend.components.removeAll { $0.id == component.id }
@@ -467,7 +467,7 @@ struct StandalonePrefermentBuilderView: View {
                     .listRowBackground(Color.red.opacity(0.06))
                 }
 
-                Section("Notes") {
+                Section(header: Text("Notes").font(.jakarta(.semibold, size: 13))) {
                     TextField("Fermentation notes, timing tips…", text: $notes, axis: .vertical)
                         .font(.jakarta(.regular, size: 13))
                         .lineLimit(3...)

@@ -130,7 +130,7 @@ struct SessionLogView: View {
     }
 
     var ratingSection: some View {
-        Section("Overall") {
+        Section(header: Text("Overall").font(.jakarta(.semibold, size: 13))) {
             HStack(spacing: 8) {
                 ForEach(1...5, id: \.self) { i in
                     Image(systemName: i <= rating ? "star.fill" : "star")
@@ -249,7 +249,7 @@ struct SessionLogView: View {
     @ViewBuilder
     var fermentSection: some View {
         if !vm.preFlight.prefermentPH.isEmpty || !vm.pHReadings.isEmpty {
-            Section("Fermentation") {
+            Section(header: Text("Fermentation").font(.jakarta(.semibold, size: 13))) {
                 if !vm.preFlight.prefermentPH.isEmpty {
                     LabeledContent("Prep pH", value: vm.preFlight.prefermentPH)
                         .font(.jakarta(.regular, size: 17))
@@ -267,7 +267,7 @@ struct SessionLogView: View {
 
     @ViewBuilder
     var bakeResultsSection: some View {
-        Section("Bake") {
+        Section(header: Text("Bake").font(.jakarta(.semibold, size: 13))) {
             if bakeTimeSeconds > 0 {
                 LabeledContent("Bake time", value: shortTime(bakeTimeSeconds))
                     .font(.jakarta(.regular, size: 17))
@@ -285,7 +285,7 @@ struct SessionLogView: View {
     }
 
     var notesSection: some View {
-        Section("Notes") {
+        Section(header: Text("Notes").font(.jakarta(.semibold, size: 13))) {
             TextField("Observations...", text: $notes, axis: .vertical)
                 .lineLimit(4...)
                 .notesBox()

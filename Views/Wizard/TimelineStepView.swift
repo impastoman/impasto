@@ -94,14 +94,14 @@ private struct TimingInfoSheet: View {
                     .padding(.vertical, 4)
                 }
 
-                Section("Timeline options") {
+                Section(header: Text("Timeline options").font(.jakarta(.semibold, size: 13))) {
                     timingRow("Less than a day", "6–8h",   "Add 8 hours from now. Good for same-day baking with a direct or short preferment.")
                     timingRow("Overnight",       "16–24h", "Add 20 hours. Most common for biga or overnight cold proofing.")
                     timingRow("Two Days",        "48h",    "Two full days. Allows a long cold bulk and final proof.")
                     timingRow("Long Cold Proof", "48–72h", "Extended cold retard for maximum flavour development.")
                 }
 
-                Section("Conflict warnings") {
+                Section(header: Text("Conflict warnings").font(.jakarta(.semibold, size: 13))) {
                     Text("If your timeline is too short for your chosen preferment method, a warning appears on the preferment step. You can still proceed — it's advisory, not a block.")
                         .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.secondary)

@@ -41,7 +41,7 @@ struct ImportRecipeView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Paste recipe JSON") {
+            Section(header: Text("Paste recipe JSON").font(.jakarta(.semibold, size: 13))) {
                 TextEditor(text: $pastedText)
                     .font(.jakarta(.regular, size: 12))
                     .frame(minHeight: 120)
@@ -108,7 +108,7 @@ struct ImportRecipeView: View {
     func previewView(_ recipe: Recipe) -> some View {
         List {
             // Photo placeholder
-            Section("Overview") {
+            Section(header: Text("Overview").font(.jakarta(.semibold, size: 13))) {
                 LabeledContent("Name",        value: recipe.name)
                     .font(.jakarta(.regular, size: 17))
                 LabeledContent("Style",       value: recipe.style.rawValue)
@@ -122,7 +122,7 @@ struct ImportRecipeView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Formula") {
+            Section(header: Text("Formula").font(.jakarta(.semibold, size: 13))) {
                 LabeledContent("Hydration",   value: "\(Int(recipe.finalHydration * 100))%")
                     .font(.jakarta(.regular, size: 17))
                 LabeledContent("Salt",        value: String(format: "%.1f%%", recipe.saltPct * 100))
@@ -133,7 +133,7 @@ struct ImportRecipeView: View {
             .listRowBackground(Color.clear)
 
             if !recipe.processCards.isEmpty {
-                Section("Process") {
+                Section(header: Text("Process").font(.jakarta(.semibold, size: 13))) {
                     ForEach(recipe.processCards.filter { $0.isEnabled }.sorted { $0.sortOrder < $1.sortOrder }) { card in
                         HStack {
                             Text(card.title).font(.jakarta(.regular, size: 13))

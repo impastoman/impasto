@@ -266,6 +266,7 @@ struct LibraryView: View {
         } label: {
             HStack(spacing: 5) {
                 Text(title)
+                    .font(.jakarta(.semibold, size: 13))
                 Image(systemName: "folder.badge.plus").font(.caption2)
             }
             .foregroundColor(.secondary)
@@ -808,7 +809,7 @@ private struct FolderPickerSheet: View {
                             .foregroundColor(.secondary)
                     }
                 } else {
-                    Section("Move to") {
+                    Section(header: Text("Move to").font(.jakarta(.semibold, size: 13))) {
                         ForEach(destinations, id: \.self) { folder in
                             Button {
                                 onMove(folder)

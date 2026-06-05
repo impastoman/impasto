@@ -103,7 +103,7 @@ struct BakeLogDetailView: View {
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
 
-            Section("Overall") {
+            Section(header: Text("Overall").font(.jakarta(.semibold, size: 13))) {
                 HStack(spacing: 6) {
                     ForEach(1...5, id: \.self) { i in
                         Image(systemName: i <= log.rating ? "star.fill" : "star")
@@ -113,7 +113,7 @@ struct BakeLogDetailView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Bake") {
+            Section(header: Text("Bake").font(.jakarta(.semibold, size: 13))) {
                 LabeledContent("Date", value: log.date.formatted(date: .abbreviated, time: .shortened))
                     .font(.jakarta(.regular, size: 17))
                 LabeledContent("Crust color", value: log.crustColor.rawValue)
@@ -133,7 +133,7 @@ struct BakeLogDetailView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Dough") {
+            Section(header: Text("Dough").font(.jakarta(.semibold, size: 13))) {
                 LabeledContent("Balls", value: "\(log.ballCount) × \(Int(log.ballWeight))g")
                     .font(.jakarta(.regular, size: 17))
                 LabeledContent("Hydration", value: "\(Int(log.finalHydration * 100))%")
@@ -148,7 +148,7 @@ struct BakeLogDetailView: View {
             .listRowBackground(Color.clear)
 
             if !log.actualStageDurations.isEmpty {
-                Section("Stage times") {
+                Section(header: Text("Stage times").font(.jakarta(.semibold, size: 13))) {
                     ForEach(log.actualStageDurations.keys.sorted(), id: \.self) { stage in
                         let actual = log.actualStageDurations[stage]!
                         let planned = log.plannedStageDurations[stage] ?? 0
@@ -172,7 +172,7 @@ struct BakeLogDetailView: View {
 
             if !log.crustTags.isEmpty || !log.crumbTags.isEmpty ||
                !log.customCrustTags.isEmpty || !log.customCrumbTags.isEmpty {
-                Section("Tags") {
+                Section(header: Text("Tags").font(.jakarta(.semibold, size: 13))) {
                     if !log.crustTags.isEmpty || !log.customCrustTags.isEmpty {
                         tagRow(title: "Crust", tags: log.crustTags.map { $0.rawValue } + log.customCrustTags)
                     }
@@ -184,7 +184,7 @@ struct BakeLogDetailView: View {
             }
 
             if !log.notes.isEmpty {
-                Section("Notes") {
+                Section(header: Text("Notes").font(.jakarta(.semibold, size: 13))) {
                     Text(log.notes)
                         .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.secondary)
@@ -211,7 +211,7 @@ struct BakeLogDetailView: View {
 
     var annotatedTab: some View {
         List {
-            Section("Reflection rating") {
+            Section(header: Text("Reflection rating").font(.jakarta(.semibold, size: 13))) {
                 HStack(spacing: 8) {
                     ForEach(1...5, id: \.self) { i in
                         Image(systemName: i <= annotatedRating ? "star.fill" : "star")
@@ -223,7 +223,7 @@ struct BakeLogDetailView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Reflection notes") {
+            Section(header: Text("Reflection notes").font(.jakarta(.semibold, size: 13))) {
                 TextField("What would you change next time?", text: $annotatedNotes, axis: .vertical)
                     .font(.jakarta(.regular, size: 13))
                     .lineLimit(4...)
@@ -240,7 +240,7 @@ struct BakeLogDetailView: View {
             .listRowBackground(Color.clear)
 
             if let origRating = log.annotatedRating {
-                Section("Original reflection") {
+                Section(header: Text("Original reflection").font(.jakarta(.semibold, size: 13))) {
                     HStack(spacing: 6) {
                         ForEach(1...5, id: \.self) { i in
                             Image(systemName: i <= origRating ? "star.fill" : "star")

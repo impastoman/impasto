@@ -7,7 +7,7 @@ struct FlourStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section("What flour?") {
+            Section(header: Text("What flour?").font(.jakarta(.semibold, size: 13))) {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("🌾  Wheat").font(.headline)

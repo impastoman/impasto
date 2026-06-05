@@ -42,7 +42,7 @@ struct ConfirmStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section("Name your recipe") {
+            Section(header: Text("Name your recipe").font(.jakarta(.semibold, size: 13))) {
                 TextField("e.g. My Neapolitan", text: $name)
                     .font(.jakarta(.regular, size: 17))
                     .textFieldBox()

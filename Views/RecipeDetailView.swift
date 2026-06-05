@@ -19,7 +19,7 @@ struct RecipeDetailView: View {
 
     var body: some View {
         List {
-            Section("Style & Method") {
+            Section(header: Text("Style & Method").font(.jakarta(.semibold, size: 13))) {
                 row("Style",    styleLabel)
                 row("Method",   recipe.method.rawValue)
                 row("Mixer",    recipe.mixerType.rawValue)
@@ -28,7 +28,7 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Formula") {
+            Section(header: Text("Formula").font(.jakarta(.semibold, size: 13))) {
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
                 if recipe.bigaRatio > 0 {
                     row("Biga hydration",  "\(Int(recipe.bigaHydration * 100))%")
@@ -40,7 +40,7 @@ struct RecipeDetailView: View {
             .listRowBackground(Color.clear)
 
             if !recipe.flourBlend.components.isEmpty {
-                Section("Flour blend") {
+                Section(header: Text("Flour blend").font(.jakarta(.semibold, size: 13))) {
                     ForEach(recipe.flourBlend.components) { c in
                         row(c.type.rawValue, "\(Int(c.percentage))%")
                     }
@@ -53,14 +53,14 @@ struct RecipeDetailView: View {
                 .font(.jakarta(.regular, size: 17))
             }
 
-            Section("Target") {
+            Section(header: Text("Target").font(.jakarta(.semibold, size: 13))) {
                 row("Balls",       "\(recipe.ballCount) × \(Int(recipe.ballWeight))g")
                 row("Total dough", "\(Int(recipe.totalDoughWeight))g")
             }
             .listRowBackground(Color.clear)
 
             if recipe.method != .direct {
-                Section("① \(recipe.method.rawValue)") {
+                Section(header: Text("① \(recipe.method.rawValue)").font(.jakarta(.semibold, size: 13))) {
                     row("Flour", "\(Int(recipe.bigaFlour))g")
                     row("Water", "\(Int(recipe.bigaWater))g")
                     row("Yeast", String(format: "%.1fg", recipe.bigaYeast))

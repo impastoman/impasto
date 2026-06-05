@@ -224,7 +224,7 @@ struct PreFlightView: View {
     // MARK: - Kitchen
 
     var kitchenSection: some View {
-        Section("Kitchen") {
+        Section(header: Text("Kitchen").font(.jakarta(.semibold, size: 13))) {
             HStack {
                 Text("Temperature")
                 Spacer()
@@ -424,7 +424,7 @@ struct SessionProcessEditorSheet: View {
                 }
                 .listRowBackground(Color.clear)
 
-                Section("Process steps") {
+                Section(header: Text("Process steps").font(.jakarta(.semibold, size: 13))) {
                     ForEach(enabledCards) { card in
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {

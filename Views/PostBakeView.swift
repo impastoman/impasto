@@ -78,7 +78,7 @@ struct PostBakeView: View {
     }
 
     var pizzaEntriesSection: some View {
-        Section("Logged bakes") {
+        Section(header: Text("Logged bakes").font(.jakarta(.semibold, size: 13))) {
             ForEach(vm.pizzaEntries) { entry in
                 Button {
                     selectedPizza = entry
@@ -172,7 +172,7 @@ struct PostBakeView: View {
     }
 
     var bakeTimeSection: some View {
-        Section("Bake info") {
+        Section(header: Text("Bake info").font(.jakarta(.semibold, size: 13))) {
             LabeledContent("Total bake time", value: timeString(totalBakeTime))
                 .font(.jakarta(.regular, size: 17))
         }
@@ -223,7 +223,7 @@ struct PizzaDetailView: View {
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
 
-                Section("Bake") {
+                Section(header: Text("Bake").font(.jakarta(.semibold, size: 13))) {
                     LabeledContent("Bake time", value: shortTime(entry.bakeTimeSeconds))
                     if let temp = entry.ovenTempAchieved {
                         LabeledContent("Oven temp", value: "\(Int(temp))°")
@@ -236,7 +236,7 @@ struct PizzaDetailView: View {
                 .font(.jakarta(.regular, size: 17))
 
                 if !entry.crustTags.isEmpty || !entry.crumbTags.isEmpty {
-                    Section("Tags") {
+                    Section(header: Text("Tags").font(.jakarta(.semibold, size: 13))) {
                         if !entry.crustTags.isEmpty {
                             LabeledContent("Crust", value: entry.crustTags.map(\.rawValue).joined(separator: ", "))
                         }
@@ -249,7 +249,7 @@ struct PizzaDetailView: View {
                 }
 
                 if !entry.notes.isEmpty {
-                    Section("Notes") {
+                    Section(header: Text("Notes").font(.jakarta(.semibold, size: 13))) {
                         Text(entry.notes)
                             .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)

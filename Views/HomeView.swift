@@ -290,7 +290,7 @@ struct StartDoughView: View {
         NavigationStack {
             List {
                 if !store.recipes.isEmpty {
-                    Section("Choose a recipe") {
+                    Section(header: Text("Choose a recipe").font(.jakarta(.semibold, size: 13))) {
                         ForEach(store.recipes) { recipe in
                             Button {
                                 selectedRecipe = recipe

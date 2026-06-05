@@ -370,14 +370,14 @@ struct AddStepSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Extra steps") {
+                Section(header: Text("Extra steps").font(.jakarta(.semibold, size: 13))) {
                     ForEach(primaryTypes, id: \.self) { type in
                         Text(type.title).font(.jakarta(.regular, size: 17))
                             .contentShape(Rectangle())
                             .onTapGesture { onAdd(ProcessCard(type: type)); dismiss() }
                     }
                 }
-                Section("Standard steps") {
+                Section(header: Text("Standard steps").font(.jakarta(.semibold, size: 13))) {
                     ForEach(standardTypes, id: \.self) { type in
                         Text(type.title).font(.jakarta(.regular, size: 17))
                             .contentShape(Rectangle())

@@ -103,7 +103,7 @@ struct FlourBlendStepView: View {
     }
 
     var flourSection: some View {
-        Section("Flour blend") {
+        Section(header: Text("Flour blend").font(.jakarta(.semibold, size: 13))) {
             ForEach($flourBlend.components) { $component in
                 FlourComponentRow(component: $component) {
                     flourBlend.components.removeAll { $0.id == component.id }

@@ -182,7 +182,7 @@ struct StesuraButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 14, design: .monospaced))
+            .font(.jakarta(.semibold, size: 14))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)
             .background(filled ? Color(hex: "D2B96A") : Color.clear)
@@ -212,7 +212,7 @@ extension View {
                         to: nil, from: nil, for: nil
                     )
                 }
-                .font(.system(size: 14, design: .monospaced))
+                .font(.jakarta(.regular, size: 14))
                 .foregroundColor(Color(hex: "D2B96A"))
             }
         }
@@ -270,7 +270,7 @@ extension Color {
 //
 // Usage:
 //   Text("Optional — save this for reuse")
-//       .font(.system(size: 11, design: .monospaced))
+//       .font(.jakarta(.regular, size: 11))
 //       .foregroundColor(.secondary)
 //       .tipText()
 
@@ -354,7 +354,7 @@ struct PhotoGalleryView: View {
                         .cornerRadius(8)
                     if idx == 0 && photos.count > 1 {
                         Text("MAIN")
-                            .font(.system(size: 9, design: .monospaced))
+                            .font(.jakarta(.regular, size: 9))
                             .tracking(1)
                             .padding(.horizontal, 5).padding(.vertical, 2)
                             .background(Color(hex: "D2B96A"))
@@ -394,7 +394,7 @@ struct PhotoGalleryView: View {
                     .font(.system(size: 22))
                     .foregroundColor(Color(hex: "D2B96A"))
                 Text("Add")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .foregroundColor(Color(hex: "D2B96A"))
             }
             .frame(width: thumbnailSize, height: thumbnailSize)
@@ -473,7 +473,7 @@ struct FullScreenPhotoViewer: View {
                         }
                     } label: {
                         Text("Make main?")
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .tracking(1)
                             .foregroundColor(Color(hex: "D2B96A"))
                             .padding(.horizontal, 18).padding(.vertical, 10)
@@ -489,7 +489,7 @@ struct FullScreenPhotoViewer: View {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(Color(hex: "D2B96A"))
                         Text("Main photo")
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .tracking(1)
                             .foregroundColor(.white)
                     }
