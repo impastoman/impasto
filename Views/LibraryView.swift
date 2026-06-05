@@ -63,7 +63,6 @@ struct LibraryView: View {
                     sectionView(for: section)
                 }
             }
-            .listRowSeparatorTint(Color.ruleBlue)
             // EditMode is intentionally NOT toggled here. EditMode.active
             // captures gestures on row bodies (for the right-edge handles
             // and selection), which prevents .draggable from initiating a
@@ -467,6 +466,7 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+        .listRowSeparatorTint(Color.ruleBlue)
     }
 
     // MARK: - Processes
@@ -568,6 +568,7 @@ struct LibraryView: View {
         ) { providers in
             handleProcessOnDrop(providers: providers, toFolder: folder)
         }
+        .listRowSeparatorTint(Color.ruleBlue)
     }
 
     /// Custom expandable folder row for the Recipes section —
@@ -595,6 +596,7 @@ struct LibraryView: View {
                 expandedRecipeFolders.insert(folder)
             }
         }
+        .listRowSeparatorTint(Color.ruleBlue)
     }
 
     /// Custom expandable folder row for the Flour Blends section.
@@ -620,6 +622,7 @@ struct LibraryView: View {
                 expandedBlendFolders.insert(folder)
             }
         }
+        .listRowSeparatorTint(Color.ruleBlue)
     }
 
     /// Custom expandable folder row for the Preferments section.
@@ -645,6 +648,7 @@ struct LibraryView: View {
                 expandedPrefermentFolders.insert(folder)
             }
         }
+        .listRowSeparatorTint(Color.ruleBlue)
     }
 
     func processRow(_ process: SavedProcess) -> some View {
@@ -676,6 +680,7 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+        .listRowSeparatorTint(Color.ruleBlue)
     }
 
     // MARK: - Preferments
@@ -761,6 +766,7 @@ struct LibraryView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+        .listRowSeparatorTint(Color.ruleBlue)
     }
 
     // MARK: - Shared folder move menu (used in context menus)
@@ -802,6 +808,7 @@ private extension View {
         onDelete: @escaping () -> Void
     ) -> some View {
         self
+            .listRowSeparatorTint(Color.ruleBlue)
             // Leading swipe → opens the FolderPickerSheet (reliable on NavigationLink rows)
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
                 if !folders.isEmpty || !recipe.folderName.isEmpty {
