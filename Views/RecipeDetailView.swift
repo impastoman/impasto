@@ -160,21 +160,31 @@ struct RecipeDetailView: View {
     }
 
     /// Each spec row gets a thin teacher's-red margin strip flush
-    /// with its leading edge. Because every row in the section uses
-    /// the same strip width and zero leading inset, the strips stack
-    /// into one continuous vertical line — a proper notebook margin
-    /// running the full height of the section.
+    /// with its leading edge. To make the strips read as ONE
+    /// continuous notebook margin line:
+    ///   1. The Rectangle sits in the outer HStack (no vertical
+    ///      padding around it) so it spans the row's full height.
+    ///   2. The label/value HStack carries the vertical padding
+    ///      separately, so the row keeps its usual height.
+    ///   3. .alignmentGuide(.listRowSeparatorLeading) pushes the
+    ///      blue row separator to start AFTER the red strip — so
+    ///      the strip is never crossed by a horizontal separator
+    ///      line between rows.
     func row(_ label: String, _ value: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 0) {
             Rectangle()
                 .fill(Color.marginRed)
                 .frame(width: 1)
-            LabeledContent(label, value: value)
-                .padding(.trailing, 16)
+            HStack(spacing: 12) {
+                LabeledContent(label, value: value)
+                    .padding(.trailing, 16)
+                    .padding(.leading, 12)
+            }
+            .padding(.vertical, 11)
         }
         .font(.jakarta(.regular, size: 17))
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .padding(.vertical, 11)
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 4 }
     }
 
     func recipeExportString() -> String {
