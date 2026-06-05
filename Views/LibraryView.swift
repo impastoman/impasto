@@ -21,9 +21,13 @@ struct LibraryView: View {
     @State private var hoveredFolder: String? = nil
     @State private var hoveredHeader: String? = nil
     /// Per-section "which folders are expanded" sets. Replaces
-    /// DisclosureGroup which intercepted .draggable / .dropDestination /
-    /// .onDrop drops at the gesture-routing layer on iOS 26.
+    /// DisclosureGroup so that all four sections share the same
+    /// chevron-on-left visual treatment (the system DisclosureGroup
+    /// puts the chevron on the right and offers no override).
     @State private var expandedProcessFolders: Set<String> = []
+    @State private var expandedRecipeFolders: Set<String> = []
+    @State private var expandedBlendFolders: Set<String> = []
+    @State private var expandedPrefermentFolders: Set<String> = []
     @State private var newFolderSection   = ""
     @State private var newFolderName      = ""
     @State private var showNewFolderAlert = false
@@ -59,6 +63,7 @@ struct LibraryView: View {
                     sectionView(for: section)
                 }
             }
+            .listRowSeparatorTint(Color.ruleBlue)
             // EditMode is intentionally NOT toggled here. EditMode.active
             // captures gestures on row bodies (for the right-edge handles
             // and selection), which prevents .draggable from initiating a
@@ -351,9 +356,9 @@ struct LibraryView: View {
             .onMove { src, dst in store.moveRecipes(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
-                DisclosureGroup {
-                    let items = grouped[folder] ?? []
-                    ForEach(items) { recipe in
+                recipeFolderRow(folder: folder)
+                if expandedRecipeFolders.contains(folder) {
+                    ForEach(grouped[folder] ?? []) { recipe in
                         NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
                             RecipeRowView(recipe: recipe)
                         }
@@ -366,38 +371,11 @@ struct LibraryView: View {
                         )
                         .draggable(recipe.id.uuidString)
                     }
-                    .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
-                } label: {
-                    HStack {
-                        Label(folder, systemImage: "folder")
-                            .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
-                    .contentShape(Rectangle())
-                    // Drop target lives ON the label HStack itself (not on
-                    // the whole DisclosureGroup) so it doesn't compete
-                    // with the disclosure expand-tap or the inner ForEach
-                    // reordering. isTargeted highlights the row when a
-                    // drag is hovering — if you see this tint while
-                    // dragging, drops are being detected.
-                    .background(
-                        hoveredFolder == "recipes-\(folder)"
-                            ? Color.ruleBlueFaint
-                            : Color.clear
-                    )
-                    .dropDestination(for: String.self) { items, _ in
-                        handleRecipeDrop(items: items, toFolder: folder)
-                    } isTargeted: { targeted in
-                        hoveredFolder = targeted ? "recipes-\(folder)" : nil
-                    }
                 }
             }
 
             if !allFolders.isEmpty {
-                Text("Long-press a recipe to drag it. Drop on a folder to move it in, or on the \"Recipes\" header to take it out.")
+                Text("Swipe a recipe → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
@@ -442,37 +420,17 @@ struct LibraryView: View {
             .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
-                DisclosureGroup {
+                blendFolderRow(folder: folder)
+                if expandedBlendFolders.contains(folder) {
                     ForEach(grouped[folder] ?? []) { blend in
                         blendRow(blend)
                             .draggable(blend.id.uuidString)
-                    }
-                    .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
-                } label: {
-                    HStack {
-                        Label(folder, systemImage: "folder")
-                            .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
-                    .contentShape(Rectangle())
-                    .background(
-                        hoveredFolder == "blends-\(folder)"
-                            ? Color.ruleBlueFaint
-                            : Color.clear
-                    )
-                    .dropDestination(for: String.self) { items, _ in
-                        handleBlendDrop(items: items, toFolder: folder)
-                    } isTargeted: { targeted in
-                        hoveredFolder = targeted ? "blends-\(folder)" : nil
                     }
                 }
             }
 
             if !allFolders.isEmpty {
-                Text("Long-press a blend to drag it. Drop on a folder to move it in, or on the \"Flour Blends\" header to take it out.")
+                Text("Swipe a blend → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
@@ -483,11 +441,16 @@ struct LibraryView: View {
 
     func blendRow(_ blend: FlourBlend) -> some View {
         Button { editingBlend = blend } label: {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
-                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
-                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary).lineLimit(1)
+            HStack(spacing: 10) {
+                Rectangle()
+                    .fill(Color.marginRed)
+                    .frame(width: 2)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
+                        .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
+                    Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
+                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary).lineLimit(1)
+                }
             }
             .padding(.vertical, 2)
         }
@@ -560,7 +523,7 @@ struct LibraryView: View {
             }
 
             if !allFolders.isEmpty {
-                Text("Long-press a process to drag it. Drop on a folder to move it in, or on the \"Processes\" header to take it out.")
+                Text("Swipe a process → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
@@ -607,13 +570,96 @@ struct LibraryView: View {
         }
     }
 
+    /// Custom expandable folder row for the Recipes section —
+    /// matches processFolderRow's chevron-on-left look so all four
+    /// library sections present consistently.
+    @ViewBuilder
+    func recipeFolderRow(folder: String) -> some View {
+        let isExpanded = expandedRecipeFolders.contains(folder)
+        HStack {
+            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                .font(.jakarta(.regular, size: 12))
+                .foregroundColor(.secondary)
+            Label(folder, systemImage: "folder")
+                .font(.jakarta(.regular, size: 17))
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isExpanded {
+                expandedRecipeFolders.remove(folder)
+            } else {
+                expandedRecipeFolders.insert(folder)
+            }
+        }
+    }
+
+    /// Custom expandable folder row for the Flour Blends section.
+    @ViewBuilder
+    func blendFolderRow(folder: String) -> some View {
+        let isExpanded = expandedBlendFolders.contains(folder)
+        HStack {
+            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                .font(.jakarta(.regular, size: 12))
+                .foregroundColor(.secondary)
+            Label(folder, systemImage: "folder")
+                .font(.jakarta(.regular, size: 17))
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isExpanded {
+                expandedBlendFolders.remove(folder)
+            } else {
+                expandedBlendFolders.insert(folder)
+            }
+        }
+    }
+
+    /// Custom expandable folder row for the Preferments section.
+    @ViewBuilder
+    func prefermentFolderRow(folder: String) -> some View {
+        let isExpanded = expandedPrefermentFolders.contains(folder)
+        HStack {
+            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                .font(.jakarta(.regular, size: 12))
+                .foregroundColor(.secondary)
+            Label(folder, systemImage: "folder")
+                .font(.jakarta(.regular, size: 17))
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isExpanded {
+                expandedPrefermentFolders.remove(folder)
+            } else {
+                expandedPrefermentFolders.insert(folder)
+            }
+        }
+    }
+
     func processRow(_ process: SavedProcess) -> some View {
         Button { editingProcess = process } label: {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(process.name.isEmpty ? "Untitled Process" : process.name)
-                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                Text("\(process.cards.count) steps")
-                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+            HStack(spacing: 10) {
+                // Teacher's-red notebook margin strip, matching RecipeRowView.
+                Rectangle()
+                    .fill(Color.marginRed)
+                    .frame(width: 2)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(process.name.isEmpty ? "Untitled Process" : process.name)
+                        .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
+                    Text("\(process.cards.count) steps")
+                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+                }
             }
             .padding(.vertical, 2)
         }
@@ -668,37 +714,17 @@ struct LibraryView: View {
             .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
 
             ForEach(allFolders, id: \.self) { folder in
-                DisclosureGroup {
+                prefermentFolderRow(folder: folder)
+                if expandedPrefermentFolders.contains(folder) {
                     ForEach(grouped[folder] ?? []) { pref in
                         prefermentRow(pref)
                             .draggable(pref.id.uuidString)
-                    }
-                    .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
-                } label: {
-                    HStack {
-                        Label(folder, systemImage: "folder")
-                            .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(.secondary)
-                        Spacer() // padding for hover-target reach
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
-                    .contentShape(Rectangle())
-                    .background(
-                        hoveredFolder == "preferments-\(folder)"
-                            ? Color.ruleBlueFaint
-                            : Color.clear
-                    )
-                    .dropDestination(for: String.self) { items, _ in
-                        handlePrefermentDrop(items: items, toFolder: folder)
-                    } isTargeted: { targeted in
-                        hoveredFolder = targeted ? "preferments-\(folder)" : nil
                     }
                 }
             }
 
             if !allFolders.isEmpty {
-                Text("Long-press a preferment to drag it. Drop on a folder to move it in, or on the \"Preferments\" header to take it out.")
+                Text("Swipe a preferment → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
@@ -709,11 +735,16 @@ struct LibraryView: View {
 
     func prefermentRow(_ pref: SavedPreferment) -> some View {
         Button { editingPreferment = pref } label: {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
-                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
-                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+            HStack(spacing: 10) {
+                Rectangle()
+                    .fill(Color.marginRed)
+                    .frame(width: 2)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
+                        .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
+                    Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
+                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+                }
             }
             .padding(.vertical, 2)
         }
