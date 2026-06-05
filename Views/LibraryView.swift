@@ -53,13 +53,14 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        let _ = print("[Library] body re-evaluating")
+        return NavigationStack {
             List {
                 Section {
                     Color.ruleBlueFaint
                         .frame(height: 44)
-                        .onDrop(of: [.text], isTargeted: nil) { providers in
-                            print("[DropTest] firing with \(providers.count) providers")
+                        .onDrop(of: [.item, .text, .plainText, .utf8PlainText, .data, .url], isTargeted: nil) { providers in
+                            print("[DropTest] FIRING with \(providers.count) providers, types: \(providers.first?.registeredTypeIdentifiers ?? [])")
                             return true
                         }
                 }
