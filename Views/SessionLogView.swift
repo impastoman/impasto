@@ -333,7 +333,7 @@ struct SessionLogView: View {
                 crustColor: crustColor,
                 bottomResult: bottomResult,
                 topResult: topResult,
-                photos: aggregatedPhotos
+                photoIDs: aggregatedPhotoIDs
             )
             PhotoShareView(log: previewLog, recipe: recipe, scope: .wholeSession)
         }
