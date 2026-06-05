@@ -15,6 +15,10 @@ struct LibraryView: View {
     @State private var editingProcess: SavedProcess? = nil
     @State private var editingPreferment: SavedPreferment? = nil
     @State private var showSectionReorder = false
+    // Tracks which folder (per section) is being hovered during a drag,
+    // for visual feedback. Also helps prove drops are being detected.
+    @State private var hoveredFolder: String? = nil
+    @State private var hoveredHeader: String? = nil
     @State private var newFolderSection   = ""
     @State private var newFolderName      = ""
     @State private var showNewFolderAlert = false
@@ -290,9 +294,17 @@ struct LibraryView: View {
         Section(header:
             sectionTypeHeader("Recipes")
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
                 .contentShape(Rectangle())
+                .background(
+                    hoveredHeader == "Recipes"
+                        ? Color.ruleBlueFaint
+                        : Color.clear
+                )
                 .dropDestination(for: String.self) { items, _ in
                     handleRecipeDrop(items: items, toFolder: "")
+                } isTargeted: { targeted in
+                    hoveredHeader = targeted ? "Recipes" : nil
                 }
         ) {
             if store.recipes.isEmpty && allFolders.isEmpty {
@@ -341,10 +353,24 @@ struct LibraryView: View {
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
                     .contentShape(Rectangle())
-                }
-                .dropDestination(for: String.self) { items, _ in
-                    handleRecipeDrop(items: items, toFolder: folder)
+                    // Drop target lives ON the label HStack itself (not on
+                    // the whole DisclosureGroup) so it doesn't compete
+                    // with the disclosure expand-tap or the inner ForEach
+                    // reordering. isTargeted highlights the row when a
+                    // drag is hovering — if you see this tint while
+                    // dragging, drops are being detected.
+                    .background(
+                        hoveredFolder == "recipes-\(folder)"
+                            ? Color.ruleBlueFaint
+                            : Color.clear
+                    )
+                    .dropDestination(for: String.self) { items, _ in
+                        handleRecipeDrop(items: items, toFolder: folder)
+                    } isTargeted: { targeted in
+                        hoveredFolder = targeted ? "recipes-\(folder)" : nil
+                    }
                 }
             }
 
@@ -368,8 +394,18 @@ struct LibraryView: View {
 
         Section(header:
             sectionTypeHeader("Flour Blends")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
+                .background(
+                    hoveredHeader == "Flour Blends"
+                        ? Color.ruleBlueFaint
+                        : Color.clear
+                )
                 .dropDestination(for: String.self) { items, _ in
                     handleBlendDrop(items: items, toFolder: "")
+                } isTargeted: { targeted in
+                    hoveredHeader = targeted ? "Flour Blends" : nil
                 }
         ) {
             if store.savedBlends.isEmpty && allFolders.isEmpty {
@@ -398,10 +434,18 @@ struct LibraryView: View {
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
                     .contentShape(Rectangle())
-                }
-                .dropDestination(for: String.self) { items, _ in
-                    handleBlendDrop(items: items, toFolder: folder)
+                    .background(
+                        hoveredFolder == "blends-\(folder)"
+                            ? Color.ruleBlueFaint
+                            : Color.clear
+                    )
+                    .dropDestination(for: String.self) { items, _ in
+                        handleBlendDrop(items: items, toFolder: folder)
+                    } isTargeted: { targeted in
+                        hoveredFolder = targeted ? "blends-\(folder)" : nil
+                    }
                 }
             }
 
@@ -450,8 +494,18 @@ struct LibraryView: View {
 
         Section(header:
             sectionTypeHeader("Processes")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
+                .background(
+                    hoveredHeader == "Processes"
+                        ? Color.ruleBlueFaint
+                        : Color.clear
+                )
                 .dropDestination(for: String.self) { items, _ in
                     handleProcessDrop(items: items, toFolder: "")
+                } isTargeted: { targeted in
+                    hoveredHeader = targeted ? "Processes" : nil
                 }
         ) {
             if store.savedProcesses.isEmpty && allFolders.isEmpty {
@@ -480,10 +534,18 @@ struct LibraryView: View {
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
                     .contentShape(Rectangle())
-                }
-                .dropDestination(for: String.self) { items, _ in
-                    handleProcessDrop(items: items, toFolder: folder)
+                    .background(
+                        hoveredFolder == "processes-\(folder)"
+                            ? Color.ruleBlueFaint
+                            : Color.clear
+                    )
+                    .dropDestination(for: String.self) { items, _ in
+                        handleProcessDrop(items: items, toFolder: folder)
+                    } isTargeted: { targeted in
+                        hoveredFolder = targeted ? "processes-\(folder)" : nil
+                    }
                 }
             }
 
@@ -532,8 +594,18 @@ struct LibraryView: View {
 
         Section(header:
             sectionTypeHeader("Preferments")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+                .contentShape(Rectangle())
+                .background(
+                    hoveredHeader == "Preferments"
+                        ? Color.ruleBlueFaint
+                        : Color.clear
+                )
                 .dropDestination(for: String.self) { items, _ in
                     handlePrefermentDrop(items: items, toFolder: "")
+                } isTargeted: { targeted in
+                    hoveredHeader = targeted ? "Preferments" : nil
                 }
         ) {
             if store.savedPreferments.isEmpty && allFolders.isEmpty {
@@ -559,13 +631,21 @@ struct LibraryView: View {
                         Label(folder, systemImage: "folder")
                             .font(.jakarta(.regular, size: 17))
                             .foregroundColor(.secondary)
-                        Spacer()
+                        Spacer() // padding for hover-target reach
                     }
                     .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
                     .contentShape(Rectangle())
-                }
-                .dropDestination(for: String.self) { items, _ in
-                    handlePrefermentDrop(items: items, toFolder: folder)
+                    .background(
+                        hoveredFolder == "preferments-\(folder)"
+                            ? Color.ruleBlueFaint
+                            : Color.clear
+                    )
+                    .dropDestination(for: String.self) { items, _ in
+                        handlePrefermentDrop(items: items, toFolder: folder)
+                    } isTargeted: { targeted in
+                        hoveredFolder = targeted ? "preferments-\(folder)" : nil
+                    }
                 }
             }
 
