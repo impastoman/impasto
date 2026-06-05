@@ -341,7 +341,7 @@ struct LibraryView: View {
                     onDelete: { recipeToDelete = recipe },
                     onLongPress: { isReordering = true }
                 )
-                .if(isReordering) { $0.draggable(recipe.id.uuidString) }
+                .draggable(recipe.id.uuidString)
             }
             .onMove { src, dst in store.moveRecipes(inFolder: "", from: src, to: dst) }
 
@@ -361,7 +361,7 @@ struct LibraryView: View {
                             onDelete: { recipeToDelete = recipe },
                             onLongPress: { isReordering = true }
                         )
-                        .if(isReordering) { $0.draggable(recipe.id.uuidString) }
+                        .draggable(recipe.id.uuidString)
                     }
                     .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
                 } label: {
@@ -408,7 +408,7 @@ struct LibraryView: View {
             }
             ForEach(unfoldered) { blend in
                 blendRow(blend)
-                    .if(isReordering) { $0.draggable(blend.id.uuidString) }
+                    .draggable(blend.id.uuidString)
             }
             .onMove { src, dst in store.moveBlends(inFolder: "", from: src, to: dst) }
 
@@ -416,7 +416,7 @@ struct LibraryView: View {
                 DisclosureGroup {
                     ForEach(grouped[folder] ?? []) { blend in
                         blendRow(blend)
-                            .if(isReordering) { $0.draggable(blend.id.uuidString) }
+                            .draggable(blend.id.uuidString)
                     }
                     .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
                 } label: {
@@ -494,7 +494,7 @@ struct LibraryView: View {
             }
             ForEach(unfoldered) { process in
                 processRow(process)
-                    .if(isReordering) { $0.draggable(process.id.uuidString) }
+                    .draggable(process.id.uuidString)
             }
             .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
 
@@ -502,7 +502,7 @@ struct LibraryView: View {
                 DisclosureGroup {
                     ForEach(grouped[folder] ?? []) { process in
                         processRow(process)
-                            .if(isReordering) { $0.draggable(process.id.uuidString) }
+                            .draggable(process.id.uuidString)
                     }
                     .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
                 } label: {
@@ -580,7 +580,7 @@ struct LibraryView: View {
             }
             ForEach(unfoldered) { pref in
                 prefermentRow(pref)
-                    .if(isReordering) { $0.draggable(pref.id.uuidString) }
+                    .draggable(pref.id.uuidString)
             }
             .onMove { src, dst in store.movePreferments(inFolder: "", from: src, to: dst) }
 
@@ -588,7 +588,7 @@ struct LibraryView: View {
                 DisclosureGroup {
                     ForEach(grouped[folder] ?? []) { pref in
                         prefermentRow(pref)
-                            .if(isReordering) { $0.draggable(pref.id.uuidString) }
+                            .draggable(pref.id.uuidString)
                     }
                     .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
                 } label: {
