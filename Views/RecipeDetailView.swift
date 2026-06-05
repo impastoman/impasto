@@ -159,22 +159,22 @@ struct RecipeDetailView: View {
         }
     }
 
-    /// Two-column row: left label, vertical red margin strip, right value.
-    /// The strip is the same teacher's-red rule used elsewhere in the
-    /// app — applied here as a column divider so each spec line reads
-    /// like an entry on notebook paper.
+    /// Each spec row gets a thin teacher's-red margin strip flush
+    /// with its leading edge. Because every row in the section uses
+    /// the same strip width and zero leading inset, the strips stack
+    /// into one continuous vertical line — a proper notebook margin
+    /// running the full height of the section.
     func row(_ label: String, _ value: String) -> some View {
         HStack(spacing: 12) {
-            Text(label)
-                .frame(maxWidth: .infinity, alignment: .leading)
             Rectangle()
                 .fill(Color.marginRed)
-                .frame(width: 2)
-            Text(value)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .foregroundColor(.secondary)
+                .frame(width: 1)
+            LabeledContent(label, value: value)
+                .padding(.trailing, 16)
         }
         .font(.jakarta(.regular, size: 17))
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .padding(.vertical, 11)
     }
 
     func recipeExportString() -> String {
