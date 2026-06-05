@@ -28,6 +28,8 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
+            .listSectionSeparator(.visible)
+            .listSectionSeparatorTint(Color.ruleBlue)
 
             Section(header: Text("Formula").font(.jakarta(.semibold, size: 13))) {
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
@@ -40,6 +42,8 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
+            .listSectionSeparator(.visible)
+            .listSectionSeparatorTint(Color.ruleBlue)
 
             if !recipe.flourBlend.components.isEmpty {
                 Section(header: Text("Flour blend").font(.jakarta(.semibold, size: 13))) {
@@ -53,6 +57,8 @@ struct RecipeDetailView: View {
                 }
                 .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
+            .listSectionSeparator(.visible)
+            .listSectionSeparatorTint(Color.ruleBlue)
                 .font(.jakarta(.regular, size: 17))
             }
 
@@ -62,6 +68,8 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
+            .listSectionSeparator(.visible)
+            .listSectionSeparatorTint(Color.ruleBlue)
 
             if recipe.method != .direct {
                 Section(header: Text("① \(recipe.method.rawValue)").font(.jakarta(.semibold, size: 13))) {
@@ -71,6 +79,8 @@ struct RecipeDetailView: View {
                 }
                 .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
+            .listSectionSeparator(.visible)
+            .listSectionSeparatorTint(Color.ruleBlue)
             }
 
             Section(recipe.method != .direct ? "② Final dough" : "Dough") {
@@ -80,6 +90,8 @@ struct RecipeDetailView: View {
             }
             .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
+            .listSectionSeparator(.visible)
+            .listSectionSeparatorTint(Color.ruleBlue)
 
             if !isReadOnly {
                 Section {
@@ -95,9 +107,23 @@ struct RecipeDetailView: View {
                 }
                 .listRowBackground(Color.clear)
             .listRowSeparatorTint(Color.ruleBlue)
+            .listSectionSeparator(.visible)
+            .listSectionSeparatorTint(Color.ruleBlue)
             }
         }
         .scrollContentBackground(.hidden)
+        // Continuous teacher's-red notebook margin line drawn behind
+        // the whole List — survives section boundaries, row separators,
+        // and section headers because it's painted under everything.
+        .background(alignment: .leading) {
+            Color.marginRed
+                .frame(width: 1)
+                .padding(.leading, 20)
+        }
+        // Tighter spacing between sections — the red line should read
+        // as one continuous rule, so we don't want big gaps where the
+        // line still exists but the eye reads them as a break.
+        .listSectionSpacing(.compact)
         .navigationTitle(recipe.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -159,32 +185,15 @@ struct RecipeDetailView: View {
         }
     }
 
-    /// Each spec row gets a thin teacher's-red margin strip flush
-    /// with its leading edge. To make the strips read as ONE
-    /// continuous notebook margin line:
-    ///   1. The Rectangle sits in the outer HStack (no vertical
-    ///      padding around it) so it spans the row's full height.
-    ///   2. The label/value HStack carries the vertical padding
-    ///      separately, so the row keeps its usual height.
-    ///   3. .alignmentGuide(.listRowSeparatorLeading) pushes the
-    ///      blue row separator to start AFTER the red strip — so
-    ///      the strip is never crossed by a horizontal separator
-    ///      line between rows.
+    /// Spec row — label on the left, value on the right. The red
+    /// margin line is drawn as a single continuous strip behind the
+    /// whole List (see the .background on the List body), so each
+    /// row stays simple. We push the blue row separator's leading
+    /// edge inboard so it doesn't cross or kiss the red strip.
     func row(_ label: String, _ value: String) -> some View {
-        HStack(spacing: 0) {
-            Rectangle()
-                .fill(Color.marginRed)
-                .frame(width: 1)
-            HStack(spacing: 12) {
-                LabeledContent(label, value: value)
-                    .padding(.trailing, 16)
-                    .padding(.leading, 12)
-            }
-            .padding(.vertical, 11)
-        }
-        .font(.jakarta(.regular, size: 17))
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .alignmentGuide(.listRowSeparatorLeading) { _ in 4 }
+        LabeledContent(label, value: value)
+            .font(.jakarta(.regular, size: 17))
+            .alignmentGuide(.listRowSeparatorLeading) { _ in 22 }
     }
 
     func recipeExportString() -> String {
