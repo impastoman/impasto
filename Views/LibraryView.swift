@@ -20,6 +20,10 @@ struct LibraryView: View {
     // for visual feedback. Also helps prove drops are being detected.
     @State private var hoveredFolder: String? = nil
     @State private var hoveredHeader: String? = nil
+    /// Per-section "which folders are expanded" sets. Replaces
+    /// DisclosureGroup which intercepted .draggable / .dropDestination /
+    /// .onDrop drops at the gesture-routing layer on iOS 26.
+    @State private var expandedProcessFolders: Set<String> = []
     @State private var newFolderSection   = ""
     @State private var newFolderName      = ""
     @State private var showNewFolderAlert = false
@@ -541,36 +545,51 @@ struct LibraryView: View {
             }
             .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
 
+            // Custom expandable folder rows — DisclosureGroup was
+            // swallowing all .draggable / .onDrop / .dropDestination
+            // events at the gesture-routing layer. A plain Section row
+            // + onTapGesture for expand/collapse + onDrop for drops
+            // gets us actual drop routing.
             ForEach(allFolders, id: \.self) { folder in
-                DisclosureGroup {
+                let isExpanded = expandedProcessFolders.contains(folder)
+                HStack {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .font(.jakarta(.regular, size: 12))
+                        .foregroundColor(.secondary)
+                    Label(folder, systemImage: "folder")
+                        .font(.jakarta(.regular, size: 17))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
+                .background(
+                    hoveredFolder == "processes-\(folder)"
+                        ? Color.ruleBlueFaint
+                        : Color.clear
+                )
+                .onTapGesture {
+                    if isExpanded {
+                        expandedProcessFolders.remove(folder)
+                    } else {
+                        expandedProcessFolders.insert(folder)
+                    }
+                }
+                .onDrop(
+                    of: [.text],
+                    isTargeted: Binding(
+                        get: { hoveredFolder == "processes-\(folder)" },
+                        set: { hoveredFolder = $0 ? "processes-\(folder)" : nil }
+                    )
+                ) { providers in
+                    handleProcessOnDrop(providers: providers, toFolder: folder)
+                }
+
+                if isExpanded {
                     ForEach(grouped[folder] ?? []) { process in
                         processRow(process)
                             .draggable(process.id.uuidString)
-                    }
-                    .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
-                } label: {
-                    HStack {
-                        Label(folder, systemImage: "folder")
-                            .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
-                    .contentShape(Rectangle())
-                    .background(
-                        hoveredFolder == "processes-\(folder)"
-                            ? Color.ruleBlueFaint
-                            : Color.clear
-                    )
-                    .onDrop(
-                        of: [.text],
-                        isTargeted: Binding(
-                            get: { hoveredFolder == "processes-\(folder)" },
-                            set: { hoveredFolder = $0 ? "processes-\(folder)" : nil }
-                        )
-                    ) { providers in
-                        handleProcessOnDrop(providers: providers, toFolder: folder)
                     }
                 }
             }
