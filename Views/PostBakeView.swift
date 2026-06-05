@@ -1,4 +1,4 @@
-import SwiftUI
+﻿import SwiftUI
 import PhotosUI
 
 struct PostBakeView: View {
@@ -33,7 +33,7 @@ struct PostBakeView: View {
                     Button("Skip") { showSessionLog = true }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Next →") { showSessionLog = true }
+                    Button("Next â†’") { showSessionLog = true }
                 }
             }
             .onChange(of: sessionManager.shouldReturnHome) { _, isTrue in
@@ -58,7 +58,7 @@ struct PostBakeView: View {
             .environmentObject(sessionManager)
         }
         .sheet(item: $selectedPizza) { pizza in
-            // Bridge selectedPizza (value snapshot) → a write-back binding
+            // Bridge selectedPizza (value snapshot) â†’ a write-back binding
             // into vm.pizzaEntries so Make-main / reorder persists.
             PizzaDetailView(entry: Binding(
                 get: { vm.pizzaEntries.first(where: { $0.id == pizza.id }) ?? pizza },
@@ -97,13 +97,13 @@ struct PostBakeView: View {
                         }
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Bake #\(entry.pizzaNumber)")
-                                .font(.system(size: 14, design: .monospaced))
+                                .font(.jakarta(.regular, size: 14))
                                 .foregroundColor(.primary)
                             Text(shortTime(entry.bakeTimeSeconds))
-                                .font(.system(size: 12, design: .monospaced))
+                                .font(.jakarta(.regular, size: 12))
                                 .foregroundColor(.secondary)
-                            Text("\(entry.crustColor.rawValue)  ·  B: \(entry.bottomResult.rawValue)  ·  T: \(entry.topResult.rawValue)")
-                                .font(.system(size: 11, design: .monospaced))
+                            Text("\(entry.crustColor.rawValue)  Â·  B: \(entry.bottomResult.rawValue)  Â·  T: \(entry.topResult.rawValue)")
+                                .font(.jakarta(.regular, size: 11))
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
@@ -145,7 +145,7 @@ struct PostBakeView: View {
                                 .font(.system(size: 22))
                                 .foregroundColor(Color(hex: "D2B96A"))
                             Text("Add")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.jakarta(.regular, size: 11))
                                 .foregroundColor(Color(hex: "D2B96A"))
                         }
                         .frame(width: 100, height: 100)
@@ -174,7 +174,7 @@ struct PostBakeView: View {
     var bakeTimeSection: some View {
         Section("Bake info") {
             LabeledContent("Total bake time", value: timeString(totalBakeTime))
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
         }
         .listRowBackground(Color.clear)
     }
@@ -218,7 +218,7 @@ struct PizzaDetailView: View {
                             }
                         )
                     } header: { Text("Photos") }
-                      footer: { Text("Tap a photo to view it full-size or set it as this bake's main thumbnail. Drag to reorder.").font(.system(size: 11, design: .monospaced)).tipText() }
+                      footer: { Text("Tap a photo to view it full-size or set it as this bake's main thumbnail. Drag to reorder.").font(.jakarta(.regular, size: 11)).tipText() }
                     .listRowBackground(Color.clear)
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
@@ -226,14 +226,14 @@ struct PizzaDetailView: View {
                 Section("Bake") {
                     LabeledContent("Bake time", value: shortTime(entry.bakeTimeSeconds))
                     if let temp = entry.ovenTempAchieved {
-                        LabeledContent("Oven temp", value: "\(Int(temp))°")
+                        LabeledContent("Oven temp", value: "\(Int(temp))Â°")
                     }
                     LabeledContent("Crust color", value: entry.crustColor.rawValue)
                     LabeledContent("Bottom", value: entry.bottomResult.rawValue)
                     LabeledContent("Top", value: entry.topResult.rawValue)
                 }
                 .listRowBackground(Color.clear)
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
 
                 if !entry.crustTags.isEmpty || !entry.crumbTags.isEmpty {
                     Section("Tags") {
@@ -245,13 +245,13 @@ struct PizzaDetailView: View {
                         }
                     }
                     .listRowBackground(Color.clear)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 }
 
                 if !entry.notes.isEmpty {
                     Section("Notes") {
                         Text(entry.notes)
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                     }
                     .listRowBackground(Color.clear)

@@ -1,4 +1,4 @@
-import SwiftUI
+﻿import SwiftUI
 
 struct BakeMethodStepView: View {
     @Binding var bakeSetups: [BakeSetup]
@@ -16,7 +16,7 @@ struct BakeMethodStepView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(method.displayName).font(.headline)
                             if !method.subMethods.isEmpty {
-                                Text(method.subMethods.joined(separator: " · "))
+                                Text(method.subMethods.joined(separator: " Â· "))
                                     .font(.caption).foregroundColor(.secondary)
                             }
                         }
@@ -37,8 +37,8 @@ struct BakeMethodStepView: View {
             } header: {
                 Text("Baking method")
             } footer: {
-                Text("You can save settings for multiple setups — choose which to use at prep.")
-                    .font(.system(size: 11, design: .monospaced))
+                Text("You can save settings for multiple setups â€” choose which to use at prep.")
+                    .font(.jakarta(.regular, size: 11))
                     .tipText()
             }
             .listRowBackground(Color.clear)
@@ -62,17 +62,17 @@ private struct BakeSetupDetailSection: View {
                     Spacer()
                     TextField("Oven brand & model", text: $setup.subMethod)
                         .multilineTextAlignment(.trailing)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .inputBox()
                 }
             } else if !setup.method.subMethods.isEmpty {
                 Picker("Setup", selection: $setup.subMethod) {
-                    Text("Select…").tag("")
+                    Text("Selectâ€¦").tag("")
                     ForEach(setup.method.subMethods, id: \.self) { s in
                         Text(s).tag(s)
                     }
                 }
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
             }
 
             HStack {
@@ -82,7 +82,7 @@ private struct BakeSetupDetailSection: View {
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 52)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
                 Text("min").foregroundColor(.secondary)
             }
@@ -94,14 +94,14 @@ private struct BakeSetupDetailSection: View {
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 52)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
-                Text("–")
+                Text("â€“")
                 TextField("290", value: $setup.ovenTempMax, format: .number)
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 52)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
                 Text(setup.tempUnit).foregroundColor(.secondary)
             }
@@ -114,20 +114,20 @@ private struct BakeSetupDetailSection: View {
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.center)
                         .frame(width: 64)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .inputBox()
                     Text(setup.tempUnit).foregroundColor(.secondary)
                 }
             }
 
             Picker("Temperature unit", selection: $setup.useCelsius) {
-                Text("°F  Fahrenheit").tag(false)
-                Text("°C  Celsius").tag(true)
+                Text("Â°F  Fahrenheit").tag(false)
+                Text("Â°C  Celsius").tag(true)
             }
-            .font(.system(size: 13, design: .monospaced))
+            .font(.jakarta(.regular, size: 13))
 
             TextField("Notes", text: $setup.notes, axis: .vertical)
-                .font(.system(size: 13, design: .monospaced))
+                .font(.jakarta(.regular, size: 13))
                 .lineLimit(2...)
                 .notesBox()
         } header: {

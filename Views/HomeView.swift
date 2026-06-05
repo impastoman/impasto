@@ -1,4 +1,4 @@
-import SwiftUI
+﻿import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var store: RecipeStore
@@ -21,7 +21,7 @@ struct HomeView: View {
     private let appVersion = "0.9"
 
     var body: some View {
-        // ZStack wrapper is always in the hierarchy — the shouldReturnHome observer
+        // ZStack wrapper is always in the hierarchy â€” the shouldReturnHome observer
         // must live here, not on `launch`, so it remains active when MainTabView
         // is showing (showMainApp = true) and a session is re-entered from there.
         ZStack {
@@ -66,7 +66,7 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             HStack {
                                 Text("Sessions in progress")
-                                    .font(.system(size: 9, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 9))
                                     .foregroundColor(Color(hex: "9A9688"))
                                     .tracking(2)
                                 Spacer()
@@ -87,7 +87,7 @@ struct HomeView: View {
 
                             Divider().padding(.horizontal, 16)
 
-                            Button("▶  Check Sessions") {
+                            Button("â–¶  Check Sessions") {
                                 initialTab = 1
                                 showMainApp = true
                             }
@@ -105,7 +105,7 @@ struct HomeView: View {
                 if splashDone {
                 Divider().background(Color(hex: "D8D4C8"))
 
-                Button("Start Dough →") { showStartDough = true }
+                Button("Start Dough â†’") { showStartDough = true }
                     .buttonStyle(StesuraButtonStyle(filled: true))
 
                 Button("+ New Recipe") { showNewMenu = true }
@@ -122,8 +122,8 @@ struct HomeView: View {
                 Button("Library") { showMainApp = true }
                     .buttonStyle(StesuraButtonStyle(filled: false))
 
-                Button("↑  Import Recipe") { showImportRecipe = true }
-                    .font(.system(size: 11, design: .monospaced))
+                Button("â†‘  Import Recipe") { showImportRecipe = true }
+                    .font(.jakarta(.regular, size: 11))
                     .foregroundColor(Color(hex: "C4B89A"))
                 } // end splashDone
 
@@ -209,11 +209,11 @@ private struct ActiveSessionRow: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(vm.recipe.name)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "2C2A24"))
                     .lineLimit(1)
                 Text(stepLabel)
-                    .font(.system(size: 9, design: .monospaced))
+                    .font(.jakarta(.regular, size: 9))
                     .foregroundColor(.secondary)
                     .tracking(1.5)
             }
@@ -222,11 +222,11 @@ private struct ActiveSessionRow: View {
 
             VStack(alignment: .trailing, spacing: 3) {
                 Text(previewTime)
-                    .font(.system(size: 14, design: .monospaced))
+                    .font(.jakarta(.regular, size: 14))
                     .foregroundColor(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
                 if vm.isOvertime {
                     Text("overtime")
-                        .font(.system(size: 9, design: .monospaced))
+                        .font(.jakarta(.regular, size: 9))
                         .foregroundColor(.orange)
                 }
             }
@@ -243,10 +243,10 @@ private struct ActiveSessionRow: View {
     }
 
     /// Minimized session preview:
-    ///   • Bake step → count UP (no target duration)
-    ///   • Current step has a duration → count DOWN to 0; flip to +MM:SS overtime
-    ///   • Current step is action-only (duration == 0) → count UP
-    /// Mode-agnostic — works the same in Automatic and Manual.
+    ///   â€¢ Bake step â†’ count UP (no target duration)
+    ///   â€¢ Current step has a duration â†’ count DOWN to 0; flip to +MM:SS overtime
+    ///   â€¢ Current step is action-only (duration == 0) â†’ count UP
+    /// Mode-agnostic â€” works the same in Automatic and Manual.
     private var previewTime: String {
         if vm.isInBakeStep { return timeString(vm.bakeElapsed) }
         let target = vm.currentCard?.duration ?? 0
@@ -266,7 +266,7 @@ private struct ActiveSessionRow: View {
         return String(format: "%02d:%02d:%02d", h, m, s)
     }
 
-    /// Compact MM:SS (or HH:MM:SS when ≥ 1 hour). Used by the countdown branch
+    /// Compact MM:SS (or HH:MM:SS when â‰¥ 1 hour). Used by the countdown branch
     /// where the user cares about remaining minutes, not the H placeholder.
     private func countdown(_ t: TimeInterval) -> String {
         let total = Int(t.rounded())
@@ -298,7 +298,7 @@ struct StartDoughView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(recipe.name).font(.headline).foregroundColor(.primary)
-                                        Text("\(recipe.style.rawValue)  ·  \(recipe.method.rawValue)  ·  \(recipe.ballCount) balls")
+                                        Text("\(recipe.style.rawValue)  Â·  \(recipe.method.rawValue)  Â·  \(recipe.ballCount) balls")
                                             .font(.caption).foregroundColor(.secondary)
                                     }
                                     Spacer()
@@ -313,7 +313,7 @@ struct StartDoughView: View {
                 }
 
                 Section {
-                    Button("Build one now →") { showWizard = true }
+                    Button("Build one now â†’") { showWizard = true }
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
@@ -325,9 +325,9 @@ struct StartDoughView: View {
                 }
                 if selectedRecipe != nil {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Begin Prep →") { preFlightRecipe = selectedRecipe }
+                        Button("Begin Prep â†’") { preFlightRecipe = selectedRecipe }
                             .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                     }
                 }
             }

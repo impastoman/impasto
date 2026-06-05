@@ -1,4 +1,4 @@
-import SwiftUI
+﻿import SwiftUI
 
 struct BakeLogDetailView: View {
     @State private var log: BakeLog
@@ -98,7 +98,7 @@ struct BakeLogDetailView: View {
                         thumbnailSize: 140
                     )
                 } header: { Text("Photos") }
-                  footer: { Text("Tap any photo to view it full-size or set it as the main thumbnail. Drag photos to reorder.").font(.system(size: 11, design: .monospaced)).tipText() }
+                  footer: { Text("Tap any photo to view it full-size or set it as the main thumbnail. Drag photos to reorder.").font(.jakarta(.regular, size: 11)).tipText() }
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
@@ -115,34 +115,34 @@ struct BakeLogDetailView: View {
 
             Section("Bake") {
                 LabeledContent("Date", value: log.date.formatted(date: .abbreviated, time: .shortened))
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 LabeledContent("Crust color", value: log.crustColor.rawValue)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 LabeledContent("Bottom", value: log.bottomResult.rawValue)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 LabeledContent("Top", value: log.topResult.rawValue)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 if log.bakeTimeSeconds > 0 {
                     LabeledContent("Bake time", value: shortTime(log.bakeTimeSeconds))
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                 }
                 if let temp = log.ovenTempAchieved {
-                    LabeledContent("Oven temp", value: "\(Int(temp))°")
-                        .font(.system(.body, design: .monospaced))
+                    LabeledContent("Oven temp", value: "\(Int(temp))Â°")
+                        .font(.jakarta(.regular, size: 17))
                 }
             }
             .listRowBackground(Color.clear)
 
             Section("Dough") {
-                LabeledContent("Balls", value: "\(log.ballCount) × \(Int(log.ballWeight))g")
-                    .font(.system(.body, design: .monospaced))
+                LabeledContent("Balls", value: "\(log.ballCount) Ã— \(Int(log.ballWeight))g")
+                    .font(.jakarta(.regular, size: 17))
                 LabeledContent("Hydration", value: "\(Int(log.finalHydration * 100))%")
-                    .font(.system(.body, design: .monospaced))
-                LabeledContent("Room temp", value: String(format: "%.0f°C", log.roomTempC))
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
+                LabeledContent("Room temp", value: String(format: "%.0fÂ°C", log.roomTempC))
+                    .font(.jakarta(.regular, size: 17))
                 if !log.prefermentPH.isEmpty {
                     LabeledContent("pH", value: log.prefermentPH)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                 }
             }
             .listRowBackground(Color.clear)
@@ -154,14 +154,14 @@ struct BakeLogDetailView: View {
                         let planned = log.plannedStageDurations[stage] ?? 0
                         HStack {
                             Text(stage)
-                                .font(.system(size: 13, design: .monospaced))
+                                .font(.jakarta(.regular, size: 13))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Text(shortTime(actual))
-                                .font(.system(size: 13, design: .monospaced))
+                                .font(.jakarta(.regular, size: 13))
                             if planned > 0 {
                                 let delta = actual - planned
                                 Text(deltaString(delta))
-                                    .font(.system(size: 11, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 11))
                                     .foregroundColor(deltaColor(delta))
                             }
                         }
@@ -186,20 +186,20 @@ struct BakeLogDetailView: View {
             if !log.notes.isEmpty {
                 Section("Notes") {
                     Text(log.notes)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.secondary)
                 }
                 .listRowBackground(Color.clear)
             }
 
             Section {
-                Button("Copy Session into New Recipe →") { showForkWizard = true }
+                Button("Copy Session into New Recipe â†’") { showForkWizard = true }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundColor(Color(hex: "D2B96A"))
-                    .font(.system(size: 14, design: .monospaced))
+                    .font(.jakarta(.regular, size: 14))
             } footer: {
                 Text("Opens the recipe wizard pre-filled with bake log settings. Saves as a new recipe variant.")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .tipText()
             }
             .listRowBackground(Color.clear)
@@ -225,17 +225,17 @@ struct BakeLogDetailView: View {
 
             Section("Reflection notes") {
                 TextField("What would you change next time?", text: $annotatedNotes, axis: .vertical)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .lineLimit(4...)
                     .notesBox()
             }
             .listRowBackground(Color.clear)
 
             Section {
-                Button(saved ? "Saved ✓" : "Save Annotation") { saveAnnotation() }
+                Button(saved ? "Saved âœ“" : "Save Annotation") { saveAnnotation() }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundColor(Color(hex: "D2B96A"))
-                    .font(.system(size: 14, design: .monospaced))
+                    .font(.jakarta(.regular, size: 14))
             }
             .listRowBackground(Color.clear)
 
@@ -249,7 +249,7 @@ struct BakeLogDetailView: View {
                     }
                     if !log.annotatedNotes.isEmpty {
                         Text(log.annotatedNotes)
-                            .font(.system(size: 12, design: .monospaced))
+                            .font(.jakarta(.regular, size: 12))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -289,14 +289,14 @@ struct BakeLogDetailView: View {
     func tagRow(title: String, tags: [String]) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Text(title)
-                .font(.system(size: 12, design: .monospaced))
+                .font(.jakarta(.regular, size: 12))
                 .foregroundColor(.secondary)
                 .frame(width: 44, alignment: .leading)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(tags, id: \.self) { tag in
                         Text(tag)
-                            .font(.system(size: 12, design: .monospaced))
+                            .font(.jakarta(.regular, size: 12))
                             .padding(.horizontal, 8).padding(.vertical, 3)
                             .background(Color(hex: "D2B96A").opacity(0.12))
                             .foregroundColor(Color(hex: "D2B96A"))

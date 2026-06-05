@@ -1,6 +1,6 @@
-// FontPreviewView.swift
+﻿// FontPreviewView.swift
 // DROP INTO Xcode, run in Preview or Simulator.
-// DELETE before shipping — dev only.
+// DELETE before shipping â€” dev only.
 
 import SwiftUI
 
@@ -129,7 +129,7 @@ private struct FrauncesPanel: View {
             sectionHeader("Display / Headlines")
 
             sample(
-                label: "Light  ·  36pt",
+                label: "Light  Â·  36pt",
                 view: AnyView(
                     Text("Neapolitan")
                         .font(.frauncesLight(36))
@@ -137,7 +137,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Regular  ·  36pt",
+                label: "Regular  Â·  36pt",
                 view: AnyView(
                     Text("Neapolitan")
                         .font(.fraunces(36))
@@ -145,7 +145,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "SemiBold  ·  36pt",
+                label: "SemiBold  Â·  36pt",
                 view: AnyView(
                     Text("Neapolitan")
                         .font(.frauncesSemiBold(36))
@@ -153,7 +153,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Regular Italic  ·  36pt",
+                label: "Regular Italic  Â·  36pt",
                 view: AnyView(
                     Text("Neapolitan")
                         .font(.fraunces(36, italic: true))
@@ -165,7 +165,7 @@ private struct FrauncesPanel: View {
             sectionHeader("App title / Wordmark")
 
             sample(
-                label: "Light  ·  52pt — current system serif",
+                label: "Light  Â·  52pt â€” current system serif",
                 view: AnyView(
                     Text("Stesura")
                         .font(.system(size: 52, design: .serif))
@@ -173,7 +173,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Light  ·  52pt — Fraunces",
+                label: "Light  Â·  52pt â€” Fraunces",
                 view: AnyView(
                     Text("Stesura")
                         .font(.frauncesLight(52))
@@ -181,7 +181,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Regular  ·  52pt — Fraunces",
+                label: "Regular  Â·  52pt â€” Fraunces",
                 view: AnyView(
                     Text("Stesura")
                         .font(.fraunces(52))
@@ -189,7 +189,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Italic  ·  52pt — Fraunces",
+                label: "Italic  Â·  52pt â€” Fraunces",
                 view: AnyView(
                     Text("Stesura")
                         .font(.fraunces(52, italic: true))
@@ -198,10 +198,10 @@ private struct FrauncesPanel: View {
             )
 
             dividerRow()
-            sectionHeader("Recipe names  ·  20–24pt")
+            sectionHeader("Recipe names  Â·  20â€“24pt")
 
             sample(
-                label: "Light  ·  22pt",
+                label: "Light  Â·  22pt",
                 view: AnyView(
                     Text("72hr Cold Ferment Neapolitan")
                         .font(.frauncesLight(22))
@@ -209,7 +209,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Regular  ·  22pt",
+                label: "Regular  Â·  22pt",
                 view: AnyView(
                     Text("72hr Cold Ferment Neapolitan")
                         .font(.fraunces(22))
@@ -217,7 +217,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Italic  ·  22pt",
+                label: "Italic  Â·  22pt",
                 view: AnyView(
                     Text("72hr Cold Ferment Neapolitan")
                         .font(.fraunces(22, italic: true))
@@ -226,10 +226,10 @@ private struct FrauncesPanel: View {
             )
 
             dividerRow()
-            sectionHeader("Body / Paragraph  ·  15–16pt")
+            sectionHeader("Body / Paragraph  Â·  15â€“16pt")
 
             sample(
-                label: "Regular  ·  15pt",
+                label: "Regular  Â·  15pt",
                 view: AnyView(
                     Text("Place dough into a lightly oiled container, cover, and rest at room temperature. Perform stretch and fold every 30 minutes.")
                         .font(.fraunces(15))
@@ -238,7 +238,7 @@ private struct FrauncesPanel: View {
                 )
             )
             sample(
-                label: "Light  ·  15pt",
+                label: "Light  Â·  15pt",
                 view: AnyView(
                     Text("Place dough into a lightly oiled container, cover, and rest at room temperature. Perform stretch and fold every 30 minutes.")
                         .font(.frauncesLight(15))
@@ -258,51 +258,51 @@ private struct FrauncesPanel: View {
 private struct JakartaPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            sectionHeader("Weight ladder  ·  17pt")
+            sectionHeader("Weight ladder  Â·  17pt")
 
-            sample(label: "Light  ·  17pt",
+            sample(label: "Light  Â·  17pt",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17, weight: .light)).foregroundColor(.ink)))
-            sample(label: "Regular  ·  17pt",
+            sample(label: "Regular  Â·  17pt",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17)).foregroundColor(.ink)))
-            sample(label: "Medium  ·  17pt",
+            sample(label: "Medium  Â·  17pt",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17, weight: .medium)).foregroundColor(.ink)))
-            sample(label: "SemiBold  ·  17pt",
+            sample(label: "SemiBold  Â·  17pt",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17, weight: .semibold)).foregroundColor(.ink)))
-            sample(label: "Bold  ·  17pt",
+            sample(label: "Bold  Â·  17pt",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17, weight: .bold)).foregroundColor(.ink)))
-            sample(label: "ExtraBold  ·  17pt",
+            sample(label: "ExtraBold  Â·  17pt",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17, weight: .extraBold)).foregroundColor(.ink)))
 
             dividerRow()
-            sectionHeader("vs. current system monospaced  ·  17pt")
+            sectionHeader("vs. current system monospaced  Â·  17pt")
 
-            sample(label: "System monospaced — current",
-                   view: AnyView(Text("Bulk Fermentation").font(.system(.body, design: .monospaced)).foregroundColor(.ink)))
-            sample(label: "Jakarta Regular — proposed",
+            sample(label: "System monospaced â€” current",
+                   view: AnyView(Text("Bulk Fermentation").font(.jakarta(.regular, size: 17)).foregroundColor(.ink)))
+            sample(label: "Jakarta Regular â€” proposed",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17)).foregroundColor(.ink)))
-            sample(label: "Jakarta Medium — proposed",
+            sample(label: "Jakarta Medium â€” proposed",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17, weight: .medium)).foregroundColor(.ink)))
 
             dividerRow()
-            sectionHeader("Small UI text  ·  11–13pt")
+            sectionHeader("Small UI text  Â·  11â€“13pt")
 
-            sample(label: "Regular  ·  11pt — section footer",
-                   view: AnyView(Text("Optional — save this blend for reuse in future recipes").font(.jakarta(11)).foregroundColor(.inkLight)))
-            sample(label: "Regular  ·  12pt — step label",
-                   view: AnyView(Text("STRETCH & FOLD  ·  45M").font(.jakarta(12)).foregroundColor(.inkLight).tracking(0.8)))
-            sample(label: "SemiBold  ·  12pt — step label",
-                   view: AnyView(Text("STRETCH & FOLD  ·  45M").font(.jakarta(12, weight: .semibold)).foregroundColor(.inkLight).tracking(0.8)))
-            sample(label: "Medium  ·  13pt — list row",
-                   view: AnyView(Text("Preview Recipe →").font(.jakarta(13, weight: .medium)).foregroundColor(.gold)))
+            sample(label: "Regular  Â·  11pt â€” section footer",
+                   view: AnyView(Text("Optional â€” save this blend for reuse in future recipes").font(.jakarta(11)).foregroundColor(.inkLight)))
+            sample(label: "Regular  Â·  12pt â€” step label",
+                   view: AnyView(Text("STRETCH & FOLD  Â·  45M").font(.jakarta(12)).foregroundColor(.inkLight).tracking(0.8)))
+            sample(label: "SemiBold  Â·  12pt â€” step label",
+                   view: AnyView(Text("STRETCH & FOLD  Â·  45M").font(.jakarta(12, weight: .semibold)).foregroundColor(.inkLight).tracking(0.8)))
+            sample(label: "Medium  Â·  13pt â€” list row",
+                   view: AnyView(Text("Preview Recipe â†’").font(.jakarta(13, weight: .medium)).foregroundColor(.gold)))
 
             dividerRow()
-            sectionHeader("Numbers  ·  Timer / Weights")
+            sectionHeader("Numbers  Â·  Timer / Weights")
 
-            sample(label: "Regular  ·  28pt — timer",
+            sample(label: "Regular  Â·  28pt â€” timer",
                    view: AnyView(Text("00:45:00").font(.jakarta(28)).foregroundColor(.ink)))
-            sample(label: "Light  ·  28pt — timer",
+            sample(label: "Light  Â·  28pt â€” timer",
                    view: AnyView(Text("00:45:00").font(.jakarta(28, weight: .light)).foregroundColor(.ink)))
-            sample(label: "Medium  ·  14pt — session row",
+            sample(label: "Medium  Â·  14pt â€” session row",
                    view: AnyView(Text("01:23:47").font(.jakarta(14, weight: .medium)).foregroundColor(.gold)))
 
             Spacer(minLength: 40)
@@ -361,9 +361,9 @@ private struct ContextPanel: View {
                     Divider().padding(.leading, 16)
                     contextRow(label: "Method", value: "Hand-kneaded")
                     Divider().padding(.leading, 16)
-                    contextRow(label: "Timeline", value: "72 hr · 3 days")
+                    contextRow(label: "Timeline", value: "72 hr Â· 3 days")
                     Divider().padding(.leading, 16)
-                    contextRow(label: "Target", value: "4 × 280g")
+                    contextRow(label: "Target", value: "4 Ã— 280g")
                 }
                 .background(Color.paperDeep)
                 .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
@@ -396,7 +396,7 @@ private struct ContextPanel: View {
                             .foregroundColor(Color(hex: "D2B96A"))
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
-                            Text("– 0:01:26")
+                            Text("â€“ 0:01:26")
                                 .font(.jakarta(13, weight: .medium))
                                 .foregroundColor(Color(hex: "6DBF8A"))
                             Text("under")
@@ -442,7 +442,7 @@ private struct ContextPanel: View {
             }
 
             // --- Mixed: Fraunces titles + Jakarta body ---
-            sectionHeader("Mixed pairing — recommended")
+            sectionHeader("Mixed pairing â€” recommended")
             VStack(alignment: .leading, spacing: 8) {
                 ZStack(alignment: .leading) {
                     Color.paperDeep.cornerRadius(10)
@@ -450,7 +450,7 @@ private struct ContextPanel: View {
                         Text("Autolyse")
                             .font(.fraunces(20))
                             .foregroundColor(Color(hex: "2C2A24"))
-                        Text("Mix flour and water, hold back salt and yeast. Rest covered for 20–60 minutes before adding remaining ingredients.")
+                        Text("Mix flour and water, hold back salt and yeast. Rest covered for 20â€“60 minutes before adding remaining ingredients.")
                             .font(.jakarta(14))
                             .foregroundColor(Color(hex: "2C2A24"))
                             .lineSpacing(3)

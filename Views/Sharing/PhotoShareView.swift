@@ -1,11 +1,11 @@
-import SwiftUI
+﻿import SwiftUI
 import PhotosUI
 import UIKit
 import Combine
 
 // MARK: - Models
 
-/// The output canvas shape. ImageRenderer rasterizes at 3× for export.
+/// The output canvas shape. ImageRenderer rasterizes at 3Ã— for export.
 enum ShareAspect: String, CaseIterable, Identifiable {
     case square   = "1:1"
     case portrait = "4:5"
@@ -20,9 +20,9 @@ enum ShareAspect: String, CaseIterable, Identifiable {
     /// to compensate so output stays ~1080px on the long edge.
     func previewSize(for photoAspect: CGFloat) -> CGSize {
         switch self {
-        case .square:   return CGSize(width: 280, height: 280)   // → 1120×1120 at 4×
-        case .portrait: return CGSize(width: 280, height: 350)   // → 1120×1400 at 4×
-        case .vertical: return CGSize(width: 240, height: 427)   // → 1080×1920 at 4.5×
+        case .square:   return CGSize(width: 280, height: 280)   // â†’ 1120Ã—1120 at 4Ã—
+        case .portrait: return CGSize(width: 280, height: 350)   // â†’ 1120Ã—1400 at 4Ã—
+        case .vertical: return CGSize(width: 240, height: 427)   // â†’ 1080Ã—1920 at 4.5Ã—
         case .native:
             // photoAspect = width / height; clamp to sensible bounds
             let clamped = max(0.5, min(2.0, photoAspect))
@@ -30,7 +30,7 @@ enum ShareAspect: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Pixel scale factor used by the rasterizer. ~4× keeps export close
+    /// Pixel scale factor used by the rasterizer. ~4Ã— keeps export close
     /// to 1080px on the long edge despite the smaller preview canvas.
     var exportScale: CGFloat {
         switch self {
@@ -46,7 +46,7 @@ enum ShareScope: Equatable {
     case singlePizza(PizzaEntry)
 
     // Custom == because PizzaEntry doesn't conform to Equatable.
-    // Comparing by the pizza's UUID is sufficient — two scopes are
+    // Comparing by the pizza's UUID is sufficient â€” two scopes are
     // "the same" iff they point at the same pizza (or both are whole-session).
     static func == (lhs: ShareScope, rhs: ShareScope) -> Bool {
         switch (lhs, rhs) {
@@ -71,7 +71,7 @@ enum ShareBlockType: String, CaseIterable, Identifiable, Hashable {
 
     var id: String { rawValue }
 
-    /// Emojis removed per user — block titles read cleaner without them.
+    /// Emojis removed per user â€” block titles read cleaner without them.
     /// Keeping the property in case we want to add them back later.
     var emoji: String? { nil }
 }
@@ -82,7 +82,7 @@ struct ShareBlock: Identifiable, Equatable {
     let title: String
     let body: String
     var enabled: Bool
-    /// Normalized 0…1 position within the canvas. Center anchor.
+    /// Normalized 0â€¦1 position within the canvas. Center anchor.
     var position: CGPoint
     /// 1.0 = default size. Adjusted by dragging the block's corner handle.
     var scale: CGFloat = 1.0
@@ -131,7 +131,7 @@ struct ShareBlockExtractor {
             return leftSide ? 0.32 : 0.68
         }
 
-        // Recipe name (default OFF — toggle from the block list).
+        // Recipe name (default OFF â€” toggle from the block list).
         // Sits above Style & Method when enabled, default-positioned in
         // the upper third so it reads as a title.
         if !recipe.name.isEmpty {
@@ -144,7 +144,7 @@ struct ShareBlockExtractor {
             ))
         }
 
-        // Style & method (pre-enabled — keep centered)
+        // Style & method (pre-enabled â€” keep centered)
         let styleName = recipe.style == .custom && !recipe.customStyleName.isEmpty
             ? recipe.customStyleName
             : recipe.style.rawValue
@@ -152,21 +152,21 @@ struct ShareBlockExtractor {
         out.append(ShareBlock(
             type: .styleMethod,
             title: ShareBlockType.styleMethod.rawValue,
-            body: "\(styleName) · \(methodPart)",
+            body: "\(styleName) Â· \(methodPart)",
             enabled: true,
             position: CGPoint(x: 0.5, y: y)
         ))
         y += yStep
 
-        // Formula (pre-enabled — keep centered).
-        // Excluded: buffer (production detail) + ball count × weight.
+        // Formula (pre-enabled â€” keep centered).
+        // Excluded: buffer (production detail) + ball count Ã— weight.
         let hyd   = "\(Int(recipe.finalHydration * 100))% hydration"
         let salt  = String(format: "%.1f%% salt", recipe.saltPct * 100)
         let yeast = recipe.yeastType.rawValue.lowercased()
         out.append(ShareBlock(
             type: .formula,
             title: ShareBlockType.formula.rawValue,
-            body: "\(hyd) · \(salt) · \(yeast)",
+            body: "\(hyd) Â· \(salt) Â· \(yeast)",
             enabled: true,
             position: CGPoint(x: 0.5, y: y)
         ))
@@ -189,7 +189,7 @@ struct ShareBlockExtractor {
 
         if recipe.method != .direct {
             let pct = Int(recipe.bigaRatio * 100)
-            let body = pct > 0 ? "\(recipe.method.rawValue) · \(pct)%" : recipe.method.rawValue
+            let body = pct > 0 ? "\(recipe.method.rawValue) Â· \(pct)%" : recipe.method.rawValue
             out.append(ShareBlock(
                 type: .preferment,
                 title: ShareBlockType.preferment.rawValue,
@@ -216,8 +216,8 @@ struct ShareBlockExtractor {
         case .wholeSession:
             var parts: [String] = [starGlyphs(log.rating)]
             if log.bakeTimeSeconds > 0 { parts.append(shortTime(log.bakeTimeSeconds)) }
-            if let temp = log.ovenTempAchieved { parts.append("\(Int(temp))°") }
-            let body = parts.joined(separator: " · ")
+            if let temp = log.ovenTempAchieved { parts.append("\(Int(temp))Â°") }
+            let body = parts.joined(separator: " Â· ")
             out.append(ShareBlock(
                 type: .sessionNotes,
                 title: "Session",
@@ -228,12 +228,12 @@ struct ShareBlockExtractor {
         case .singlePizza(let entry):
             var parts: [String] = [starGlyphs(log.rating)]
             if entry.bakeTimeSeconds > 0 { parts.append(shortTime(entry.bakeTimeSeconds)) }
-            if let temp = entry.ovenTempAchieved { parts.append("\(Int(temp))°") }
+            if let temp = entry.ovenTempAchieved { parts.append("\(Int(temp))Â°") }
             parts.append(entry.crustColor.rawValue.lowercased())
             out.append(ShareBlock(
                 type: .sessionNotes,
                 title: "Bake #\(entry.pizzaNumber)",
-                body: parts.joined(separator: " · "),
+                body: parts.joined(separator: " Â· "),
                 enabled: false,
                 position: CGPoint(x: nextX(), y: y)
             ))
@@ -244,7 +244,7 @@ struct ShareBlockExtractor {
 
     private static func starGlyphs(_ rating: Int) -> String {
         let r = max(0, min(5, rating))
-        return String(repeating: "★", count: r) + String(repeating: "☆", count: 5 - r)
+        return String(repeating: "â˜…", count: r) + String(repeating: "â˜†", count: 5 - r)
     }
 
     private static func shortTime(_ t: TimeInterval) -> String {
@@ -271,7 +271,7 @@ struct ShareCanvasView: View {
             // Background is now hit-testable (only in editor mode) so the
             // pan + pinch gestures attached to it can fire. Block tiles
             // sit ABOVE the background in the ZStack so their own taps /
-            // drags still win — only touches on bare photo area reach
+            // drags still win â€” only touches on bare photo area reach
             // these gestures.
             background
                 .allowsHitTesting(draggable)
@@ -292,10 +292,10 @@ struct ShareCanvasView: View {
                 }
             }
 
-            // Snap guidelines — thin gold lines that appear while a block
+            // Snap guidelines â€” thin gold lines that appear while a block
             // is being dragged and snapped to another block's center.
             // .allowsHitTesting(false) so they never interfere with drags.
-            // Only in editor mode (draggable=true) — never in export.
+            // Only in editor mode (draggable=true) â€” never in export.
             if draggable {
                 if let snapX = editor.activeSnapX {
                     Rectangle()
@@ -346,7 +346,7 @@ struct ShareCanvasView: View {
     }
 
     /// Two-finger pinch to zoom. Multiplies zoomBase (snapshot at start)
-    /// by the gesture's value, clamped to 1.0…3.0. onEnded snapshots the
+    /// by the gesture's value, clamped to 1.0â€¦3.0. onEnded snapshots the
     /// final zoom so the next pinch composes on top.
     private var magnification: some Gesture {
         MagnificationGesture()
@@ -379,9 +379,9 @@ struct ShareCanvasView: View {
     }
 
     /// Constrain offset so the visible canvas never extends past the
-    /// photo's edges. At zoom 1.0 the photo exactly fills the canvas →
+    /// photo's edges. At zoom 1.0 the photo exactly fills the canvas â†’
     /// only valid offset is (0, 0). At zoom > 1.0 there's overhang on
-    /// every side; offset can range within ±overhang.
+    /// every side; offset can range within Â±overhang.
     private func clampOffset(_ offset: CGSize, zoom: CGFloat) -> CGSize {
         let overflowX = max(0, (canvasSize.width * zoom - canvasSize.width) / 2)
         let overflowY = max(0, (canvasSize.height * zoom - canvasSize.height) / 2)
@@ -398,11 +398,11 @@ struct ShareCanvasView: View {
         // Reverted to original (smaller) sizing per user preference.
         HStack(spacing: 3) {
             Text("Baked with")
-                .font(.system(size: 8, design: .monospaced))
+                .font(.jakarta(.regular, size: 8))
                 .foregroundColor(.white.opacity(0.72))
                 .tracking(0.5)
             Text("Stesura")
-                .font(.system(size: 13, design: .monospaced).weight(.bold))
+                .font(.jakarta(.bold, size: 13))
                 .foregroundColor(.white)
                 .tracking(1)
         }
@@ -411,7 +411,7 @@ struct ShareCanvasView: View {
 }
 
 /// One draggable, normalized-position block tile.
-/// Reads + writes through editor.blocks[index] directly — no SwiftUI
+/// Reads + writes through editor.blocks[index] directly â€” no SwiftUI
 /// Binding chain, no risk of toggle/drag mutations being lost in transit.
 struct DraggableShareBlock: View {
     @ObservedObject var editor: ShareEditorModel
@@ -431,7 +431,7 @@ struct DraggableShareBlock: View {
     }
 
     /// The visible tile. Font sizes and padding are multiplied by
-    /// block.scale so the tile's ACTUAL layout frame grows/shrinks —
+    /// block.scale so the tile's ACTUAL layout frame grows/shrinks â€”
     /// not just the visual rendering. Means the overlay resize handle
     /// follows the real bottom-right corner, and the tap area (the
     /// content shape) matches what the user sees.
@@ -466,7 +466,7 @@ struct DraggableShareBlock: View {
             .contentShape(Rectangle())
             // Bottom-right resize handle. Only when draggable (editor),
             // never in the rasterized export. Anchored to the tile's
-            // ACTUAL bottom-trailing corner — since the tile's frame
+            // ACTUAL bottom-trailing corner â€” since the tile's frame
             // is what grew, the handle follows.
             .overlay(alignment: .bottomTrailing) {
                 if draggable {
@@ -523,7 +523,7 @@ struct DraggableShareBlock: View {
                         editor.activeSnapY = nil
                     }
             )
-            // Tap cycles text alignment: center → leading → trailing → center.
+            // Tap cycles text alignment: center â†’ leading â†’ trailing â†’ center.
             // .simultaneousGesture so it doesn't block the DragGesture above.
             .simultaneousGesture(
                 TapGesture()
@@ -544,8 +544,8 @@ struct DraggableShareBlock: View {
     }
 
     /// Small gold circle with a diagonal-arrow icon. Drag it diagonally
-    /// to scale the tile — out for bigger, in for smaller. Clamped to
-    /// 0.5×…2.5× so blocks can't disappear or eat the canvas.
+    /// to scale the tile â€” out for bigger, in for smaller. Clamped to
+    /// 0.5Ã—â€¦2.5Ã— so blocks can't disappear or eat the canvas.
     private var resizeHandle: some View {
         Circle()
             .fill(Color(hex: "D2B96A"))
@@ -563,7 +563,7 @@ struct DraggableShareBlock: View {
                         guard editor.blocks.indices.contains(index) else { return }
                         if scaleOrigin == nil { scaleOrigin = editor.blocks[index].scale }
                         guard let origin = scaleOrigin else { return }
-                        // Sum dx + dy / 160 → ~+1.0 scale per 160pt diagonal.
+                        // Sum dx + dy / 160 â†’ ~+1.0 scale per 160pt diagonal.
                         let delta = (value.translation.width + value.translation.height) / 160
                         let newScale = max(0.5, min(2.5, origin + delta))
                         editor.blocks[index].scale = newScale
@@ -577,7 +577,7 @@ struct DraggableShareBlock: View {
 
 /// Holds the editor's mutable state outside of SwiftUI's @State machinery.
 /// @State + ForEach($collection) binding propagation was unreliable for
-/// this view on iOS 26 — toggle animations completed but binding writes
+/// this view on iOS 26 â€” toggle animations completed but binding writes
 /// didn't reach the underlying array. Switched to @Published on an
 /// ObservableObject, which uses Combine for explicit change notification.
 final class ShareEditorModel: ObservableObject {
@@ -586,7 +586,7 @@ final class ShareEditorModel: ObservableObject {
     @Published var scope: ShareScope
     @Published var selectedPhoto: Data? = nil
 
-    /// Photo zoom inside the canvas, 1.0…3.0. 1.0 = fits the canvas
+    /// Photo zoom inside the canvas, 1.0â€¦3.0. 1.0 = fits the canvas
     /// per scaledToFill; > 1.0 crops tighter via pinch/spread.
     @Published var photoZoom: CGFloat = 1.0
 
@@ -639,7 +639,7 @@ struct PhotoShareView: View {
 
     var body: some View {
         NavigationStack {
-            // Flat VStack layout — no ZStack-for-background hack, no nested
+            // Flat VStack layout â€” no ZStack-for-background hack, no nested
             // VStack inside ZStack which made the ScrollView seem to scroll
             // BEHIND the canvas. Background applied via .background modifier
             // on the outer VStack. Explicit Divider + .layoutPriority give
@@ -667,7 +667,7 @@ struct PhotoShareView: View {
                             HStack(spacing: 16) {
                                 PhotosPicker(selection: $pickerItem, matching: .images) {
                                     Label("Replace photo", systemImage: "photo")
-                                        .font(.system(size: 12, design: .monospaced))
+                                        .font(.jakarta(.regular, size: 12))
                                         .foregroundColor(.white.opacity(0.7))
                                 }
                                 if editor.photoZoom > 1.0 || editor.photoOffset != .zero {
@@ -676,7 +676,7 @@ struct PhotoShareView: View {
                                         editor.photoOffset = .zero
                                     } label: {
                                         Label("Reset zoom", systemImage: "arrow.counterclockwise")
-                                            .font(.system(size: 12, design: .monospaced))
+                                            .font(.jakarta(.regular, size: 12))
                                             .foregroundColor(Color(hex: "D2B96A"))
                                     }
                                 }
@@ -706,7 +706,7 @@ struct PhotoShareView: View {
                         .foregroundColor(.white)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Share →") { renderAndShare() }
+                    Button("Share â†’") { renderAndShare() }
                         .foregroundColor(Color(hex: "D2B96A"))
                         .fontWeight(.semibold)
                 }
@@ -783,11 +783,11 @@ struct PhotoShareView: View {
     private var pickPhotoPrompt: some View {
         VStack(spacing: 10) {
             Text("No photo attached to this bake.")
-                .font(.system(size: 13, design: .monospaced))
+                .font(.jakarta(.regular, size: 13))
                 .foregroundColor(.white.opacity(0.7))
             PhotosPicker(selection: $pickerItem, matching: .images) {
-                Text("Pick a photo from library →")
-                    .font(.system(size: 13, design: .monospaced))
+                Text("Pick a photo from library â†’")
+                    .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "D2B96A"))
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .overlay(
@@ -795,8 +795,8 @@ struct PhotoShareView: View {
                             .stroke(Color(hex: "D2B96A"), lineWidth: 1)
                     )
             }
-            Text("Won't be saved back to this bake — used for this share only.")
-                .font(.system(size: 10, design: .monospaced))
+            Text("Won't be saved back to this bake â€” used for this share only.")
+                .font(.jakarta(.regular, size: 10))
                 .foregroundColor(.white.opacity(0.4))
                 .multilineTextAlignment(.center)
         }
@@ -807,7 +807,7 @@ struct PhotoShareView: View {
     private var scopePicker: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Stats reflect")
-                .font(.system(size: 10, design: .monospaced))
+                .font(.jakarta(.regular, size: 10))
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.2)
 
@@ -866,12 +866,12 @@ struct PhotoShareView: View {
     private var blockTogglesSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Blocks")
-                .font(.system(size: 10, design: .monospaced))
+                .font(.jakarta(.regular, size: 10))
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.2)
             VStack(spacing: 8) {
                 // Iterate by index so we can mutate editor.blocks[i] directly
-                // through the ObservableObject @Published path — no
+                // through the ObservableObject @Published path â€” no
                 // intermediate SwiftUI Binding chain to potentially drop
                 // the write.
                 ForEach(Array(editor.blocks.enumerated()), id: \.element.id) { idx, block in
@@ -881,10 +881,10 @@ struct PhotoShareView: View {
                     )) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(block.title)
-                                .font(.system(size: 12, design: .monospaced))
+                                .font(.jakarta(.regular, size: 12))
                                 .foregroundColor(.white)
                             Text(block.body)
-                                .font(.system(size: 10, design: .monospaced))
+                                .font(.jakarta(.regular, size: 10))
                                 .foregroundColor(.white.opacity(0.5))
                                 .lineLimit(1)
                         }
@@ -901,7 +901,7 @@ struct PhotoShareView: View {
 
     private var helperFooter: some View {
         Text("Drag any enabled block on the canvas to reposition. The watermark is always shown.")
-            .font(.system(size: 10, design: .monospaced))
+            .font(.jakarta(.regular, size: 10))
             .foregroundColor(.white.opacity(0.4))
             .multilineTextAlignment(.center)
             .padding(.top, 8)
@@ -914,7 +914,7 @@ struct PhotoShareView: View {
     private func renderAndShare() {
         // Render to UIImage via UIHostingController + drawHierarchy
         // (afterScreenUpdates: true). Sheet presentation is via
-        // .sheet(item: $shareItem) — setting shareItem to a non-nil
+        // .sheet(item: $shareItem) â€” setting shareItem to a non-nil
         // value atomically triggers the sheet WITH the image already
         // baked into the payload. No more nil-race between setting
         // an image and toggling a boolean.
@@ -963,7 +963,7 @@ struct PhotoShareView: View {
 
         // Double-snapshot: first draw warms SwiftUI's layout pass for any
         // pending updates (image decode, font glyphs, blur layers).
-        // Second draw is the one we keep. Both calls are sync — total
+        // Second draw is the one we keep. Both calls are sync â€” total
         // overhead is a couple ms.
         let format = UIGraphicsImageRendererFormat()
         format.scale = editor.aspect.exportScale
@@ -992,7 +992,7 @@ struct PhotoShareView: View {
 // MARK: - UIActivityViewController bridge
 
 /// Identifiable wrapper so .sheet(item:) can present the share sheet
-/// atomically — the sheet and its image are bound together; the sheet
+/// atomically â€” the sheet and its image are bound together; the sheet
 /// doesn't open until the image is set, eliminating the race that made
 /// the first tap show a black sheet.
 struct SharePayload: Identifiable {

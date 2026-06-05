@@ -1,4 +1,4 @@
-import SwiftUI
+﻿import SwiftUI
 
 struct TimelineStepView: View {
     @Binding var selected: Timeline
@@ -41,7 +41,7 @@ struct TimelineStepView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Freeze").font(.headline)
-                        Text("Ball & freeze · thaw day-of").font(.caption).foregroundColor(.secondary)
+                        Text("Ball & freeze Â· thaw day-of").font(.caption).foregroundColor(.secondary)
                     }
                     Spacer()
                     Text("Coming soon")
@@ -84,26 +84,26 @@ private struct TimingInfoSheet: View {
             List {
                 Section("How \"Ready by\" is calculated") {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("The \"Ready by\" time is calculated from the moment you start this wizard — not from when you begin your session.")
-                            .font(.system(size: 13, design: .monospaced))
+                        Text("The \"Ready by\" time is calculated from the moment you start this wizard â€” not from when you begin your session.")
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                         Text("It gives you a rough window, not a precise alarm. Your actual finish time will depend on room temperature, yeast activity, and how hands-on you are with each step.")
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
 
                 Section("Timeline options") {
-                    timingRow("Less than a day", "6–8h",   "Add 8 hours from now. Good for same-day baking with a direct or short preferment.")
-                    timingRow("Overnight",       "16–24h", "Add 20 hours. Most common for biga or overnight cold proofing.")
+                    timingRow("Less than a day", "6â€“8h",   "Add 8 hours from now. Good for same-day baking with a direct or short preferment.")
+                    timingRow("Overnight",       "16â€“24h", "Add 20 hours. Most common for biga or overnight cold proofing.")
                     timingRow("Two Days",        "48h",    "Two full days. Allows a long cold bulk and final proof.")
-                    timingRow("Long Cold Proof", "48–72h", "Extended cold retard for maximum flavour development.")
+                    timingRow("Long Cold Proof", "48â€“72h", "Extended cold retard for maximum flavour development.")
                 }
 
                 Section("Conflict warnings") {
-                    Text("If your timeline is too short for your chosen preferment method, a warning appears on the preferment step. You can still proceed — it's advisory, not a block.")
-                        .font(.system(size: 13, design: .monospaced))
+                    Text("If your timeline is too short for your chosen preferment method, a warning appears on the preferment step. You can still proceed â€” it's advisory, not a block.")
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.secondary)
                         .padding(.vertical, 4)
                 }
@@ -121,12 +121,12 @@ private struct TimingInfoSheet: View {
     func timingRow(_ name: String, _ range: String, _ description: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(name).font(.system(.body, design: .monospaced)).fontWeight(.medium)
+                Text(name).font(.jakarta(.regular, size: 17)).fontWeight(.medium)
                 Spacer()
-                Text(range).font(.system(.caption, design: .monospaced)).foregroundColor(.secondary)
+                Text(range).font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             }
             Text(description)
-                .font(.system(size: 12, design: .monospaced))
+                .font(.jakarta(.regular, size: 12))
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 2)

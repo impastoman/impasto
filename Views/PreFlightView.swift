@@ -1,9 +1,9 @@
-import SwiftUI
+﻿import SwiftUI
 
 enum WeightUnit: String, CaseIterable {
     case grams = "g"; case ounces = "oz"; case pounds = "lb"
 
-    /// Bulk ingredients (flour, water, salt) — ceiling to nearest whole unit.
+    /// Bulk ingredients (flour, water, salt) â€” ceiling to nearest whole unit.
     func display(_ grams: Double) -> String {
         switch self {
         case .grams:  return String(format: "%.0f g",  ceil(grams))
@@ -12,7 +12,7 @@ enum WeightUnit: String, CaseIterable {
         }
     }
 
-    /// Precise ingredients (yeast, additives) — ceiling to nearest hundredth.
+    /// Precise ingredients (yeast, additives) â€” ceiling to nearest hundredth.
     func displayPrecise(_ grams: Double) -> String {
         switch self {
         case .grams:  return String(format: "%.2f g",  ceil(grams * 100)   / 100)
@@ -82,7 +82,7 @@ struct PreFlightView: View {
     private var defaultSessionName: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
-        return "\(formatter.string(from: Date())) · \(recipe.name)"
+        return "\(formatter.string(from: Date())) Â· \(recipe.name)"
     }
 
     var body: some View {
@@ -149,9 +149,9 @@ struct PreFlightView: View {
     var sessionNameSection: some View {
         Section {
             TextField(defaultSessionName, text: $data.sessionName)
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
         } header: { Text("Session name") }
-          footer: { Text("Optional — shown in your session history").tipText() }
+          footer: { Text("Optional â€” shown in your session history").tipText() }
     }
 
     // MARK: - Session mode
@@ -169,15 +169,15 @@ struct PreFlightView: View {
             if data.sessionMode == .automatic {
                 HStack(spacing: 8) {
                     Image(systemName: "info.circle").foregroundColor(.secondary).font(.caption)
-                    Text("Timers advance automatically. A pause button is always available — pause times are logged.")
-                        .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
+                    Text("Timers advance automatically. A pause button is always available â€” pause times are logged.")
+                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                 }
                 .tipText()
             } else {
                 HStack(spacing: 8) {
                     Image(systemName: "info.circle").foregroundColor(.secondary).font(.caption)
                     Text("Timers run for reference only. Tap 'Next Step' when you're ready to advance.")
-                        .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
+                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                 }
                 .tipText()
             }
@@ -197,7 +197,7 @@ struct PreFlightView: View {
                     Spacer()
                     TextField("hours", value: $data.prefermentAgeHours, format: .number)
                         .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 80)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .inputBox()
                     Text("h").foregroundColor(.secondary)
                 }
@@ -207,14 +207,14 @@ struct PreFlightView: View {
                         Spacer()
                         TextField("5.3", text: $data.prefermentPH)
                             .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 80)
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                             .inputBox()
                     }
                 }
             } else {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                    Text("Preferment not started — timeline may shift")
+                    Text("Preferment not started â€” timeline may shift")
                         .font(.caption).foregroundColor(.orange)
                 }
             }
@@ -229,8 +229,8 @@ struct PreFlightView: View {
                 Text("Temperature")
                 Spacer()
                 Picker("", selection: $useCelsius) {
-                    Text("°C").tag(true)
-                    Text("°F").tag(false)
+                    Text("Â°C").tag(true)
+                    Text("Â°F").tag(false)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 90)
@@ -252,9 +252,9 @@ struct PreFlightView: View {
                     set: { data.roomTempC = fromDisplayTemp($0) }
                 ), format: .number)
                     .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 60)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
-                Text(useCelsius ? "°C" : "°F").foregroundColor(.secondary)
+                Text(useCelsius ? "Â°C" : "Â°F").foregroundColor(.secondary)
             }
             Toggle("pH meter available", isOn: $data.hasPHMeter).tint(Color(hex: "D2B96A"))
             Toggle("Dough thermometer", isOn: $data.hasDoughThermometer).tint(Color(hex: "D2B96A"))
@@ -268,7 +268,7 @@ struct PreFlightView: View {
             ForEach(recipe.bakeSetups) { setup in
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(setup.method.displayName).font(.system(.body, design: .monospaced))
+                        Text(setup.method.displayName).font(.jakarta(.regular, size: 17))
                         if !setup.subMethod.isEmpty {
                             Text(setup.subMethod).font(.caption).foregroundColor(.secondary)
                         }
@@ -292,7 +292,7 @@ struct PreFlightView: View {
                 Spacer()
                 TextField("\(recipe.ballCount)", value: $data.overrideBallCount, format: .number)
                     .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .foregroundColor(data.overrideBallCount != nil ? Color(hex: "D2B96A") : .primary)
                     .inputBox()
             }
@@ -304,7 +304,7 @@ struct PreFlightView: View {
                     set: { data.overrideBallWeight = weightUnit.toGrams(Double($0)) }
                 ), format: .number)
                     .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .foregroundColor(data.overrideBallWeight != nil ? Color(hex: "D2B96A") : .primary)
                     .inputBox()
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
@@ -313,7 +313,7 @@ struct PreFlightView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Dough loss factor")
                     Text("stuck to bowl, hands, scraper")
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.jakarta(.regular, size: 11))
                         .foregroundColor(.secondary)
                         .tipText()
                 }
@@ -323,7 +323,7 @@ struct PreFlightView: View {
                     set: { data.overrideBuffer = weightUnit.toGrams(Double($0)) / totalDough }
                 ), format: .number)
                 .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
                 .foregroundColor(data.overrideBuffer != nil ? Color(hex: "D2B96A") : .primary)
                 .inputBox()
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
@@ -332,7 +332,7 @@ struct PreFlightView: View {
             Text("Last-minute adjustments")
         } footer: {
             Text("Gold values override the recipe for this session only.")
-                .font(.system(size: 11, design: .monospaced))
+                .font(.jakarta(.regular, size: 11))
                 .tipText()
         }
     }
@@ -343,8 +343,8 @@ struct PreFlightView: View {
         Section {
             LabeledContent("Recipe",      value: recipe.name)
             LabeledContent("Rise method", value: recipe.method.rawValue)
-            LabeledContent("Timeline",    value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
-            LabeledContent("Target",      value: "\(data.overrideBallCount ?? recipe.ballCount) × \(Int(ceil(weightUnit.toDisplay(data.overrideBallWeight ?? recipe.ballWeight)))) \(weightUnit.rawValue)")
+            LabeledContent("Timeline",    value: "\(recipe.timeline.rawValue)  Â·  \(recipe.timeline.hours)")
+            LabeledContent("Target",      value: "\(data.overrideBallCount ?? recipe.ballCount) Ã— \(Int(ceil(weightUnit.toDisplay(data.overrideBallWeight ?? recipe.ballWeight)))) \(weightUnit.rawValue)")
             Button {
                 showChecklist = true
             } label: {
@@ -352,7 +352,7 @@ struct PreFlightView: View {
                     Image(systemName: "checklist")
                         .foregroundColor(Color(hex: "D2B96A"))
                     Text("Prep Ingredients")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
@@ -363,12 +363,12 @@ struct PreFlightView: View {
                     Image(systemName: "list.bullet.rectangle")
                         .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "D2B96A"))
                     Text("Review & Edit Process")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "D2B96A"))
                 }
             }
         } header: { Text("Session overview") }
-        .font(.system(.body, design: .monospaced))
+        .font(.jakarta(.regular, size: 17))
         .foregroundColor(.secondary)
     }
 
@@ -419,7 +419,7 @@ struct SessionProcessEditorSheet: View {
             List {
                 Section {
                     Text("Adjust step durations for this session only. Changes don't affect the saved recipe.")
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.jakarta(.regular, size: 12))
                         .foregroundColor(.secondary)
                 }
                 .listRowBackground(Color.clear)
@@ -429,7 +429,7 @@ struct SessionProcessEditorSheet: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(card.title)
-                                    .font(.system(.body, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 17))
                                 if !card.subtitle.isEmpty {
                                     Text(card.subtitle)
                                         .font(.caption).foregroundColor(.secondary)
@@ -459,7 +459,7 @@ struct SessionProcessEditorSheet: View {
                         }
                         .foregroundColor(.orange)
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                     }
                     .listRowBackground(Color.clear)
                 }
@@ -485,8 +485,8 @@ private struct LongPressBeginButton: View {
     @State private var progress: Double = 0
 
     var body: some View {
-        Text("Begin Session →")
-            .font(.system(size: 14, design: .monospaced))
+        Text("Begin Session â†’")
+            .font(.jakarta(.regular, size: 14))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)
             .background(Color(hex: "D2B96A"))

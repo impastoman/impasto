@@ -1,4 +1,4 @@
-import SwiftUI
+﻿import SwiftUI
 
 struct TargetStepView: View {
     @Binding var ballCount: Int
@@ -27,7 +27,7 @@ struct TargetStepView: View {
 
             Section("How many balls?") {
                 Stepper("\(ballCount) ball\(ballCount == 1 ? "" : "s")", value: $ballCount, in: 1...99)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
             }
             .listRowBackground(Color.clear)
 
@@ -41,13 +41,13 @@ struct TargetStepView: View {
                 HStack(spacing: 0) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Ball weight")
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                         HStack(spacing: 4) {
                             TextField(unit == .grams ? "250" : unit == .ounces ? "8.8" : "0.55",
                                       text: $weightText)
                                 .keyboardType(.decimalPad)
-                                .font(.system(size: 24, design: .monospaced))
+                                .font(.jakarta(.regular, size: 24))
                                 .padding(.vertical, 6).padding(.horizontal, 8)
                                 .background(Color(hex: "F0EDE4"))
                                 .cornerRadius(6)
@@ -58,7 +58,7 @@ struct TargetStepView: View {
                                     }
                                 }
                             Text(unit.rawValue)
-                                .font(.system(size: 14, design: .monospaced))
+                                .font(.jakarta(.regular, size: 14))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -68,23 +68,23 @@ struct TargetStepView: View {
 
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Diameter")
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                         HStack(spacing: 4) {
-                            TextField("—", text: $diameterText)
+                            TextField("â€”", text: $diameterText)
                                 .keyboardType(.decimalPad)
-                                .font(.system(size: 24, design: .monospaced))
+                                .font(.jakarta(.regular, size: 24))
                                 .padding(.vertical, 6).padding(.horizontal, 8)
                                 .background(Color(hex: "F0EDE4"))
                                 .cornerRadius(6)
                                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
                             Text("\"")
-                                .font(.system(size: 14, design: .monospaced))
+                                .font(.jakarta(.regular, size: 14))
                                 .foregroundColor(.secondary)
                         }
                         if diameterText.isEmpty, let est = estimatedDiameter(from: ballWeight) {
                             Text("Est. \(String(format: "%.0f", est))\"")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.jakarta(.regular, size: 11))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -94,22 +94,22 @@ struct TargetStepView: View {
             } header: {
                 Text("Size per ball")
             } footer: {
-                Text("Diameter is approximate · varies by stretch and thickness · leave blank to use estimate")
-                    .font(.system(size: 11, design: .monospaced))
+                Text("Diameter is approximate Â· varies by stretch and thickness Â· leave blank to use estimate")
+                    .font(.jakarta(.regular, size: 11))
                     .tipText()
             }
             .listRowBackground(Color.clear)
 
             Section {
                 LabeledContent("Target dough", value: formattedWeight(totalDough) + " " + unit.rawValue)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
 
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Dough loss factor")
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                         Text("stuck to bowl, hands, scraper")
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                             .tipText()
                     }
@@ -118,7 +118,7 @@ struct TargetStepView: View {
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.center)
                         .frame(width: 60)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .inputBox()
                         .onChange(of: bufferGramsText) { _, val in
                             if let d = Double(val), d >= 0, totalDough > 0 {
@@ -130,11 +130,11 @@ struct TargetStepView: View {
 
                 LabeledContent("Total to mix",
                                value: formattedWeight(totalDough * (1 + buffer)) + " " + unit.rawValue)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .foregroundColor(Color(hex: "D2B96A"))
             } footer: {
-                Text("~2.5% of total dough weight is a good starting point · decreases as technique improves")
-                    .font(.system(size: 11, design: .monospaced))
+                Text("~2.5% of total dough weight is a good starting point Â· decreases as technique improves")
+                    .font(.jakarta(.regular, size: 11))
                     .tipText()
             }
             .listRowBackground(Color.clear)

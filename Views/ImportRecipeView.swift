@@ -1,4 +1,4 @@
-import SwiftUI
+﻿import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - Import Recipe
@@ -35,7 +35,7 @@ struct ImportRecipeView: View {
         List {
             Section {
                 Text("Import a recipe that was exported from Stesura. Paste the JSON below, or pick a .json file.")
-                    .font(.system(size: 12, design: .monospaced))
+                    .font(.jakarta(.regular, size: 12))
                     .foregroundColor(.secondary)
                     .tipText()
             }
@@ -43,7 +43,7 @@ struct ImportRecipeView: View {
 
             Section("Paste recipe JSON") {
                 TextEditor(text: $pastedText)
-                    .font(.system(size: 12, design: .monospaced))
+                    .font(.jakarta(.regular, size: 12))
                     .frame(minHeight: 120)
                     .scrollContentBackground(.hidden)
                     .background(Color(hex: "F0EDE4"))
@@ -58,12 +58,12 @@ struct ImportRecipeView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(.red).font(.caption)
                         Text(error)
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.red)
                     }
                 }
 
-                Button("Preview Recipe →") {
+                Button("Preview Recipe â†’") {
                     attemptParse(text: pastedText)
                 }
                 .foregroundColor(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -80,15 +80,15 @@ struct ImportRecipeView: View {
                         Image(systemName: "doc.badge.plus")
                             .foregroundColor(Color(hex: "D2B96A"))
                         Text("Browse files (.json)")
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                             .foregroundColor(Color(hex: "D2B96A"))
                     }
                 }
             } header: {
                 Text("Or import from file")
             } footer: {
-                Text("Use the Share → Export button in Recipe Detail to get the JSON for any recipe.")
-                    .font(.system(size: 11, design: .monospaced))
+                Text("Use the Share â†’ Export button in Recipe Detail to get the JSON for any recipe.")
+                    .font(.jakarta(.regular, size: 11))
                     .tipText()
             }
             .listRowBackground(Color.clear)
@@ -110,25 +110,25 @@ struct ImportRecipeView: View {
             // Photo placeholder
             Section("Overview") {
                 LabeledContent("Name",        value: recipe.name)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 LabeledContent("Style",       value: recipe.style.rawValue)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 LabeledContent("Method",      value: recipe.method.rawValue)
-                    .font(.system(.body, design: .monospaced))
-                LabeledContent("Timeline",    value: "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
-                    .font(.system(.body, design: .monospaced))
-                LabeledContent("Target",      value: "\(recipe.ballCount) × \(Int(recipe.ballWeight))g")
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
+                LabeledContent("Timeline",    value: "\(recipe.timeline.rawValue)  Â·  \(recipe.timeline.hours)")
+                    .font(.jakarta(.regular, size: 17))
+                LabeledContent("Target",      value: "\(recipe.ballCount) Ã— \(Int(recipe.ballWeight))g")
+                    .font(.jakarta(.regular, size: 17))
             }
             .listRowBackground(Color.clear)
 
             Section("Formula") {
                 LabeledContent("Hydration",   value: "\(Int(recipe.finalHydration * 100))%")
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 LabeledContent("Salt",        value: String(format: "%.1f%%", recipe.saltPct * 100))
-                    .font(.system(.body, design: .monospaced))
-                LabeledContent("Yeast",       value: "\(recipe.yeastType.rawValue)  ·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
+                LabeledContent("Yeast",       value: "\(recipe.yeastType.rawValue)  Â·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
+                    .font(.jakarta(.regular, size: 17))
             }
             .listRowBackground(Color.clear)
 
@@ -136,13 +136,13 @@ struct ImportRecipeView: View {
                 Section("Process") {
                     ForEach(recipe.processCards.filter { $0.isEnabled }.sorted { $0.sortOrder < $1.sortOrder }) { card in
                         HStack {
-                            Text(card.title).font(.system(size: 13, design: .monospaced))
+                            Text(card.title).font(.jakarta(.regular, size: 13))
                             Spacer()
                             if card.duration > 0 {
                                 Text(shortDuration(card.duration))
-                                    .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
+                                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                             } else {
-                                Text("action").font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                                Text("action").font(.jakarta(.regular, size: 11)).foregroundColor(.secondary)
                             }
                         }
                     }
@@ -156,16 +156,16 @@ struct ImportRecipeView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(Color(hex: "D2B96A"))
                         Text("Saved to library!")
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                             .foregroundColor(Color(hex: "D2B96A"))
                     }
                 } else {
-                    Button("Save to Library →") {
+                    Button("Save to Library â†’") {
                         saveRecipe(recipe)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundColor(Color(hex: "D2B96A"))
-                    .font(.system(size: 14, design: .monospaced))
+                    .font(.jakarta(.regular, size: 14))
                 }
             }
             .listRowBackground(Color.clear)
@@ -175,7 +175,7 @@ struct ImportRecipeView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("← Back") { parsedRecipe = nil }
+                Button("â† Back") { parsedRecipe = nil }
             }
         }
     }
@@ -193,12 +193,12 @@ struct ImportRecipeView: View {
     func attemptParse(data: Data) {
         do {
             var recipe = try JSONDecoder().decode(Recipe.self, from: data)
-            recipe.id = UUID()       // fresh ID — never overwrite an existing recipe
+            recipe.id = UUID()       // fresh ID â€” never overwrite an existing recipe
             recipe.bakeLogs = []     // don't import historical bake logs
             parsedRecipe = recipe
             parseError = nil
         } catch {
-            parseError = "Couldn't parse — check the JSON is a valid Stesura recipe export."
+            parseError = "Couldn't parse â€” check the JSON is a valid Stesura recipe export."
         }
     }
 
