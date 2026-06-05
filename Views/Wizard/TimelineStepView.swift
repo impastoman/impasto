@@ -38,21 +38,6 @@ struct TimelineStepView: View {
                     .onTapGesture { selected = option }
                 }
 
-                HStack {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Freeze").font(.jakarta(.semibold, size: 17))
-                        Text("Ball & freeze · thaw day-of").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    Text("Coming soon")
-                        .font(.jakarta(.regular, size: 11))
-                        .padding(.horizontal, 8).padding(.vertical, 3)
-                        .background(Color.orange.opacity(0.12))
-                        .foregroundColor(.orange)
-                        .cornerRadius(4)
-                }
-                .padding(.vertical, 4)
-                .opacity(0.45)
             } header: {
                 HStack {
                     Text("How long do you have?")
