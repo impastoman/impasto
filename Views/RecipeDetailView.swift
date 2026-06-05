@@ -86,15 +86,18 @@ struct RecipeDetailView: View {
                     Button("▶  Start Session") { showPreFlight = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(Color(hex: "7FA2BD"))
+                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
                     Button("Edit Recipe") { showEditWizard = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.primary)
+                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
                     Button("Modify and Save as New") { showForkWizard = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.secondary)
+                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
                 }
                 .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Color.ruleBlue)
+                .listRowSeparatorTint(Color.ruleBlue)
             }
         }
         .scrollContentBackground(.hidden)
@@ -173,13 +176,14 @@ struct RecipeDetailView: View {
 
     /// Spec row — label on the left, value on the right. The red
     /// margin line is drawn as a single continuous strip behind the
-    /// whole List (see the .background on the List body), so each
-    /// row stays simple. We push the blue row separator's leading
-    /// edge inboard so it doesn't cross or kiss the red strip.
+    /// whole List. .alignmentGuide moves the blue inter-row separator's
+    /// leading edge LEFT (negative value) into the row's inset/padding
+    /// area, so it meets the red strip flush instead of starting at
+    /// the content leading edge with a gap between.
     func row(_ label: String, _ value: String) -> some View {
         LabeledContent(label, value: value)
             .font(.jakarta(.regular, size: 17))
-            .alignmentGuide(.listRowSeparatorLeading) { _ in 1 }
+            .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
     }
 
     func recipeExportString() -> String {
