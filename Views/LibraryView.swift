@@ -14,7 +14,6 @@ struct LibraryView: View {
     @State private var editingBlend: FlourBlend? = nil
     @State private var editingProcess: SavedProcess? = nil
     @State private var editingPreferment: SavedPreferment? = nil
-    @State private var isReordering       = false
     @State private var showSectionReorder = false
     @State private var newFolderSection   = ""
     @State private var newFolderName      = ""
@@ -66,27 +65,20 @@ struct LibraryView: View {
                         .foregroundColor(.secondary)
                     }
                 }
-                if isReordering {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Sections ↕") { showSectionReorder = true }
-                            .foregroundColor(.secondary)
-                            .font(.jakarta(.regular, size: 13))
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showAddMenu = true } label: { Image(systemName: "plus") }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showSettings = true } label: {
+                        Image(systemName: "gearshape")
                     }
-                } else {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button { showAddMenu = true } label: { Image(systemName: "plus") }
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button { showSettings = true } label: {
-                            Image(systemName: "gearshape")
-                        }
-                        .foregroundColor(.secondary)
-                    }
+                    .foregroundColor(.secondary)
                 }
             }
             .confirmationDialog("", isPresented: $showAddMenu, titleVisibility: .hidden) {
                 Button("New Recipe") { showWizard = true }
                 Button("Convert a Volume Recipe") { showVolumeConverter = true }
+                Button("Reorder library sections") { showSectionReorder = true }
                 Button("New Flour Blend") { showBlendBuilder = true }
                 Button("New Process") { showProcessBuilder = true }
                 Button("New Preferment") { showPrefBuilder = true }
@@ -128,27 +120,6 @@ struct LibraryView: View {
             }
         }
         .preferredColorScheme(.light)
-        .safeAreaInset(edge: .bottom) {
-            if isReordering {
-                Button {
-                    isReordering = false
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                        Text("Done Sorting")
-                            .font(.jakarta(.semibold, size: 17))
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color(hex: "7FA2BD"))
-                    .cornerRadius(10)
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 8)
-                .background(.ultraThinMaterial)
-            }
-        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
@@ -335,11 +306,9 @@ struct LibraryView: View {
                 .recipeRowActions(
                     recipe: recipe,
                     folders: recipeFolderOptions,
-                    isReordering: isReordering,
                     onMoveRequest: { recipeToMove = recipe },
                     onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
-                    onDelete: { recipeToDelete = recipe },
-                    onLongPress: { isReordering = true }
+                    onDelete: { recipeToDelete = recipe }
                 )
                 .draggable(recipe.id.uuidString)
             }
@@ -355,11 +324,9 @@ struct LibraryView: View {
                         .recipeRowActions(
                             recipe: recipe,
                             folders: recipeFolderOptions,
-                            isReordering: isReordering,
                             onMoveRequest: { recipeToMove = recipe },
                             onMove: { store.moveRecipeToFolder(recipe, folder: $0) },
-                            onDelete: { recipeToDelete = recipe },
-                            onLongPress: { isReordering = true }
+                            onDelete: { recipeToDelete = recipe }
                         )
                         .draggable(recipe.id.uuidString)
                     }
@@ -368,21 +335,18 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.jakarta(.regular, size: 17))
                         .foregroundColor(.secondary)
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.5)
-                                .onEnded { _ in isReordering = true }
-                        )
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handleRecipeDrop(items: items, toFolder: folder)
                 }
             }
 
-            if isReordering && !allFolders.isEmpty {
-                Text("Drag a recipe onto a folder to move it in. Drop on the \"Recipes\" header to take it out.")
+            if !allFolders.isEmpty {
+                Text("Long-press a recipe to drag it. Drop on a folder to move it in, or on the \"Recipes\" header to take it out.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
+                    .tipText()
             }
         }
     }
@@ -423,21 +387,18 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.jakarta(.regular, size: 17))
                         .foregroundColor(.secondary)
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.5)
-                                .onEnded { _ in isReordering = true }
-                        )
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handleBlendDrop(items: items, toFolder: folder)
                 }
             }
 
-            if isReordering && !allFolders.isEmpty {
-                Text("Drag a blend onto a folder to move it in. Drop on the \"Flour Blends\" header to take it out.")
+            if !allFolders.isEmpty {
+                Text("Long-press a blend to drag it. Drop on a folder to move it in, or on the \"Flour Blends\" header to take it out.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
+                    .tipText()
             }
         }
     }
@@ -464,12 +425,6 @@ struct LibraryView: View {
             Button(role: .destructive) { store.deleteBlend(blend) } label: {
                 Label("Delete", systemImage: "trash")
             }
-        }
-        .if(!isReordering) {
-            $0.simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.5)
-                    .onEnded { _ in isReordering = true }
-            )
         }
     }
 
@@ -509,21 +464,18 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.jakarta(.regular, size: 17))
                         .foregroundColor(.secondary)
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.5)
-                                .onEnded { _ in isReordering = true }
-                        )
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handleProcessDrop(items: items, toFolder: folder)
                 }
             }
 
-            if isReordering && !allFolders.isEmpty {
-                Text("Drag a process onto a folder to move it in. Drop on the \"Processes\" header to take it out.")
+            if !allFolders.isEmpty {
+                Text("Long-press a process to drag it. Drop on a folder to move it in, or on the \"Processes\" header to take it out.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
+                    .tipText()
             }
         }
     }
@@ -550,12 +502,6 @@ struct LibraryView: View {
             Button(role: .destructive) { store.deleteProcess(process) } label: {
                 Label("Delete", systemImage: "trash")
             }
-        }
-        .if(!isReordering) {
-            $0.simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.5)
-                    .onEnded { _ in isReordering = true }
-            )
         }
     }
 
@@ -595,21 +541,18 @@ struct LibraryView: View {
                     Label(folder, systemImage: "folder")
                         .font(.jakarta(.regular, size: 17))
                         .foregroundColor(.secondary)
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.5)
-                                .onEnded { _ in isReordering = true }
-                        )
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handlePrefermentDrop(items: items, toFolder: folder)
                 }
             }
 
-            if isReordering && !allFolders.isEmpty {
-                Text("Drag a preferment onto a folder to move it in. Drop on the \"Preferments\" header to take it out.")
+            if !allFolders.isEmpty {
+                Text("Long-press a preferment to drag it. Drop on a folder to move it in, or on the \"Preferments\" header to take it out.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
+                    .tipText()
             }
         }
     }
@@ -636,12 +579,6 @@ struct LibraryView: View {
             Button(role: .destructive) { store.deleteSavedPreferment(pref) } label: {
                 Label("Delete", systemImage: "trash")
             }
-        }
-        .if(!isReordering) {
-            $0.simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.5)
-                    .onEnded { _ in isReordering = true }
-            )
         }
     }
 
@@ -679,11 +616,9 @@ private extension View {
     func recipeRowActions(
         recipe: Recipe,
         folders: [String],
-        isReordering: Bool,
         onMoveRequest: @escaping () -> Void,
         onMove: @escaping (String) -> Void,
-        onDelete: @escaping () -> Void,
-        onLongPress: @escaping () -> Void
+        onDelete: @escaping () -> Void
     ) -> some View {
         self
             // Leading swipe → opens the FolderPickerSheet (reliable on NavigationLink rows)
@@ -701,15 +636,6 @@ private extension View {
                 Button(role: .destructive) { onDelete() } label: {
                     Label("Delete", systemImage: "trash")
                 }
-            }
-            // Long-press enters reorder mode, but ONLY when not already
-            // reordering — otherwise it would swallow the long-press that
-            // .draggable needs to initiate a drag.
-            .if(!isReordering) {
-                $0.simultaneousGesture(
-                    LongPressGesture(minimumDuration: 0.5)
-                        .onEnded { _ in onLongPress() }
-                )
             }
     }
 }
