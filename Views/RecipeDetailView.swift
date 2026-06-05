@@ -27,6 +27,7 @@ struct RecipeDetailView: View {
                 row("Timeline", "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
             }
             .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Color.ruleBlue)
 
             Section(header: Text("Formula").font(.jakarta(.semibold, size: 13))) {
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
@@ -38,6 +39,7 @@ struct RecipeDetailView: View {
                 row("Yeast", "\(recipe.yeastType.rawValue)  ·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
             }
             .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Color.ruleBlue)
 
             if !recipe.flourBlend.components.isEmpty {
                 Section(header: Text("Flour blend").font(.jakarta(.semibold, size: 13))) {
@@ -50,6 +52,7 @@ struct RecipeDetailView: View {
                     }
                 }
                 .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Color.ruleBlue)
                 .font(.jakarta(.regular, size: 17))
             }
 
@@ -58,6 +61,7 @@ struct RecipeDetailView: View {
                 row("Total dough", "\(Int(recipe.totalDoughWeight))g")
             }
             .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Color.ruleBlue)
 
             if recipe.method != .direct {
                 Section(header: Text("① \(recipe.method.rawValue)").font(.jakarta(.semibold, size: 13))) {
@@ -66,6 +70,7 @@ struct RecipeDetailView: View {
                     row("Yeast", String(format: "%.1fg", recipe.bigaYeast))
                 }
                 .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Color.ruleBlue)
             }
 
             Section(recipe.method != .direct ? "② Final dough" : "Dough") {
@@ -74,6 +79,7 @@ struct RecipeDetailView: View {
                 row("Salt",  "\(Int(recipe.totalSalt))g")
             }
             .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Color.ruleBlue)
 
             if !isReadOnly {
                 Section {
@@ -88,6 +94,7 @@ struct RecipeDetailView: View {
                         .foregroundColor(.secondary)
                 }
                 .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Color.ruleBlue)
             }
         }
         .scrollContentBackground(.hidden)
@@ -152,9 +159,22 @@ struct RecipeDetailView: View {
         }
     }
 
+    /// Two-column row: left label, vertical red margin strip, right value.
+    /// The strip is the same teacher's-red rule used elsewhere in the
+    /// app — applied here as a column divider so each spec line reads
+    /// like an entry on notebook paper.
     func row(_ label: String, _ value: String) -> some View {
-        LabeledContent(label, value: value)
-            .font(.jakarta(.regular, size: 17))
+        HStack(spacing: 12) {
+            Text(label)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Rectangle()
+                .fill(Color.marginRed)
+                .frame(width: 2)
+            Text(value)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .foregroundColor(.secondary)
+        }
+        .font(.jakarta(.regular, size: 17))
     }
 
     func recipeExportString() -> String {

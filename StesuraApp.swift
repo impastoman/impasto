@@ -27,6 +27,15 @@ struct StesuraApp: App {
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
         UINavigationBar.appearance().compactAppearance    = navAppearance
 
+        // Row separators throughout the app in rule-blue (#7FA2BD) to
+        // match the Mead notebook theme. UITableView appearance covers
+        // SwiftUI Form rows (Form is still UITableView-backed on iOS 26);
+        // List rows use UICollectionView and need .listRowSeparatorTint
+        // applied per-Section in the view code.
+        UITableView.appearance().separatorColor = UIColor(
+            red: 0x7F/255.0, green: 0xA2/255.0, blue: 0xBD/255.0, alpha: 1
+        )
+
         // Bar button text (Cancel / Done / Edit / etc.) in Jakarta.
         if let barFont = UIFont(name: "PlusJakartaSans-Regular_Medium", size: 16) {
             UIBarButtonItem.appearance().setTitleTextAttributes(
