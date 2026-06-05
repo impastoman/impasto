@@ -546,47 +546,12 @@ struct LibraryView: View {
             .onMove { src, dst in store.moveProcesses(inFolder: "", from: src, to: dst) }
 
             // Custom expandable folder rows — DisclosureGroup was
-            // swallowing all .draggable / .onDrop / .dropDestination
-            // events at the gesture-routing layer. A plain Section row
-            // + onTapGesture for expand/collapse + onDrop for drops
-            // gets us actual drop routing.
+            // swallowing drop events at the gesture-routing layer.
+            // Header + conditional content split via helper to keep
+            // the type-checker happy.
             ForEach(allFolders, id: \.self) { folder in
-                let isExpanded = expandedProcessFolders.contains(folder)
-                HStack {
-                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                        .font(.jakarta(.regular, size: 12))
-                        .foregroundColor(.secondary)
-                    Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(.secondary)
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .contentShape(Rectangle())
-                .background(
-                    hoveredFolder == "processes-\(folder)"
-                        ? Color.ruleBlueFaint
-                        : Color.clear
-                )
-                .onTapGesture {
-                    if isExpanded {
-                        expandedProcessFolders.remove(folder)
-                    } else {
-                        expandedProcessFolders.insert(folder)
-                    }
-                }
-                .onDrop(
-                    of: [.text],
-                    isTargeted: Binding(
-                        get: { hoveredFolder == "processes-\(folder)" },
-                        set: { hoveredFolder = $0 ? "processes-\(folder)" : nil }
-                    )
-                ) { providers in
-                    handleProcessOnDrop(providers: providers, toFolder: folder)
-                }
-
-                if isExpanded {
+                processFolderRow(folder: folder)
+                if expandedProcessFolders.contains(folder) {
                     ForEach(grouped[folder] ?? []) { process in
                         processRow(process)
                             .draggable(process.id.uuidString)
@@ -601,6 +566,44 @@ struct LibraryView: View {
                     .listRowBackground(Color.clear)
                     .tipText()
             }
+        }
+    }
+
+    /// Custom folder header row for the Processes section. Extracted
+    /// so the parent ForEach body stays small enough for SwiftUI's
+    /// type-checker.
+    @ViewBuilder
+    func processFolderRow(folder: String) -> some View {
+        let isExpanded = expandedProcessFolders.contains(folder)
+        let key = "processes-\(folder)"
+        HStack {
+            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                .font(.jakarta(.regular, size: 12))
+                .foregroundColor(.secondary)
+            Label(folder, systemImage: "folder")
+                .font(.jakarta(.regular, size: 17))
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .background(hoveredFolder == key ? Color.ruleBlueFaint : Color.clear)
+        .onTapGesture {
+            if isExpanded {
+                expandedProcessFolders.remove(folder)
+            } else {
+                expandedProcessFolders.insert(folder)
+            }
+        }
+        .onDrop(
+            of: [.text],
+            isTargeted: Binding(
+                get: { hoveredFolder == key },
+                set: { hoveredFolder = $0 ? key : nil }
+            )
+        ) { providers in
+            handleProcessOnDrop(providers: providers, toFolder: folder)
         }
     }
 
