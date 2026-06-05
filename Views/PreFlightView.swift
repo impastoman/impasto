@@ -168,14 +168,14 @@ struct PreFlightView: View {
 
             if data.sessionMode == .automatic {
                 HStack(spacing: 8) {
-                    Image(systemName: "info.circle").foregroundColor(.secondary).font(.caption)
+                    Image(systemName: "info.circle").foregroundColor(.secondary).font(.jakarta(.regular, size: 12))
                     Text("Timers advance automatically. A pause button is always available — pause times are logged.")
                         .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                 }
                 .tipText()
             } else {
                 HStack(spacing: 8) {
-                    Image(systemName: "info.circle").foregroundColor(.secondary).font(.caption)
+                    Image(systemName: "info.circle").foregroundColor(.secondary).font(.jakarta(.regular, size: 12))
                     Text("Timers run for reference only. Tap 'Next Step' when you're ready to advance.")
                         .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                 }
@@ -215,7 +215,7 @@ struct PreFlightView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
                     Text("Preferment not started — timeline may shift")
-                        .font(.caption).foregroundColor(.orange)
+                        .font(.jakarta(.regular, size: 12)).foregroundColor(.orange)
                 }
             }
         } header: { Text("\(recipe.method.rawValue) status") }
@@ -270,7 +270,7 @@ struct PreFlightView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(setup.method.displayName).font(.jakarta(.regular, size: 17))
                         if !setup.subMethod.isEmpty {
-                            Text(setup.subMethod).font(.caption).foregroundColor(.secondary)
+                            Text(setup.subMethod).font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                         }
                     }
                     Spacer()
@@ -432,7 +432,7 @@ struct SessionProcessEditorSheet: View {
                                     .font(.jakarta(.regular, size: 17))
                                 if !card.subtitle.isEmpty {
                                     Text(card.subtitle)
-                                        .font(.caption).foregroundColor(.secondary)
+                                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                                 }
                             }
                             Spacer()
@@ -446,7 +446,7 @@ struct SessionProcessEditorSheet: View {
                                         ? Color(hex: "D2B96A") : .primary
                                 )
                             } else {
-                                Text("action").font(.caption).foregroundColor(.secondary)
+                                Text("action").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                             }
                         }
                     }

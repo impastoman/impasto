@@ -267,7 +267,7 @@ struct LibraryView: View {
             HStack(spacing: 5) {
                 Text(title)
                     .font(.jakarta(.semibold, size: 13))
-                Image(systemName: "folder.badge.plus").font(.caption2)
+                Image(systemName: "folder.badge.plus").font(.jakarta(.regular, size: 11))
             }
             .foregroundColor(.secondary)
         }
@@ -448,7 +448,7 @@ struct LibraryView: View {
                 Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
                     .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
                 Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
-                    .font(.caption).foregroundColor(.secondary).lineLimit(1)
+                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary).lineLimit(1)
             }
             .padding(.vertical, 2)
         }
@@ -534,7 +534,7 @@ struct LibraryView: View {
                 Text(process.name.isEmpty ? "Untitled Process" : process.name)
                     .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
                 Text("\(process.cards.count) steps")
-                    .font(.caption).foregroundColor(.secondary)
+                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
@@ -620,7 +620,7 @@ struct LibraryView: View {
                 Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
                     .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
                 Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
-                    .font(.caption).foregroundColor(.secondary)
+                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
@@ -756,19 +756,19 @@ struct RecipeRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(recipe.name).font(.headline)
+                Text(recipe.name).font(.jakarta(.semibold, size: 16))
                 Spacer()
                 Text(styleLabel)
-                    .font(.caption2)
+                    .font(.jakarta(.regular, size: 11))
                     .padding(.horizontal, 7).padding(.vertical, 2)
                     .background(Color(hex: "D2B96A").opacity(0.15))
                     .foregroundColor(Color(hex: "D2B96A"))
                     .cornerRadius(4)
             }
             Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")
-                .font(.caption).foregroundColor(.secondary)
+                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested ×\(recipe.bakeLogs.count)")
-                .font(.caption2)
+                .font(.jakarta(.regular, size: 11))
                 .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
         }
         .padding(.vertical, 4)

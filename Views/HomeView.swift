@@ -297,9 +297,9 @@ struct StartDoughView: View {
                             } label: {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text(recipe.name).font(.headline).foregroundColor(.primary)
+                                        Text(recipe.name).font(.jakarta(.semibold, size: 17)).foregroundColor(.primary)
                                         Text("\(recipe.style.rawValue)  ·  \(recipe.method.rawValue)  ·  \(recipe.ballCount) balls")
-                                            .font(.caption).foregroundColor(.secondary)
+                                            .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                                     }
                                     Spacer()
                                     if selectedRecipe?.id == recipe.id {

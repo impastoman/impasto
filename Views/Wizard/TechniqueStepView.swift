@@ -20,9 +20,9 @@ struct TechniqueStepView: View {
                 ForEach(MixerType.allCases, id: \.self) { mixer in
                     HStack {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(mixer.rawValue).font(.headline)
+                            Text(mixer.rawValue).font(.jakarta(.semibold, size: 17))
                             if !mixer.note.isEmpty {
-                                Text(mixer.note).font(.caption).foregroundColor(.secondary)
+                                Text(mixer.note).font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                             }
                         }
                         Spacer()
@@ -49,9 +49,9 @@ struct TechniqueStepView: View {
                 Section {
                     HStack(alignment: .top, spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.yellow).font(.caption).padding(.top, 2)
+                            .foregroundColor(.yellow).font(.jakarta(.regular, size: 12)).padding(.top, 2)
                         Text("At \(Int(finalHydration * 100))% hydration, hand mixing will be challenging. Budget extra time and use wet hands.")
-                            .font(.caption).foregroundColor(.secondary)
+                            .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                     }
                 }
                 .listRowBackground(Color.yellow.opacity(0.08))
@@ -61,9 +61,9 @@ struct TechniqueStepView: View {
             Section {
                 Toggle(isOn: $autolyse) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Autolyse").font(.headline)
+                        Text("Autolyse").font(.jakarta(.semibold, size: 17))
                         Text("Rest flour + water before adding salt and yeast. Improves extensibility.")
-                            .font(.caption).foregroundColor(.secondary)
+                            .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                             .tipText()
                     }
                 }
@@ -97,9 +97,9 @@ struct TechniqueStepView: View {
             Section {
                 Toggle(isOn: $bassinage) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Bassinage").font(.headline)
+                        Text("Bassinage").font(.jakarta(.semibold, size: 17))
                         Text("Reserve a portion of water and add gradually during kneading. Controls temperature and improves extensibility.")
-                            .font(.caption).foregroundColor(.secondary)
+                            .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                             .tipText()
                     }
                 }

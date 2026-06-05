@@ -31,7 +31,7 @@ private struct FolderPickerRow: View {
                         .font(.jakarta(.regular, size: 17))
                         .foregroundColor(folderName.isEmpty ? .secondary : Color(hex: "D2B96A"))
                     Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption2)
+                        .font(.jakarta(.regular, size: 11))
                         .foregroundColor(.secondary)
                 }
             }

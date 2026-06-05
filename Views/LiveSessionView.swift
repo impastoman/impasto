@@ -367,13 +367,13 @@ struct LiveSessionView: View {
             VStack(alignment: .leading, spacing: 6) {
                 if !card.recipeNote.isEmpty {
                     HStack(alignment: .top, spacing: 4) {
-                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary).padding(.top, 2)
+                        Image(systemName: "note.text").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary).padding(.top, 2)
                         Text(card.recipeNote)
                             .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                     }
                 }
                 HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "pencil").font(.caption).foregroundColor(.secondary).padding(.top, 2)
+                    Image(systemName: "pencil").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary).padding(.top, 2)
                     TextField("Add a session note for this step…",
                               text: Binding(
                                 get: { sessionNotes[card.id] ?? "" },

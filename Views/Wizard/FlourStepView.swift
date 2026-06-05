@@ -10,8 +10,8 @@ struct FlourStepView: View {
             Section(header: Text("What flour?").font(.jakarta(.semibold, size: 13))) {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("🌾  Wheat").font(.headline)
-                        Text("00, bread flour, all-purpose").font(.caption).foregroundColor(.secondary)
+                        Text("🌾  Wheat").font(.jakarta(.semibold, size: 17))
+                        Text("00, bread flour, all-purpose").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                     }
                     Spacer()
                     Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
@@ -20,12 +20,12 @@ struct FlourStepView: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Non-wheat").font(.headline)
-                        Text("GF blends, almond, oat").font(.caption).foregroundColor(.secondary)
+                        Text("Non-wheat").font(.jakarta(.semibold, size: 17))
+                        Text("GF blends, almond, oat").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                     }
                     Spacer()
                     Text("Coming soon")
-                        .font(.caption2)
+                        .font(.jakarta(.regular, size: 11))
                         .padding(.horizontal, 8).padding(.vertical, 3)
                         .background(Color.orange.opacity(0.12))
                         .foregroundColor(.orange)

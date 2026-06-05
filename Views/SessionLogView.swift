@@ -134,7 +134,7 @@ struct SessionLogView: View {
             HStack(spacing: 8) {
                 ForEach(1...5, id: \.self) { i in
                     Image(systemName: i <= rating ? "star.fill" : "star")
-                        .foregroundColor(Color(hex: "D2B96A")).font(.title3)
+                        .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.semibold, size: 20))
                         .onTapGesture { rating = i }
                 }
             }

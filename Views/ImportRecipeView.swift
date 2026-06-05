@@ -56,7 +56,7 @@ struct ImportRecipeView: View {
                 if let error = parseError {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.red).font(.caption)
+                            .foregroundColor(.red).font(.jakarta(.regular, size: 12))
                         Text(error)
                             .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.red)

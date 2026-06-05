@@ -27,8 +27,8 @@ struct StyleStepView: View {
     func styleRow(_ style: PizzaStyle) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 3) {
-                Text(style.rawValue).font(.headline)
-                Text(style.description).font(.caption).foregroundColor(.secondary)
+                Text(style.rawValue).font(.jakarta(.semibold, size: 17))
+                Text(style.description).font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             }
             Spacer()
             if selected == style {
@@ -45,8 +45,8 @@ struct StyleStepView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("My Style").font(.headline)
-                    Text("Your rules · your ratios").font(.caption).foregroundColor(.secondary)
+                    Text("My Style").font(.jakarta(.semibold, size: 17))
+                    Text("Your rules · your ratios").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                 }
                 Spacer()
                 if selected == .custom {

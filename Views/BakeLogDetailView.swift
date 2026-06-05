@@ -215,7 +215,7 @@ struct BakeLogDetailView: View {
                 HStack(spacing: 8) {
                     ForEach(1...5, id: \.self) { i in
                         Image(systemName: i <= annotatedRating ? "star.fill" : "star")
-                            .foregroundColor(Color(hex: "D2B96A")).font(.title3)
+                            .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.semibold, size: 20))
                             .onTapGesture { annotatedRating = i }
                     }
                 }
@@ -244,7 +244,7 @@ struct BakeLogDetailView: View {
                     HStack(spacing: 6) {
                         ForEach(1...5, id: \.self) { i in
                             Image(systemName: i <= origRating ? "star.fill" : "star")
-                                .foregroundColor(.secondary).font(.caption)
+                                .foregroundColor(.secondary).font(.jakarta(.regular, size: 12))
                         }
                     }
                     if !log.annotatedNotes.isEmpty {

@@ -82,7 +82,7 @@ struct FlourBlendStepView: View {
         Section {
             HStack {
                 Image(systemName: mode == .load ? "tray.and.arrow.down" : "pencil")
-                    .foregroundColor(Color(hex: "D2B96A")).font(.caption)
+                    .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.regular, size: 12))
                 Text(mode == .load
                      ? (flourBlend.name.isEmpty ? "Loaded from library" : flourBlend.name)
                      : "New blend")
@@ -231,7 +231,7 @@ private struct BlendLibraryPickerView: View {
                                 .font(.jakarta(.regular, size: 17))
                                 .foregroundColor(.primary)
                             Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
-                                .font(.caption).foregroundColor(.secondary)
+                                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                         }
                         .padding(.vertical, 2)
                     }

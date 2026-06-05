@@ -107,7 +107,7 @@ struct PostBakeView: View {
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
-                        Image(systemName: "chevron.right").foregroundColor(.secondary).font(.caption)
+                        Image(systemName: "chevron.right").foregroundColor(.secondary).font(.jakarta(.regular, size: 12))
                     }
                 }
                 .buttonStyle(.plain)

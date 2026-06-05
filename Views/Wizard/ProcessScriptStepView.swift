@@ -85,7 +85,7 @@ struct ProcessScriptStepView: View {
         Section {
             HStack {
                 Image(systemName: mode == .load ? "tray.and.arrow.down" : "pencil")
-                    .foregroundColor(Color(hex: "D2B96A")).font(.caption)
+                    .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.regular, size: 12))
                 Text(mode == .load ? (saveProcessName.isEmpty ? "Loaded from library" : saveProcessName) : "New process")
                     .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "D2B96A"))
@@ -209,7 +209,7 @@ private struct ProcessLibraryPickerView: View {
                                 .font(.jakarta(.regular, size: 17))
                                 .foregroundColor(.primary)
                             Text("\(process.cards.count) steps")
-                                .font(.caption).foregroundColor(.secondary)
+                                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                         }
                         .padding(.vertical, 2)
                     }
@@ -272,7 +272,7 @@ struct ProcessCardRow: View {
                         withAnimation { expanded.toggle() }
                     } label: {
                         Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                            .font(.caption).foregroundColor(.secondary)
+                            .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                     }
                     .buttonStyle(.plain)
 
@@ -322,7 +322,7 @@ struct ProcessCardRow: View {
                     }
 
                     HStack(alignment: .top) {
-                        Image(systemName: "note.text").font(.caption).foregroundColor(.secondary)
+                        Image(systemName: "note.text").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                         TextField("Add a note for this step...", text: $card.recipeNote, axis: .vertical)
                             .font(.jakarta(.regular, size: 13))
                             .lineLimit(2...)

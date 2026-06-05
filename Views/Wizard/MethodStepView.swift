@@ -52,7 +52,7 @@ struct MethodStepView: View {
                 Section {
                     HStack(spacing: 8) {
                         Image(systemName: "info.circle")
-                            .foregroundColor(.secondary).font(.caption)
+                            .foregroundColor(.secondary).font(.jakarta(.regular, size: 12))
                         Text("All flour mixed at once · neutral flavor · fastest to the oven")
                             .font(.jakarta(.regular, size: 12))
                             .foregroundColor(.secondary)
@@ -129,7 +129,7 @@ struct MethodStepView: View {
         Section {
             HStack {
                 Image(systemName: prefEntryMode == .load ? "tray.and.arrow.down" : "pencil")
-                    .foregroundColor(Color(hex: "D2B96A")).font(.caption)
+                    .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.regular, size: 12))
                 Text(prefEntryMode == .load ? (savePrefName.isEmpty ? "Loaded from library" : savePrefName) : "New preferment")
                     .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "D2B96A"))
@@ -421,7 +421,7 @@ private struct PrefermentLibraryPickerView: View {
                                 .font(.jakarta(.regular, size: 17))
                                 .foregroundColor(.primary)
                             Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%  ·  \(Int(pref.ratioPercent * 100))% of flour")
-                                .font(.caption).foregroundColor(.secondary)
+                                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                         }
                         .padding(.vertical, 2)
                     }

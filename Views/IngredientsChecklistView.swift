@@ -156,7 +156,7 @@ struct IngredientsChecklistView: View {
             } label: {
                 Image(systemName: checked.contains(item.id) ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(checked.contains(item.id) ? Color(hex: "D2B96A") : .secondary)
-                    .font(.title3)
+                    .font(.jakarta(.semibold, size: 20))
             }
             .buttonStyle(.plain)
 

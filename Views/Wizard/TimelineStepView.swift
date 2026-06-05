@@ -19,11 +19,11 @@ struct TimelineStepView: View {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text(option.rawValue).font(.headline)
-                                Text(option.hours).font(.caption).foregroundColor(.secondary)
+                                Text(option.rawValue).font(.jakarta(.semibold, size: 17))
+                                Text(option.hours).font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                             }
                             Text("Ready by \(target.formatted(date: .abbreviated, time: .shortened))")
-                                .font(.caption)
+                                .font(.jakarta(.regular, size: 12))
                                 .foregroundColor(Color(hex: "D2B96A").opacity(0.7))
                         }
                         Spacer()
@@ -40,12 +40,12 @@ struct TimelineStepView: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Freeze").font(.headline)
-                        Text("Ball & freeze · thaw day-of").font(.caption).foregroundColor(.secondary)
+                        Text("Freeze").font(.jakarta(.semibold, size: 17))
+                        Text("Ball & freeze · thaw day-of").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                     }
                     Spacer()
                     Text("Coming soon")
-                        .font(.caption2)
+                        .font(.jakarta(.regular, size: 11))
                         .padding(.horizontal, 8).padding(.vertical, 3)
                         .background(Color.orange.opacity(0.12))
                         .foregroundColor(.orange)
@@ -62,7 +62,7 @@ struct TimelineStepView: View {
                     } label: {
                         Image(systemName: "info.circle")
                             .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.caption)
+                            .font(.jakarta(.regular, size: 12))
                     }
                     .buttonStyle(.plain)
                 }

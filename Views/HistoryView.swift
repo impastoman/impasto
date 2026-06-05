@@ -115,7 +115,7 @@ struct HistoryView: View {
                     let displayRating = log.annotatedRating ?? log.rating
                     ForEach(1...5, id: \.self) { i in
                         Image(systemName: i <= displayRating ? "star.fill" : "star")
-                            .font(.caption2)
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(log.annotatedRating != nil
                                 ? Color(hex: "D2B96A").opacity(0.7)
                                 : Color(hex: "D2B96A"))
@@ -143,7 +143,7 @@ struct HistoryView: View {
                         .scaledToFill()
                 } else {
                     Color(hex: "ECEAE3")
-                        .overlay(Image(systemName: "photo").foregroundColor(.secondary).font(.caption))
+                        .overlay(Image(systemName: "photo").foregroundColor(.secondary).font(.jakarta(.regular, size: 12)))
                 }
             }
             .frame(width: 48, height: 48)
@@ -186,7 +186,7 @@ struct HistoryView: View {
                         .scaledToFill()
                 } else {
                     Color(hex: "ECEAE3")
-                        .overlay(Image(systemName: "photo").foregroundColor(.secondary).font(.caption))
+                        .overlay(Image(systemName: "photo").foregroundColor(.secondary).font(.jakarta(.regular, size: 12)))
                 }
             }
             .frame(width: 48, height: 48)
