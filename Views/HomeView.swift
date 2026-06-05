@@ -43,7 +43,7 @@ struct HomeView: View {
 
     var launch: some View {
         ZStack {
-            Color(hex: "F5F1E8").ignoresSafeArea()
+            Color(hex: "FAFAF5").ignoresSafeArea()
 
             VStack(spacing: 16) {
                 Spacer()
@@ -223,7 +223,7 @@ private struct ActiveSessionRow: View {
             VStack(alignment: .trailing, spacing: 3) {
                 Text(previewTime)
                     .font(.jakarta(.regular, size: 14))
-                    .foregroundColor(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
+                    .foregroundColor(vm.isOvertime ? .orange : Color(hex: "7FA2BD"))
                 if vm.isOvertime {
                     Text("overtime")
                         .font(.jakarta(.regular, size: 9))
@@ -304,7 +304,7 @@ struct StartDoughView: View {
                                     Spacer()
                                     if selectedRecipe?.id == recipe.id {
                                         Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(Color(hex: "D2B96A"))
+                                            .foregroundColor(Color(hex: "7FA2BD"))
                                     }
                                 }
                             }
@@ -314,7 +314,7 @@ struct StartDoughView: View {
 
                 Section {
                     Button("Build one now →") { showWizard = true }
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
             .navigationTitle("Start Dough")
@@ -326,7 +326,7 @@ struct StartDoughView: View {
                 if selectedRecipe != nil {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Begin Prep →") { preFlightRecipe = selectedRecipe }
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .font(.jakarta(.regular, size: 13))
                     }
                 }

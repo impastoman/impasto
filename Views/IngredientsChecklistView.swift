@@ -118,11 +118,11 @@ struct IngredientsChecklistView: View {
                     HStack {
                         Text("\(checkedCount) of \(total) measured")
                             .font(.jakarta(.regular, size: 13))
-                            .foregroundColor(checkedCount == total ? Color(hex: "D2B96A") : .secondary)
+                            .foregroundColor(checkedCount == total ? Color(hex: "7FA2BD") : .secondary)
                         Spacer()
                         if checkedCount == total {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                         }
                     }
                     Button("Clear all") {
@@ -155,7 +155,7 @@ struct IngredientsChecklistView: View {
                 }
             } label: {
                 Image(systemName: checked.contains(item.id) ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(checked.contains(item.id) ? Color(hex: "D2B96A") : .secondary)
+                    .foregroundColor(checked.contains(item.id) ? Color(hex: "7FA2BD") : .secondary)
                     .font(.jakarta(.semibold, size: 20))
             }
             .buttonStyle(.plain)
@@ -174,7 +174,7 @@ struct IngredientsChecklistView: View {
             Spacer()
             Text(item.amount)
                 .font(.jakarta(.regular, size: 15))
-                .foregroundColor(checked.contains(item.id) ? .secondary : Color(hex: "D2B96A"))
+                .foregroundColor(checked.contains(item.id) ? .secondary : Color(hex: "7FA2BD"))
                 .fontWeight(.medium)
         }
         .padding(.vertical, 2)

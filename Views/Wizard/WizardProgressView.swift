@@ -8,7 +8,7 @@ struct WizardProgressView: View {
         HStack(spacing: 4) {
             ForEach(0..<total, id: \.self) { i in
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(i <= step ? Color(hex: "D2B96A") : Color(hex: "2A2A28"))
+                    .fill(i <= step ? Color(hex: "7FA2BD") : Color(hex: "2A2A28"))
                     .frame(height: 3)
             }
         }

@@ -29,7 +29,7 @@ private struct FolderPickerRow: View {
                 HStack(spacing: 4) {
                     Text(folderName.isEmpty ? "None" : folderName)
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(folderName.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                        .foregroundColor(folderName.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.jakarta(.regular, size: 11))
                         .foregroundColor(.secondary)
@@ -96,7 +96,7 @@ struct StandaloneBlendBuilderView: View {
                         Spacer()
                         Text(String(format: "%.0f%%", blend.totalPercentage) + (blend.isValid ? "  ✓" : ""))
                             .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(blend.isValid ? Color(hex: "D2B96A") : .red)
+                            .foregroundColor(blend.isValid ? Color(hex: "7FA2BD") : .red)
                     }
                     .listRowBackground(Color.clear)
                     Button {
@@ -105,7 +105,7 @@ struct StandaloneBlendBuilderView: View {
                         blend.components.append(c)
                     } label: {
                         Label("Add flour type", systemImage: "plus")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .font(.jakarta(.regular, size: 17))
                     }
                 }
@@ -120,7 +120,7 @@ struct StandaloneBlendBuilderView: View {
                         blend.additives.append(Additive())
                     } label: {
                         Label("Add additive", systemImage: "plus")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .font(.jakarta(.regular, size: 17))
                     }
                 } header: {
@@ -176,7 +176,7 @@ struct StandaloneBlendBuilderView: View {
                         dismiss()
                     }
                     .disabled(!blend.isValid || blend.name.isEmpty)
-                    .foregroundColor(blend.isValid && !blend.name.isEmpty ? Color(hex: "D2B96A") : .secondary)
+                    .foregroundColor(blend.isValid && !blend.name.isEmpty ? Color(hex: "7FA2BD") : .secondary)
                 }
             }
         }
@@ -260,7 +260,7 @@ struct StandaloneProcessBuilderView: View {
                     } label: {
                         Label("Add step", systemImage: "plus.circle")
                             .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 } header: { Text("Process steps") }
             }
@@ -297,7 +297,7 @@ struct StandaloneProcessBuilderView: View {
                         dismiss()
                     }
                     .disabled(name.isEmpty)
-                    .foregroundColor(name.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                    .foregroundColor(name.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                 }
             }
         }
@@ -378,7 +378,7 @@ struct StandalonePrefermentBuilderView: View {
                             Text(prefermentLabel)
                                 .font(.jakarta(.regular, size: 18))
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                             Spacer()
                             HStack(spacing: 2) {
                                 TextField("50", text: $hydrationText)
@@ -398,7 +398,7 @@ struct StandalonePrefermentBuilderView: View {
                             }
                         }
                         Slider(value: $hydration, in: 0.40...1.20, step: 0.01)
-                            .tint(Color(hex: "D2B96A"))
+                            .tint(Color(hex: "7FA2BD"))
                             .onChange(of: hydration) { _, val in
                                 hydrationText = "\(Int(val * 100))"
                             }
@@ -428,7 +428,7 @@ struct StandalonePrefermentBuilderView: View {
                         Text(String(format: "%.0f%%", flourBlend.totalPercentage)
                              + (flourBlend.isValid ? "  ✓" : ""))
                             .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(flourBlend.isValid ? Color(hex: "D2B96A") : .red)
+                            .foregroundColor(flourBlend.isValid ? Color(hex: "7FA2BD") : .red)
                     }
                     .listRowBackground(Color.clear)
                     Button {
@@ -437,7 +437,7 @@ struct StandalonePrefermentBuilderView: View {
                         flourBlend.components.append(c)
                     } label: {
                         Label("Add flour type", systemImage: "plus")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .font(.jakarta(.regular, size: 17))
                     }
                 }
@@ -453,7 +453,7 @@ struct StandalonePrefermentBuilderView: View {
                         flourBlend.additives.append(Additive())
                     } label: {
                         Label("Add additive", systemImage: "plus")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .font(.jakarta(.regular, size: 17))
                     }
                 } header: { Text("Additives  ·  % of flour weight") }
@@ -512,7 +512,7 @@ struct StandalonePrefermentBuilderView: View {
                         dismiss()
                     }
                     .disabled(!canSave)
-                    .foregroundColor(canSave ? Color(hex: "D2B96A") : .secondary)
+                    .foregroundColor(canSave ? Color(hex: "7FA2BD") : .secondary)
                 }
             }
         }

@@ -30,7 +30,7 @@ struct WaterSaltYeastStepView: View {
                             .tipText()
                     }
                 }
-                .tint(Color(hex: "D2B96A"))
+                .tint(Color(hex: "7FA2BD"))
 
                 if hydrateOwnWay {
                     HStack {
@@ -45,7 +45,7 @@ struct WaterSaltYeastStepView: View {
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
                             .cornerRadius(5)
-                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                             .onChange(of: hydrationText) { _, val in
                                 let f = val.filter { $0.isNumber || $0 == "." }
                                 if f != val { hydrationText = f; return }
@@ -67,7 +67,7 @@ struct WaterSaltYeastStepView: View {
                                 .padding(.vertical, 4).padding(.horizontal, 4)
                                 .background(Color(hex: "F0EDE4"))
                                 .cornerRadius(5)
-                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                                 .onChange(of: hydrationText) { _, val in
                                     let f = val.filter { $0.isNumber || $0 == "." }
                                     if f != val { hydrationText = f; return }
@@ -77,7 +77,7 @@ struct WaterSaltYeastStepView: View {
                         }
 
                         Slider(value: $finalHydration, in: 0.50...0.90, step: 0.01)
-                            .tint(Color(hex: "D2B96A"))
+                            .tint(Color(hex: "7FA2BD"))
                             .onChange(of: finalHydration) { _, val in
                                 hydrationText = "\(Int(val * 100))"
                             }
@@ -87,7 +87,7 @@ struct WaterSaltYeastStepView: View {
                                 Text(zone.label)
                                     .font(.jakarta(.regular, size: 9))
                                     .multilineTextAlignment(.center)
-                                    .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
+                                    .foregroundColor(zone.active ? Color(hex: "7FA2BD") : Color.secondary.opacity(0.4))
                                     .frame(maxWidth: .infinity)
                             }
                         }
@@ -124,7 +124,7 @@ struct WaterSaltYeastStepView: View {
                         .padding(.vertical, 4).padding(.horizontal, 4)
                         .background(Color(hex: "F0EDE4"))
                         .cornerRadius(5)
-                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                         .onChange(of: saltText) { _, val in
                             let f = val.filter { $0.isNumber || $0 == "." }
                             if f != val { saltText = f; return }
@@ -167,7 +167,7 @@ struct WaterSaltYeastStepView: View {
                         .padding(.vertical, 4).padding(.horizontal, 4)
                         .background(Color(hex: "F0EDE4"))
                         .cornerRadius(5)
-                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                         .onChange(of: yeastText) { _, val in
                             let f = val.filter { $0.isNumber || $0 == "." }
                             if f != val { yeastText = f; return }

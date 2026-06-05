@@ -16,6 +16,32 @@ import PhotosUI
 // Wire fonts via these helpers rather than hardcoding PostScript names
 // at call sites. One place to update if we ever swap families.
 
+// MARK: - Mead notebook palette
+//
+// Stesura's visual identity: wide-ruled Mead notebook paper. Soft warm
+// off-white "paper", thin cool-blue rule lines on every divider and
+// border, and warm muted red for emphasis (the teacher's red pen).
+//
+// Use the named constants rather than raw hex strings so the palette
+// can be tuned in one place.
+
+extension Color {
+    /// App background + card backgrounds. Soft off-white, slightly warm.
+    static let paperWhite     = Color(hex: "FAFAF5")
+    /// Every line, divider, border, field outline.
+    static let ruleBlue       = Color(hex: "7FA2BD")
+    /// Subtle blue fills — alternating rows, hover states, picker bg.
+    static let ruleBlueFaint  = Color(hex: "C5D6E2")
+    /// Margin lines, emphasis, primary action surfaces, warnings.
+    static let marginRed      = Color(hex: "D4756A")
+    /// Soft red surface for warning sections.
+    static let marginRedFaint = Color(hex: "EDD8D3")
+    /// Primary text (kept from prior palette).
+    static let stesuraInk     = Color(hex: "2C2A24")
+    /// Secondary text (kept from prior palette).
+    static let stesuraInkSoft = Color(hex: "9A9688")
+}
+
 extension Font {
     enum FrauncesWeight {
         case thin, light, regular, semibold, bold, black
@@ -87,7 +113,7 @@ extension View {
             .padding(.horizontal, 4)
             .background(Color(hex: "F0EDE4"))
             .cornerRadius(5)
-            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
     }
 
     /// Full-width box for notes / multiline text fields
@@ -97,7 +123,7 @@ extension View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(hex: "F0EDE4"))
             .cornerRadius(6)
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "7FA2BD").opacity(0.4), lineWidth: 1))
     }
 
     /// Standard box for full-width single-line text fields (names, etc.)
@@ -107,7 +133,7 @@ extension View {
             .padding(.vertical, 8)
             .background(Color(hex: "F0EDE4"))
             .cornerRadius(6)
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
     }
 }
 
@@ -185,11 +211,13 @@ struct StesuraButtonStyle: ButtonStyle {
             .font(.jakarta(.semibold, size: 14))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)
-            .background(filled ? Color(hex: "D2B96A") : Color.clear)
-            .foregroundColor(filled ? Color(hex: "111210") : Color(hex: "9A9688"))
+            // Filled = margin-red ("do this" emphasis). Outlined = paper
+            // with ruleBlue border ("here's an option").
+            .background(filled ? Color.marginRed : Color.clear)
+            .foregroundColor(filled ? Color.white : Color.stesuraInk)
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(filled ? Color.clear : Color(hex: "4A4840"), lineWidth: 1)
+                    .stroke(filled ? Color.clear : Color.ruleBlue, lineWidth: 1)
             )
             .cornerRadius(6)
             .contentShape(Rectangle())
@@ -213,7 +241,7 @@ extension View {
                     )
                 }
                 .font(.jakarta(.regular, size: 14))
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
             }
         }
     }
@@ -357,7 +385,7 @@ struct PhotoGalleryView: View {
                             .font(.jakarta(.regular, size: 9))
                             .tracking(1)
                             .padding(.horizontal, 5).padding(.vertical, 2)
-                            .background(Color(hex: "D2B96A"))
+                            .background(Color(hex: "7FA2BD"))
                             .foregroundColor(.white)
                             .cornerRadius(3)
                             .padding(5)
@@ -392,15 +420,15 @@ struct PhotoGalleryView: View {
             VStack(spacing: 6) {
                 Image(systemName: "plus")
                     .font(.system(size: 22))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                 Text("Add")
                     .font(.jakarta(.regular, size: 11))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
             }
             .frame(width: thumbnailSize, height: thumbnailSize)
-            .background(Color(hex: "D2B96A").opacity(0.08))
+            .background(Color(hex: "7FA2BD").opacity(0.08))
             .cornerRadius(8)
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "D2B96A").opacity(0.3), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "7FA2BD").opacity(0.3), lineWidth: 1))
         }
     }
 
@@ -475,19 +503,19 @@ struct FullScreenPhotoViewer: View {
                         Text("Make main?")
                             .font(.jakarta(.regular, size: 13))
                             .tracking(1)
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .padding(.horizontal, 18).padding(.vertical, 10)
                             .background(Color.black.opacity(0.6))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 22)
-                                    .stroke(Color(hex: "D2B96A"), lineWidth: 1)
+                                    .stroke(Color(hex: "7FA2BD"), lineWidth: 1)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 22))
                     }
                 } else {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                         Text("Main photo")
                             .font(.jakarta(.regular, size: 13))
                             .tracking(1)

@@ -189,7 +189,7 @@ struct PreFlightView: View {
     var prefermentSection: some View {
         Section {
             Toggle("Preferment is ready", isOn: $data.prefermentReady)
-                .tint(Color(hex: "D2B96A"))
+                .tint(Color(hex: "7FA2BD"))
 
             if data.prefermentReady {
                 HStack {
@@ -256,8 +256,8 @@ struct PreFlightView: View {
                     .inputBox()
                 Text(useCelsius ? "°C" : "°F").foregroundColor(.secondary)
             }
-            Toggle("pH meter available", isOn: $data.hasPHMeter).tint(Color(hex: "D2B96A"))
-            Toggle("Dough thermometer", isOn: $data.hasDoughThermometer).tint(Color(hex: "D2B96A"))
+            Toggle("pH meter available", isOn: $data.hasPHMeter).tint(Color(hex: "7FA2BD"))
+            Toggle("Dough thermometer", isOn: $data.hasDoughThermometer).tint(Color(hex: "7FA2BD"))
         }
     }
 
@@ -275,7 +275,7 @@ struct PreFlightView: View {
                     }
                     Spacer()
                     Image(systemName: data.selectedBakeSetupId == setup.id ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(data.selectedBakeSetupId == setup.id ? Color(hex: "D2B96A") : .secondary)
+                        .foregroundColor(data.selectedBakeSetupId == setup.id ? Color(hex: "7FA2BD") : .secondary)
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { data.selectedBakeSetupId = setup.id }
@@ -293,7 +293,7 @@ struct PreFlightView: View {
                 TextField("\(recipe.ballCount)", value: $data.overrideBallCount, format: .number)
                     .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
                     .font(.jakarta(.regular, size: 17))
-                    .foregroundColor(data.overrideBallCount != nil ? Color(hex: "D2B96A") : .primary)
+                    .foregroundColor(data.overrideBallCount != nil ? Color(hex: "7FA2BD") : .primary)
                     .inputBox()
             }
             HStack {
@@ -305,7 +305,7 @@ struct PreFlightView: View {
                 ), format: .number)
                     .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
                     .font(.jakarta(.regular, size: 17))
-                    .foregroundColor(data.overrideBallWeight != nil ? Color(hex: "D2B96A") : .primary)
+                    .foregroundColor(data.overrideBallWeight != nil ? Color(hex: "7FA2BD") : .primary)
                     .inputBox()
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
             }
@@ -324,7 +324,7 @@ struct PreFlightView: View {
                 ), format: .number)
                 .keyboardType(.numberPad).multilineTextAlignment(.center).frame(width: 60)
                 .font(.jakarta(.regular, size: 17))
-                .foregroundColor(data.overrideBuffer != nil ? Color(hex: "D2B96A") : .primary)
+                .foregroundColor(data.overrideBuffer != nil ? Color(hex: "7FA2BD") : .primary)
                 .inputBox()
                 Text(weightUnit.rawValue).foregroundColor(.secondary)
             }
@@ -350,10 +350,10 @@ struct PreFlightView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "checklist")
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                     Text("Prep Ingredients")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
             Button {
@@ -361,10 +361,10 @@ struct PreFlightView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "list.bullet.rectangle")
-                        .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                        .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                     Text("Review & Edit Process")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                        .foregroundColor(data.sessionStepDurationOverrides.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                 }
             }
         } header: { Text("Session overview") }
@@ -443,7 +443,7 @@ struct SessionProcessEditorSheet: View {
                                         set: { overrides[card.id.uuidString] = $0 }
                                     ),
                                     valueColor: overrides[card.id.uuidString] != nil
-                                        ? Color(hex: "D2B96A") : .primary
+                                        ? Color(hex: "7FA2BD") : .primary
                                 )
                             } else {
                                 Text("action").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
@@ -469,7 +469,7 @@ struct SessionProcessEditorSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
             .keyboardDoneButton()
@@ -489,7 +489,7 @@ private struct LongPressBeginButton: View {
             .font(.jakarta(.regular, size: 14))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)
-            .background(Color(hex: "D2B96A"))
+            .background(Color(hex: "7FA2BD"))
             .foregroundColor(Color(hex: "111210"))
             .cornerRadius(6)
             .overlay(alignment: .leading) {

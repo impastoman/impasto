@@ -22,7 +22,7 @@ struct BakeMethodStepView: View {
                         }
                         Spacer()
                         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(isSelected ? Color(hex: "D2B96A") : .secondary)
+                            .foregroundColor(isSelected ? Color(hex: "7FA2BD") : .secondary)
                     }
                     .padding(.vertical, 2)
                     .contentShape(Rectangle())

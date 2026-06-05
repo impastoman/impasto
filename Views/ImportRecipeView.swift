@@ -50,7 +50,7 @@ struct ImportRecipeView: View {
                     .cornerRadius(6)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color(hex: "D2B96A").opacity(0.4), lineWidth: 1)
+                            .stroke(Color(hex: "7FA2BD").opacity(0.4), lineWidth: 1)
                     )
 
                 if let error = parseError {
@@ -67,7 +67,7 @@ struct ImportRecipeView: View {
                     attemptParse(text: pastedText)
                 }
                 .foregroundColor(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                                 ? .secondary : Color(hex: "D2B96A"))
+                                 ? .secondary : Color(hex: "7FA2BD"))
                 .disabled(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             .listRowBackground(Color.clear)
@@ -78,10 +78,10 @@ struct ImportRecipeView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "doc.badge.plus")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                         Text("Browse files (.json)")
                             .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 }
             } header: {
@@ -154,17 +154,17 @@ struct ImportRecipeView: View {
                 if saved {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                         Text("Saved to library!")
                             .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 } else {
                     Button("Save to Library →") {
                         saveRecipe(recipe)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                     .font(.jakarta(.regular, size: 14))
                 }
             }

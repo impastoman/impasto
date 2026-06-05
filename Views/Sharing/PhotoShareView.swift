@@ -299,7 +299,7 @@ struct ShareCanvasView: View {
             if draggable {
                 if let snapX = editor.activeSnapX {
                     Rectangle()
-                        .fill(Color(hex: "D2B96A").opacity(0.85))
+                        .fill(Color(hex: "7FA2BD").opacity(0.85))
                         .frame(width: 1)
                         .frame(maxHeight: .infinity)
                         .position(x: snapX * canvasSize.width, y: canvasSize.height / 2)
@@ -307,7 +307,7 @@ struct ShareCanvasView: View {
                 }
                 if let snapY = editor.activeSnapY {
                     Rectangle()
-                        .fill(Color(hex: "D2B96A").opacity(0.85))
+                        .fill(Color(hex: "7FA2BD").opacity(0.85))
                         .frame(height: 1)
                         .frame(maxWidth: .infinity)
                         .position(x: canvasSize.width / 2, y: snapY * canvasSize.height)
@@ -340,7 +340,7 @@ struct ShareCanvasView: View {
                 .frame(width: canvasSize.width, height: canvasSize.height)
                 .clipped()
         } else {
-            Color(hex: "F5F1E8")
+            Color(hex: "FAFAF5")
                 .frame(width: canvasSize.width, height: canvasSize.height)
         }
     }
@@ -548,7 +548,7 @@ struct DraggableShareBlock: View {
     /// 0.5×…2.5× so blocks can't disappear or eat the canvas.
     private var resizeHandle: some View {
         Circle()
-            .fill(Color(hex: "D2B96A"))
+            .fill(Color(hex: "7FA2BD"))
             .frame(width: 18, height: 18)
             .overlay(
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
@@ -677,7 +677,7 @@ struct PhotoShareView: View {
                                     } label: {
                                         Label("Reset zoom", systemImage: "arrow.counterclockwise")
                                             .font(.jakarta(.regular, size: 12))
-                                            .foregroundColor(Color(hex: "D2B96A"))
+                                            .foregroundColor(Color(hex: "7FA2BD"))
                                     }
                                 }
                             }
@@ -707,7 +707,7 @@ struct PhotoShareView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Share →") { renderAndShare() }
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                         .fontWeight(.semibold)
                 }
             }
@@ -757,7 +757,7 @@ struct PhotoShareView: View {
                     .font(.system(size: 12, design: .monospaced).weight(editor.aspect == a ? .semibold : .regular))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
-                    .background(editor.aspect == a ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
+                    .background(editor.aspect == a ? Color(hex: "7FA2BD") : Color.white.opacity(0.08))
                     .foregroundColor(editor.aspect == a ? .black : .white.opacity(0.7))
                     .cornerRadius(6)
                     .contentShape(Rectangle())
@@ -788,11 +788,11 @@ struct PhotoShareView: View {
             PhotosPicker(selection: $pickerItem, matching: .images) {
                 Text("Pick a photo from library →")
                     .font(.jakarta(.regular, size: 13))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color(hex: "D2B96A"), lineWidth: 1)
+                            .stroke(Color(hex: "7FA2BD"), lineWidth: 1)
                     )
             }
             Text("Won't be saved back to this bake — used for this share only.")
@@ -836,7 +836,7 @@ struct PhotoShareView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
             .padding(.horizontal, 4)
-            .background(isSelected ? Color(hex: "D2B96A") : Color.white.opacity(0.08))
+            .background(isSelected ? Color(hex: "7FA2BD") : Color.white.opacity(0.08))
             .foregroundColor(isSelected ? .black : .white.opacity(0.7))
             .cornerRadius(6)
             .contentShape(Rectangle())
@@ -889,7 +889,7 @@ struct PhotoShareView: View {
                                 .lineLimit(1)
                         }
                     }
-                    .tint(Color(hex: "D2B96A"))
+                    .tint(Color(hex: "7FA2BD"))
                 }
             }
             .padding(.horizontal, 12)

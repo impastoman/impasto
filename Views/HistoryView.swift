@@ -40,7 +40,7 @@ struct HistoryView: View {
                         NavigationLink(destination: BakeLogDetailView(log: log, recipe: recipe).environmentObject(store)) {
                             Text("View session log")
                                 .font(.jakarta(.regular, size: 12))
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                         }
 
                         Button {
@@ -51,7 +51,7 @@ struct HistoryView: View {
                                 Text("Share this session →")
                             }
                             .font(.jakarta(.regular, size: 12))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                         }
                         .buttonStyle(.plain)
                     } header: {
@@ -117,8 +117,8 @@ struct HistoryView: View {
                         Image(systemName: i <= displayRating ? "star.fill" : "star")
                             .font(.jakarta(.regular, size: 11))
                             .foregroundColor(log.annotatedRating != nil
-                                ? Color(hex: "D2B96A").opacity(0.7)
-                                : Color(hex: "D2B96A"))
+                                ? Color(hex: "7FA2BD").opacity(0.7)
+                                : Color(hex: "7FA2BD"))
                     }
                 }
             }

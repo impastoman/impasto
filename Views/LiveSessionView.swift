@@ -30,7 +30,7 @@ struct LiveSessionView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: "F5F1E8").ignoresSafeArea()
+                Color(hex: "FAFAF5").ignoresSafeArea()
 
                 if vm.isInBakeStep {
                     bakeStepView
@@ -75,7 +75,7 @@ struct LiveSessionView: View {
                 if !vm.isInBakeStep && vm.isRunning {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Pause") { vm.pause() }
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 }
             }
@@ -123,17 +123,17 @@ struct LiveSessionView: View {
                         .cornerRadius(8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(hex: "D2B96A").opacity(0.4), lineWidth: 1)
+                                .stroke(Color(hex: "7FA2BD").opacity(0.4), lineWidth: 1)
                         )
                         .padding(12)
                 }
-                .background(Color(hex: "F5F1E8").ignoresSafeArea())
+                .background(Color(hex: "FAFAF5").ignoresSafeArea())
                 .navigationTitle("Session Notes")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Done") { showSessionNotepad = false }
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 }
             }
@@ -170,15 +170,15 @@ struct LiveSessionView: View {
                         }
                         .padding(28)
                     }
-                    .background(Color(hex: "F5F1E8").ignoresSafeArea())
+                    .background(Color(hex: "FAFAF5").ignoresSafeArea())
                     .navigationTitle("Up Next")
                     .navigationBarTitleDisplayMode(.inline)
-                    .toolbarBackground(Color(hex: "F5F1E8"), for: .navigationBar)
+                    .toolbarBackground(Color(hex: "FAFAF5"), for: .navigationBar)
                     .toolbarBackground(.visible, for: .navigationBar)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button("Got it") { showNextStepPreview = false }
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                         }
                     }
                 }
@@ -220,7 +220,7 @@ struct LiveSessionView: View {
                 } label: {
                     Image(systemName: "square.and.pencil")
                 }
-                .foregroundColor(vm.sessionNote.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                .foregroundColor(vm.sessionNote.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                 .padding(.trailing, 16)
                 .padding(.top, 6)
             }
@@ -241,10 +241,10 @@ struct LiveSessionView: View {
                             .foregroundColor(.secondary)
                         Text(next.title)
                             .font(.jakarta(.regular, size: 11))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                         Image(systemName: "chevron.right")
                             .font(.system(size: 9))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 }
                 .padding(.top, 10)
@@ -266,8 +266,8 @@ struct LiveSessionView: View {
                     Text(card.title)
                         .font(.jakarta(.regular, size: 12))
                         .padding(.horizontal, 16).padding(.vertical, 10)
-                        .background(isCurrent ? Color(hex: "D2B96A").opacity(0.12) : Color.clear)
-                        .foregroundColor(isCurrent ? Color(hex: "D2B96A") : isDone ? Color(hex: "D2B96A").opacity(0.4) : .secondary)
+                        .background(isCurrent ? Color(hex: "7FA2BD").opacity(0.12) : Color.clear)
+                        .foregroundColor(isCurrent ? Color(hex: "7FA2BD") : isDone ? Color(hex: "7FA2BD").opacity(0.4) : .secondary)
                 }
             }
         }
@@ -307,7 +307,7 @@ struct LiveSessionView: View {
 
                 if card.type.isTimed && vm.targetDuration > 0 {
                     ProgressView(value: vm.progress)
-                        .tint(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
+                        .tint(vm.isOvertime ? .orange : Color(hex: "7FA2BD"))
                         .padding(.horizontal, 40)
                     HStack(spacing: 12) {
                         if vm.isOvertime {
@@ -327,7 +327,7 @@ struct LiveSessionView: View {
                         } label: {
                             Image(systemName: alarmScheduled ? "bell.fill" : "bell")
                                 .font(.system(size: 12))
-                                .foregroundColor(alarmScheduled ? Color(hex: "D2B96A") : .secondary)
+                                .foregroundColor(alarmScheduled ? Color(hex: "7FA2BD") : .secondary)
                         }
                     }
                 }
@@ -344,12 +344,12 @@ struct LiveSessionView: View {
                                 .font(.jakarta(.regular, size: 10))
                                 .tracking(2)
                         }
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color(hex: "D2B96A"), lineWidth: 1)
+                                .stroke(Color(hex: "7FA2BD"), lineWidth: 1)
                         )
                     }
                     .padding(.top, 8)
@@ -461,7 +461,7 @@ struct LiveSessionView: View {
                     Spacer()
                     Text(setup.ovenTempDisplay)
                         .font(.jakarta(.regular, size: 14))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 8)
@@ -551,7 +551,7 @@ private struct LongPressStepButton: View {
             .font(.jakarta(.regular, size: 14))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)
-            .background(filled ? Color(hex: "D2B96A") : Color.clear)
+            .background(filled ? Color(hex: "7FA2BD") : Color.clear)
             .foregroundColor(filled ? Color(hex: "111210") : Color(hex: "9A9688"))
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
@@ -560,7 +560,7 @@ private struct LongPressStepButton: View {
             .cornerRadius(6)
             .overlay(alignment: .leading) {
                 GeometryReader { geo in
-                    Color(hex: filled ? "FFFFFF" : "D2B96A")
+                    Color(hex: filled ? "FFFFFF" : "7FA2BD")
                         .opacity(filled ? 0.28 : 0.35)
                         .frame(width: geo.size.width * progress)
                 }

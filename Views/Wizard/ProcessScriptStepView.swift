@@ -52,10 +52,10 @@ struct ProcessScriptStepView: View {
                 showLibraryPicker = true
             } label: {
                 HStack {
-                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Load process")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(store.savedProcesses.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                        .foregroundColor(store.savedProcesses.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                 }
             }
             .disabled(store.savedProcesses.isEmpty)
@@ -71,10 +71,10 @@ struct ProcessScriptStepView: View {
                 mode = .create
             } label: {
                 HStack {
-                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Build process")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
         } header: { Text("Process") }
@@ -85,10 +85,10 @@ struct ProcessScriptStepView: View {
         Section {
             HStack {
                 Image(systemName: mode == .load ? "tray.and.arrow.down" : "pencil")
-                    .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.regular, size: 12))
+                    .foregroundColor(Color(hex: "7FA2BD")).font(.jakarta(.regular, size: 12))
                 Text(mode == .load ? (saveProcessName.isEmpty ? "Loaded from library" : saveProcessName) : "New process")
                     .font(.jakarta(.regular, size: 13))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                 Spacer()
                 Button("Change") {
                     saveProcessName = ""
@@ -99,7 +99,7 @@ struct ProcessScriptStepView: View {
                 .foregroundColor(.secondary)
             }
         }
-        .listRowBackground(Color(hex: "D2B96A").opacity(0.06))
+        .listRowBackground(Color(hex: "7FA2BD").opacity(0.06))
     }
 
     var cardsSection: some View {
@@ -135,10 +135,10 @@ struct ProcessScriptStepView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "plus.circle")
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                     Text("Add step")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
         } header: {
@@ -159,10 +159,10 @@ struct ProcessScriptStepView: View {
         Section {
             if processSaved {
                 HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Saved to library")
                         .font(.jakarta(.regular, size: 13))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             } else {
                 TextField("Name this process to save...", text: $saveProcessName)
@@ -176,7 +176,7 @@ struct ProcessScriptStepView: View {
                     store.addProcess(savedProcess)
                     processSaved = true
                 }
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
             }
         } header: { Text("Save to Library") }
           footer: { Text("Optional — save this process for reuse in future recipes").tipText() }
@@ -241,7 +241,7 @@ struct ProcessCardRow: View {
             HStack(spacing: 10) {
                 Text(position)
                     .font(.jakarta(.regular, size: 12))
-                    .foregroundColor(isLocked ? .secondary : Color(hex: "D2B96A"))
+                    .foregroundColor(isLocked ? .secondary : Color(hex: "7FA2BD"))
                     .frame(width: 22, alignment: .center)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -303,10 +303,10 @@ struct ProcessCardRow: View {
                             Spacer()
                             Text("\(Int(card.bassinageReservePct * 100))%")
                                 .font(.jakarta(.regular, size: 13))
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                         }
                         Slider(value: $card.bassinageReservePct, in: 0.05...0.20, step: 0.01)
-                            .tint(Color(hex: "D2B96A"))
+                            .tint(Color(hex: "7FA2BD"))
                     }
 
                     if card.type == .autolyse {

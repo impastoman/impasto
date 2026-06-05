@@ -51,7 +51,7 @@ struct TargetStepView: View {
                                 .padding(.vertical, 6).padding(.horizontal, 8)
                                 .background(Color(hex: "F0EDE4"))
                                 .cornerRadius(6)
-                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                                 .onChange(of: weightText) { _, val in
                                     if let d = Double(val), d > 0 {
                                         ballWeight = gramsFromDisplay(d)
@@ -77,7 +77,7 @@ struct TargetStepView: View {
                                 .padding(.vertical, 6).padding(.horizontal, 8)
                                 .background(Color(hex: "F0EDE4"))
                                 .cornerRadius(6)
-                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                             Text("\"")
                                 .font(.jakarta(.regular, size: 14))
                                 .foregroundColor(.secondary)
@@ -131,7 +131,7 @@ struct TargetStepView: View {
                 LabeledContent("Total to mix",
                                value: formattedWeight(totalDough * (1 + buffer)) + " " + unit.rawValue)
                     .font(.jakarta(.regular, size: 17))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
             } footer: {
                 Text("~2.5% of total dough weight is a good starting point · decreases as technique improves")
                     .font(.jakarta(.regular, size: 11))

@@ -143,15 +143,15 @@ struct PostBakeView: View {
                         VStack(spacing: 6) {
                             Image(systemName: "plus")
                                 .font(.system(size: 22))
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                             Text("Add")
                                 .font(.jakarta(.regular, size: 11))
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                         }
                         .frame(width: 100, height: 100)
-                        .background(Color(hex: "D2B96A").opacity(0.08))
+                        .background(Color(hex: "7FA2BD").opacity(0.08))
                         .cornerRadius(8)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "D2B96A").opacity(0.3), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: "7FA2BD").opacity(0.3), lineWidth: 1))
                     }
                     .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {
                         Button("Take Photo") { showCamera = true }

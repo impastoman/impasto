@@ -33,7 +33,7 @@ struct StyleStepView: View {
             Spacer()
             if selected == style {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
             }
         }
         .padding(.vertical, 2)
@@ -51,7 +51,7 @@ struct StyleStepView: View {
                 Spacer()
                 if selected == .custom {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
             .contentShape(Rectangle())

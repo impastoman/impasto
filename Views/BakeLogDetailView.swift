@@ -39,7 +39,7 @@ struct BakeLogDetailView: View {
                 Button { showShare = true } label: {
                     Image(systemName: "square.and.arrow.up")
                 }
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
             }
         }
         .fullScreenCover(isPresented: $showShare) {
@@ -107,7 +107,7 @@ struct BakeLogDetailView: View {
                 HStack(spacing: 6) {
                     ForEach(1...5, id: \.self) { i in
                         Image(systemName: i <= log.rating ? "star.fill" : "star")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 }
             }
@@ -195,7 +195,7 @@ struct BakeLogDetailView: View {
             Section {
                 Button("Copy Session into New Recipe →") { showForkWizard = true }
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                     .font(.jakarta(.regular, size: 14))
             } footer: {
                 Text("Opens the recipe wizard pre-filled with bake log settings. Saves as a new recipe variant.")
@@ -215,7 +215,7 @@ struct BakeLogDetailView: View {
                 HStack(spacing: 8) {
                     ForEach(1...5, id: \.self) { i in
                         Image(systemName: i <= annotatedRating ? "star.fill" : "star")
-                            .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.semibold, size: 20))
+                            .foregroundColor(Color(hex: "7FA2BD")).font(.jakarta(.semibold, size: 20))
                             .onTapGesture { annotatedRating = i }
                     }
                 }
@@ -234,7 +234,7 @@ struct BakeLogDetailView: View {
             Section {
                 Button(saved ? "Saved ✓" : "Save Annotation") { saveAnnotation() }
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                     .font(.jakarta(.regular, size: 14))
             }
             .listRowBackground(Color.clear)
@@ -298,8 +298,8 @@ struct BakeLogDetailView: View {
                         Text(tag)
                             .font(.jakarta(.regular, size: 12))
                             .padding(.horizontal, 8).padding(.vertical, 3)
-                            .background(Color(hex: "D2B96A").opacity(0.12))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .background(Color(hex: "7FA2BD").opacity(0.12))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .cornerRadius(4)
                     }
                 }
@@ -322,6 +322,6 @@ struct BakeLogDetailView: View {
 
     func deltaColor(_ delta: TimeInterval) -> Color {
         if Swift.abs(delta) < 300 { return .secondary }
-        return delta > 0 ? .orange : Color(hex: "D2B96A")
+        return delta > 0 ? .orange : Color(hex: "7FA2BD")
     }
 }

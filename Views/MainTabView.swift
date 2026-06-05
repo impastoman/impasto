@@ -25,7 +25,7 @@ struct MainTabView: View {
                 .tabItem { Label("History", systemImage: "list.bullet") }
                 .tag(2)
         }
-        .tint(Color(hex: "D2B96A"))
+        .tint(Color(hex: "7FA2BD"))
     }
 }
 

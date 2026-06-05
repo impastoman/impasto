@@ -141,7 +141,7 @@ struct LibraryView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color(hex: "D2B96A"))
+                    .background(Color(hex: "7FA2BD"))
                     .cornerRadius(10)
                 }
                 .padding(.horizontal, 20)
@@ -457,7 +457,7 @@ struct LibraryView: View {
                 Button { blendToMove = blend } label: {
                     Label("Move", systemImage: "folder")
                 }
-                .tint(Color(hex: "D2B96A"))
+                .tint(Color(hex: "7FA2BD"))
             }
         }
         .swipeActions(edge: .trailing) {
@@ -543,7 +543,7 @@ struct LibraryView: View {
                 Button { processToMove = process } label: {
                     Label("Move", systemImage: "folder")
                 }
-                .tint(Color(hex: "D2B96A"))
+                .tint(Color(hex: "7FA2BD"))
             }
         }
         .swipeActions(edge: .trailing) {
@@ -629,7 +629,7 @@ struct LibraryView: View {
                 Button { prefermentToMove = pref } label: {
                     Label("Move", systemImage: "folder")
                 }
-                .tint(Color(hex: "D2B96A"))
+                .tint(Color(hex: "7FA2BD"))
             }
         }
         .swipeActions(edge: .trailing) {
@@ -694,7 +694,7 @@ private extension View {
                     } label: {
                         Label("Move", systemImage: "folder")
                     }
-                    .tint(Color(hex: "D2B96A"))
+                    .tint(Color(hex: "7FA2BD"))
                 }
             }
             .swipeActions(edge: .trailing) {
@@ -735,7 +735,7 @@ private struct SectionReorderView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { onSave(); dismiss() }
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
         }
@@ -754,22 +754,30 @@ struct RecipeRowView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(recipe.name).font(.jakarta(.semibold, size: 16))
-                Spacer()
-                Text(styleLabel)
+        HStack(spacing: 10) {
+            // Margin strip — the iconic notebook teacher's-red vertical
+            // rule. 2pt wide, fills the row's height.
+            Rectangle()
+                .fill(Color.marginRed)
+                .frame(width: 2)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(recipe.name).font(.jakarta(.semibold, size: 16))
+                    Spacer()
+                    Text(styleLabel)
+                        .font(.jakarta(.regular, size: 11))
+                        .padding(.horizontal, 7).padding(.vertical, 2)
+                        .background(Color.ruleBlueFaint)
+                        .foregroundColor(Color.ruleBlue)
+                        .cornerRadius(4)
+                }
+                Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")
+                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+                Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested ×\(recipe.bakeLogs.count)")
                     .font(.jakarta(.regular, size: 11))
-                    .padding(.horizontal, 7).padding(.vertical, 2)
-                    .background(Color(hex: "D2B96A").opacity(0.15))
-                    .foregroundColor(Color(hex: "D2B96A"))
-                    .cornerRadius(4)
+                    .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
             }
-            Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")
-                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
-            Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested ×\(recipe.bakeLogs.count)")
-                .font(.jakarta(.regular, size: 11))
-                .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
         }
         .padding(.vertical, 4)
     }

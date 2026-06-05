@@ -28,7 +28,7 @@ struct MethodStepView: View {
 
             Section(header: Text("Use a preferment?").font(.jakarta(.semibold, size: 13))) {
                 Toggle("Yes — use a preferment", isOn: $usePreferment)
-                    .tint(Color(hex: "D2B96A"))
+                    .tint(Color(hex: "7FA2BD"))
                     .onChange(of: usePreferment) { _, val in
                         method = val ? derivedMethod : .direct
                         if !val { prefEntryMode = .pick }
@@ -94,10 +94,10 @@ struct MethodStepView: View {
                 showLibraryPicker = true
             } label: {
                 HStack {
-                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Load preferment")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(store.savedPreferments.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                        .foregroundColor(store.savedPreferments.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                 }
             }
             .disabled(store.savedPreferments.isEmpty)
@@ -115,10 +115,10 @@ struct MethodStepView: View {
                 prefEntryMode = .create
             } label: {
                 HStack {
-                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Configure preferment")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
         } header: { Text("Preferment") }
@@ -129,10 +129,10 @@ struct MethodStepView: View {
         Section {
             HStack {
                 Image(systemName: prefEntryMode == .load ? "tray.and.arrow.down" : "pencil")
-                    .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.regular, size: 12))
+                    .foregroundColor(Color(hex: "7FA2BD")).font(.jakarta(.regular, size: 12))
                 Text(prefEntryMode == .load ? (savePrefName.isEmpty ? "Loaded from library" : savePrefName) : "New preferment")
                     .font(.jakarta(.regular, size: 13))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                 Spacer()
                 Button("Change") {
                     savePrefName = ""
@@ -143,7 +143,7 @@ struct MethodStepView: View {
                 .foregroundColor(.secondary)
             }
         }
-        .listRowBackground(Color(hex: "D2B96A").opacity(0.06))
+        .listRowBackground(Color(hex: "7FA2BD").opacity(0.06))
     }
 
     var hydrationSection: some View {
@@ -158,14 +158,14 @@ struct MethodStepView: View {
                         .tipText()
                 }
             }
-            .tint(Color(hex: "D2B96A"))
+            .tint(Color(hex: "7FA2BD"))
 
             VStack(spacing: 12) {
                 HStack {
                     Text(prefermentLabel)
                         .font(.jakarta(.regular, size: 18))
                         .fontWeight(.semibold)
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                     Spacer()
                     HStack(spacing: 4) {
                         TextField("\(Int(prefermentHydration * 100))", text: $hydrationText)
@@ -176,7 +176,7 @@ struct MethodStepView: View {
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
                             .cornerRadius(5)
-                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                             .onChange(of: hydrationText) { _, val in
                                 let f = val.filter { $0.isNumber || $0 == "." }
                                 if f != val { hydrationText = f; return }
@@ -193,7 +193,7 @@ struct MethodStepView: View {
 
                 if !prefHydrateOwnWay {
                     Slider(value: $prefermentHydration, in: 0.40...1.20, step: 0.01)
-                        .tint(Color(hex: "D2B96A"))
+                        .tint(Color(hex: "7FA2BD"))
                         .onChange(of: prefermentHydration) { _, val in
                             method = derivedMethod
                             hydrationText = "\(Int(val * 100))"
@@ -209,7 +209,7 @@ struct MethodStepView: View {
                             Text(zone.label)
                                 .font(.jakarta(.regular, size: 9))
                                 .multilineTextAlignment(.center)
-                                .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
+                                .foregroundColor(zone.active ? Color(hex: "7FA2BD") : Color.secondary.opacity(0.4))
                                 .frame(maxWidth: .infinity)
                         }
                     }
@@ -251,7 +251,7 @@ struct MethodStepView: View {
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
                             .cornerRadius(5)
-                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "D2B96A").opacity(0.5), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
                             .onChange(of: ratioText) { _, val in
                                 let f = val.filter { $0.isNumber || $0 == "." }
                                 if f != val { ratioText = f; return }
@@ -265,7 +265,7 @@ struct MethodStepView: View {
                     }
                 }
                 Slider(value: $prefermentRatio, in: 0.01...0.99, step: 0.01)
-                    .tint(Color(hex: "D2B96A"))
+                    .tint(Color(hex: "7FA2BD"))
                     .onChange(of: prefermentRatio) { _, val in
                         ratioText = "\(Int(val * 100))"
                     }
@@ -289,7 +289,7 @@ struct MethodStepView: View {
                     }
                 }
             ))
-            .tint(Color(hex: "D2B96A"))
+            .tint(Color(hex: "7FA2BD"))
 
             if useCustomPrefBlend {
                 ForEach($prefermentFlourBlend.components) { $component in
@@ -305,7 +305,7 @@ struct MethodStepView: View {
                     let total = prefermentFlourBlend.totalPercentage
                     Text(String(format: "%.0f%%", total) + (prefermentFlourBlend.isValid ? "  ✓" : ""))
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(prefermentFlourBlend.isValid ? Color(hex: "D2B96A") : .red)
+                        .foregroundColor(prefermentFlourBlend.isValid ? Color(hex: "7FA2BD") : .red)
                 }
                 .listRowBackground(Color.clear)
                 Button {
@@ -314,7 +314,7 @@ struct MethodStepView: View {
                     prefermentFlourBlend.components.append(c)
                 } label: {
                     Label("Add flour type", systemImage: "plus")
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                         .font(.jakarta(.regular, size: 17))
                 }
             }
@@ -340,10 +340,10 @@ struct MethodStepView: View {
         Section {
             if prefSaved {
                 HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Saved to library")
                         .font(.jakarta(.regular, size: 13))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             } else {
                 TextField("Name this preferment to save...", text: $savePrefName)
@@ -359,7 +359,7 @@ struct MethodStepView: View {
                     store.addSavedPreferment(pref)
                     prefSaved = true
                 }
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
             }
         } header: { Text("Save to Library") }
           footer: { Text("Optional — save this preferment for reuse in future recipes").tipText() }

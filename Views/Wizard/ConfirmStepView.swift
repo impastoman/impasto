@@ -61,10 +61,10 @@ struct ConfirmStepView: View {
                         return flourBlend.name.isEmpty ? "Same as main" : flourBlend.name
                     }()
                     LabeledContent("Preferment flour", value: prefBlendName)
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
                 LabeledContent("Flour blend",     value: flourBlend.name.isEmpty ? "Custom" : flourBlend.name)
-                    .foregroundColor(flourBlend.name.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                    .foregroundColor(flourBlend.name.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                 LabeledContent("Mixer",           value: mixerType.rawValue)
                 LabeledContent("Autolyse",        value: autolyse ? "Yes — \(style == .neapolitan ? 20 : 30) min" : "No")
                 LabeledContent("Bassinage",       value: bassinage ? "Yes" : "No")
@@ -127,7 +127,7 @@ struct ConfirmStepView: View {
                                 Spacer()
                                 Text(setup.ovenTempDisplay)
                                     .font(.jakarta(.regular, size: 12))
-                                    .foregroundColor(Color(hex: "D2B96A"))
+                                    .foregroundColor(Color(hex: "7FA2BD"))
                             }
                             HStack(spacing: 8) {
                                 if let surf = setup.surfaceTemp {
@@ -174,7 +174,7 @@ struct ConfirmStepView: View {
             Spacer()
             Button("Edit") { onJumpTo(step) }
                 .font(.jakarta(.regular, size: 11))
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
         }
     }
 

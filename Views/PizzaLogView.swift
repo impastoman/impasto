@@ -60,7 +60,7 @@ struct PizzaLogView: View {
                         savePizzaEntry()
                         onEndBake()
                     }
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
         }
@@ -217,7 +217,7 @@ struct PizzaLogView: View {
                 onReturnToBaking()
             }
             .frame(maxWidth: .infinity, alignment: .center)
-            .foregroundColor(Color(hex: "D2B96A"))
+            .foregroundColor(Color(hex: "7FA2BD"))
         }
     }
 
@@ -252,7 +252,7 @@ struct PizzaLogView: View {
             Text(label)
                 .font(.jakarta(.regular, size: 12))
                 .padding(.horizontal, 10).padding(.vertical, 6)
-                .background(selected ? Color(hex: "D2B96A") : Color(hex: "ECEAE3"))
+                .background(selected ? Color(hex: "7FA2BD") : Color(hex: "ECEAE3"))
                 .foregroundColor(selected ? .white : .primary)
                 .cornerRadius(14)
         }

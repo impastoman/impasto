@@ -105,10 +105,10 @@ struct SessionLogView: View {
             if aggregatedPhotos.isEmpty {
                 Button { showPhotoOptions = true } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "photo.badge.plus").foregroundColor(Color(hex: "D2B96A"))
+                        Image(systemName: "photo.badge.plus").foregroundColor(Color(hex: "7FA2BD"))
                         Text("Add a session photo")
                             .font(.jakarta(.regular, size: 17))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 6)
@@ -134,7 +134,7 @@ struct SessionLogView: View {
             HStack(spacing: 8) {
                 ForEach(1...5, id: \.self) { i in
                     Image(systemName: i <= rating ? "star.fill" : "star")
-                        .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.semibold, size: 20))
+                        .foregroundColor(Color(hex: "7FA2BD")).font(.jakarta(.semibold, size: 20))
                         .onTapGesture { rating = i }
                 }
             }
@@ -297,11 +297,11 @@ struct SessionLogView: View {
         Section {
             Button("Save to History") { save() }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
 
             Button("Share this session →") { showShare = true }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
                 .font(.jakarta(.regular, size: 13))
 
             Button("↩ Exit Session") { showGoHomeAlert = true }
@@ -374,7 +374,7 @@ struct SessionLogView: View {
 
     func deltaColor(_ delta: TimeInterval) -> Color {
         if Swift.abs(delta) < 300 { return .secondary }
-        return delta > 0 ? .orange : Color(hex: "D2B96A")
+        return delta > 0 ? .orange : Color(hex: "7FA2BD")
     }
 }
 
@@ -411,8 +411,8 @@ struct TagChip: View {
         Text(label)
             .font(.jakarta(.regular, size: 12))
             .padding(.horizontal, 10).padding(.vertical, 5)
-            .background(selected ? Color(hex: "D2B96A").opacity(0.18) : Color(hex: "ECEAE3"))
-            .foregroundColor(selected ? Color(hex: "D2B96A") : .secondary)
+            .background(selected ? Color(hex: "7FA2BD").opacity(0.18) : Color(hex: "ECEAE3"))
+            .foregroundColor(selected ? Color(hex: "7FA2BD") : .secondary)
             .cornerRadius(5)
             .onTapGesture(perform: onTap)
     }

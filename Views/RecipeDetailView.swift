@@ -79,7 +79,7 @@ struct RecipeDetailView: View {
                 Section {
                     Button("▶  Start Session") { showPreFlight = true }
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                     Button("Edit Recipe") { showEditWizard = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.primary)

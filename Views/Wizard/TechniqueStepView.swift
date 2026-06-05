@@ -28,7 +28,7 @@ struct TechniqueStepView: View {
                         Spacer()
                         if mixerType == mixer {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                         }
                     }
                     .padding(.vertical, 2)
@@ -67,7 +67,7 @@ struct TechniqueStepView: View {
                             .tipText()
                     }
                 }
-                .tint(Color(hex: "D2B96A"))
+                .tint(Color(hex: "7FA2BD"))
 
                 if autolyse {
                     HStack {
@@ -103,7 +103,7 @@ struct TechniqueStepView: View {
                             .tipText()
                     }
                 }
-                .tint(Color(hex: "D2B96A"))
+                .tint(Color(hex: "7FA2BD"))
 
                 if bassinage {
                     LabeledContent("Default reserve", value: "10% of total water")

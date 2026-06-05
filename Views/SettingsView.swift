@@ -17,7 +17,7 @@ struct SettingsView: View {
             List {
                 Section(header: Text("Display").font(.jakarta(.semibold, size: 13))) {
                     Toggle("Show tips", isOn: $showTips)
-                        .tint(Color(hex: "D2B96A"))
+                        .tint(Color(hex: "7FA2BD"))
                         .font(.jakarta(.regular, size: 17))
                 }
                 .listRowBackground(Color.clear)
@@ -61,7 +61,7 @@ struct SettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                         .font(.jakarta(.regular, size: 17))
                 }
             }

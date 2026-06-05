@@ -14,7 +14,7 @@ struct FlourStepView: View {
                         Text("00, bread flour, all-purpose").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                     }
                     Spacer()
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "7FA2BD"))
                 }
                 .padding(.vertical, 2)
 

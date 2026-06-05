@@ -37,12 +37,12 @@ private extension Font {
 // MARK: - Palette
 
 private extension Color {
-    static let paper       = Color(hex: "F5F1E8")
+    static let paper       = Color(hex: "FAFAF5")
     static let paperDeep   = Color(hex: "F0EDE4")
     static let ink         = Color(hex: "2C2A24")
     static let inkLight    = Color(hex: "9A9688")
-    static let gold        = Color(hex: "D2B96A")
-    static let goldFaint   = Color(hex: "D2B96A").opacity(0.15)
+    static let gold        = Color(hex: "7FA2BD")
+    static let goldFaint   = Color(hex: "7FA2BD").opacity(0.15)
     static let rule        = Color(hex: "C4B89A").opacity(0.35)
     static let headerBand  = Color(hex: "8AAEC8")
 }
@@ -393,7 +393,7 @@ private struct ContextPanel: View {
                     HStack {
                         Text("07:58:34")
                             .font(.jakarta(34, weight: .light))
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("– 0:01:26")
@@ -461,7 +461,7 @@ private struct ContextPanel: View {
                             Spacer()
                             Text("30 min")
                                 .font(.jakarta(12, weight: .medium))
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                         }
                     }
                     .padding(16)

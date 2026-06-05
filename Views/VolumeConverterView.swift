@@ -85,7 +85,7 @@ struct VolumeConverterView: View {
                 hintSection
             }
             .navigationTitle("Convert a Recipe")
-            .tint(Color(hex: "D2B96A"))
+            .tint(Color(hex: "7FA2BD"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -106,7 +106,7 @@ struct VolumeConverterView: View {
                     } label: {
                         Text("Review →")
                             .font(.jakarta(.regular, size: 13))
-                            .foregroundColor(canReview ? Color(hex: "D2B96A") : .secondary)
+                            .foregroundColor(canReview ? Color(hex: "7FA2BD") : .secondary)
                     }
                     .disabled(!canReview)
                 }
@@ -129,7 +129,7 @@ struct VolumeConverterView: View {
             } label: {
                 Label("Add another flour", systemImage: "plus.circle")
                     .font(.jakarta(.regular, size: 13))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
             }
         } header: {
             sectionHeader("Flour")
@@ -336,7 +336,7 @@ struct ConversionReviewView: View {
             }
             .padding(16)
         }
-        .background(Color(hex: "F5F1E8").ignoresSafeArea())
+        .background(Color(hex: "FAFAF5").ignoresSafeArea())
         .navigationTitle("Review")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -488,7 +488,7 @@ struct ConversionReviewView: View {
             Text(value)
                 .font(.jakarta(.regular, size: 13))
                 .fontWeight(.medium)
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)

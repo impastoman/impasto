@@ -24,12 +24,12 @@ struct TimelineStepView: View {
                             }
                             Text("Ready by \(target.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.jakarta(.regular, size: 12))
-                                .foregroundColor(Color(hex: "D2B96A").opacity(0.7))
+                                .foregroundColor(Color(hex: "7FA2BD").opacity(0.7))
                         }
                         Spacer()
                         if selected == option {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(Color(hex: "D2B96A"))
+                                .foregroundColor(Color(hex: "7FA2BD"))
                                 .padding(.top, 2)
                         }
                     }
@@ -61,7 +61,7 @@ struct TimelineStepView: View {
                         showTimingInfo = true
                     } label: {
                         Image(systemName: "info.circle")
-                            .foregroundColor(Color(hex: "D2B96A"))
+                            .foregroundColor(Color(hex: "7FA2BD"))
                             .font(.jakarta(.regular, size: 12))
                     }
                     .buttonStyle(.plain)

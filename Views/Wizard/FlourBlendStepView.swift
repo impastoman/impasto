@@ -48,10 +48,10 @@ struct FlourBlendStepView: View {
                 showLibraryPicker = true
             } label: {
                 HStack {
-                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Load flour blend")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(store.savedBlends.isEmpty ? .secondary : Color(hex: "D2B96A"))
+                        .foregroundColor(store.savedBlends.isEmpty ? .secondary : Color(hex: "7FA2BD"))
                 }
             }
             .disabled(store.savedBlends.isEmpty)
@@ -68,10 +68,10 @@ struct FlourBlendStepView: View {
                 mode = .create
             } label: {
                 HStack {
-                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "plus.circle").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Create flour blend")
                         .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
         } header: { Text("Flour blend") }
@@ -82,12 +82,12 @@ struct FlourBlendStepView: View {
         Section {
             HStack {
                 Image(systemName: mode == .load ? "tray.and.arrow.down" : "pencil")
-                    .foregroundColor(Color(hex: "D2B96A")).font(.jakarta(.regular, size: 12))
+                    .foregroundColor(Color(hex: "7FA2BD")).font(.jakarta(.regular, size: 12))
                 Text(mode == .load
                      ? (flourBlend.name.isEmpty ? "Loaded from library" : flourBlend.name)
                      : "New blend")
                     .font(.jakarta(.regular, size: 13))
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                 Spacer()
                 Button("Change") {
                     flourBlend = FlourBlend()
@@ -99,7 +99,7 @@ struct FlourBlendStepView: View {
                 .foregroundColor(.secondary)
             }
         }
-        .listRowBackground(Color(hex: "D2B96A").opacity(0.06))
+        .listRowBackground(Color(hex: "7FA2BD").opacity(0.06))
     }
 
     var flourSection: some View {
@@ -121,7 +121,7 @@ struct FlourBlendStepView: View {
             Spacer()
             Text(String(format: "%.0f%%", total) + (isValid ? "  ✓" : ""))
                 .font(.jakarta(.regular, size: 17))
-                .foregroundColor(isValid ? Color(hex: "D2B96A") : .red)
+                .foregroundColor(isValid ? Color(hex: "7FA2BD") : .red)
         }
         .listRowBackground(Color.clear)
     }
@@ -133,7 +133,7 @@ struct FlourBlendStepView: View {
             flourBlend.components.append(c)
         } label: {
             Label("Add flour type", systemImage: "plus")
-                .foregroundColor(Color(hex: "D2B96A"))
+                .foregroundColor(Color(hex: "7FA2BD"))
                 .font(.jakarta(.regular, size: 17))
         }
     }
@@ -149,7 +149,7 @@ struct FlourBlendStepView: View {
                 flourBlend.additives.append(Additive())
             } label: {
                 Label("Add additive", systemImage: "plus")
-                    .foregroundColor(Color(hex: "D2B96A"))
+                    .foregroundColor(Color(hex: "7FA2BD"))
                     .font(.jakarta(.regular, size: 17))
             }
         } header: {
@@ -187,10 +187,10 @@ struct FlourBlendStepView: View {
         Section {
             if blendSaved {
                 HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
+                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "7FA2BD"))
                     Text("Saved to library")
                         .font(.jakarta(.regular, size: 13))
-                        .foregroundColor(Color(hex: "D2B96A"))
+                        .foregroundColor(Color(hex: "7FA2BD"))
                 }
             } else {
                 TextField("Name this blend to save...", text: $saveBlendName)
@@ -202,7 +202,7 @@ struct FlourBlendStepView: View {
                     store.addBlend(toSave)
                     blendSaved = true
                 }
-                .foregroundColor(flourBlend.isValid ? Color(hex: "D2B96A") : .secondary)
+                .foregroundColor(flourBlend.isValid ? Color(hex: "7FA2BD") : .secondary)
                 .disabled(!flourBlend.isValid)
             }
         } header: { Text("Save to Library") }
