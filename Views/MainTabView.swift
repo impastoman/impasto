@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var store: RecipeStore
@@ -54,10 +54,10 @@ struct ActiveSessionsView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(vm.recipe.name)
-                                            .font(.jakarta(.regular, size: 15))
+                                            .font(.system(size: 15, design: .monospaced))
                                             .foregroundColor(.primary)
-                                        Text("Step \(vm.currentIndex + 1) of \(vm.cards.count)  Â·  \(vm.recipe.method.rawValue)")
-                                            .font(.jakarta(.regular, size: 11))
+                                        Text("Step \(vm.currentIndex + 1) of \(vm.cards.count)  ·  \(vm.recipe.method.rawValue)")
+                                            .font(.system(size: 11, design: .monospaced))
                                             .foregroundColor(.secondary)
                                     }
                                     Spacer()
@@ -66,7 +66,7 @@ struct ActiveSessionsView: View {
                                         .frame(width: 8, height: 8)
                                 }
                                 HStack(spacing: 12) {
-                                    Button("â–¶  Resume") {
+                                    Button("▶  Resume") {
                                         vm.isHidden = false
                                         resumedSession = vm
                                     }

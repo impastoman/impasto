@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct RecipeDetailView: View {
     @EnvironmentObject var store: RecipeStore
@@ -24,7 +24,7 @@ struct RecipeDetailView: View {
                 row("Method",   recipe.method.rawValue)
                 row("Mixer",    recipe.mixerType.rawValue)
                 row("Autolyse", recipe.autolyse ? "\(recipe.autolyseMinutes) min" : "None")
-                row("Timeline", "\(recipe.timeline.rawValue)  Â·  \(recipe.timeline.hours)")
+                row("Timeline", "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
             }
             .listRowBackground(Color.clear)
 
@@ -35,7 +35,7 @@ struct RecipeDetailView: View {
                     row("Biga percentage", "\(Int(recipe.bigaRatio * 100))%")
                 }
                 row("Salt",  String(format: "%.1f%%", recipe.saltPct * 100))
-                row("Yeast", "\(recipe.yeastType.rawValue)  Â·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
+                row("Yeast", "\(recipe.yeastType.rawValue)  ·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
             }
             .listRowBackground(Color.clear)
 
@@ -50,17 +50,17 @@ struct RecipeDetailView: View {
                     }
                 }
                 .listRowBackground(Color.clear)
-                .font(.jakarta(.regular, size: 17))
+                .font(.system(.body, design: .monospaced))
             }
 
             Section("Target") {
-                row("Balls",       "\(recipe.ballCount) Ã— \(Int(recipe.ballWeight))g")
+                row("Balls",       "\(recipe.ballCount) × \(Int(recipe.ballWeight))g")
                 row("Total dough", "\(Int(recipe.totalDoughWeight))g")
             }
             .listRowBackground(Color.clear)
 
             if recipe.method != .direct {
-                Section("â‘  \(recipe.method.rawValue)") {
+                Section("① \(recipe.method.rawValue)") {
                     row("Flour", "\(Int(recipe.bigaFlour))g")
                     row("Water", "\(Int(recipe.bigaWater))g")
                     row("Yeast", String(format: "%.1fg", recipe.bigaYeast))
@@ -68,7 +68,7 @@ struct RecipeDetailView: View {
                 .listRowBackground(Color.clear)
             }
 
-            Section(recipe.method != .direct ? "â‘¡ Final dough" : "Dough") {
+            Section(recipe.method != .direct ? "② Final dough" : "Dough") {
                 row("Flour", "\(Int(recipe.additionalFlour))g")
                 row("Water", "\(Int(recipe.additionalWater))g")
                 row("Salt",  "\(Int(recipe.totalSalt))g")
@@ -77,7 +77,7 @@ struct RecipeDetailView: View {
 
             if !isReadOnly {
                 Section {
-                    Button("â–¶  Start Session") { showPreFlight = true }
+                    Button("▶  Start Session") { showPreFlight = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(Color(hex: "D2B96A"))
                     Button("Edit Recipe") { showEditWizard = true }
@@ -154,7 +154,7 @@ struct RecipeDetailView: View {
 
     func row(_ label: String, _ value: String) -> some View {
         LabeledContent(label, value: value)
-            .font(.jakarta(.regular, size: 17))
+            .font(.system(.body, design: .monospaced))
     }
 
     func recipeExportString() -> String {

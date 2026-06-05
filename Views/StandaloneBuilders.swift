@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 // MARK: - Folder Picker Row
 
@@ -12,7 +12,7 @@ private struct FolderPickerRow: View {
     var body: some View {
         HStack {
             Text("Folder")
-                .font(.jakarta(.regular, size: 17))
+                .font(.system(.body, design: .monospaced))
             Spacer()
             Menu {
                 Button("None") { folderName = "" }
@@ -21,14 +21,14 @@ private struct FolderPickerRow: View {
                     Button(folder) { folderName = folder }
                 }
                 Divider()
-                Button("New folderâ€¦") {
+                Button("New folder…") {
                     newFolderInput = ""
                     showNewFolderAlert = true
                 }
             } label: {
                 HStack(spacing: 4) {
                     Text(folderName.isEmpty ? "None" : folderName)
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(folderName.isEmpty ? .secondary : Color(hex: "D2B96A"))
                     Image(systemName: "chevron.up.chevron.down")
                         .font(.caption2)
@@ -75,7 +75,7 @@ struct StandaloneBlendBuilderView: View {
             List {
                 Section("Name") {
                     TextField("e.g. Caputo 00 + Semolina", text: $blend.name)
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .textFieldBox()
                 }
 
@@ -92,10 +92,10 @@ struct StandaloneBlendBuilderView: View {
                     HStack {
                         Text("Total")
                             .foregroundColor(.secondary)
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                         Spacer()
-                        Text(String(format: "%.0f%%", blend.totalPercentage) + (blend.isValid ? "  âœ“" : ""))
-                            .font(.jakarta(.regular, size: 17))
+                        Text(String(format: "%.0f%%", blend.totalPercentage) + (blend.isValid ? "  ✓" : ""))
+                            .font(.system(.body, design: .monospaced))
                             .foregroundColor(blend.isValid ? Color(hex: "D2B96A") : .red)
                     }
                     .listRowBackground(Color.clear)
@@ -106,7 +106,7 @@ struct StandaloneBlendBuilderView: View {
                     } label: {
                         Label("Add flour type", systemImage: "plus")
                             .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                     }
                 }
 
@@ -121,18 +121,18 @@ struct StandaloneBlendBuilderView: View {
                     } label: {
                         Label("Add additive", systemImage: "plus")
                             .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                     }
                 } header: {
-                    Text("Additives  Â·  % of total flour weight")
+                    Text("Additives  ·  % of total flour weight")
                 }
 
                 if blend.containsRye {
                     Section {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                            Text("Rye flour does not autolyse well â€” consider disabling autolyse if your blend contains rye")
-                                .font(.jakarta(.regular, size: 12))
+                            Text("Rye flour does not autolyse well — consider disabling autolyse if your blend contains rye")
+                                .font(.system(size: 12, design: .monospaced))
                                 .foregroundColor(.orange)
                         }
                     }
@@ -142,7 +142,7 @@ struct StandaloneBlendBuilderView: View {
                 if !blend.isValid {
                     Section {
                         Text("Flour percentages must total 100%")
-                            .font(.jakarta(.regular, size: 12))
+                            .font(.system(size: 12, design: .monospaced))
                             .foregroundColor(.red)
                     }
                     .listRowBackground(Color.red.opacity(0.06))
@@ -163,7 +163,7 @@ struct StandaloneBlendBuilderView: View {
                         }
                         .disabled(!blend.isValid || blend.name.isEmpty)
                         .foregroundColor(blend.isValid && !blend.name.isEmpty ? .secondary : .secondary)
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -214,7 +214,7 @@ struct StandaloneProcessBuilderView: View {
             List {
                 Section("Name") {
                     TextField("e.g. Cold Retard w/ Stretch & Fold", text: $name)
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .textFieldBox()
                 }
 
@@ -226,7 +226,7 @@ struct StandaloneProcessBuilderView: View {
                     ForEach(processCards.indices, id: \.self) { idx in
                         ProcessCardRow(
                             card: $processCards[idx],
-                            position: processCards[idx].type == .combine ? "ðŸ”’" : "\(idx)",
+                            position: processCards[idx].type == .combine ? "🔒" : "\(idx)",
                             isLocked: processCards[idx].type == .combine,
                             onRemove: {
                                 processCards.remove(at: idx)
@@ -259,7 +259,7 @@ struct StandaloneProcessBuilderView: View {
                         showAddSheet = true
                     } label: {
                         Label("Add step", systemImage: "plus.circle")
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                             .foregroundColor(Color(hex: "D2B96A"))
                     }
                 } header: { Text("Process steps") }
@@ -281,7 +281,7 @@ struct StandaloneProcessBuilderView: View {
                         }
                         .disabled(name.isEmpty)
                         .foregroundColor(name.isEmpty ? .secondary : .secondary)
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -363,7 +363,7 @@ struct StandalonePrefermentBuilderView: View {
             List {
                 Section("Name") {
                     TextField("e.g. 50% Biga", text: $name)
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .textFieldBox()
                 }
 
@@ -371,12 +371,12 @@ struct StandalonePrefermentBuilderView: View {
                     FolderPickerRow(folderName: $folderName, existingFolders: prefermentFolders)
                 }
 
-                // Hydration â€” classifies the type (Biga vs Poolish) and implies water %
+                // Hydration — classifies the type (Biga vs Poolish) and implies water %
                 Section {
                     VStack(spacing: 12) {
                         HStack {
                             Text(prefermentLabel)
-                                .font(.jakarta(.regular, size: 18))
+                                .font(.system(size: 18, design: .monospaced))
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color(hex: "D2B96A"))
                             Spacer()
@@ -385,7 +385,7 @@ struct StandalonePrefermentBuilderView: View {
                                     .keyboardType(.numberPad)
                                     .multilineTextAlignment(.center)
                                     .frame(width: 44)
-                                    .font(.jakarta(.regular, size: 15))
+                                    .font(.system(size: 15, design: .monospaced))
                                     .inputBox()
                                     .onChange(of: hydrationText) { _, val in
                                         if let d = Double(val), d >= 40, d <= 120 {
@@ -393,7 +393,7 @@ struct StandalonePrefermentBuilderView: View {
                                         }
                                     }
                                 Text("% water")
-                                    .font(.jakarta(.regular, size: 13))
+                                    .font(.system(size: 13, design: .monospaced))
                                     .foregroundColor(.secondary)
                             }
                         }
@@ -407,13 +407,13 @@ struct StandalonePrefermentBuilderView: View {
                 } header: { Text("Hydration") }
                   footer: {
                     if hydration < 0.50 {
-                        Text("Below 50% the dough will be very stiff â€” handle with lightly floured hands")
-                            .font(.jakarta(.regular, size: 11))
+                        Text("Below 50% the dough will be very stiff — handle with lightly floured hands")
+                            .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(.orange)
                     }
                 }
 
-                // Flour blend â€” which flours go into this preferment
+                // Flour blend — which flours go into this preferment
                 Section("Flour") {
                     ForEach($flourBlend.components) { $component in
                         FlourComponentRow(component: $component) {
@@ -423,11 +423,11 @@ struct StandalonePrefermentBuilderView: View {
                     HStack {
                         Text("Total")
                             .foregroundColor(.secondary)
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                         Spacer()
                         Text(String(format: "%.0f%%", flourBlend.totalPercentage)
-                             + (flourBlend.isValid ? "  âœ“" : ""))
-                            .font(.jakarta(.regular, size: 17))
+                             + (flourBlend.isValid ? "  ✓" : ""))
+                            .font(.system(.body, design: .monospaced))
                             .foregroundColor(flourBlend.isValid ? Color(hex: "D2B96A") : .red)
                     }
                     .listRowBackground(Color.clear)
@@ -438,11 +438,11 @@ struct StandalonePrefermentBuilderView: View {
                     } label: {
                         Label("Add flour type", systemImage: "plus")
                             .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                     }
                 }
 
-                // Additives â€” diastatic malt, VWG, etc. (% of flour weight)
+                // Additives — diastatic malt, VWG, etc. (% of flour weight)
                 Section {
                     ForEach($flourBlend.additives) { $additive in
                         AdditiveRow(additive: $additive) {
@@ -454,22 +454,22 @@ struct StandalonePrefermentBuilderView: View {
                     } label: {
                         Label("Add additive", systemImage: "plus")
                             .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                     }
-                } header: { Text("Additives  Â·  % of flour weight") }
+                } header: { Text("Additives  ·  % of flour weight") }
 
                 if !flourBlend.isValid {
                     Section {
                         Text("Flour percentages must total 100%")
-                            .font(.jakarta(.regular, size: 12))
+                            .font(.system(size: 12, design: .monospaced))
                             .foregroundColor(.red)
                     }
                     .listRowBackground(Color.red.opacity(0.06))
                 }
 
                 Section("Notes") {
-                    TextField("Fermentation notes, timing tipsâ€¦", text: $notes, axis: .vertical)
-                        .font(.jakarta(.regular, size: 13))
+                    TextField("Fermentation notes, timing tips…", text: $notes, axis: .vertical)
+                        .font(.system(size: 13, design: .monospaced))
                         .lineLimit(3...)
                         .notesBox()
                 }
@@ -490,7 +490,7 @@ struct StandalonePrefermentBuilderView: View {
                         }
                         .disabled(!canSave)
                         .foregroundColor(canSave ? .secondary : .secondary)
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

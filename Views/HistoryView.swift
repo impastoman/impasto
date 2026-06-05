@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct HistoryView: View {
     @EnvironmentObject var store: RecipeStore
@@ -6,7 +6,7 @@ struct HistoryView: View {
     @State private var selectedPizza: PizzaEntry? = nil
     @State private var shareContext: ShareLogContext? = nil
 
-    /// Identifiable wrapper for fullScreenCover(item:) â€” pairs the log + recipe
+    /// Identifiable wrapper for fullScreenCover(item:) — pairs the log + recipe
     /// the user wants to share.
     struct ShareLogContext: Identifiable {
         let id: UUID    // = log.id
@@ -26,7 +26,7 @@ struct HistoryView: View {
                 ForEach(allLogs, id: \.0.id) { log, recipe in
                     Section {
                         if log.pizzaEntries.isEmpty {
-                            // Legacy / no per-pizza data â€” show session-level bake row
+                            // Legacy / no per-pizza data — show session-level bake row
                             legacyBakeRow(log: log)
                         } else {
                             ForEach(log.pizzaEntries) { entry in
@@ -39,7 +39,7 @@ struct HistoryView: View {
 
                         NavigationLink(destination: BakeLogDetailView(log: log, recipe: recipe).environmentObject(store)) {
                             Text("View session log")
-                                .font(.jakarta(.regular, size: 12))
+                                .font(.system(size: 12, design: .monospaced))
                                 .foregroundColor(Color(hex: "D2B96A"))
                         }
 
@@ -48,9 +48,9 @@ struct HistoryView: View {
                         } label: {
                             HStack(spacing: 6) {
                                 Image(systemName: "square.and.arrow.up")
-                                Text("Share this session â†’")
+                                Text("Share this session →")
                             }
-                            .font(.jakarta(.regular, size: 12))
+                            .font(.system(size: 12, design: .monospaced))
                             .foregroundColor(Color(hex: "D2B96A"))
                         }
                         .buttonStyle(.plain)
@@ -107,7 +107,7 @@ struct HistoryView: View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Text(recipe.name)
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.primary)
                     .fontWeight(.medium)
                 Spacer()
@@ -123,8 +123,8 @@ struct HistoryView: View {
                 }
             }
             Text(log.date.formatted(date: .abbreviated, time: .omitted)
-                 + "  Â·  \(log.ballCount) balls  Â·  \(Int(log.finalHydration * 100))%")
-                .font(.jakarta(.regular, size: 11))
+                 + "  ·  \(log.ballCount) balls  ·  \(Int(log.finalHydration * 100))%")
+                .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
         }
         .textCase(nil)
@@ -153,23 +153,23 @@ struct HistoryView: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(entry.loggedAt.formatted(date: .omitted, time: .shortened))
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                         .foregroundColor(.primary)
-                    Text("Â·")
+                    Text("·")
                         .foregroundColor(.secondary)
                     Text(shortTime(entry.bakeTimeSeconds))
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
                 Text(bakeSummary(entry))
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
             }
 
             Spacer()
 
             Text("Bake #\(entry.pizzaNumber)")
-                .font(.jakarta(.regular, size: 11))
+                .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 2)
@@ -196,18 +196,18 @@ struct HistoryView: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(log.date.formatted(date: .omitted, time: .shortened))
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                         .foregroundColor(.primary)
                     if log.bakeTimeSeconds > 0 {
-                        Text("Â·")
+                        Text("·")
                             .foregroundColor(.secondary)
                         Text(shortTime(log.bakeTimeSeconds))
-                            .font(.jakarta(.regular, size: 13))
+                            .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
                 }
-                Text("\(log.crustColor.rawValue) Â· \(log.bottomResult.rawValue) Â· \(log.topResult.rawValue)")
-                    .font(.jakarta(.regular, size: 11))
+                Text("\(log.crustColor.rawValue) · \(log.bottomResult.rawValue) · \(log.topResult.rawValue)")
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
             }
 
@@ -219,7 +219,7 @@ struct HistoryView: View {
     // MARK: - Helpers
 
     func bakeSummary(_ entry: PizzaEntry) -> String {
-        "\(entry.crustColor.rawValue) Â· \(entry.bottomResult.rawValue) Â· \(entry.topResult.rawValue)"
+        "\(entry.crustColor.rawValue) · \(entry.bottomResult.rawValue) · \(entry.topResult.rawValue)"
     }
 
     func shortTime(_ t: TimeInterval) -> String {

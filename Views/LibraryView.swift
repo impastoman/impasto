@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct LibraryView: View {
     @EnvironmentObject var store: RecipeStore
@@ -54,7 +54,7 @@ struct LibraryView: View {
             // EditMode is intentionally NOT toggled here. EditMode.active
             // captures gestures on row bodies (for the right-edge handles
             // and selection), which prevents .draggable from initiating a
-            // system drag. We use drag-and-drop instead â€” long-press a row
+            // system drag. We use drag-and-drop instead — long-press a row
             // in reorder mode to drag it onto a folder or section header.
             .navigationTitle("Library")
             .toolbar {
@@ -68,9 +68,9 @@ struct LibraryView: View {
                 }
                 if isReordering {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Sections â†•") { showSectionReorder = true }
+                        Button("Sections ↕") { showSectionReorder = true }
                             .foregroundColor(.secondary)
-                            .font(.jakarta(.regular, size: 13))
+                            .font(.system(size: 13, design: .monospaced))
                     }
                 } else {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -136,7 +136,7 @@ struct LibraryView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
                         Text("Done Sorting")
-                            .font(.jakarta(.semibold, size: 17))
+                            .font(.system(.body, design: .monospaced).weight(.semibold))
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -322,8 +322,8 @@ struct LibraryView: View {
                 }
         ) {
             if store.recipes.isEmpty && allFolders.isEmpty {
-                Text("No recipes yet â€” tap + to create one.")
-                    .font(.jakarta(.regular, size: 13))
+                Text("No recipes yet — tap + to create one.")
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
 
@@ -365,7 +365,7 @@ struct LibraryView: View {
                     .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
                         .simultaneousGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -379,7 +379,7 @@ struct LibraryView: View {
 
             if isReordering && !allFolders.isEmpty {
                 Text("Drag a recipe onto a folder to move it in. Drop on the \"Recipes\" header to take it out.")
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
             }
@@ -402,7 +402,7 @@ struct LibraryView: View {
         ) {
             if store.savedBlends.isEmpty && allFolders.isEmpty {
                 Text("No saved blends yet.")
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             ForEach(unfoldered) { blend in
@@ -420,7 +420,7 @@ struct LibraryView: View {
                     .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
                         .simultaneousGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -434,7 +434,7 @@ struct LibraryView: View {
 
             if isReordering && !allFolders.isEmpty {
                 Text("Drag a blend onto a folder to move it in. Drop on the \"Flour Blends\" header to take it out.")
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
             }
@@ -445,8 +445,8 @@ struct LibraryView: View {
         Button { editingBlend = blend } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
-                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " Â· "))
+                    .font(.system(.body, design: .monospaced)).foregroundColor(.primary)
+                Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
                     .font(.caption).foregroundColor(.secondary).lineLimit(1)
             }
             .padding(.vertical, 2)
@@ -488,7 +488,7 @@ struct LibraryView: View {
         ) {
             if store.savedProcesses.isEmpty && allFolders.isEmpty {
                 Text("No saved processes yet.")
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             ForEach(unfoldered) { process in
@@ -506,7 +506,7 @@ struct LibraryView: View {
                     .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
                         .simultaneousGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -520,7 +520,7 @@ struct LibraryView: View {
 
             if isReordering && !allFolders.isEmpty {
                 Text("Drag a process onto a folder to move it in. Drop on the \"Processes\" header to take it out.")
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
             }
@@ -531,7 +531,7 @@ struct LibraryView: View {
         Button { editingProcess = process } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(process.name.isEmpty ? "Untitled Process" : process.name)
-                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
+                    .font(.system(.body, design: .monospaced)).foregroundColor(.primary)
                 Text("\(process.cards.count) steps")
                     .font(.caption).foregroundColor(.secondary)
             }
@@ -574,7 +574,7 @@ struct LibraryView: View {
         ) {
             if store.savedPreferments.isEmpty && allFolders.isEmpty {
                 Text("No saved preferments yet.")
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             ForEach(unfoldered) { pref in
@@ -592,7 +592,7 @@ struct LibraryView: View {
                     .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
                 } label: {
                     Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(.secondary)
                         .simultaneousGesture(
                             LongPressGesture(minimumDuration: 0.5)
@@ -606,7 +606,7 @@ struct LibraryView: View {
 
             if isReordering && !allFolders.isEmpty {
                 Text("Drag a preferment onto a folder to move it in. Drop on the \"Preferments\" header to take it out.")
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
                     .listRowBackground(Color.clear)
             }
@@ -617,8 +617,8 @@ struct LibraryView: View {
         Button { editingPreferment = pref } label: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
-                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                Text("\(pref.label)  Â·  \(Int(pref.hydration * 100))%")
+                    .font(.system(.body, design: .monospaced)).foregroundColor(.primary)
+                Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
                     .font(.caption).foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
@@ -685,7 +685,7 @@ private extension View {
         onLongPress: @escaping () -> Void
     ) -> some View {
         self
-            // Leading swipe â†’ opens the FolderPickerSheet (reliable on NavigationLink rows)
+            // Leading swipe → opens the FolderPickerSheet (reliable on NavigationLink rows)
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
                 if !folders.isEmpty || !recipe.folderName.isEmpty {
                     Button {
@@ -702,7 +702,7 @@ private extension View {
                 }
             }
             // Long-press enters reorder mode, but ONLY when not already
-            // reordering â€” otherwise it would swallow the long-press that
+            // reordering — otherwise it would swallow the long-press that
             // .draggable needs to initiate a drag.
             .if(!isReordering) {
                 $0.simultaneousGesture(
@@ -724,7 +724,7 @@ private struct SectionReorderView: View {
         NavigationStack {
             List {
                 ForEach(order, id: \.self) { section in
-                    Text(section).font(.jakarta(.regular, size: 17))
+                    Text(section).font(.system(.body, design: .monospaced))
                 }
                 .onMove { from, to in order.move(fromOffsets: from, toOffset: to) }
             }
@@ -764,9 +764,9 @@ struct RecipeRowView: View {
                     .foregroundColor(Color(hex: "D2B96A"))
                     .cornerRadius(4)
             }
-            Text("\(Int(recipe.finalHydration * 100))% Â· \(recipe.ballCount) Ã— \(Int(recipe.ballWeight))g Â· \(recipe.timeline.rawValue)")
+            Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")
                 .font(.caption).foregroundColor(.secondary)
-            Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested Ã—\(recipe.bakeLogs.count)")
+            Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested ×\(recipe.bakeLogs.count)")
                 .font(.caption2)
                 .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
         }
@@ -796,15 +796,15 @@ private struct FolderPickerSheet: View {
                         } label: {
                             Label("Remove from \"\(currentFolder)\"", systemImage: "folder.badge.minus")
                                 .foregroundColor(.orange)
-                                .font(.jakarta(.regular, size: 14))
+                                .font(.system(size: 14, design: .monospaced))
                         }
                     }
                 }
 
                 if destinations.isEmpty {
                     Section {
-                        Text("No other folders â€” tap âŠ• folder badge on a section header to create one.")
-                            .font(.jakarta(.regular, size: 12))
+                        Text("No other folders — tap ⊕ folder badge on a section header to create one.")
+                            .font(.system(size: 12, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
                 } else {
@@ -815,7 +815,7 @@ private struct FolderPickerSheet: View {
                                 dismiss()
                             } label: {
                                 Label(folder, systemImage: "folder")
-                                    .font(.jakarta(.regular, size: 14))
+                                    .font(.system(size: 14, design: .monospaced))
                                     .foregroundColor(.primary)
                             }
                         }
@@ -827,7 +827,7 @@ private struct FolderPickerSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Cancel") { dismiss() }
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                 }
             }
         }

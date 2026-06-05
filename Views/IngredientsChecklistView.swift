@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct IngredientsChecklistView: View {
     let recipe: Recipe
@@ -117,7 +117,7 @@ struct IngredientsChecklistView: View {
                     let total = allItems.count
                     HStack {
                         Text("\(checkedCount) of \(total) measured")
-                            .font(.jakarta(.regular, size: 13))
+                            .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(checkedCount == total ? Color(hex: "D2B96A") : .secondary)
                         Spacer()
                         if checkedCount == total {
@@ -128,7 +128,7 @@ struct IngredientsChecklistView: View {
                     Button("Clear all") {
                         checked.removeAll()
                     }
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
                 }
             }
@@ -167,13 +167,13 @@ struct IngredientsChecklistView: View {
                     .strikethrough(checked.contains(item.id), color: .secondary)
                 if !item.note.isEmpty {
                     Text(item.note)
-                        .font(.jakarta(.regular, size: 11))
+                        .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
             Spacer()
             Text(item.amount)
-                .font(.jakarta(.regular, size: 15))
+                .font(.system(size: 15, design: .monospaced))
                 .foregroundColor(checked.contains(item.id) ? .secondary : Color(hex: "D2B96A"))
                 .fontWeight(.medium)
         }

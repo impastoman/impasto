@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct StyleStepView: View {
     @Binding var selected: PizzaStyle
@@ -46,7 +46,7 @@ struct StyleStepView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("My Style").font(.headline)
-                    Text("Your rules Â· your ratios").font(.caption).foregroundColor(.secondary)
+                    Text("Your rules · your ratios").font(.caption).foregroundColor(.secondary)
                 }
                 Spacer()
                 if selected == .custom {
@@ -60,11 +60,11 @@ struct StyleStepView: View {
             if selected == .custom {
                 VStack(alignment: .leading, spacing: 6) {
                     TextField("My Style", text: $customStyleName)
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .textFieldBox()
 
-                    Text("No style presets â€” balanced defaults are applied. Adjust hydration, ratios, and process after saving.")
-                        .font(.jakarta(.regular, size: 11))
+                    Text("No style presets — balanced defaults are applied. Adjust hydration, ratios, and process after saving.")
+                        .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
                         .tipText()
                 }

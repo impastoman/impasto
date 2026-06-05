@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct SessionLogView: View {
     @ObservedObject var vm: SessionViewModel
@@ -107,7 +107,7 @@ struct SessionLogView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "photo.badge.plus").foregroundColor(Color(hex: "D2B96A"))
                         Text("Add a session photo")
-                            .font(.jakarta(.regular, size: 17))
+                            .font(.system(.body, design: .monospaced))
                             .foregroundColor(Color(hex: "D2B96A"))
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -124,7 +124,7 @@ struct SessionLogView: View {
                 )
             }
         } header: { Text("Session photos") }
-          footer: { Text("Every photo from every bake is collected here. Tap to view full-size or pick a session thumbnail. Drag to reorder. Add more to capture the whole session.").font(.jakarta(.regular, size: 11)).tipText() }
+          footer: { Text("Every photo from every bake is collected here. Tap to view full-size or pick a session thumbnail. Drag to reorder. Add more to capture the whole session.").font(.system(size: 11, design: .monospaced)).tipText() }
         .listRowBackground(Color.clear)
         .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
     }
@@ -153,11 +153,11 @@ struct SessionLogView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text(card.title)
-                            .font(.jakarta(.regular, size: 13))
+                            .font(.system(size: 13, design: .monospaced))
                         Spacer()
                         if let t = startTime {
                             Text(wallClock(t))
-                                .font(.jakarta(.regular, size: 10))
+                                .font(.system(size: 10, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -166,22 +166,22 @@ struct SessionLogView: View {
                         HStack(spacing: 0) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Planned")
-                                    .font(.jakarta(.regular, size: 10))
+                                    .font(.system(size: 10, design: .monospaced))
                                     .foregroundColor(.secondary)
                                 Text(shortTime(planned))
-                                    .font(.jakarta(.regular, size: 13))
+                                    .font(.system(size: 13, design: .monospaced))
                             }
                             Spacer()
                             VStack(alignment: .center, spacing: 2) {
                                 Text("Actual")
-                                    .font(.jakarta(.regular, size: 10))
+                                    .font(.system(size: 10, design: .monospaced))
                                     .foregroundColor(.secondary)
                                 if let actual {
                                     Text(shortTime(actual))
-                                        .font(.jakarta(.regular, size: 13))
+                                        .font(.system(size: 13, design: .monospaced))
                                 } else {
-                                    Text("â€”")
-                                        .font(.jakarta(.regular, size: 13))
+                                    Text("—")
+                                        .font(.system(size: 13, design: .monospaced))
                                         .foregroundColor(.secondary)
                                 }
                             }
@@ -190,10 +190,10 @@ struct SessionLogView: View {
                                 let delta = actual - planned
                                 VStack(alignment: .trailing, spacing: 2) {
                                     Text(delta >= 0 ? "Over" : "Under")
-                                        .font(.jakarta(.regular, size: 10))
+                                        .font(.system(size: 10, design: .monospaced))
                                         .foregroundColor(.secondary)
                                     Text(deltaString(delta))
-                                        .font(.jakarta(.regular, size: 13))
+                                        .font(.system(size: 13, design: .monospaced))
                                         .foregroundColor(deltaColor(delta))
                                 }
                             }
@@ -201,11 +201,11 @@ struct SessionLogView: View {
                     } else {
                         if let actual {
                             Text(shortTime(actual))
-                                .font(.jakarta(.regular, size: 12))
+                                .font(.system(size: 12, design: .monospaced))
                                 .foregroundColor(.secondary)
                         } else {
                             Text("action step")
-                                .font(.jakarta(.regular, size: 11))
+                                .font(.system(size: 11, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -217,7 +217,7 @@ struct SessionLogView: View {
     }
 
     /// Wall-clock start time for step at index:
-    /// step 0 â†’ sessionStartDate; step N â†’ completion date of step N-1
+    /// step 0 → sessionStartDate; step N → completion date of step N-1
     func stepStartTime(for index: Int) -> Date? {
         if index == 0 { return vm.sessionStartDate }
         let prevCard = vm.cards[index - 1]
@@ -236,10 +236,10 @@ struct SessionLogView: View {
             Section {
                 ForEach(Array(vm.pauseDurations.enumerated()), id: \.offset) { i, dur in
                     LabeledContent("Pause \(i + 1)", value: shortTime(dur))
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                 }
                 LabeledContent("Total paused", value: shortTime(vm.pauseDurations.reduce(0, +)))
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.secondary)
             } header: { Text("Pause log") }
             .listRowBackground(Color.clear)
@@ -252,14 +252,14 @@ struct SessionLogView: View {
             Section("Fermentation") {
                 if !vm.preFlight.prefermentPH.isEmpty {
                     LabeledContent("Prep pH", value: vm.preFlight.prefermentPH)
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                 }
                 if !vm.pHReadings.isEmpty {
                     LabeledContent("Logged pH", value: vm.pHReadings.map { String(format: "%.1f", $0) }.joined(separator: "  "))
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                 }
-                LabeledContent("Room temp", value: String(format: "%.0fÂ°C", vm.preFlight.roomTempC))
-                    .font(.jakarta(.regular, size: 17))
+                LabeledContent("Room temp", value: String(format: "%.0f°C", vm.preFlight.roomTempC))
+                    .font(.system(.body, design: .monospaced))
             }
             .listRowBackground(Color.clear)
         }
@@ -270,15 +270,15 @@ struct SessionLogView: View {
         Section("Bake") {
             if bakeTimeSeconds > 0 {
                 LabeledContent("Bake time", value: shortTime(bakeTimeSeconds))
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
             }
             if let temp = ovenTempAchieved {
-                LabeledContent("Oven temp", value: "\(Int(temp))Â°")
-                    .font(.jakarta(.regular, size: 17))
+                LabeledContent("Oven temp", value: "\(Int(temp))°")
+                    .font(.system(.body, design: .monospaced))
             }
             if !vm.pizzaEntries.isEmpty {
                 LabeledContent("Bakes logged", value: "\(vm.pizzaEntries.count)")
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
             }
         }
         .listRowBackground(Color.clear)
@@ -299,15 +299,15 @@ struct SessionLogView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(Color(hex: "D2B96A"))
 
-            Button("Share this session â†’") { showShare = true }
+            Button("Share this session →") { showShare = true }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(Color(hex: "D2B96A"))
-                .font(.jakarta(.regular, size: 13))
+                .font(.system(size: 13, design: .monospaced))
 
-            Button("â†© Exit Session") { showGoHomeAlert = true }
+            Button("↩ Exit Session") { showGoHomeAlert = true }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(.secondary)
-                .font(.jakarta(.regular, size: 13))
+                .font(.system(size: 13, design: .monospaced))
         }
         .listRowBackground(Color.clear)
         .confirmationDialog("Save before leaving?", isPresented: $showGoHomeAlert, titleVisibility: .visible) {
@@ -316,7 +316,7 @@ struct SessionLogView: View {
             Button("Cancel", role: .cancel) { }
         }
         .fullScreenCover(isPresented: $showShare) {
-            // Build a preview BakeLog from current in-session state â€” never saved.
+            // Build a preview BakeLog from current in-session state — never saved.
             let previewLog = vm.buildBakeLog(
                 rating: rating,
                 crustTags: [],
@@ -409,7 +409,7 @@ struct TagChip: View {
 
     var body: some View {
         Text(label)
-            .font(.jakarta(.regular, size: 12))
+            .font(.system(size: 12, design: .monospaced))
             .padding(.horizontal, 10).padding(.vertical, 5)
             .background(selected ? Color(hex: "D2B96A").opacity(0.18) : Color(hex: "ECEAE3"))
             .foregroundColor(selected ? Color(hex: "D2B96A") : .secondary)

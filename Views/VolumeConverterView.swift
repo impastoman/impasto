@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 // MARK: - Amount Parsing (file-scope)
 
@@ -90,7 +90,7 @@ struct VolumeConverterView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink {
@@ -104,8 +104,8 @@ struct VolumeConverterView: View {
                             onConvert: onConvert
                         )
                     } label: {
-                        Text("Review â†’")
-                            .font(.jakarta(.regular, size: 13))
+                        Text("Review →")
+                            .font(.system(size: 13, design: .monospaced))
                             .foregroundColor(canReview ? Color(hex: "D2B96A") : .secondary)
                     }
                     .disabled(!canReview)
@@ -128,7 +128,7 @@ struct VolumeConverterView: View {
                 flourEntries.append(FlourEntry(unit: .cups, flourType: .bread))
             } label: {
                 Label("Add another flour", systemImage: "plus.circle")
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(Color(hex: "D2B96A"))
             }
         } header: {
@@ -160,7 +160,7 @@ struct VolumeConverterView: View {
                     Text(kind.rawValue).tag(kind)
                 }
             }
-            .font(.jakarta(.regular, size: 13))
+            .font(.system(size: 13, design: .monospaced))
         } header: { sectionHeader("Salt (optional)") }
     }
 
@@ -177,21 +177,21 @@ struct VolumeConverterView: View {
                     Text(t.rawValue).tag(t)
                 }
             }
-            .font(.jakarta(.regular, size: 13))
+            .font(.system(size: 13, design: .monospaced))
         } header: { sectionHeader("Yeast (optional)") }
     }
 
     private var hintSection: some View {
         Section {
             Text("Fractions like \"1/4\", mixed numbers like \"1 1/4\", and decimals like \"0.25\" all work for amounts.")
-                .font(.jakarta(.regular, size: 11))
+                .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
         }
     }
 
     private func sectionHeader(_ text: String) -> some View {
         Text(text)
-            .font(.jakarta(.regular, size: 10))
+            .font(.system(size: 10, design: .monospaced))
             .tracking(1.5)
     }
 }
@@ -215,7 +215,7 @@ private struct FlourEntryRow: View {
                 }
             }
             .pickerStyle(.menu)
-            .font(.jakarta(.regular, size: 13))
+            .font(.system(size: 13, design: .monospaced))
         }
         .padding(.vertical, 2)
     }
@@ -233,7 +233,7 @@ private struct AmountUnitRow: View {
         HStack(spacing: 8) {
             TextField(placeholder, text: $amountText)
                 .keyboardType(.default)
-                .font(.jakarta(.regular, size: 14))
+                .font(.system(size: 14, design: .monospaced))
                 .frame(maxWidth: .infinity)
                 .inputBox()
 
@@ -243,7 +243,7 @@ private struct AmountUnitRow: View {
                 }
             }
             .pickerStyle(.menu)
-            .font(.jakarta(.regular, size: 13))
+            .font(.system(size: 13, design: .monospaced))
         }
     }
 }
@@ -313,13 +313,13 @@ struct ConversionReviewView: View {
     private var warnings: [String] {
         var list: [String] = []
         if hydration < 0.55 || hydration > 0.92 {
-            list.append("Hydration of \(Int(hydration * 100))% is outside the typical range (55â€“92%) â€” double-check your water amount.")
+            list.append("Hydration of \(Int(hydration * 100))% is outside the typical range (55–92%) — double-check your water amount.")
         }
         if saltPct > 0.04 {
-            list.append("Salt at \(String(format: "%.2f", saltPct * 100))% is high â€” typical is 2â€“3%.")
+            list.append("Salt at \(String(format: "%.2f", saltPct * 100))% is high — typical is 2–3%.")
         }
         if yeastPct > 0.015 {
-            list.append("Yeast at \(String(format: "%.3f", yeastPct * 100))% is quite high â€” typical is 0.1â€“0.5%.")
+            list.append("Yeast at \(String(format: "%.3f", yeastPct * 100))% is quite high — typical is 0.1–0.5%.")
         }
         return list
     }
@@ -416,14 +416,14 @@ struct ConversionReviewView: View {
 
     private var notesBlock: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("These values are estimates â€” volume measurements vary depending on how flour is scooped. The recipe wizard lets you fine-tune everything before saving.")
-                .font(.jakarta(.regular, size: 11))
+            Text("These values are estimates — volume measurements vary depending on how flour is scooped. The recipe wizard lets you fine-tune everything before saving.")
+                .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             ForEach(warnings, id: \.self) { warning in
                 Label(warning, systemImage: "exclamationmark.triangle")
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.orange)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -434,7 +434,7 @@ struct ConversionReviewView: View {
     // MARK: - Build button
 
     private var buildButton: some View {
-        Button("Build This Recipe â†’") {
+        Button("Build This Recipe →") {
             onConvert(formula)
         }
         .buttonStyle(StesuraButtonStyle(filled: true))
@@ -445,7 +445,7 @@ struct ConversionReviewView: View {
 
     private func tableHeader(_ text: String) -> some View {
         Text(text)
-            .font(.jakarta(.regular, size: 9))
+            .font(.system(size: 9, design: .monospaced))
             .foregroundColor(Color(hex: "9A9688"))
             .tracking(2)
             .padding(.horizontal, 16)
@@ -457,20 +457,20 @@ struct ConversionReviewView: View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.primary)
                 Text(amount)
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
                 Text(String(format: "%.1f g", grams))
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(.primary)
                 if !annotation.isEmpty {
                     Text(annotation)
-                        .font(.jakarta(.regular, size: 11))
+                        .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(Color(hex: "9A9688"))
                 }
             }
@@ -482,11 +482,11 @@ struct ConversionReviewView: View {
     private func summaryRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(.jakarta(.regular, size: 13))
+                .font(.system(size: 13, design: .monospaced))
                 .foregroundColor(.primary)
             Spacer()
             Text(value)
-                .font(.jakarta(.regular, size: 13))
+                .font(.system(size: 13, design: .monospaced))
                 .fontWeight(.medium)
                 .foregroundColor(Color(hex: "D2B96A"))
         }

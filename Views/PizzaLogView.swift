@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 import PhotosUI
 
 struct PizzaLogView: View {
@@ -50,13 +50,13 @@ struct PizzaLogView: View {
             .sheet(isPresented: $showLibraryPicker) { LibraryPickerView(imageData: $pendingPhoto) }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("â† Back") {
+                    Button("← Back") {
                         onReturnToBaking()
                     }
                     .foregroundColor(.secondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("End Bake â†’") {
+                    Button("End Bake →") {
                         savePizzaEntry()
                         onEndBake()
                     }
@@ -87,7 +87,7 @@ struct PizzaLogView: View {
                 Text("Bake time")
                 Spacer()
                 Text(bakeTimeDisplay)
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
                     .foregroundColor(.secondary)
             }
             HStack {
@@ -95,9 +95,9 @@ struct PizzaLogView: View {
                 Spacer()
                 TextField("optional", text: $ovenTempInput)
                     .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 64)
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
                     .inputBox()
-                Text("Â°").foregroundColor(.secondary)
+                Text("°").foregroundColor(.secondary)
             }
         }
     }
@@ -203,8 +203,8 @@ struct PizzaLogView: View {
 
     var notesSection: some View {
         Section("Notes") {
-            TextField("Any notes about this bakeâ€¦", text: $notes, axis: .vertical)
-                .font(.jakarta(.regular, size: 13))
+            TextField("Any notes about this bake…", text: $notes, axis: .vertical)
+                .font(.system(size: 13, design: .monospaced))
                 .lineLimit(3...)
                 .notesBox()
         }
@@ -250,7 +250,7 @@ struct PizzaLogView: View {
     func tagChip(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.jakarta(.regular, size: 12))
+                .font(.system(size: 12, design: .monospaced))
                 .padding(.horizontal, 10).padding(.vertical, 6)
                 .background(selected ? Color(hex: "D2B96A") : Color(hex: "ECEAE3"))
                 .foregroundColor(selected ? .white : .primary)

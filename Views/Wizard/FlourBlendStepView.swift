@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct FlourBlendStepView: View {
     @Binding var flourBlend: FlourBlend
@@ -50,15 +50,15 @@ struct FlourBlendStepView: View {
                 HStack {
                     Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
                     Text("Load flour blend")
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(store.savedBlends.isEmpty ? .secondary : Color(hex: "D2B96A"))
                 }
             }
             .disabled(store.savedBlends.isEmpty)
 
             if store.savedBlends.isEmpty {
-                Text("No saved blends yet â€” create one below or from the Library.")
-                    .font(.jakarta(.regular, size: 11))
+                Text("No saved blends yet — create one below or from the Library.")
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
                     .tipText()
             }
@@ -70,7 +70,7 @@ struct FlourBlendStepView: View {
                 HStack {
                     Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
                     Text("Create flour blend")
-                        .font(.jakarta(.regular, size: 17))
+                        .font(.system(.body, design: .monospaced))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
@@ -86,7 +86,7 @@ struct FlourBlendStepView: View {
                 Text(mode == .load
                      ? (flourBlend.name.isEmpty ? "Loaded from library" : flourBlend.name)
                      : "New blend")
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .foregroundColor(Color(hex: "D2B96A"))
                 Spacer()
                 Button("Change") {
@@ -95,7 +95,7 @@ struct FlourBlendStepView: View {
                     blendSaved = false
                     mode = .pick
                 }
-                .font(.jakarta(.regular, size: 12))
+                .font(.system(size: 12, design: .monospaced))
                 .foregroundColor(.secondary)
             }
         }
@@ -117,10 +117,10 @@ struct FlourBlendStepView: View {
         let total = flourBlend.totalPercentage
         let isValid = flourBlend.isValid
         return HStack {
-            Text("Total").foregroundColor(.secondary).font(.jakarta(.regular, size: 17))
+            Text("Total").foregroundColor(.secondary).font(.system(.body, design: .monospaced))
             Spacer()
-            Text(String(format: "%.0f%%", total) + (isValid ? "  âœ“" : ""))
-                .font(.jakarta(.regular, size: 17))
+            Text(String(format: "%.0f%%", total) + (isValid ? "  ✓" : ""))
+                .font(.system(.body, design: .monospaced))
                 .foregroundColor(isValid ? Color(hex: "D2B96A") : .red)
         }
         .listRowBackground(Color.clear)
@@ -134,7 +134,7 @@ struct FlourBlendStepView: View {
         } label: {
             Label("Add flour type", systemImage: "plus")
                 .foregroundColor(Color(hex: "D2B96A"))
-                .font(.jakarta(.regular, size: 17))
+                .font(.system(.body, design: .monospaced))
         }
     }
 
@@ -150,10 +150,10 @@ struct FlourBlendStepView: View {
             } label: {
                 Label("Add additive", systemImage: "plus")
                     .foregroundColor(Color(hex: "D2B96A"))
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
             }
         } header: {
-            Text("Additives  Â·  % of total flour weight")
+            Text("Additives  ·  % of total flour weight")
         }
         .listRowBackground(Color.clear)
     }
@@ -164,8 +164,8 @@ struct FlourBlendStepView: View {
                 Section {
                     HStack(spacing: 8) {
                         Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                        Text("Rye flour does not autolyse well â€” consider disabling autolyse if your blend contains rye")
-                            .font(.jakarta(.regular, size: 12))
+                        Text("Rye flour does not autolyse well — consider disabling autolyse if your blend contains rye")
+                            .font(.system(size: 12, design: .monospaced))
                             .foregroundColor(.orange)
                     }
                 }
@@ -175,7 +175,7 @@ struct FlourBlendStepView: View {
             if !flourBlend.isValid {
                 Section {
                     Text("Flour percentages must total 100%")
-                        .font(.jakarta(.regular, size: 12))
+                        .font(.system(size: 12, design: .monospaced))
                         .foregroundColor(.red)
                 }
                 .listRowBackground(Color.red.opacity(0.06))
@@ -189,12 +189,12 @@ struct FlourBlendStepView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
                     Text("Saved to library")
-                        .font(.jakarta(.regular, size: 13))
+                        .font(.system(size: 13, design: .monospaced))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             } else {
                 TextField("Name this blend to save...", text: $saveBlendName)
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .textFieldBox()
                 Button("Save to Library") {
                     var toSave = flourBlend
@@ -206,7 +206,7 @@ struct FlourBlendStepView: View {
                 .disabled(!flourBlend.isValid)
             }
         } header: { Text("Save to Library") }
-          footer: { Text("Optional â€” save this blend for reuse in future recipes").tipText() }
+          footer: { Text("Optional — save this blend for reuse in future recipes").tipText() }
         .listRowBackground(Color.clear)
     }
 }
@@ -228,9 +228,9 @@ private struct BlendLibraryPickerView: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
-                                .font(.jakarta(.regular, size: 17))
+                                .font(.system(.body, design: .monospaced))
                                 .foregroundColor(.primary)
-                            Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " Â· "))
+                            Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
                                 .font(.caption).foregroundColor(.secondary)
                         }
                         .padding(.vertical, 2)
@@ -270,13 +270,13 @@ struct FlourComponentRow: View {
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 48)
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
                     .padding(.vertical, 4).padding(.horizontal, 4)
                     .background(Color(hex: "F0EDE4"))
                     .cornerRadius(5)
                     .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "C4B89A").opacity(0.7), lineWidth: 1))
 
-                Text("%").foregroundColor(.secondary).font(.jakarta(.regular, size: 17))
+                Text("%").foregroundColor(.secondary).font(.system(.body, design: .monospaced))
 
                 Button(action: onRemove) {
                     Image(systemName: "minus.circle").foregroundColor(.secondary)
@@ -288,20 +288,20 @@ struct FlourComponentRow: View {
                 TextField("gluten %", value: $component.glutenPct, format: .number)
                     .keyboardType(.decimalPad)
                     .frame(width: 72)
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .multilineTextAlignment(.center)
                     .inputBox()
-                Text("% gluten").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+                Text("% gluten").font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                 Spacer()
                 TextField("brand / note", text: $component.brand)
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .multilineTextAlignment(.trailing)
                     .textFieldBox()
             }
 
             if !component.type.typicalGlutenRange.isEmpty {
                 Text("Typical: \(component.type.typicalGlutenRange)")
-                    .font(.jakarta(.regular, size: 11))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -331,13 +331,13 @@ struct AdditiveRow: View {
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 48)
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
                     .padding(.vertical, 4).padding(.horizontal, 4)
                     .background(Color(hex: "F0EDE4"))
                     .cornerRadius(5)
                     .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "C4B89A").opacity(0.7), lineWidth: 1))
 
-                Text("%").foregroundColor(.secondary).font(.jakarta(.regular, size: 17))
+                Text("%").foregroundColor(.secondary).font(.system(.body, design: .monospaced))
 
                 Button(action: onRemove) {
                     Image(systemName: "minus.circle").foregroundColor(.secondary)
@@ -347,11 +347,11 @@ struct AdditiveRow: View {
 
             HStack {
                 TextField("note", text: $additive.note)
-                    .font(.jakarta(.regular, size: 13))
+                    .font(.system(size: 13, design: .monospaced))
                     .textFieldBox()
                 if !additive.type.typicalRange.isEmpty {
                     Text("Typical: \(additive.type.typicalRange)")
-                        .font(.jakarta(.regular, size: 11))
+                        .font(.system(size: 11, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }

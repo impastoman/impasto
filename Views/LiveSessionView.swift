@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 import UserNotifications
 
 struct LiveSessionView: View {
@@ -71,7 +71,7 @@ struct LiveSessionView: View {
                         Button("Go Back", role: .cancel) {}
                     }
                 }
-                // Pause only visible when running â€” no Start in toolbar
+                // Pause only visible when running — no Start in toolbar
                 if !vm.isInBakeStep && vm.isRunning {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Pause") { vm.pause() }
@@ -116,7 +116,7 @@ struct LiveSessionView: View {
             NavigationStack {
                 VStack(alignment: .leading, spacing: 0) {
                     TextEditor(text: $vm.sessionNote)
-                        .font(.jakarta(.regular, size: 14))
+                        .font(.system(size: 14, design: .monospaced))
                         .padding(8)
                         .scrollContentBackground(.hidden)
                         .background(Color(hex: "F0EDE4"))
@@ -153,7 +153,7 @@ struct LiveSessionView: View {
                                     Image(systemName: "clock")
                                         .foregroundColor(.secondary)
                                     Text(timeString(next.duration))
-                                        .font(.jakarta(.regular, size: 15))
+                                        .font(.system(size: 15, design: .monospaced))
                                         .foregroundColor(.secondary)
                                 }
                             }
@@ -161,7 +161,7 @@ struct LiveSessionView: View {
                             if !next.recipeNote.isEmpty {
                                 Divider()
                                 Text(next.recipeNote)
-                                    .font(.jakarta(.regular, size: 14))
+                                    .font(.system(size: 14, design: .monospaced))
                                     .foregroundColor(.primary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -237,10 +237,10 @@ struct LiveSessionView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Text("Up next:")
-                            .font(.jakarta(.regular, size: 11))
+                            .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(.secondary)
                         Text(next.title)
-                            .font(.jakarta(.regular, size: 11))
+                            .font(.system(size: 11, design: .monospaced))
                             .foregroundColor(Color(hex: "D2B96A"))
                         Image(systemName: "chevron.right")
                             .font(.system(size: 9))
@@ -264,7 +264,7 @@ struct LiveSessionView: View {
                     let isCurrent = index == vm.currentIndex
                     let isDone    = index < vm.currentIndex
                     Text(card.title)
-                        .font(.jakarta(.regular, size: 12))
+                        .font(.system(size: 12, design: .monospaced))
                         .padding(.horizontal, 16).padding(.vertical, 10)
                         .background(isCurrent ? Color(hex: "D2B96A").opacity(0.12) : Color.clear)
                         .foregroundColor(isCurrent ? Color(hex: "D2B96A") : isDone ? Color(hex: "D2B96A").opacity(0.4) : .secondary)
@@ -294,7 +294,7 @@ struct LiveSessionView: View {
         VStack(spacing: 6) {
             if let card = vm.currentCard {
                 Text(card.title.uppercased())
-                    .font(.jakarta(.regular, size: 10)).tracking(2).foregroundColor(.secondary)
+                    .font(.system(size: 10, design: .monospaced)).tracking(2).foregroundColor(.secondary)
 
                 Text(timeString(displayTime))
                     .font(.system(size: 56, design: .serif))
@@ -312,10 +312,10 @@ struct LiveSessionView: View {
                     HStack(spacing: 12) {
                         if vm.isOvertime {
                             Text("+\(timeString(vm.elapsed - vm.targetDuration)) overtime")
-                                .font(.jakarta(.regular, size: 11)).foregroundColor(.orange)
+                                .font(.system(size: 11, design: .monospaced)).foregroundColor(.orange)
                         } else {
                             Text(isCountdown ? "of \(timeString(vm.targetDuration))" : "Target: \(timeString(vm.targetDuration))")
-                                .font(.jakarta(.regular, size: 11)).foregroundColor(.secondary)
+                                .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
                         }
                         // Set alarm bell
                         Button {
@@ -332,7 +332,7 @@ struct LiveSessionView: View {
                     }
                 }
 
-                // Inline Start / Resume â€” shown whenever the timer is not running
+                // Inline Start / Resume — shown whenever the timer is not running
                 if !vm.isRunning {
                     Button {
                         vm.resume()
@@ -341,7 +341,7 @@ struct LiveSessionView: View {
                             Image(systemName: "play.fill")
                                 .font(.system(size: 11))
                             Text(vm.elapsed > 0 ? "RESUME" : "START")
-                                .font(.jakarta(.regular, size: 10))
+                                .font(.system(size: 10, design: .monospaced))
                                 .tracking(2)
                         }
                         .foregroundColor(Color(hex: "D2B96A"))
@@ -369,18 +369,18 @@ struct LiveSessionView: View {
                     HStack(alignment: .top, spacing: 4) {
                         Image(systemName: "note.text").font(.caption).foregroundColor(.secondary).padding(.top, 2)
                         Text(card.recipeNote)
-                            .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+                            .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                     }
                 }
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "pencil").font(.caption).foregroundColor(.secondary).padding(.top, 2)
-                    TextField("Add a session note for this stepâ€¦",
+                    TextField("Add a session note for this step…",
                               text: Binding(
                                 get: { sessionNotes[card.id] ?? "" },
                                 set: { sessionNotes[card.id] = $0.isEmpty ? nil : $0 }
                               ),
                               axis: .vertical)
-                        .font(.jakarta(.regular, size: 12))
+                        .font(.system(size: 12, design: .monospaced))
                         .foregroundColor(.primary)
                         .lineLimit(1...3)
                         .notesBox()
@@ -395,7 +395,7 @@ struct LiveSessionView: View {
         HStack(spacing: 12) {
             if vm.currentIndex > 0 {
                 let prevTitle = vm.cards[vm.currentIndex - 1].title
-                Button("â† Back") {
+                Button("← Back") {
                     showBackAlert = true
                 }
                 .buttonStyle(StesuraButtonStyle(filled: false))
@@ -412,12 +412,12 @@ struct LiveSessionView: View {
             }
 
             if vm.isLastCard {
-                LongPressStepButton(label: "Proceed to Bake â†’", filled: true) {
+                LongPressStepButton(label: "Proceed to Bake →", filled: true) {
                     vm.enterBakeStep()
                 }
             } else {
                 let isTimedAuto = vm.preFlight.sessionMode == .automatic && vm.currentCard?.type.isActionOnly == false
-                LongPressStepButton(label: isTimedAuto ? "Proceed â†’" : "Next Step â†’", filled: true) {
+                LongPressStepButton(label: isTimedAuto ? "Proceed →" : "Next Step →", filled: true) {
                     vm.completeCard()
                 }
             }
@@ -432,7 +432,7 @@ struct LiveSessionView: View {
 
             VStack(spacing: 8) {
                 Text("BAKE")
-                    .font(.jakarta(.regular, size: 10)).tracking(2).foregroundColor(.secondary)
+                    .font(.system(size: 10, design: .monospaced)).tracking(2).foregroundColor(.secondary)
 
                 if vm.bakingStarted {
                     Text(timeString(vm.bakeElapsed))
@@ -440,7 +440,7 @@ struct LiveSessionView: View {
                         .foregroundColor(Color(hex: "2C2A24"))
                 } else {
                     Text("Ready to launch")
-                        .font(.jakarta(.regular, size: 18))
+                        .font(.system(size: 18, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
@@ -451,16 +451,16 @@ struct LiveSessionView: View {
                let setup = recipe.bakeSetups.first(where: { $0.id == setupId }) {
                 HStack {
                     Text(setup.method.displayName)
-                        .font(.jakarta(.regular, size: 14))
+                        .font(.system(size: 14, design: .monospaced))
                         .foregroundColor(.secondary)
                     if !setup.subMethod.isEmpty {
-                        Text("Â· \(setup.subMethod)")
-                            .font(.jakarta(.regular, size: 14))
+                        Text("· \(setup.subMethod)")
+                            .font(.system(size: 14, design: .monospaced))
                             .foregroundColor(.secondary)
                     }
                     Spacer()
                     Text(setup.ovenTempDisplay)
-                        .font(.jakarta(.regular, size: 14))
+                        .font(.system(size: 14, design: .monospaced))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
                 .padding(.horizontal)
@@ -522,7 +522,7 @@ struct LiveSessionView: View {
             let remaining = max(1, vm.targetDuration - vm.elapsed)
             let content = UNMutableNotificationContent()
             content.title = vm.currentCard?.title ?? "Step Complete"
-            content.body = "\(vm.currentCard?.title ?? "Step") is done â€” next step up."
+            content.body = "\(vm.currentCard?.title ?? "Step") is done — next step up."
             content.sound = .default
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: remaining, repeats: false)
             let request = UNNotificationRequest(identifier: "stesura_step_alarm", content: content, trigger: trigger)
@@ -548,7 +548,7 @@ private struct LongPressStepButton: View {
 
     var body: some View {
         Text(label)
-            .font(.jakarta(.regular, size: 14))
+            .font(.system(size: 14, design: .monospaced))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)
             .background(filled ? Color(hex: "D2B96A") : Color.clear)

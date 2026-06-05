@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct ConfirmStepView: View {
     @Binding var name: String
@@ -44,7 +44,7 @@ struct ConfirmStepView: View {
 
             Section("Name your recipe") {
                 TextField("e.g. My Neapolitan", text: $name)
-                    .font(.jakarta(.regular, size: 17))
+                    .font(.system(.body, design: .monospaced))
                     .textFieldBox()
             }
             .listRowBackground(Color.clear)
@@ -66,10 +66,10 @@ struct ConfirmStepView: View {
                 LabeledContent("Flour blend",     value: flourBlend.name.isEmpty ? "Custom" : flourBlend.name)
                     .foregroundColor(flourBlend.name.isEmpty ? .secondary : Color(hex: "D2B96A"))
                 LabeledContent("Mixer",           value: mixerType.rawValue)
-                LabeledContent("Autolyse",        value: autolyse ? "Yes â€” \(style == .neapolitan ? 20 : 30) min" : "No")
+                LabeledContent("Autolyse",        value: autolyse ? "Yes — \(style == .neapolitan ? 20 : 30) min" : "No")
                 LabeledContent("Bassinage",       value: bassinage ? "Yes" : "No")
-                LabeledContent("Timeline",        value: "\(timeline.rawValue)  Â·  \(timeline.hours)")
-                LabeledContent("Balls",           value: "\(ballCount) Ã— \(Int(ballWeight))g")
+                LabeledContent("Timeline",        value: "\(timeline.rawValue)  ·  \(timeline.hours)")
+                LabeledContent("Balls",           value: "\(ballCount) × \(Int(ballWeight))g")
                 LabeledContent("Loss factor",     value: "\(max(1, Int(buffer * Double(ballCount) * ballWeight)))g")
             } header: { sectionHeader("Summary", step: 0) }
             .listRowBackground(Color.clear)
@@ -84,21 +84,21 @@ struct ConfirmStepView: View {
                             .foregroundColor(.secondary)
                     }
                 } header: { sectionHeader("Flour blend", step: 3) }
-                .font(.jakarta(.regular, size: 17))
+                .font(.system(.body, design: .monospaced))
                 .listRowBackground(Color.clear)
             }
 
             Section {
                 ForEach(processCards.sorted { $0.sortOrder < $1.sortOrder }) { card in
                     HStack {
-                        Text(card.title).font(.jakarta(.regular, size: 13))
+                        Text(card.title).font(.system(size: 13, design: .monospaced))
                         Spacer()
                         if card.duration > 0 {
                             Text(shortDuration(card.duration))
-                                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+                                .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
                         } else {
                             Text("action")
-                                .font(.jakarta(.regular, size: 11)).foregroundColor(.secondary)
+                                .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
                         }
                     }
                 }
@@ -107,7 +107,7 @@ struct ConfirmStepView: View {
                 let total = processCards.reduce(0.0) { $0 + $1.duration }
                 if total > 0 {
                     Text("Total: \(processTotalString(total))")
-                        .font(.jakarta(.regular, size: 11))
+                        .font(.system(size: 11, design: .monospaced))
                 }
             }
             .listRowBackground(Color.clear)
@@ -118,29 +118,29 @@ struct ConfirmStepView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             HStack {
                                 Text(setup.method.displayName)
-                                    .font(.jakarta(.regular, size: 13))
+                                    .font(.system(size: 13, design: .monospaced))
                                 if !setup.subMethod.isEmpty {
-                                    Text("Â· \(setup.subMethod)")
-                                        .font(.jakarta(.regular, size: 13))
+                                    Text("· \(setup.subMethod)")
+                                        .font(.system(size: 13, design: .monospaced))
                                         .foregroundColor(.secondary)
                                 }
                                 Spacer()
                                 Text(setup.ovenTempDisplay)
-                                    .font(.jakarta(.regular, size: 12))
+                                    .font(.system(size: 12, design: .monospaced))
                                     .foregroundColor(Color(hex: "D2B96A"))
                             }
                             HStack(spacing: 8) {
                                 if let surf = setup.surfaceTemp {
                                     Text("Surface \(Int(surf))\(setup.tempUnit)")
-                                        .font(.jakarta(.regular, size: 11))
+                                        .font(.system(size: 11, design: .monospaced))
                                         .foregroundColor(.secondary)
                                 }
                                 Text("Preheat ~\(setup.preheatMinutes) min")
-                                    .font(.jakarta(.regular, size: 11))
+                                    .font(.system(size: 11, design: .monospaced))
                                     .foregroundColor(.secondary)
                                 if !setup.notes.isEmpty {
-                                    Text("Â· \(setup.notes)")
-                                        .font(.jakarta(.regular, size: 11))
+                                    Text("· \(setup.notes)")
+                                        .font(.system(size: 11, design: .monospaced))
                                         .foregroundColor(.secondary)
                                         .lineLimit(1)
                                 }
@@ -155,7 +155,7 @@ struct ConfirmStepView: View {
             Section {
                 LabeledContent("Hydration",       value: "\(Int(finalHydration * 100))%").foregroundColor(.secondary)
                 LabeledContent("Salt",            value: String(format: "%.1f%%", saltPct * 100)).foregroundColor(.secondary)
-                LabeledContent("Yeast",           value: "\(yeastType.rawValue)  Â·  \(String(format: "%.2f%%", yeastPct * 100))").foregroundColor(.secondary)
+                LabeledContent("Yeast",           value: "\(yeastType.rawValue)  ·  \(String(format: "%.2f%%", yeastPct * 100))").foregroundColor(.secondary)
                 LabeledContent("Biga percentage", value: method == .direct ? "N/A" : "\(Int(prefermentRatio * 100))%").foregroundColor(.secondary)
                 LabeledContent("Est. kneading",   value: "~\(kneadingMinutes) min").foregroundColor(.secondary)
             } header: {
@@ -173,7 +173,7 @@ struct ConfirmStepView: View {
             Text(title)
             Spacer()
             Button("Edit") { onJumpTo(step) }
-                .font(.jakarta(.regular, size: 11))
+                .font(.system(size: 11, design: .monospaced))
                 .foregroundColor(Color(hex: "D2B96A"))
         }
     }
