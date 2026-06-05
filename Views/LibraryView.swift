@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct LibraryView: View {
     @EnvironmentObject var store: RecipeStore
@@ -277,6 +278,23 @@ struct LibraryView: View {
         return true
     }
 
+    /// Legacy .onDrop NSItemProvider handler — used in place of
+    /// .dropDestination for folder + section-header drop targets
+    /// because the newer API isn't being routed by SwiftUI's List
+    /// + DisclosureGroup hit testing in iOS 26. Loads the dragged
+    /// UUID string off the provider and calls handleProcessDrop on
+    /// the main actor.
+    func handleProcessOnDrop(providers: [NSItemProvider], toFolder folder: String) -> Bool {
+        guard let provider = providers.first else { return false }
+        _ = provider.loadObject(ofClass: NSString.self) { obj, _ in
+            guard let str = obj as? String else { return }
+            DispatchQueue.main.async {
+                _ = handleProcessDrop(items: [str], toFolder: folder)
+            }
+        }
+        return true
+    }
+
     func handlePrefermentDrop(items: [String], toFolder folder: String) -> Bool {
         guard let id = items.first.flatMap(UUID.init),
               let p = store.savedPreferments.first(where: { $0.id == id })
@@ -502,10 +520,14 @@ struct LibraryView: View {
                         ? Color.ruleBlueFaint
                         : Color.clear
                 )
-                .dropDestination(for: String.self) { items, _ in
-                    handleProcessDrop(items: items, toFolder: "")
-                } isTargeted: { targeted in
-                    hoveredHeader = targeted ? "Processes" : nil
+                .onDrop(
+                    of: [.text],
+                    isTargeted: Binding(
+                        get: { hoveredHeader == "Processes" },
+                        set: { hoveredHeader = $0 ? "Processes" : nil }
+                    )
+                ) { providers in
+                    handleProcessOnDrop(providers: providers, toFolder: "")
                 }
         ) {
             if store.savedProcesses.isEmpty && allFolders.isEmpty {
@@ -541,10 +563,14 @@ struct LibraryView: View {
                             ? Color.ruleBlueFaint
                             : Color.clear
                     )
-                    .dropDestination(for: String.self) { items, _ in
-                        handleProcessDrop(items: items, toFolder: folder)
-                    } isTargeted: { targeted in
-                        hoveredFolder = targeted ? "processes-\(folder)" : nil
+                    .onDrop(
+                        of: [.text],
+                        isTargeted: Binding(
+                            get: { hoveredFolder == "processes-\(folder)" },
+                            set: { hoveredFolder = $0 ? "processes-\(folder)" : nil }
+                        )
+                    ) { providers in
+                        handleProcessOnDrop(providers: providers, toFolder: folder)
                     }
                 }
             }
