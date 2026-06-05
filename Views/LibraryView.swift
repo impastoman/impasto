@@ -54,28 +54,34 @@ struct LibraryView: View {
 
     @State private var hoveredDiagnostic = false
 
+    /// DIAGNOSTIC drop zone — outside the List. Used to test whether
+    /// drops can be received at all in this view hierarchy.
+    private var diagnosticDropZone: some View {
+        let label = hoveredDiagnostic
+            ? "DROP HERE TO MOVE OUT OF FOLDERS"
+            : "↓ TEST DROP ZONE ↓"
+        let bg: Color = hoveredDiagnostic ? .marginRed : .ruleBlueFaint
+        let fg: Color = hoveredDiagnostic ? .white : .ruleBlue
+        return Text(label)
+            .font(.jakarta(.semibold, size: 11))
+            .tracking(1.5)
+            .foregroundColor(fg)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(bg)
+            .onDrop(of: [.text], isTargeted: $hoveredDiagnostic) { providers in
+                guard let provider = providers.first else { return false }
+                _ = provider.loadObject(ofClass: NSString.self) { obj, _ in
+                    print("[Library diagnostic drop] received: \(obj ?? "nil")")
+                }
+                return true
+            }
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // DIAGNOSTIC drop zone — outside the List. If this lights up
-                // when you drag a row onto it, the List is the culprit and
-                // we need a different architecture. If it stays grey, the
-                // .draggable itself isn't transferring data and the bug is
-                // upstream. Will be removed once we know.
-                Text(hoveredDiagnostic ? "DROP HERE TO MOVE OUT OF FOLDERS" : "↓ TEST DROP ZONE ↓")
-                    .font(.jakarta(.semibold, size: 11))
-                    .tracking(1.5)
-                    .foregroundColor(hoveredDiagnostic ? .white : .ruleBlue)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(hoveredDiagnostic ? Color.marginRed : Color.ruleBlueFaint)
-                    .onDrop(of: [.text], isTargeted: $hoveredDiagnostic) { providers in
-                        guard let provider = providers.first else { return false }
-                        _ = provider.loadObject(ofClass: NSString.self) { obj, _ in
-                            print("[Library diagnostic drop] received: \(obj ?? "nil")")
-                        }
-                        return true
-                    }
+                diagnosticDropZone
                 List {
                     ForEach(store.librarySectionOrder, id: \.self) { section in
                         sectionView(for: section)
