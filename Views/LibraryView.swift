@@ -52,41 +52,12 @@ struct LibraryView: View {
         Array(Set(store.prefermentFolders + store.savedPreferments.compactMap { $0.folderName.isEmpty ? nil : $0.folderName })).sorted()
     }
 
-    @State private var hoveredDiagnostic = false
-
-    /// DIAGNOSTIC drop zone — outside the List. Used to test whether
-    /// drops can be received at all in this view hierarchy.
-    private var diagnosticDropZone: some View {
-        let label = hoveredDiagnostic
-            ? "DROP HERE TO MOVE OUT OF FOLDERS"
-            : "↓ TEST DROP ZONE ↓"
-        let bg: Color = hoveredDiagnostic ? .marginRed : .ruleBlueFaint
-        let fg: Color = hoveredDiagnostic ? .white : .ruleBlue
-        return Text(label)
-            .font(.jakarta(.semibold, size: 11))
-            .tracking(1.5)
-            .foregroundColor(fg)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-            .background(bg)
-            .onDrop(of: [.text], isTargeted: $hoveredDiagnostic) { providers in
-                guard let provider = providers.first else { return false }
-                _ = provider.loadObject(ofClass: NSString.self) { obj, _ in
-                    print("[Library diagnostic drop] received: \(obj ?? "nil")")
-                }
-                return true
-            }
-    }
-
     var body: some View {
         NavigationStack {
             List {
                 ForEach(store.librarySectionOrder, id: \.self) { section in
                     sectionView(for: section)
                 }
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                diagnosticDropZone
             }
             // EditMode is intentionally NOT toggled here. EditMode.active
             // captures gestures on row bodies (for the right-edge handles
