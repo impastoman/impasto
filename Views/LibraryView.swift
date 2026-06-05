@@ -53,17 +53,8 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        let _ = print("[Library] body re-evaluating")
-        return NavigationStack {
+        NavigationStack {
             List {
-                Section {
-                    Color.ruleBlueFaint
-                        .frame(height: 44)
-                        .onDrop(of: [.item, .text, .plainText, .utf8PlainText, .data, .url], isTargeted: nil) { providers in
-                            print("[DropTest] FIRING with \(providers.count) providers, types: \(providers.first?.registeredTypeIdentifiers ?? [])")
-                            return true
-                        }
-                }
                 ForEach(store.librarySectionOrder, id: \.self) { section in
                     sectionView(for: section)
                 }
