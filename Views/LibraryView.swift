@@ -289,6 +289,8 @@ struct LibraryView: View {
 
         Section(header:
             sectionTypeHeader("Recipes")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
                 .dropDestination(for: String.self) { items, _ in
                     handleRecipeDrop(items: items, toFolder: "")
                 }
@@ -332,9 +334,14 @@ struct LibraryView: View {
                     }
                     .onMove { src, dst in store.moveRecipes(inFolder: folder, from: src, to: dst) }
                 } label: {
-                    Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Label(folder, systemImage: "folder")
+                            .font(.jakarta(.regular, size: 17))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handleRecipeDrop(items: items, toFolder: folder)
@@ -384,9 +391,14 @@ struct LibraryView: View {
                     }
                     .onMove { src, dst in store.moveBlends(inFolder: folder, from: src, to: dst) }
                 } label: {
-                    Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Label(folder, systemImage: "folder")
+                            .font(.jakarta(.regular, size: 17))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handleBlendDrop(items: items, toFolder: folder)
@@ -461,9 +473,14 @@ struct LibraryView: View {
                     }
                     .onMove { src, dst in store.moveProcesses(inFolder: folder, from: src, to: dst) }
                 } label: {
-                    Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Label(folder, systemImage: "folder")
+                            .font(.jakarta(.regular, size: 17))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handleProcessDrop(items: items, toFolder: folder)
@@ -538,9 +555,14 @@ struct LibraryView: View {
                     }
                     .onMove { src, dst in store.movePreferments(inFolder: folder, from: src, to: dst) }
                 } label: {
-                    Label(folder, systemImage: "folder")
-                        .font(.jakarta(.regular, size: 17))
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Label(folder, systemImage: "folder")
+                            .font(.jakarta(.regular, size: 17))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
                 .dropDestination(for: String.self) { items, _ in
                     handlePrefermentDrop(items: items, toFolder: folder)
