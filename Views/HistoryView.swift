@@ -39,7 +39,7 @@ struct HistoryView: View {
 
                         NavigationLink(destination: BakeLogDetailView(log: log, recipe: recipe).environmentObject(store)) {
                             Text("View session log")
-                                .font(.system(size: 12, design: .monospaced))
+                                .font(.jakarta(.regular, size: 12))
                                 .foregroundColor(Color(hex: "D2B96A"))
                         }
 
@@ -50,7 +50,7 @@ struct HistoryView: View {
                                 Image(systemName: "square.and.arrow.up")
                                 Text("Share this session →")
                             }
-                            .font(.system(size: 12, design: .monospaced))
+                            .font(.jakarta(.regular, size: 12))
                             .foregroundColor(Color(hex: "D2B96A"))
                         }
                         .buttonStyle(.plain)
@@ -107,7 +107,7 @@ struct HistoryView: View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Text(recipe.name)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .foregroundColor(.primary)
                     .fontWeight(.medium)
                 Spacer()
@@ -124,7 +124,7 @@ struct HistoryView: View {
             }
             Text(log.date.formatted(date: .abbreviated, time: .omitted)
                  + "  ·  \(log.ballCount) balls  ·  \(Int(log.finalHydration * 100))%")
-                .font(.system(size: 11, design: .monospaced))
+                .font(.jakarta(.regular, size: 11))
                 .foregroundColor(.secondary)
         }
         .textCase(nil)
@@ -153,23 +153,23 @@ struct HistoryView: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(entry.loggedAt.formatted(date: .omitted, time: .shortened))
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.primary)
                     Text("·")
                         .foregroundColor(.secondary)
                     Text(shortTime(entry.bakeTimeSeconds))
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.secondary)
                 }
                 Text(bakeSummary(entry))
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
             }
 
             Spacer()
 
             Text("Bake #\(entry.pizzaNumber)")
-                .font(.system(size: 11, design: .monospaced))
+                .font(.jakarta(.regular, size: 11))
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 2)
@@ -196,18 +196,18 @@ struct HistoryView: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     Text(log.date.formatted(date: .omitted, time: .shortened))
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.primary)
                     if log.bakeTimeSeconds > 0 {
                         Text("·")
                             .foregroundColor(.secondary)
                         Text(shortTime(log.bakeTimeSeconds))
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                     }
                 }
                 Text("\(log.crustColor.rawValue) · \(log.bottomResult.rawValue) · \(log.topResult.rawValue)")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
             }
 

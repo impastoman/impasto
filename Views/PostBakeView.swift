@@ -97,13 +97,13 @@ struct PostBakeView: View {
                         }
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Bake #\(entry.pizzaNumber)")
-                                .font(.system(size: 14, design: .monospaced))
+                                .font(.jakarta(.regular, size: 14))
                                 .foregroundColor(.primary)
                             Text(shortTime(entry.bakeTimeSeconds))
-                                .font(.system(size: 12, design: .monospaced))
+                                .font(.jakarta(.regular, size: 12))
                                 .foregroundColor(.secondary)
                             Text("\(entry.crustColor.rawValue)  ·  B: \(entry.bottomResult.rawValue)  ·  T: \(entry.topResult.rawValue)")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.jakarta(.regular, size: 11))
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
@@ -145,7 +145,7 @@ struct PostBakeView: View {
                                 .font(.system(size: 22))
                                 .foregroundColor(Color(hex: "D2B96A"))
                             Text("Add")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.jakarta(.regular, size: 11))
                                 .foregroundColor(Color(hex: "D2B96A"))
                         }
                         .frame(width: 100, height: 100)
@@ -174,7 +174,7 @@ struct PostBakeView: View {
     var bakeTimeSection: some View {
         Section("Bake info") {
             LabeledContent("Total bake time", value: timeString(totalBakeTime))
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
         }
         .listRowBackground(Color.clear)
     }
@@ -218,7 +218,7 @@ struct PizzaDetailView: View {
                             }
                         )
                     } header: { Text("Photos") }
-                      footer: { Text("Tap a photo to view it full-size or set it as this bake's main thumbnail. Drag to reorder.").font(.system(size: 11, design: .monospaced)).tipText() }
+                      footer: { Text("Tap a photo to view it full-size or set it as this bake's main thumbnail. Drag to reorder.").font(.jakarta(.regular, size: 11)).tipText() }
                     .listRowBackground(Color.clear)
                     .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
@@ -233,7 +233,7 @@ struct PizzaDetailView: View {
                     LabeledContent("Top", value: entry.topResult.rawValue)
                 }
                 .listRowBackground(Color.clear)
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
 
                 if !entry.crustTags.isEmpty || !entry.crumbTags.isEmpty {
                     Section("Tags") {
@@ -245,13 +245,13 @@ struct PizzaDetailView: View {
                         }
                     }
                     .listRowBackground(Color.clear)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 }
 
                 if !entry.notes.isEmpty {
                     Section("Notes") {
                         Text(entry.notes)
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                     }
                     .listRowBackground(Color.clear)

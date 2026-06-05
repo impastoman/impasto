@@ -54,7 +54,7 @@ struct MethodStepView: View {
                         Image(systemName: "info.circle")
                             .foregroundColor(.secondary).font(.caption)
                         Text("All flour mixed at once · neutral flavor · fastest to the oven")
-                            .font(.system(size: 12, design: .monospaced))
+                            .font(.jakarta(.regular, size: 12))
                             .foregroundColor(.secondary)
                     }
                     .tipText()
@@ -96,7 +96,7 @@ struct MethodStepView: View {
                 HStack {
                     Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
                     Text("Load preferment")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(store.savedPreferments.isEmpty ? .secondary : Color(hex: "D2B96A"))
                 }
             }
@@ -104,7 +104,7 @@ struct MethodStepView: View {
 
             if store.savedPreferments.isEmpty {
                 Text("No saved preferments yet — create one below or from the Library.")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .tipText()
             }
@@ -117,7 +117,7 @@ struct MethodStepView: View {
                 HStack {
                     Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
                     Text("Configure preferment")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
@@ -131,7 +131,7 @@ struct MethodStepView: View {
                 Image(systemName: prefEntryMode == .load ? "tray.and.arrow.down" : "pencil")
                     .foregroundColor(Color(hex: "D2B96A")).font(.caption)
                 Text(prefEntryMode == .load ? (savePrefName.isEmpty ? "Loaded from library" : savePrefName) : "New preferment")
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "D2B96A"))
                 Spacer()
                 Button("Change") {
@@ -139,7 +139,7 @@ struct MethodStepView: View {
                     prefSaved = false
                     prefEntryMode = .pick
                 }
-                .font(.system(size: 12, design: .monospaced))
+                .font(.jakarta(.regular, size: 12))
                 .foregroundColor(.secondary)
             }
         }
@@ -151,9 +151,9 @@ struct MethodStepView: View {
             Toggle(isOn: $prefHydrateOwnWay) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Hydrate your way")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                     Text("Enter any value from 1–999%")
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.jakarta(.regular, size: 11))
                         .foregroundColor(.secondary)
                         .tipText()
                 }
@@ -163,7 +163,7 @@ struct MethodStepView: View {
             VStack(spacing: 12) {
                 HStack {
                     Text(prefermentLabel)
-                        .font(.system(size: 18, design: .monospaced))
+                        .font(.jakarta(.regular, size: 18))
                         .fontWeight(.semibold)
                         .foregroundColor(Color(hex: "D2B96A"))
                     Spacer()
@@ -172,7 +172,7 @@ struct MethodStepView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.center)
                             .frame(width: prefHydrateOwnWay ? 72 : 52)
-                            .font(.system(size: 15, design: .monospaced))
+                            .font(.jakarta(.regular, size: 15))
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
                             .cornerRadius(5)
@@ -186,7 +186,7 @@ struct MethodStepView: View {
                                 }
                             }
                         Text("%")
-                            .font(.system(size: 15, design: .monospaced))
+                            .font(.jakarta(.regular, size: 15))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -200,14 +200,14 @@ struct MethodStepView: View {
                         }
 
                     Text(prefermentNote)
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.jakarta(.regular, size: 12))
                         .foregroundColor(.secondary)
                         .tipText()
 
                     HStack(spacing: 0) {
                         ForEach(hydrationZones, id: \.label) { zone in
                             Text(zone.label)
-                                .font(.system(size: 9, design: .monospaced))
+                                .font(.jakarta(.regular, size: 9))
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
                                 .frame(maxWidth: .infinity)
@@ -230,7 +230,7 @@ struct MethodStepView: View {
                     Text("Tap the field to type any value from 1–999%")
                 }
             }
-            .font(.system(size: 11, design: .monospaced))
+            .font(.jakarta(.regular, size: 11))
             .tipText()
         }
     }
@@ -240,14 +240,14 @@ struct MethodStepView: View {
             VStack(spacing: 10) {
                 HStack {
                     Text("Preferment ratio")
-                        .font(.system(size: 14, design: .monospaced))
+                        .font(.jakarta(.regular, size: 14))
                     Spacer()
                     HStack(spacing: 4) {
                         TextField("\(Int(prefermentRatio * 100))", text: $ratioText)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.center)
                             .frame(width: 52)
-                            .font(.system(size: 15, design: .monospaced))
+                            .font(.jakarta(.regular, size: 15))
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
                             .cornerRadius(5)
@@ -260,7 +260,7 @@ struct MethodStepView: View {
                                 }
                             }
                         Text("%")
-                            .font(.system(size: 15, design: .monospaced))
+                            .font(.jakarta(.regular, size: 15))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -272,7 +272,7 @@ struct MethodStepView: View {
             }
             .padding(.vertical, 4)
         } header: { Text("Preferment ratio") }
-          footer: { Text("Percentage of total flour that goes into the preferment. Typical: 20–40%  ·  tap field to type any value from 1–999%").font(.system(size: 11, design: .monospaced)).tipText() }
+          footer: { Text("Percentage of total flour that goes into the preferment. Typical: 20–40%  ·  tap field to type any value from 1–999%").font(.jakarta(.regular, size: 11)).tipText() }
     }
 
     @ViewBuilder
@@ -300,11 +300,11 @@ struct MethodStepView: View {
                 HStack {
                     Text("Total")
                         .foregroundColor(.secondary)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                     Spacer()
                     let total = prefermentFlourBlend.totalPercentage
                     Text(String(format: "%.0f%%", total) + (prefermentFlourBlend.isValid ? "  ✓" : ""))
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(prefermentFlourBlend.isValid ? Color(hex: "D2B96A") : .red)
                 }
                 .listRowBackground(Color.clear)
@@ -315,7 +315,7 @@ struct MethodStepView: View {
                 } label: {
                     Label("Add flour type", systemImage: "plus")
                         .foregroundColor(Color(hex: "D2B96A"))
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                 }
             }
         } header: { Text("Preferment flour") }
@@ -328,7 +328,7 @@ struct MethodStepView: View {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
                     Text("\(method.rawValue) needs at least \(Int(method.minimumHours))h, but your timeline is \"\(timeline.rawValue)\" (\(timeline.hours)). Consider a longer timeline or switching to Direct method.")
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.jakarta(.regular, size: 12))
                         .foregroundColor(.orange)
                 }
             }
@@ -342,12 +342,12 @@ struct MethodStepView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
                     Text("Saved to library")
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             } else {
                 TextField("Name this preferment to save...", text: $savePrefName)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                 Button("Save to Library") {
                     var pref = SavedPreferment(
                         name: savePrefName.isEmpty ? "Untitled Preferment" : savePrefName,
@@ -418,7 +418,7 @@ private struct PrefermentLibraryPickerView: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
-                                .font(.system(.body, design: .monospaced))
+                                .font(.jakarta(.regular, size: 17))
                                 .foregroundColor(.primary)
                             Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%  ·  \(Int(pref.ratioPercent * 100))% of flour")
                                 .font(.caption).foregroundColor(.secondary)

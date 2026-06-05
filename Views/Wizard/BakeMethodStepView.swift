@@ -38,7 +38,7 @@ struct BakeMethodStepView: View {
                 Text("Baking method")
             } footer: {
                 Text("You can save settings for multiple setups — choose which to use at prep.")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .tipText()
             }
             .listRowBackground(Color.clear)
@@ -62,7 +62,7 @@ private struct BakeSetupDetailSection: View {
                     Spacer()
                     TextField("Oven brand & model", text: $setup.subMethod)
                         .multilineTextAlignment(.trailing)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .inputBox()
                 }
             } else if !setup.method.subMethods.isEmpty {
@@ -72,7 +72,7 @@ private struct BakeSetupDetailSection: View {
                         Text(s).tag(s)
                     }
                 }
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
             }
 
             HStack {
@@ -82,7 +82,7 @@ private struct BakeSetupDetailSection: View {
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 52)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
                 Text("min").foregroundColor(.secondary)
             }
@@ -94,14 +94,14 @@ private struct BakeSetupDetailSection: View {
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 52)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
                 Text("–")
                 TextField("290", value: $setup.ovenTempMax, format: .number)
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
                     .frame(width: 52)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
                 Text(setup.tempUnit).foregroundColor(.secondary)
             }
@@ -114,7 +114,7 @@ private struct BakeSetupDetailSection: View {
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.center)
                         .frame(width: 64)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .inputBox()
                     Text(setup.tempUnit).foregroundColor(.secondary)
                 }
@@ -124,10 +124,10 @@ private struct BakeSetupDetailSection: View {
                 Text("°F  Fahrenheit").tag(false)
                 Text("°C  Celsius").tag(true)
             }
-            .font(.system(size: 13, design: .monospaced))
+            .font(.jakarta(.regular, size: 13))
 
             TextField("Notes", text: $setup.notes, axis: .vertical)
-                .font(.system(size: 13, design: .monospaced))
+                .font(.jakarta(.regular, size: 13))
                 .lineLimit(2...)
                 .notesBox()
         } header: {

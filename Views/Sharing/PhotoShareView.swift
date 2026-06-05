@@ -398,11 +398,11 @@ struct ShareCanvasView: View {
         // Reverted to original (smaller) sizing per user preference.
         HStack(spacing: 3) {
             Text("Baked with")
-                .font(.system(size: 8, design: .monospaced))
+                .font(.jakarta(.regular, size: 8))
                 .foregroundColor(.white.opacity(0.72))
                 .tracking(0.5)
             Text("Stesura")
-                .font(.system(size: 13, design: .monospaced).weight(.bold))
+                .font(.jakarta(.bold, size: 13))
                 .foregroundColor(.white)
                 .tracking(1)
         }
@@ -667,7 +667,7 @@ struct PhotoShareView: View {
                             HStack(spacing: 16) {
                                 PhotosPicker(selection: $pickerItem, matching: .images) {
                                     Label("Replace photo", systemImage: "photo")
-                                        .font(.system(size: 12, design: .monospaced))
+                                        .font(.jakarta(.regular, size: 12))
                                         .foregroundColor(.white.opacity(0.7))
                                 }
                                 if editor.photoZoom > 1.0 || editor.photoOffset != .zero {
@@ -676,7 +676,7 @@ struct PhotoShareView: View {
                                         editor.photoOffset = .zero
                                     } label: {
                                         Label("Reset zoom", systemImage: "arrow.counterclockwise")
-                                            .font(.system(size: 12, design: .monospaced))
+                                            .font(.jakarta(.regular, size: 12))
                                             .foregroundColor(Color(hex: "D2B96A"))
                                     }
                                 }
@@ -783,11 +783,11 @@ struct PhotoShareView: View {
     private var pickPhotoPrompt: some View {
         VStack(spacing: 10) {
             Text("No photo attached to this bake.")
-                .font(.system(size: 13, design: .monospaced))
+                .font(.jakarta(.regular, size: 13))
                 .foregroundColor(.white.opacity(0.7))
             PhotosPicker(selection: $pickerItem, matching: .images) {
                 Text("Pick a photo from library →")
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "D2B96A"))
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .overlay(
@@ -796,7 +796,7 @@ struct PhotoShareView: View {
                     )
             }
             Text("Won't be saved back to this bake — used for this share only.")
-                .font(.system(size: 10, design: .monospaced))
+                .font(.jakarta(.regular, size: 10))
                 .foregroundColor(.white.opacity(0.4))
                 .multilineTextAlignment(.center)
         }
@@ -807,7 +807,7 @@ struct PhotoShareView: View {
     private var scopePicker: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Stats reflect")
-                .font(.system(size: 10, design: .monospaced))
+                .font(.jakarta(.regular, size: 10))
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.2)
 
@@ -866,7 +866,7 @@ struct PhotoShareView: View {
     private var blockTogglesSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Blocks")
-                .font(.system(size: 10, design: .monospaced))
+                .font(.jakarta(.regular, size: 10))
                 .foregroundColor(.white.opacity(0.5))
                 .tracking(1.2)
             VStack(spacing: 8) {
@@ -881,10 +881,10 @@ struct PhotoShareView: View {
                     )) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(block.title)
-                                .font(.system(size: 12, design: .monospaced))
+                                .font(.jakarta(.regular, size: 12))
                                 .foregroundColor(.white)
                             Text(block.body)
-                                .font(.system(size: 10, design: .monospaced))
+                                .font(.jakarta(.regular, size: 10))
                                 .foregroundColor(.white.opacity(0.5))
                                 .lineLimit(1)
                         }
@@ -901,7 +901,7 @@ struct PhotoShareView: View {
 
     private var helperFooter: some View {
         Text("Drag any enabled block on the canvas to reposition. The watermark is always shown.")
-            .font(.system(size: 10, design: .monospaced))
+            .font(.jakarta(.regular, size: 10))
             .foregroundColor(.white.opacity(0.4))
             .multilineTextAlignment(.center)
             .padding(.top, 8)

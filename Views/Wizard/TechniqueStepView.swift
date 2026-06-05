@@ -38,7 +38,7 @@ struct TechniqueStepView: View {
 
                 if mixerType == .other {
                     TextField("Describe your mixer", text: $customMixerName)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
                         .padding(.top, 2)
                 }
@@ -73,9 +73,9 @@ struct TechniqueStepView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Rest time")
-                                .font(.system(.body, design: .monospaced))
+                                .font(.jakarta(.regular, size: 17))
                             Text("suggested: \(style == .neapolitan ? 20 : 30) min")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.jakarta(.regular, size: 11))
                                 .foregroundColor(.secondary)
                                 .tipText()
                         }
@@ -86,7 +86,7 @@ struct TechniqueStepView: View {
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.center)
                             .frame(width: 52)
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                             .inputBox()
                         Text("min").foregroundColor(.secondary)
                     }
@@ -107,10 +107,10 @@ struct TechniqueStepView: View {
 
                 if bassinage {
                     LabeledContent("Default reserve", value: "10% of total water")
-                        .font(.system(.caption, design: .monospaced))
+                        .font(.jakarta(.regular, size: 12))
                         .foregroundColor(.secondary)
                     Text("Adjustable per process step in the next screen.")
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.jakarta(.regular, size: 11))
                         .foregroundColor(.secondary)
                         .tipText()
                 }
@@ -119,7 +119,7 @@ struct TechniqueStepView: View {
 
             Section("Mixing notes") {
                 TextField("Any notes for this stage...", text: $mixingNotes, axis: .vertical)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .lineLimit(3...)
                     .notesBox()
             }

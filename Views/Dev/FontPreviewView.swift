@@ -277,7 +277,7 @@ private struct JakartaPanel: View {
             sectionHeader("vs. current system monospaced  ·  17pt")
 
             sample(label: "System monospaced — current",
-                   view: AnyView(Text("Bulk Fermentation").font(.system(.body, design: .monospaced)).foregroundColor(.ink)))
+                   view: AnyView(Text("Bulk Fermentation").font(.jakarta(.regular, size: 17)).foregroundColor(.ink)))
             sample(label: "Jakarta Regular — proposed",
                    view: AnyView(Text("Bulk Fermentation").font(.jakarta(17)).foregroundColor(.ink)))
             sample(label: "Jakarta Medium — proposed",

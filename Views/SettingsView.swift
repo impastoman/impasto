@@ -18,14 +18,14 @@ struct SettingsView: View {
                 Section("Display") {
                     Toggle("Show tips", isOn: $showTips)
                         .tint(Color(hex: "D2B96A"))
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                 }
                 .listRowBackground(Color.clear)
 
                 if showTips {
                     Section {
                         Text("Turning off Show Tips hides the grey explainer captions throughout the app, leaving only field labels. For users who already know what each box does.")
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                     }
                     .listRowBackground(Color.clear)
@@ -36,20 +36,20 @@ struct SettingsView: View {
                         Text("Metric").tag("metric")
                         Text("Imperial").tag("imperial")
                     }
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
 
                     Picker("Temperature", selection: $prepTempUnit) {
                         Text("Celsius").tag("celsius")
                         Text("Fahrenheit").tag("fahrenheit")
                     }
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                 }
                 .listRowBackground(Color.clear)
 
                 if showTips {
                     Section {
                         Text("Prep defaults only pre-select fields when you open a Prep Session. The live session still uses whatever you actually picked in Prep.")
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                     }
                     .listRowBackground(Color.clear)
@@ -62,7 +62,7 @@ struct SettingsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                         .foregroundColor(Color(hex: "D2B96A"))
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                 }
             }
         }

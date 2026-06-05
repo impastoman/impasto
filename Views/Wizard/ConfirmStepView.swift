@@ -44,7 +44,7 @@ struct ConfirmStepView: View {
 
             Section("Name your recipe") {
                 TextField("e.g. My Neapolitan", text: $name)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .textFieldBox()
             }
             .listRowBackground(Color.clear)
@@ -84,21 +84,21 @@ struct ConfirmStepView: View {
                             .foregroundColor(.secondary)
                     }
                 } header: { sectionHeader("Flour blend", step: 3) }
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
                 .listRowBackground(Color.clear)
             }
 
             Section {
                 ForEach(processCards.sorted { $0.sortOrder < $1.sortOrder }) { card in
                     HStack {
-                        Text(card.title).font(.system(size: 13, design: .monospaced))
+                        Text(card.title).font(.jakarta(.regular, size: 13))
                         Spacer()
                         if card.duration > 0 {
                             Text(shortDuration(card.duration))
-                                .font(.system(size: 12, design: .monospaced)).foregroundColor(.secondary)
+                                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
                         } else {
                             Text("action")
-                                .font(.system(size: 11, design: .monospaced)).foregroundColor(.secondary)
+                                .font(.jakarta(.regular, size: 11)).foregroundColor(.secondary)
                         }
                     }
                 }
@@ -107,7 +107,7 @@ struct ConfirmStepView: View {
                 let total = processCards.reduce(0.0) { $0 + $1.duration }
                 if total > 0 {
                     Text("Total: \(processTotalString(total))")
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.jakarta(.regular, size: 11))
                 }
             }
             .listRowBackground(Color.clear)
@@ -118,29 +118,29 @@ struct ConfirmStepView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             HStack {
                                 Text(setup.method.displayName)
-                                    .font(.system(size: 13, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 13))
                                 if !setup.subMethod.isEmpty {
                                     Text("· \(setup.subMethod)")
-                                        .font(.system(size: 13, design: .monospaced))
+                                        .font(.jakarta(.regular, size: 13))
                                         .foregroundColor(.secondary)
                                 }
                                 Spacer()
                                 Text(setup.ovenTempDisplay)
-                                    .font(.system(size: 12, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 12))
                                     .foregroundColor(Color(hex: "D2B96A"))
                             }
                             HStack(spacing: 8) {
                                 if let surf = setup.surfaceTemp {
                                     Text("Surface \(Int(surf))\(setup.tempUnit)")
-                                        .font(.system(size: 11, design: .monospaced))
+                                        .font(.jakarta(.regular, size: 11))
                                         .foregroundColor(.secondary)
                                 }
                                 Text("Preheat ~\(setup.preheatMinutes) min")
-                                    .font(.system(size: 11, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 11))
                                     .foregroundColor(.secondary)
                                 if !setup.notes.isEmpty {
                                     Text("· \(setup.notes)")
-                                        .font(.system(size: 11, design: .monospaced))
+                                        .font(.jakarta(.regular, size: 11))
                                         .foregroundColor(.secondary)
                                         .lineLimit(1)
                                 }
@@ -173,7 +173,7 @@ struct ConfirmStepView: View {
             Text(title)
             Spacer()
             Button("Edit") { onJumpTo(step) }
-                .font(.system(size: 11, design: .monospaced))
+                .font(.jakarta(.regular, size: 11))
                 .foregroundColor(Color(hex: "D2B96A"))
         }
     }

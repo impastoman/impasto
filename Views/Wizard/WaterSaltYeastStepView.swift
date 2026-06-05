@@ -23,9 +23,9 @@ struct WaterSaltYeastStepView: View {
                 Toggle(isOn: $hydrateOwnWay) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Hydrate your own way")
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                         Text("Enter any value from 1–999%")
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                             .tipText()
                     }
@@ -35,13 +35,13 @@ struct WaterSaltYeastStepView: View {
                 if hydrateOwnWay {
                     HStack {
                         Text("Final hydration")
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                         Spacer()
                         TextField("\(Int(finalHydration * 100))", text: $hydrationText)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.center)
                             .frame(width: 72)
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                             .padding(.vertical, 4).padding(.horizontal, 4)
                             .background(Color(hex: "F0EDE4"))
                             .cornerRadius(5)
@@ -57,13 +57,13 @@ struct WaterSaltYeastStepView: View {
                     VStack(spacing: 10) {
                         HStack {
                             Text("Final hydration")
-                                .font(.system(.body, design: .monospaced))
+                                .font(.jakarta(.regular, size: 17))
                             Spacer()
                             TextField("\(Int(styleDefault * 100))", text: $hydrationText)
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.center)
                                 .frame(width: 52)
-                                .font(.system(.body, design: .monospaced))
+                                .font(.jakarta(.regular, size: 17))
                                 .padding(.vertical, 4).padding(.horizontal, 4)
                                 .background(Color(hex: "F0EDE4"))
                                 .cornerRadius(5)
@@ -85,7 +85,7 @@ struct WaterSaltYeastStepView: View {
                         HStack(spacing: 0) {
                             ForEach(hydrationZones, id: \.label) { zone in
                                 Text(zone.label)
-                                    .font(.system(size: 9, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 9))
                                     .multilineTextAlignment(.center)
                                     .foregroundColor(zone.active ? Color(hex: "D2B96A") : Color.secondary.opacity(0.4))
                                     .frame(maxWidth: .infinity)
@@ -106,7 +106,7 @@ struct WaterSaltYeastStepView: View {
                         Text("Style default: \(Int(styleDefault * 100))%  ·  higher = stickier dough, more open crumb  ·  tap field to type any value")
                     }
                 }
-                .font(.system(size: 11, design: .monospaced))
+                .font(.jakarta(.regular, size: 11))
                 .tipText()
             }
             .listRowBackground(Color.clear)
@@ -114,13 +114,13 @@ struct WaterSaltYeastStepView: View {
             Section {
                 HStack {
                     Text("Salt")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                     Spacer()
                     TextField("2.8", text: $saltText)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.center)
                         .frame(width: 52)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .padding(.vertical, 4).padding(.horizontal, 4)
                         .background(Color(hex: "F0EDE4"))
                         .cornerRadius(5)
@@ -142,7 +142,7 @@ struct WaterSaltYeastStepView: View {
                         Text("Typical: 2.5–3% of flour weight")
                     }
                 }
-                .font(.system(size: 11, design: .monospaced))
+                .font(.jakarta(.regular, size: 11))
                 .tipText()
             }
             .listRowBackground(Color.clear)
@@ -153,17 +153,17 @@ struct WaterSaltYeastStepView: View {
                         Text(t.rawValue).tag(t)
                     }
                 }
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
 
                 HStack {
                     Text("Quantity")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                     Spacer()
                     TextField("0.1", text: $yeastText)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.center)
                         .frame(width: 52)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .padding(.vertical, 4).padding(.horizontal, 4)
                         .background(Color(hex: "F0EDE4"))
                         .cornerRadius(5)
@@ -185,7 +185,7 @@ struct WaterSaltYeastStepView: View {
                         Text(yeastType.typicalRange)
                     }
                 }
-                .font(.system(size: 11, design: .monospaced))
+                .font(.jakarta(.regular, size: 11))
                 .tipText()
             }
             .listRowBackground(Color.clear)

@@ -87,7 +87,7 @@ struct PizzaLogView: View {
                 Text("Bake time")
                 Spacer()
                 Text(bakeTimeDisplay)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .foregroundColor(.secondary)
             }
             HStack {
@@ -95,7 +95,7 @@ struct PizzaLogView: View {
                 Spacer()
                 TextField("optional", text: $ovenTempInput)
                     .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 64)
-                    .font(.system(.body, design: .monospaced))
+                    .font(.jakarta(.regular, size: 17))
                     .inputBox()
                 Text("°").foregroundColor(.secondary)
             }
@@ -204,7 +204,7 @@ struct PizzaLogView: View {
     var notesSection: some View {
         Section("Notes") {
             TextField("Any notes about this bake…", text: $notes, axis: .vertical)
-                .font(.system(size: 13, design: .monospaced))
+                .font(.jakarta(.regular, size: 13))
                 .lineLimit(3...)
                 .notesBox()
         }
@@ -250,7 +250,7 @@ struct PizzaLogView: View {
     func tagChip(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 12, design: .monospaced))
+                .font(.jakarta(.regular, size: 12))
                 .padding(.horizontal, 10).padding(.vertical, 6)
                 .background(selected ? Color(hex: "D2B96A") : Color(hex: "ECEAE3"))
                 .foregroundColor(selected ? .white : .primary)

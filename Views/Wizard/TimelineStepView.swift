@@ -85,10 +85,10 @@ private struct TimingInfoSheet: View {
                 Section("How \"Ready by\" is calculated") {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("The \"Ready by\" time is calculated from the moment you start this wizard — not from when you begin your session.")
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                         Text("It gives you a rough window, not a precise alarm. Your actual finish time will depend on room temperature, yeast activity, and how hands-on you are with each step.")
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 4)
@@ -103,7 +103,7 @@ private struct TimingInfoSheet: View {
 
                 Section("Conflict warnings") {
                     Text("If your timeline is too short for your chosen preferment method, a warning appears on the preferment step. You can still proceed — it's advisory, not a block.")
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(.secondary)
                         .padding(.vertical, 4)
                 }
@@ -121,12 +121,12 @@ private struct TimingInfoSheet: View {
     func timingRow(_ name: String, _ range: String, _ description: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(name).font(.system(.body, design: .monospaced)).fontWeight(.medium)
+                Text(name).font(.jakarta(.regular, size: 17)).fontWeight(.medium)
                 Spacer()
-                Text(range).font(.system(.caption, design: .monospaced)).foregroundColor(.secondary)
+                Text(range).font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             }
             Text(description)
-                .font(.system(size: 12, design: .monospaced))
+                .font(.jakarta(.regular, size: 12))
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 2)

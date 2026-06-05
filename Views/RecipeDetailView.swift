@@ -50,7 +50,7 @@ struct RecipeDetailView: View {
                     }
                 }
                 .listRowBackground(Color.clear)
-                .font(.system(.body, design: .monospaced))
+                .font(.jakarta(.regular, size: 17))
             }
 
             Section("Target") {
@@ -154,7 +154,7 @@ struct RecipeDetailView: View {
 
     func row(_ label: String, _ value: String) -> some View {
         LabeledContent(label, value: value)
-            .font(.system(.body, design: .monospaced))
+            .font(.jakarta(.regular, size: 17))
     }
 
     func recipeExportString() -> String {

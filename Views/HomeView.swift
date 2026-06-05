@@ -66,7 +66,7 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             HStack {
                                 Text("Sessions in progress")
-                                    .font(.system(size: 9, design: .monospaced))
+                                    .font(.jakarta(.regular, size: 9))
                                     .foregroundColor(Color(hex: "9A9688"))
                                     .tracking(2)
                                 Spacer()
@@ -123,7 +123,7 @@ struct HomeView: View {
                     .buttonStyle(StesuraButtonStyle(filled: false))
 
                 Button("↑  Import Recipe") { showImportRecipe = true }
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .foregroundColor(Color(hex: "C4B89A"))
                 } // end splashDone
 
@@ -209,11 +209,11 @@ private struct ActiveSessionRow: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(vm.recipe.name)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "2C2A24"))
                     .lineLimit(1)
                 Text(stepLabel)
-                    .font(.system(size: 9, design: .monospaced))
+                    .font(.jakarta(.regular, size: 9))
                     .foregroundColor(.secondary)
                     .tracking(1.5)
             }
@@ -222,11 +222,11 @@ private struct ActiveSessionRow: View {
 
             VStack(alignment: .trailing, spacing: 3) {
                 Text(previewTime)
-                    .font(.system(size: 14, design: .monospaced))
+                    .font(.jakarta(.regular, size: 14))
                     .foregroundColor(vm.isOvertime ? .orange : Color(hex: "D2B96A"))
                 if vm.isOvertime {
                     Text("overtime")
-                        .font(.system(size: 9, design: .monospaced))
+                        .font(.jakarta(.regular, size: 9))
                         .foregroundColor(.orange)
                 }
             }
@@ -327,7 +327,7 @@ struct StartDoughView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Begin Prep →") { preFlightRecipe = selectedRecipe }
                             .foregroundColor(Color(hex: "D2B96A"))
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                     }
                 }
             }

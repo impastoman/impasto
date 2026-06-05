@@ -54,7 +54,7 @@ struct ProcessScriptStepView: View {
                 HStack {
                     Image(systemName: "tray.and.arrow.down").foregroundColor(Color(hex: "D2B96A"))
                     Text("Load process")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(store.savedProcesses.isEmpty ? .secondary : Color(hex: "D2B96A"))
                 }
             }
@@ -62,7 +62,7 @@ struct ProcessScriptStepView: View {
 
             if store.savedProcesses.isEmpty {
                 Text("No saved processes yet — create one below or from the Library.")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
                     .tipText()
             }
@@ -73,7 +73,7 @@ struct ProcessScriptStepView: View {
                 HStack {
                     Image(systemName: "plus.circle").foregroundColor(Color(hex: "D2B96A"))
                     Text("Build process")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
@@ -87,7 +87,7 @@ struct ProcessScriptStepView: View {
                 Image(systemName: mode == .load ? "tray.and.arrow.down" : "pencil")
                     .foregroundColor(Color(hex: "D2B96A")).font(.caption)
                 Text(mode == .load ? (saveProcessName.isEmpty ? "Loaded from library" : saveProcessName) : "New process")
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .foregroundColor(Color(hex: "D2B96A"))
                 Spacer()
                 Button("Change") {
@@ -95,7 +95,7 @@ struct ProcessScriptStepView: View {
                     processSaved = false
                     mode = .pick
                 }
-                .font(.system(size: 12, design: .monospaced))
+                .font(.jakarta(.regular, size: 12))
                 .foregroundColor(.secondary)
             }
         }
@@ -137,7 +137,7 @@ struct ProcessScriptStepView: View {
                     Image(systemName: "plus.circle")
                         .foregroundColor(Color(hex: "D2B96A"))
                     Text("Add step")
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             }
@@ -146,7 +146,7 @@ struct ProcessScriptStepView: View {
                 Text("Process steps")
                 Spacer()
                 Text("hold to insert")
-                    .font(.system(size: 9, design: .monospaced))
+                    .font(.jakarta(.regular, size: 9))
                     .foregroundColor(.secondary.opacity(0.5))
                     .textCase(nil)
                     .tipText()
@@ -161,12 +161,12 @@ struct ProcessScriptStepView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "D2B96A"))
                     Text("Saved to library")
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         .foregroundColor(Color(hex: "D2B96A"))
                 }
             } else {
                 TextField("Name this process to save...", text: $saveProcessName)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(.jakarta(.regular, size: 13))
                     .textFieldBox()
                 Button("Save to Library") {
                     let savedProcess = SavedProcess(
@@ -206,7 +206,7 @@ private struct ProcessLibraryPickerView: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(process.name.isEmpty ? "Untitled Process" : process.name)
-                                .font(.system(.body, design: .monospaced))
+                                .font(.jakarta(.regular, size: 17))
                                 .foregroundColor(.primary)
                             Text("\(process.cards.count) steps")
                                 .font(.caption).foregroundColor(.secondary)
@@ -240,21 +240,21 @@ struct ProcessCardRow: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Text(position)
-                    .font(.system(size: 12, design: .monospaced))
+                    .font(.jakarta(.regular, size: 12))
                     .foregroundColor(isLocked ? .secondary : Color(hex: "D2B96A"))
                     .frame(width: 22, alignment: .center)
 
                 VStack(alignment: .leading, spacing: 2) {
                     if isLocked {
                         Text(card.title)
-                            .font(.system(.body, design: .monospaced))
+                            .font(.jakarta(.regular, size: 17))
                             .foregroundColor(.secondary)
                     } else {
                         TextField(card.type == .freeform ? "Step name" : card.title, text: Binding(
                             get: { card.customTitle ?? "" },
                             set: { card.customTitle = $0.isEmpty ? nil : $0 }
                         ))
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
                     }
                 }
@@ -263,7 +263,7 @@ struct ProcessCardRow: View {
 
                 if card.duration > 0 {
                     Text(shortDuration(card.duration))
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(.jakarta(.regular, size: 12))
                         .foregroundColor(.secondary)
                 }
 
@@ -286,7 +286,7 @@ struct ProcessCardRow: View {
 
                     HStack {
                         Text("Duration")
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .foregroundColor(.secondary)
                         Spacer()
                         DurationField(seconds: Binding(
@@ -298,11 +298,11 @@ struct ProcessCardRow: View {
                     if card.type == .bassinage {
                         HStack {
                             Text("Reserve water")
-                                .font(.system(size: 13, design: .monospaced))
+                                .font(.jakarta(.regular, size: 13))
                                 .foregroundColor(.secondary)
                             Spacer()
                             Text("\(Int(card.bassinageReservePct * 100))%")
-                                .font(.system(size: 13, design: .monospaced))
+                                .font(.jakarta(.regular, size: 13))
                                 .foregroundColor(Color(hex: "D2B96A"))
                         }
                         Slider(value: $card.bassinageReservePct, in: 0.05...0.20, step: 0.01)
@@ -315,16 +315,16 @@ struct ProcessCardRow: View {
                                 Text(m.rawValue).tag(m)
                             }
                         }
-                        .font(.system(size: 13, design: .monospaced))
+                        .font(.jakarta(.regular, size: 13))
                         Text(card.autolyseMode.description)
-                            .font(.system(size: 11, design: .monospaced))
+                            .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                     }
 
                     HStack(alignment: .top) {
                         Image(systemName: "note.text").font(.caption).foregroundColor(.secondary)
                         TextField("Add a note for this step...", text: $card.recipeNote, axis: .vertical)
-                            .font(.system(size: 13, design: .monospaced))
+                            .font(.jakarta(.regular, size: 13))
                             .lineLimit(2...)
                             .notesBox()
                     }
@@ -372,14 +372,14 @@ struct AddStepSheet: View {
             List {
                 Section("Extra steps") {
                     ForEach(primaryTypes, id: \.self) { type in
-                        Text(type.title).font(.system(.body, design: .monospaced))
+                        Text(type.title).font(.jakarta(.regular, size: 17))
                             .contentShape(Rectangle())
                             .onTapGesture { onAdd(ProcessCard(type: type)); dismiss() }
                     }
                 }
                 Section("Standard steps") {
                     ForEach(standardTypes, id: \.self) { type in
-                        Text(type.title).font(.system(.body, design: .monospaced))
+                        Text(type.title).font(.jakarta(.regular, size: 17))
                             .contentShape(Rectangle())
                             .onTapGesture { onAdd(ProcessCard(type: type)); dismiss() }
                     }
@@ -442,7 +442,7 @@ struct DurationField: View {
             TextField("0", value: $value, format: .number)
                 .keyboardType(.numberPad)
                 .frame(width: 44)
-                .font(.system(size: 13, design: .monospaced))
+                .font(.jakarta(.regular, size: 13))
                 .multilineTextAlignment(.center)
                 .foregroundColor(valueColor)
                 .inputBox()

@@ -60,11 +60,11 @@ struct StyleStepView: View {
             if selected == .custom {
                 VStack(alignment: .leading, spacing: 6) {
                     TextField("My Style", text: $customStyleName)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
 
                     Text("No style presets — balanced defaults are applied. Adjust hydration, ratios, and process after saving.")
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.jakarta(.regular, size: 11))
                         .foregroundColor(.secondary)
                         .tipText()
                 }
