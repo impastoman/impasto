@@ -55,8 +55,10 @@ enum ShareAspect: String, CaseIterable, Identifiable {
         case .vertical: return CGSize(width: 240, height: 427)   // → 1080×1920 at 4.5×
         case .wide:     return CGSize(width: 320, height: 180)   // → 1280×720  at 4×
         case .native:
-            // photoAspect = width / height; clamp to sensible bounds
-            let clamped = max(0.5, min(2.0, photoAspect))
+            // photoAspect = width / height; clamp so the resulting height
+            // stays at or below 427 (matches Vertical, the tallest fixed
+            // aspect) so it fits inside the fixed-height canvas container.
+            let clamped = max(0.656, min(2.0, photoAspect))
             return CGSize(width: 280, height: 280 / clamped)
         }
     }
@@ -682,7 +684,6 @@ struct PhotoShareView: View {
                     .padding(.bottom, 10)
 
                 canvasFrame
-                    .layoutPriority(1)   // canvas always gets its requested height
 
                 // Explicit visual separator so the canvas can't visually
                 // bleed into the scrolling area below.
@@ -802,28 +803,29 @@ struct PhotoShareView: View {
         }
     }
 
+    /// Fixed-height container so the parent VStack never reflows when
+    /// aspect changes. The actual canvas centers inside this 440pt-tall
+    /// area. Was bypassing SwiftUI's layout cache via .id() but device
+    /// (iOS 26) still got stuck on .square and .wide — making the
+    /// container size constant sidesteps the cache entirely. Tradeoff:
+    /// up to ~260pt of empty space below Wide (180pt tall) on every
+    /// aspect that isn't Vertical (427pt). Acceptable.
     private var canvasFrame: some View {
-        ShareCanvasView(
-            editor: editor,
-            canvasSize: canvasSize,
-            draggable: true
-        )
-        // Identity on the INNER canvas itself — outer .id() alone
-        // didn't always cascade into ShareCanvasView's layout on iOS 26
-        // physical devices. Two layers of identity reset reliably tear
-        // down the inner content too.
-        .id(editor.aspect)
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-        )
+        ZStack {
+            ShareCanvasView(
+                editor: editor,
+                canvasSize: canvasSize,
+                draggable: true
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+            )
+            .id(editor.aspect)
+            .animation(.none, value: editor.aspect)
+        }
         .frame(maxWidth: .infinity)
-        // Disable implicit animation when aspect changes — was racing
-        // the .id() swap on device, leaving layout in a stale state for
-        // .square and .wide (the two aspects that don't transition
-        // through .native's photoAspect-driven canvasSize).
-        .animation(.none, value: editor.aspect)
-        .id(editor.aspect)
+        .frame(height: 440)
     }
 
     @ViewBuilder
