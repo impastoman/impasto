@@ -86,15 +86,15 @@ struct RecipeDetailView: View {
                     Button("▶  Start Session") { showPreFlight = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(Color(hex: "7FA2BD"))
-                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
+                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
                     Button("Edit Recipe") { showEditWizard = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.primary)
-                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
+                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
                     Button("Modify and Save as New") { showForkWizard = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.secondary)
-                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
+                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparatorTint(Color.ruleBlue)
@@ -183,7 +183,7 @@ struct RecipeDetailView: View {
     func row(_ label: String, _ value: String) -> some View {
         LabeledContent(label, value: value)
             .font(.jakarta(.regular, size: 17))
-            .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 16 }
+            .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
     }
 
     func recipeExportString() -> String {
