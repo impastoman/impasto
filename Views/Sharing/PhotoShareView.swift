@@ -7,22 +7,53 @@ import Combine
 
 /// The output canvas shape. ImageRenderer rasterizes at 3× for export.
 enum ShareAspect: String, CaseIterable, Identifiable {
-    case square   = "1:1"
-    case portrait = "4:5"
-    case vertical = "9:16"
-    case native   = "Native"
+    // Stable identifier — used for SwiftUI identity (.id(editor.aspect))
+    // and for any future codable persistence. User-visible label and
+    // ratio text live in computed properties below.
+    case square   = "square"
+    case portrait = "portrait"
+    case vertical = "vertical"
+    case wide     = "wide"
+    case native   = "native"
 
     var id: String { rawValue }
+
+    /// User-visible name. Generic — no social-platform branding so the
+    /// UI doesn't go stale when Instagram / TikTok / etc. rename their
+    /// formats.
+    var displayLabel: String {
+        switch self {
+        case .square:   return "Square"
+        case .portrait: return "Tall"
+        case .vertical: return "Vertical"
+        case .wide:     return "Wide"
+        case .native:   return "Native"
+        }
+    }
+
+    /// Aspect ratio shown as a subtitle under the display label. Native
+    /// has no fixed ratio (it follows the source photo), so we show an
+    /// em-dash to keep button heights consistent across the picker row.
+    var ratioText: String {
+        switch self {
+        case .square:   return "1:1"
+        case .portrait: return "4:5"
+        case .vertical: return "9:16"
+        case .wide:     return "16:9"
+        case .native:   return "—"
+        }
+    }
 
     /// In-editor preview size (points). Smaller than before (was 360pt) so
     /// the canvas doesn't dominate the screen on tall aspects and the
     /// scrollable controls still have visible room. Export scale is bumped
-    /// to compensate so output stays ~1080px on the long edge.
+    /// to compensate so output stays ~1080-1280px on the long edge.
     func previewSize(for photoAspect: CGFloat) -> CGSize {
         switch self {
         case .square:   return CGSize(width: 280, height: 280)   // → 1120×1120 at 4×
         case .portrait: return CGSize(width: 280, height: 350)   // → 1120×1400 at 4×
         case .vertical: return CGSize(width: 240, height: 427)   // → 1080×1920 at 4.5×
+        case .wide:     return CGSize(width: 320, height: 180)   // → 1280×720  at 4×
         case .native:
             // photoAspect = width / height; clamp to sensible bounds
             let clamped = max(0.5, min(2.0, photoAspect))
@@ -31,7 +62,7 @@ enum ShareAspect: String, CaseIterable, Identifiable {
     }
 
     /// Pixel scale factor used by the rasterizer. ~4× keeps export close
-    /// to 1080px on the long edge despite the smaller preview canvas.
+    /// to 1080-1280px on the long edge despite the smaller preview canvas.
     var exportScale: CGFloat {
         switch self {
         case .vertical: return 4.5
@@ -753,15 +784,20 @@ struct PhotoShareView: View {
     private var aspectPicker: some View {
         HStack(spacing: 6) {
             ForEach(ShareAspect.allCases) { a in
-                Text(a.rawValue)
-                    .font(editor.aspect == a ? .jakarta(.semibold, size: 12) : .jakarta(.regular, size: 12))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(editor.aspect == a ? Color(hex: "7FA2BD") : Color.white.opacity(0.08))
-                    .foregroundColor(editor.aspect == a ? .black : .white.opacity(0.7))
-                    .cornerRadius(6)
-                    .contentShape(Rectangle())
-                    .onTapGesture { editor.aspect = a }
+                VStack(spacing: 1) {
+                    Text(a.displayLabel)
+                        .font(editor.aspect == a ? .jakarta(.semibold, size: 11) : .jakarta(.regular, size: 11))
+                    Text(a.ratioText)
+                        .font(.jakarta(.regular, size: 9))
+                        .opacity(0.7)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .background(editor.aspect == a ? Color(hex: "7FA2BD") : Color.white.opacity(0.08))
+                .foregroundColor(editor.aspect == a ? .black : .white.opacity(0.7))
+                .cornerRadius(6)
+                .contentShape(Rectangle())
+                .onTapGesture { editor.aspect = a }
             }
         }
     }
