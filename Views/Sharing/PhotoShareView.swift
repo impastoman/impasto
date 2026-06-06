@@ -808,17 +808,21 @@ struct PhotoShareView: View {
             canvasSize: canvasSize,
             draggable: true
         )
+        // Identity on the INNER canvas itself — outer .id() alone
+        // didn't always cascade into ShareCanvasView's layout on iOS 26
+        // physical devices. Two layers of identity reset reliably tear
+        // down the inner content too.
+        .id(editor.aspect)
         .overlay(
             RoundedRectangle(cornerRadius: 4)
                 .stroke(Color.white.opacity(0.12), lineWidth: 1)
         )
         .frame(maxWidth: .infinity)
-        // Force a fresh view identity on every aspect change. Without
-        // this, going from .square (280×280) → .portrait (280×350)
-        // shares the same width, and SwiftUI's layout cache holds the
-        // old height. Tapping .native first broke the lock because its
-        // canvasSize depends on photoAspect (variable). .id() makes
-        // each aspect a distinct view, so layout always reruns.
+        // Disable implicit animation when aspect changes — was racing
+        // the .id() swap on device, leaving layout in a stale state for
+        // .square and .wide (the two aspects that don't transition
+        // through .native's photoAspect-driven canvasSize).
+        .animation(.none, value: editor.aspect)
         .id(editor.aspect)
     }
 
