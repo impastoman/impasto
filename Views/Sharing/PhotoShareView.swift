@@ -1,6 +1,5 @@
 import SwiftUI
 import PhotosUI
-import Photos
 import UIKit
 import Combine
 
@@ -648,24 +647,9 @@ struct PhotoShareView: View {
     @StateObject private var editor: ShareEditorModel
 
     @State private var pickerItem: PhotosPickerItem?
-    @State private var saveStatus: SaveStatus? = nil
+    @State private var shareItem: SharePayload? = nil
     @State private var rendering = false
     private let isPerPizzaCapable: Bool
-
-    /// Result of the save-to-photos flow. Drives a single alert.
-    enum SaveStatus: Identifiable {
-        case success
-        case denied
-        case error(String)
-
-        var id: String {
-            switch self {
-            case .success: return "success"
-            case .denied:  return "denied"
-            case .error(let msg): return "error:\(msg)"
-            }
-        }
-    }
 
     init(log: BakeLog, recipe: Recipe, scope: ShareScope) {
         self.log = log
@@ -754,12 +738,10 @@ struct PhotoShareView: View {
                         .foregroundColor(.white)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        Task { await saveToPhotos() }
-                    }
-                    .foregroundColor(Color(hex: "7FA2BD"))
-                    .fontWeight(.semibold)
-                    .disabled(rendering || photoIsMissing)
+                    Button("Share →") { renderAndShare() }
+                        .foregroundColor(Color(hex: "7FA2BD"))
+                        .fontWeight(.semibold)
+                        .disabled(rendering || photoIsMissing)
                 }
             }
             .toolbarBackground(Color(hex: "1A1A1A"), for: .navigationBar)
@@ -785,31 +767,8 @@ struct PhotoShareView: View {
                 }
             }
         }
-        .alert(item: $saveStatus) { status in
-            switch status {
-            case .success:
-                return Alert(
-                    title: Text("Saved to Photos"),
-                    dismissButton: .default(Text("Done"))
-                )
-            case .denied:
-                return Alert(
-                    title: Text("Photos permission needed"),
-                    message: Text("Enable Photo Library access for Stesura in Settings to save your bake shots."),
-                    primaryButton: .default(Text("Open Settings"), action: {
-                        if let url = URL(string: UIApplication.openSettingsURLString) {
-                            UIApplication.shared.open(url)
-                        }
-                    }),
-                    secondaryButton: .cancel()
-                )
-            case .error(let message):
-                return Alert(
-                    title: Text("Couldn't save"),
-                    message: Text(message),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
+        .sheet(item: $shareItem) { payload in
+            ActivityShareSheet(items: [payload.image])
         }
     }
 
@@ -999,35 +958,18 @@ struct PhotoShareView: View {
             .tipText()
     }
 
-    // MARK: render + save
+    // MARK: render + share
 
-    /// Renders the canvas to UIImage on the main thread, then writes to
-    /// the user's Photo Library via PHPhotoLibrary. Requests add-only
-    /// permission first; routes the user to Settings if denied. UI
-    /// feedback comes through the saveStatus alert binding.
+    /// Renders the canvas to a UIImage on the main thread, then presents
+    /// the iOS share sheet. The share sheet includes "Save Image" as a
+    /// built-in activity, so save-to-Photos is available without a
+    /// dedicated button in our UI.
     @MainActor
-    private func saveToPhotos() async {
+    private func renderAndShare() {
         rendering = true
         defer { rendering = false }
-
-        guard let image = renderViaHostingController() else {
-            saveStatus = .error("Couldn't render the image.")
-            return
-        }
-
-        let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
-        guard status == .authorized || status == .limited else {
-            saveStatus = .denied
-            return
-        }
-
-        do {
-            try await PHPhotoLibrary.shared().performChanges {
-                PHAssetCreationRequest.creationRequestForAsset(from: image)
-            }
-            saveStatus = .success
-        } catch {
-            saveStatus = .error(error.localizedDescription)
+        if let image = renderViaHostingController() {
+            shareItem = SharePayload(image: image)
         }
     }
 
@@ -1095,5 +1037,26 @@ struct PhotoShareView: View {
         controller.view.removeFromSuperview()
         return image
     }
+}
+
+// MARK: - UIActivityViewController bridge
+
+/// Identifiable wrapper so .sheet(item:) presents the share sheet
+/// atomically — the sheet and its image are bound together; the sheet
+/// doesn't open until the image is set, so we never get the black-sheet
+/// race that happened with a separate boolean.
+struct SharePayload: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
+struct ActivityShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
