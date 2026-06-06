@@ -27,7 +27,7 @@ enum ShareAspect: String, CaseIterable, Identifiable {
         case .portrait: return "Tall"
         case .vertical: return "Vertical"
         case .wide:     return "Wide"
-        case .native:   return "Native"
+        case .native:   return "Original"
         }
     }
 
