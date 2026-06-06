@@ -148,6 +148,7 @@ struct StandaloneBlendBuilderView: View {
                     .listRowBackground(Color.red.opacity(0.06))
                 }
             }
+            .meadList()
             .navigationTitle(isEditing ? "Edit Flour Blend" : "New Flour Blend")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -265,6 +266,7 @@ struct StandaloneProcessBuilderView: View {
                 } header: { Text("Process steps") }
             }
             .environment(\.editMode, .constant(.active))
+            .meadList()
             .navigationTitle(isEditing ? "Edit Process" : "New Process")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -474,6 +476,7 @@ struct StandalonePrefermentBuilderView: View {
                         .notesBox()
                 }
             }
+            .meadList()
             .navigationTitle(isEditing ? "Edit Preferment" : "New Preferment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

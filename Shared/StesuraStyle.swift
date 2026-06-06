@@ -25,6 +25,54 @@ import PhotosUI
 // Use the named constants rather than raw hex strings so the palette
 // can be tuned in one place.
 
+// MARK: - Mead notebook List modifiers
+//
+// Three composable helpers to apply the notebook treatment to any
+// SwiftUI List in the app. Apply at the three layers:
+//   .meadList()    on the List itself  — red margin background + tight section spacing
+//   .meadSection() on each Section     — blue inter-row separator tint
+//   .meadRow()     on each row builder — pulls the blue separator's leading edge
+//                                         into the inset zone so it meets the red strip flush
+//
+// All three are idempotent and safe to chain; they apply only their
+// own modifier and don't touch any other styling.
+
+extension View {
+    /// Applies the Mead-paper background to a List: hides the system
+    /// content background, paints a continuous 1pt teacher's-red margin
+    /// strip behind the rows at the leading edge, compacts section
+    /// spacing, and (optimistically) tints inter-row separators to
+    /// rule-blue at the List level. The List-level tint cascades to all
+    /// rows ONLY in static Section layouts; for Lists with a dynamic
+    /// ForEach producing Sections (e.g. LibraryView), per-Section
+    /// .meadSection() is still required.
+    func meadList() -> some View {
+        self
+            .scrollContentBackground(.hidden)
+            .background(alignment: .leading) {
+                Color.marginRed
+                    .frame(width: 1)
+                    .padding(.leading, 20)
+            }
+            .listSectionSpacing(.compact)
+            .listRowSeparatorTint(Color.ruleBlue)
+    }
+
+    /// Tints all inter-row separators in a Section to rule-blue. Per
+    /// Apple's docs, applying .listRowSeparatorTint to a Section
+    /// cascades to every row inside it.
+    func meadSection() -> some View {
+        self.listRowSeparatorTint(Color.ruleBlue)
+    }
+
+    /// Pulls the row separator's leading edge 12pt left into the row's
+    /// inset area so it meets the red margin strip flush. Apply this to
+    /// each row's content view, not the row container.
+    func meadRow() -> some View {
+        self.alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
+    }
+}
+
 extension Color {
     /// App background + card backgrounds. Soft off-white, slightly warm.
     static let paperWhite     = Color(hex: "FAFAF5")

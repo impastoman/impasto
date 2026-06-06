@@ -39,6 +39,7 @@ struct PizzaLogView: View {
                 notesSection
                 logAndReturnSection
             }
+            .meadList()
             .navigationTitle("Log Bake #\(vm.pizzaEntries.count + 1)")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { snapshotBakeTime = vm.bakeElapsed }

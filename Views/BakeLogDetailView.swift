@@ -214,7 +214,7 @@ struct BakeLogDetailView: View {
             }
             .listRowBackground(Color.clear)
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
     }
 
     // MARK: - Annotated tab
@@ -266,7 +266,7 @@ struct BakeLogDetailView: View {
                 .listRowBackground(Color.clear)
             }
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
     }
 
     // MARK: - Helpers

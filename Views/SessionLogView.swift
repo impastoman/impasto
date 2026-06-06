@@ -71,7 +71,7 @@ struct SessionLogView: View {
                 notesSection
                 saveSection
             }
-            .scrollContentBackground(.hidden)
+            .meadList()
             .navigationTitle("How'd it go?")
             .navigationBarTitleDisplayMode(.inline)
             .confirmationDialog("Add Photo", isPresented: $showPhotoOptions) {

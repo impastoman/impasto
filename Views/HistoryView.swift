@@ -59,6 +59,7 @@ struct HistoryView: View {
                     }
                 }
             }
+            .meadList()
             .navigationTitle("History")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -27,7 +27,7 @@ struct RecipeDetailView: View {
                 row("Timeline", "\(recipe.timeline.rawValue)  ·  \(recipe.timeline.hours)")
             }
             .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Color.ruleBlue)
+            .meadSection()
 
             Section(header: Text("Formula").font(.jakarta(.semibold, size: 13))) {
                 row("Final hydration", "\(Int(recipe.finalHydration * 100))%")
@@ -39,7 +39,7 @@ struct RecipeDetailView: View {
                 row("Yeast", "\(recipe.yeastType.rawValue)  ·  \(String(format: "%.2f%%", recipe.yeastPct * 100))")
             }
             .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Color.ruleBlue)
+            .meadSection()
 
             if !recipe.flourBlend.components.isEmpty {
                 Section(header: Text("Flour blend").font(.jakarta(.semibold, size: 13))) {
@@ -52,7 +52,7 @@ struct RecipeDetailView: View {
                     }
                 }
                 .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Color.ruleBlue)
+            .meadSection()
                 .font(.jakarta(.regular, size: 17))
             }
 
@@ -61,7 +61,7 @@ struct RecipeDetailView: View {
                 row("Total dough", "\(Int(recipe.totalDoughWeight))g")
             }
             .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Color.ruleBlue)
+            .meadSection()
 
             if recipe.method != .direct {
                 Section(header: Text("① \(recipe.method.rawValue)").font(.jakarta(.semibold, size: 13))) {
@@ -70,7 +70,7 @@ struct RecipeDetailView: View {
                     row("Yeast", String(format: "%.1fg", recipe.bigaYeast))
                 }
                 .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Color.ruleBlue)
+            .meadSection()
             }
 
             Section(recipe.method != .direct ? "② Final dough" : "Dough") {
@@ -79,40 +79,28 @@ struct RecipeDetailView: View {
                 row("Salt",  "\(Int(recipe.totalSalt))g")
             }
             .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Color.ruleBlue)
+            .meadSection()
 
             if !isReadOnly {
                 Section {
                     Button("▶  Start Session") { showPreFlight = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(Color(hex: "7FA2BD"))
-                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
+                        .meadRow()
                     Button("Edit Recipe") { showEditWizard = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.primary)
-                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
+                        .meadRow()
                     Button("Modify and Save as New") { showForkWizard = true }
                         .frame(maxWidth: .infinity, alignment: .center)
                         .foregroundColor(.secondary)
-                        .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
+                        .meadRow()
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparatorTint(Color.ruleBlue)
             }
         }
-        .scrollContentBackground(.hidden)
-        // Continuous teacher's-red notebook margin line drawn behind
-        // the whole List — survives section boundaries, row separators,
-        // and section headers because it's painted under everything.
-        .background(alignment: .leading) {
-            Color.marginRed
-                .frame(width: 1)
-                .padding(.leading, 20)
-        }
-        // Tighter spacing between sections — the red line should read
-        // as one continuous rule, so we don't want big gaps where the
-        // line still exists but the eye reads them as a break.
-        .listSectionSpacing(.compact)
+        .meadList()
         .navigationTitle(recipe.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -183,7 +171,7 @@ struct RecipeDetailView: View {
     func row(_ label: String, _ value: String) -> some View {
         LabeledContent(label, value: value)
             .font(.jakarta(.regular, size: 17))
-            .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
+            .meadRow()
     }
 
     func recipeExportString() -> String {

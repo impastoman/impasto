@@ -132,6 +132,7 @@ struct IngredientsChecklistView: View {
                     .foregroundColor(.secondary)
                 }
             }
+            .meadList()
             .navigationTitle("Ingredients Prep")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

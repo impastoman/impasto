@@ -25,7 +25,7 @@ struct PostBakeView: View {
                 photoSection
                 bakeTimeSection
             }
-            .scrollContentBackground(.hidden)
+            .meadList()
             .navigationTitle("Bake Results")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -222,7 +222,7 @@ struct PizzaDetailView: View {
                     .listRowBackground(Color.clear)
                 }
             }
-            .scrollContentBackground(.hidden)
+            .meadList()
             .navigationTitle("Bake #\(entry.pizzaNumber)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

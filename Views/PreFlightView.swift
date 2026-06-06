@@ -96,6 +96,7 @@ struct PreFlightView: View {
                 modificationsSection
                 summarySection
             }
+            .meadList()
             .navigationTitle("Prep")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -464,6 +465,7 @@ struct SessionProcessEditorSheet: View {
                     .listRowBackground(Color.clear)
                 }
             }
+            .meadList()
             .navigationTitle("Process Steps")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
