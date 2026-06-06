@@ -777,6 +777,13 @@ struct PhotoShareView: View {
                 .stroke(Color.white.opacity(0.12), lineWidth: 1)
         )
         .frame(maxWidth: .infinity)
+        // Force a fresh view identity on every aspect change. Without
+        // this, going from .square (280×280) → .portrait (280×350)
+        // shares the same width, and SwiftUI's layout cache holds the
+        // old height. Tapping .native first broke the lock because its
+        // canvasSize depends on photoAspect (variable). .id() makes
+        // each aspect a distinct view, so layout always reruns.
+        .id(editor.aspect)
     }
 
     @ViewBuilder
