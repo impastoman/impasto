@@ -426,9 +426,11 @@ struct ShareCanvasView: View {
 
     /// "Baked with Stesura" pinned bottom-right. Not toggleable.
     /// Lives in an .overlay (NOT as a ZStack sibling sized to the canvas) so
-    /// its frame can't intercept taps meant for the block tiles.
+    /// its frame can't intercept taps meant for the block tiles. Backed by
+    /// the same dark-translucent tile as the share blocks, but at a lower
+    /// opacity (0.35 vs 0.55) so the watermark sits in the same visual
+    /// family as a block while reading as softer / less prominent.
     private var watermarkLabel: some View {
-        // Reverted to original (smaller) sizing per user preference.
         HStack(spacing: 3) {
             Text("Baked with")
                 .font(.jakarta(.regular, size: 8))
@@ -439,7 +441,10 @@ struct ShareCanvasView: View {
                 .foregroundColor(.white)
                 .tracking(1)
         }
-        .shadow(color: .black.opacity(0.5), radius: 2.5, x: 0, y: 1)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color.black.opacity(0.35))
+        .cornerRadius(6)
     }
 }
 
