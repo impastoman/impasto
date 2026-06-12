@@ -14,10 +14,37 @@
 		<dict>
 			<key>UTTypeDescription</key>
 			<string>Stesura Recipe</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.stesura.recipe</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+				<string>public.data</string>
+			</array>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeTagSpecification</key>
-			<dict/>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>stesura</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Stesura Recipe</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.stesura.recipe</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
 		</dict>
 	</array>
 </dict>
