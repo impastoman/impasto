@@ -15,5 +15,8 @@ build/
 .build/
 .swiftpm/
 
+# Claude Code (local config / session state — never commit)
+.claude/
+
 # Other
 *.orig
