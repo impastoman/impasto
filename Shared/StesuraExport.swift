@@ -25,6 +25,13 @@ enum StesuraExport {
     /// JSON-capable app. The payload inside is still JSON.
     static let fileExtension = "stesura"
 
+    /// Custom URL scheme. Recipe shares are a stesura://import?d=<payload>
+    /// link — tapping a LINK in Messages opens the app directly, whereas
+    /// tapping a file attachment only previews it. Registered in
+    /// Info.plist under CFBundleURLTypes.
+    static let urlScheme = "stesura"
+    static let importHost = "import"
+
     /// Type discriminator for the payload. Each content type round-trips
     /// only as itself — a flourBlend file never imports as a recipe.
     enum Schema: String {
@@ -102,7 +109,36 @@ enum StesuraExport {
         }
     }
 
+    /// Builds a stesura://import?d=<payload> deep link for a recipe.
+    /// The envelope JSON is zlib-compressed then base64url-encoded to
+    /// keep the link as short as possible. Tapping this link in Messages
+    /// (or anywhere) opens Stesura straight into the import preview.
+    static func encodeRecipeLink(_ recipe: Recipe, at date: Date = Date()) -> URL? {
+        var r = recipe
+        r.bakeLogs = []
+        guard let json = encode(r, schema: .recipe, at: date),
+              let compressed = try? (json as NSData).compressed(using: .zlib) as Data
+        else { return nil }
+        var comps = URLComponents()
+        comps.scheme = urlScheme
+        comps.host = importHost
+        comps.queryItems = [URLQueryItem(name: "d", value: base64URLEncode(compressed))]
+        return comps.url
+    }
+
     // MARK: - Decode
+
+    /// Decodes a recipe from a stesura://import?d=… deep link. Reverses
+    /// encodeRecipeLink: base64url-decode → zlib-inflate → envelope decode.
+    static func decodeRecipe(fromLink url: URL) throws -> Recipe {
+        guard url.scheme == urlScheme,
+              let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let encoded = comps.queryItems?.first(where: { $0.name == "d" })?.value,
+              let compressed = base64URLDecode(encoded),
+              let json = try? (compressed as NSData).decompressed(using: .zlib) as Data
+        else { throw ImportError.corrupt }
+        return try decodeRecipe(from: json)
+    }
 
     /// Reads a recipe from a file URL (e.g. one opened via .onOpenURL
     /// from Files / AirDrop / Messages). Handles security-scoped access
@@ -141,6 +177,23 @@ enum StesuraExport {
     /// "update the app" message rather than decoded blindly.
     private static func isVersionSupported(_ version: String) -> Bool {
         version.split(separator: ".").first == "1"
+    }
+
+    /// URL-safe base64 (RFC 4648 §5): +/ → -_ and padding stripped, so
+    /// the payload survives intact inside a URL query string.
+    private static func base64URLEncode(_ data: Data) -> String {
+        data.base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
+
+    private static func base64URLDecode(_ string: String) -> Data? {
+        var s = string
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        while s.count % 4 != 0 { s += "=" }   // restore padding
+        return Data(base64Encoded: s)
     }
 
     private static let iso8601: ISO8601DateFormatter = {

@@ -58,11 +58,19 @@ struct StesuraApp: App {
                     // Idempotent — safe to call repeatedly.
                     UIApplication.shared.installDismissKeyboardOnTap()
                 }
-                // Tapped a shared .stesura file (Files / AirDrop / Messages).
-                // Decode it, give it a fresh identity, and route to the
-                // import preview — the user never sees raw JSON.
+                // Opened a shared recipe — either a stesura://import?d=…
+                // deep link (tapping a link in Messages opens the app
+                // directly) or a .stesura file (Files / AirDrop). Decode,
+                // give it a fresh identity, and route to the import
+                // preview — the user never sees raw JSON.
                 .onOpenURL { url in
-                    guard var recipe = try? StesuraExport.decodeRecipe(fromFile: url) else { return }
+                    let decoded: Recipe?
+                    if url.scheme == StesuraExport.urlScheme {
+                        decoded = try? StesuraExport.decodeRecipe(fromLink: url)
+                    } else {
+                        decoded = try? StesuraExport.decodeRecipe(fromFile: url)
+                    }
+                    guard var recipe = decoded else { return }
                     recipe.id = UUID()
                     recipe.bakeLogs = []
                     store.pendingImport = recipe

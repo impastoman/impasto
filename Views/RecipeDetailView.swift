@@ -187,17 +187,13 @@ struct RecipeDetailView: View {
             .meadRow()
     }
 
-    /// Wraps the recipe (bake logs stripped) in the versioned Stesura
-    /// envelope, writes it to a temp .stesura.json file, and presents
-    /// the share sheet. The file is self-contained — on import the
+    /// Builds a stesura://import?d=… deep link and presents the share
+    /// sheet. Sharing a LINK (not a file) means tapping it in Messages
+    /// opens Stesura directly into the import preview; on import the
     /// receiver gets the recipe plus its flour blend / process /
-    /// preferment fanned out into their libraries.
+    /// preferment fanned out into their libraries. Bake logs are stripped.
     func exportRecipe() {
-        var exportRecipe = recipe
-        exportRecipe.bakeLogs = []   // never share personal bake history
-        guard let data = StesuraExport.encode(exportRecipe, schema: .recipe),
-              let url = StesuraExport.tempFileURL(for: data, baseName: recipe.name)
-        else { return }
+        guard let url = StesuraExport.encodeRecipeLink(recipe) else { return }
         exportShare = ExportShareURL(url: url)
     }
 }
