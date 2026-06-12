@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		960250EE2FDC61E100D68F96 /* StesuraExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 960250ED2FDC61E100D68F96 /* StesuraExport.swift */; };
 		9670CB342FBC2D77009EE043 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB132FBC2D77009EE043 /* SessionManager.swift */; };
 		9670CB352FBC2D77009EE043 /* PrefermentRecipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB062FBC2D77009EE043 /* PrefermentRecipe.swift */; };
 		9670CB362FBC2D77009EE043 /* VolumeConverterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB322FBC2D77009EE043 /* VolumeConverterView.swift */; };
@@ -51,10 +52,19 @@
 		9670CB5E2FBC2D77009EE043 /* TargetStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB1D2FBC2D77009EE043 /* TargetStepView.swift */; };
 		9670CB5F2FBC2D77009EE043 /* PostBakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB2D2FBC2D77009EE043 /* PostBakeView.swift */; };
 		9670CB612FBC32E1009EE043 /* StesuraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9670CB602FBC32E1009EE043 /* StesuraApp.swift */; };
+		96BC23D42FD2A0A6008088DC /* Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 96BC23D32FD2A0A6008088DC /* Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf */; };
+		96BC23D52FD2A0A6008088DC /* Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 96BC23D22FD2A0A6008088DC /* Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf */; };
+		96BC23D82FD2A0B2008088DC /* PlusJakartaSans-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 96BC23D62FD2A0B2008088DC /* PlusJakartaSans-Italic-VariableFont_wght.ttf */; };
+		96BC23D92FD2A0B2008088DC /* PlusJakartaSans-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 96BC23D72FD2A0B2008088DC /* PlusJakartaSans-VariableFont_wght.ttf */; };
+		96BC23DC2FD2B710008088DC /* PhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BC23DB2FD2B710008088DC /* PhotoStore.swift */; };
+		96BC23DE2FD2B744008088DC /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BC23DD2FD2B744008088DC /* ImageCache.swift */; };
+		96D012922FC01BF900C565A4 /* PhotoShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D012902FC01BF900C565A4 /* PhotoShareView.swift */; };
+		96F1B24A2FBE3F6A0064ABDE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9670CAF52FBC2CCC009EE043 /* Impasto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Impasto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		960250ED2FDC61E100D68F96 /* StesuraExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StesuraExport.swift; sourceTree = "<group>"; };
+		9670CAF52FBC2CCC009EE043 /* Stesura.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stesura.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9670CB032FBC2D77009EE043 /* BakeLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BakeLog.swift; sourceTree = "<group>"; };
 		9670CB042FBC2D77009EE043 /* BakeSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BakeSetup.swift; sourceTree = "<group>"; };
 		9670CB052FBC2D77009EE043 /* FlourBlend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlourBlend.swift; sourceTree = "<group>"; };
@@ -99,6 +109,15 @@
 		9670CB312FBC2D77009EE043 /* StandaloneBuilders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandaloneBuilders.swift; sourceTree = "<group>"; };
 		9670CB322FBC2D77009EE043 /* VolumeConverterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeConverterView.swift; sourceTree = "<group>"; };
 		9670CB602FBC32E1009EE043 /* StesuraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StesuraApp.swift; sourceTree = "<group>"; };
+		96BC23D22FD2A0A6008088DC /* Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf"; sourceTree = "<group>"; };
+		96BC23D32FD2A0A6008088DC /* Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf"; sourceTree = "<group>"; };
+		96BC23D62FD2A0B2008088DC /* PlusJakartaSans-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlusJakartaSans-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		96BC23D72FD2A0B2008088DC /* PlusJakartaSans-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlusJakartaSans-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		96BC23DA2FD2A1E6008088DC /* Impasto-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Impasto-Info.plist"; sourceTree = "<group>"; };
+		96BC23DB2FD2B710008088DC /* PhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStore.swift; sourceTree = "<group>"; };
+		96BC23DD2FD2B744008088DC /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
+		96D012902FC01BF900C565A4 /* PhotoShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoShareView.swift; sourceTree = "<group>"; };
+		96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,7 +134,9 @@
 		9670CAEC2FBC2CCC009EE043 = {
 			isa = PBXGroup;
 			children = (
+				96BC23DA2FD2A1E6008088DC /* Impasto-Info.plist */,
 				9670CB602FBC32E1009EE043 /* StesuraApp.swift */,
+				96BC23D12FD2A049008088DC /* Fonts */,
 				9670CAF62FBC2CCC009EE043 /* Products */,
 				9670CB0D2FBC2D77009EE043 /* Models */,
 				9670CB112FBC2D77009EE043 /* Shared */,
@@ -127,7 +148,7 @@
 		9670CAF62FBC2CCC009EE043 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9670CAF52FBC2CCC009EE043 /* Impasto.app */,
+				9670CAF52FBC2CCC009EE043 /* Stesura.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,6 +173,8 @@
 		9670CB112FBC2D77009EE043 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				960250ED2FDC61E100D68F96 /* StesuraExport.swift */,
+				96BC23DD2FD2B744008088DC /* ImageCache.swift */,
 				9670CB0F2FBC2D77009EE043 /* StesuraStyle.swift */,
 				9670CB102FBC2D77009EE043 /* VolumeConversionTable.swift */,
 			);
@@ -161,6 +184,7 @@
 		9670CB152FBC2D77009EE043 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				96BC23DB2FD2B710008088DC /* PhotoStore.swift */,
 				9670CB122FBC2D77009EE043 /* RecipeStore.swift */,
 				9670CB132FBC2D77009EE043 /* SessionManager.swift */,
 				9670CB142FBC2D77009EE043 /* SessionViewModel.swift */,
@@ -191,6 +215,8 @@
 		9670CB332FBC2D77009EE043 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				96D012912FC01BF900C565A4 /* Sharing */,
+				96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */,
 				9670CB232FBC2D77009EE043 /* Wizard */,
 				9670CB242FBC2D77009EE043 /* BakeLogDetailView.swift */,
 				9670CB252FBC2D77009EE043 /* HistoryView.swift */,
@@ -211,12 +237,31 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		96BC23D12FD2A049008088DC /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				96BC23D22FD2A0A6008088DC /* Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf */,
+				96BC23D32FD2A0A6008088DC /* Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf */,
+				96BC23D62FD2A0B2008088DC /* PlusJakartaSans-Italic-VariableFont_wght.ttf */,
+				96BC23D72FD2A0B2008088DC /* PlusJakartaSans-VariableFont_wght.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		96D012912FC01BF900C565A4 /* Sharing */ = {
+			isa = PBXGroup;
+			children = (
+				96D012902FC01BF900C565A4 /* PhotoShareView.swift */,
+			);
+			path = Sharing;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9670CAF42FBC2CCC009EE043 /* Impasto */ = {
+		9670CAF42FBC2CCC009EE043 /* Stesura */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9670CB002FBC2CCE009EE043 /* Build configuration list for PBXNativeTarget "Impasto" */;
+			buildConfigurationList = 9670CB002FBC2CCE009EE043 /* Build configuration list for PBXNativeTarget "Stesura" */;
 			buildPhases = (
 				9670CAF12FBC2CCC009EE043 /* Sources */,
 				9670CAF22FBC2CCC009EE043 /* Frameworks */,
@@ -226,11 +271,11 @@
 			);
 			dependencies = (
 			);
-			name = Impasto;
+			name = Stesura;
 			packageProductDependencies = (
 			);
 			productName = Impasto;
-			productReference = 9670CAF52FBC2CCC009EE043 /* Impasto.app */;
+			productReference = 9670CAF52FBC2CCC009EE043 /* Stesura.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -248,7 +293,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 9670CAF02FBC2CCC009EE043 /* Build configuration list for PBXProject "Impasto" */;
+			buildConfigurationList = 9670CAF02FBC2CCC009EE043 /* Build configuration list for PBXProject "Stesura" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -262,7 +307,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9670CAF42FBC2CCC009EE043 /* Impasto */,
+				9670CAF42FBC2CCC009EE043 /* Stesura */,
 			);
 		};
 /* End PBXProject section */
@@ -272,6 +317,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96BC23D82FD2A0B2008088DC /* PlusJakartaSans-Italic-VariableFont_wght.ttf in Resources */,
+				96BC23D92FD2A0B2008088DC /* PlusJakartaSans-VariableFont_wght.ttf in Resources */,
+				96BC23D42FD2A0A6008088DC /* Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf in Resources */,
+				96BC23D52FD2A0A6008088DC /* Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +335,7 @@
 				9670CB352FBC2D77009EE043 /* PrefermentRecipe.swift in Sources */,
 				9670CB362FBC2D77009EE043 /* VolumeConverterView.swift in Sources */,
 				9670CB382FBC2D77009EE043 /* TimelineStepView.swift in Sources */,
+				96BC23DC2FD2B710008088DC /* PhotoStore.swift in Sources */,
 				9670CB392FBC2D77009EE043 /* FlourBlendStepView.swift in Sources */,
 				9670CB3A2FBC2D77009EE043 /* StesuraStyle.swift in Sources */,
 				9670CB3B2FBC2D77009EE043 /* WaterSaltYeastStepView.swift in Sources */,
@@ -299,6 +349,7 @@
 				9670CB432FBC2D77009EE043 /* BakeLogDetailView.swift in Sources */,
 				9670CB442FBC2D77009EE043 /* MethodStepView.swift in Sources */,
 				9670CB452FBC2D77009EE043 /* StandaloneBuilders.swift in Sources */,
+				96BC23DE2FD2B744008088DC /* ImageCache.swift in Sources */,
 				9670CB462FBC2D77009EE043 /* BakeSetup.swift in Sources */,
 				9670CB472FBC2D77009EE043 /* FlourBlend.swift in Sources */,
 				9670CB482FBC2D77009EE043 /* BakeLog.swift in Sources */,
@@ -312,6 +363,8 @@
 				9670CB4F2FBC2D77009EE043 /* BakeMethodStepView.swift in Sources */,
 				9670CB502FBC2D77009EE043 /* PreFlightView.swift in Sources */,
 				9670CB512FBC2D77009EE043 /* LibraryView.swift in Sources */,
+				960250EE2FDC61E100D68F96 /* StesuraExport.swift in Sources */,
+				96F1B24A2FBE3F6A0064ABDE /* SettingsView.swift in Sources */,
 				9670CB522FBC2D77009EE043 /* TechniqueStepView.swift in Sources */,
 				9670CB532FBC2D77009EE043 /* PizzaLogView.swift in Sources */,
 				9670CB542FBC2D77009EE043 /* HistoryView.swift in Sources */,
@@ -326,6 +379,7 @@
 				9670CB5D2FBC2D77009EE043 /* MainTabView.swift in Sources */,
 				9670CB5E2FBC2D77009EE043 /* TargetStepView.swift in Sources */,
 				9670CB5F2FBC2D77009EE043 /* PostBakeView.swift in Sources */,
+				96D012922FC01BF900C565A4 /* PhotoShareView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,8 +512,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 24FCMTYXR8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Impasto-Info.plist";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Stesura saves your bake photos to your library when you tap Save.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -491,6 +548,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Impasto-Info.plist";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Stesura saves your bake photos to your library when you tap Save.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -516,7 +575,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9670CAF02FBC2CCC009EE043 /* Build configuration list for PBXProject "Impasto" */ = {
+		9670CAF02FBC2CCC009EE043 /* Build configuration list for PBXProject "Stesura" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9670CAFE2FBC2CCE009EE043 /* Debug */,
@@ -525,7 +584,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9670CB002FBC2CCE009EE043 /* Build configuration list for PBXNativeTarget "Impasto" */ = {
+		9670CB002FBC2CCE009EE043 /* Build configuration list for PBXNativeTarget "Stesura" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9670CB012FBC2CCE009EE043 /* Debug */,
