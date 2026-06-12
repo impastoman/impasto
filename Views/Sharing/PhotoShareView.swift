@@ -992,8 +992,16 @@ struct PhotoShareView: View {
         )
         .frame(width: canvasSize.width, height: canvasSize.height)
         .environment(\.colorScheme, .light)
+        // The hosting view is parked offscreen at the window's bottom
+        // edge to rasterize; without this it inherits the home-indicator
+        // safe-area inset, which compresses the canvas content upward and
+        // crops the bottom strip of the exported image.
+        .ignoresSafeArea()
 
         let controller = UIHostingController(rootView: canvas)
+        // Belt-and-suspenders with .ignoresSafeArea() above: stop UIKit
+        // from applying any window safe-area inset to the SwiftUI root.
+        controller.safeAreaRegions = []
         let bounds = CGRect(origin: .zero, size: canvasSize)
         controller.view.bounds = bounds
         controller.view.backgroundColor = .clear

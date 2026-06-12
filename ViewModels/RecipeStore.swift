@@ -355,7 +355,7 @@ class RecipeStore: ObservableObject {
         card(.autolyse,         duration: 30 * 60,  note: "leave covered")
         card(.incorporateYeast,                     note: "dissolve in reserved water")
         card(.bassinage,                            note: "add gradually to running mixer, to avoid splashing", bassinagePct: 0.10)
-        card(.kneading,         duration: 9 * 60,   note: "This is part 1 of kneading; plan to cut kneading short when it is less than 1 min. to completion to add salt")
+        card(.kneading,         duration: 11 * 60,  note: "This is part 1 of kneading; plan to cut kneading short when it is less than 1 min. to completion to add salt")
         card(.incorporateSalt,                      note: "leave mixer running while gradually adding salt to prevent splashing salt")
         card(.kneading,         duration: 1 * 60,   note: "look for dough to show signs of completion. While mixer is off, pressing dough will leave an indent that bounces back somewhat, is soft, and the dough appears to snake up the dough hook as a single unit. If dough does not appear done at this step, continue kneading until it is")
         card(.rest,             duration: 5 * 60,   note: "Dough should be covered during every rest step")

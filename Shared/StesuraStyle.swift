@@ -49,10 +49,18 @@ extension View {
     func meadList() -> some View {
         self
             .scrollContentBackground(.hidden)
-            .background(alignment: .leading) {
+            // Draw the margin line as an OVERLAY (on top of rows), not a
+            // background. Most Lists use opaque default row backgrounds
+            // that paint over a background strip, leaving the red showing
+            // only in the gaps between sections (the "broken line" bug).
+            // An overlay draws in front of row content; at 1pt in the
+            // x=20 inset gutter it never touches text, and
+            // .allowsHitTesting(false) keeps taps/swipes reaching rows.
+            .overlay(alignment: .leading) {
                 Color.marginRed
                     .frame(width: 1)
                     .padding(.leading, 20)
+                    .allowsHitTesting(false)
             }
             .listSectionSpacing(.compact)
             .listRowSeparatorTint(Color.ruleBlue)
