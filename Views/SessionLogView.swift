@@ -319,7 +319,13 @@ struct SessionLogView: View {
             Button("Leave without saving", role: .destructive) { goHome() }
             Button("Cancel", role: .cancel) { }
         }
-        .fullScreenCover(isPresented: $showShare) {
+        // Presented as a .sheet (not .fullScreenCover): SessionLogView is
+        // itself shown inside a sheet from PostBakeView, and presenting a
+        // fullScreenCover from within a sheet flashes open then collapses,
+        // dragging the parent sheet down with it (landing back on Bake
+        // Results). Sheet-from-sheet stacks reliably. PhotoShareView is its
+        // own NavigationStack with Cancel/Share, so a sheet works fine.
+        .sheet(isPresented: $showShare) {
             // Build a preview BakeLog from current in-session state — never saved.
             let previewLog = vm.buildBakeLog(
                 rating: rating,
