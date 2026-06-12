@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open in Stesura</title>
+
+  <!--
+    Smart App Banner: shows Apple's native "Get / Open" bar at the top of
+    the page in Safari. If Stesura is installed it deep-links straight in;
+    otherwise it offers the App Store.
+    TODO: replace APP_STORE_ID with the numeric id from App Store Connect
+    once the app is registered (e.g. app-id=6480001234). The app-argument
+    passes the current URL through so the app can import on open.
+  -->
+  <meta name="apple-itunes-app" content="app-id=APP_STORE_ID">
+
+  <style>
+    :root {
+      --paper:  #FAFAF5;
+      --rule:   #7FA2BD;
+      --margin: #D4756A;
+      --ink:    #2C2A24;
+      --ink-soft: #9A9688;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      /* faint horizontal rule lines, like notebook paper */
+      background-image: repeating-linear-gradient(
+        to bottom, transparent, transparent 31px, rgba(127,162,189,0.18) 32px
+      );
+    }
+    .card {
+      max-width: 420px;
+      width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      padding: 36px 28px 32px;
+      box-shadow: 0 10px 40px rgba(44,42,36,0.10);
+      border-left: 3px solid var(--margin); /* teacher's-red margin */
+      text-align: center;
+    }
+    .wordmark {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 40px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .kicker {
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--rule);
+      margin-bottom: 22px;
+    }
+    .headline {
+      font-size: 20px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .recipe-name { color: var(--margin); font-weight: 600; }
+    .sub {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+      margin-bottom: 26px;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--rule);
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 10px;
+      transition: opacity 0.15s ease;
+    }
+    .btn:active { opacity: 0.8; }
+    .open-hint {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="wordmark">Stesura</div>
+    <div class="kicker">Dough, dialed in</div>
+
+    <p class="headline">
+      Someone shared a recipe<span id="named"></span> with you.
+    </p>
+    <p class="sub">
+      Stesura recipes open right inside the app. Get Stesura to import this
+      one — your blend, process, and preferment come along with it.
+    </p>
+
+    <!--
+      TODO: replace APP_STORE_ID with the numeric App Store id once registered.
+      Until then this links to the App Store search as a safe fallback.
+    -->
+    <a class="btn" id="store"
+       href="https://apps.apple.com/app/idAPP_STORE_ID">Get Stesura on the App Store</a>
+
+    <p class="open-hint">Already have Stesura? Tapping the original link opens it directly.</p>
+  </div>
+
+  <script>
+    // Optional teaser: if the share link includes a readable name param
+    // (e.g. ...?d=...&n=Saturday%20Sourdough), show it. Harmless if absent.
+    // (The app-side wiring for #41 can append &n=<name>; the compressed
+    // recipe payload itself stays in ?d= and is never parsed here.)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const name = params.get('n');
+      if (name) {
+        document.getElementById('named').innerHTML =
+          ' — <span class="recipe-name">' +
+          name.replace(/[<>&]/g, '') + '</span>';
+      }
+    } catch (e) { /* no-op */ }
+  </script>
+</body>
+</html>

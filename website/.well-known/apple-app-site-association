@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["24FCMTYXR8.com.stesura.app"],
+        "components": [
+          {
+            "/": "/import*",
+            "comment": "Recipe import deep links (https://stesura.perfectlyfinewares.com/import?d=...)"
+          }
+        ]
+      }
+    ]
+  }
+}
