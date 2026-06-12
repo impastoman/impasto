@@ -11,7 +11,15 @@ struct ImportRecipeView: View {
     @State private var parsedRecipe: Recipe? = nil
     @State private var parseError: String? = nil
     @State private var showDocPicker = false
+    @State private var showAdvanced = false
     @State private var saved = false
+
+    /// When `initialRecipe` is supplied (a tapped .stesura file routed in
+    /// via StesuraApp's .onOpenURL), the view opens straight to the
+    /// preview — the user never sees the source/paste step or any JSON.
+    init(initialRecipe: Recipe? = nil) {
+        _parsedRecipe = State(initialValue: initialRecipe)
+    }
 
     var body: some View {
         NavigationStack {
@@ -34,41 +42,10 @@ struct ImportRecipeView: View {
     var sourceView: some View {
         List {
             Section {
-                Text("Import a recipe that was exported from Stesura. Paste the JSON below, or pick a .json file.")
+                Text("Open a recipe someone shared with you. The easiest way is to just tap the shared file — it opens here automatically. You can also browse for it below.")
                     .font(.jakarta(.regular, size: 12))
                     .foregroundColor(.secondary)
                     .tipText()
-            }
-            .listRowBackground(Color.clear)
-
-            Section(header: Text("Paste recipe JSON").font(.jakarta(.semibold, size: 13))) {
-                TextEditor(text: $pastedText)
-                    .font(.jakarta(.regular, size: 12))
-                    .frame(minHeight: 120)
-                    .scrollContentBackground(.hidden)
-                    .background(Color(hex: "F0EDE4"))
-                    .cornerRadius(6)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color(hex: "7FA2BD").opacity(0.4), lineWidth: 1)
-                    )
-
-                if let error = parseError {
-                    HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.red).font(.jakarta(.regular, size: 12))
-                        Text(error)
-                            .font(.jakarta(.regular, size: 11))
-                            .foregroundColor(.red)
-                    }
-                }
-
-                Button("Preview Recipe →") {
-                    attemptParse(text: pastedText)
-                }
-                .foregroundColor(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                                 ? .secondary : Color(hex: "7FA2BD"))
-                .disabled(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             .listRowBackground(Color.clear)
 
@@ -79,17 +56,56 @@ struct ImportRecipeView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "doc.badge.plus")
                             .foregroundColor(Color(hex: "7FA2BD"))
-                        Text("Browse files (.json)")
+                        Text("Browse for a recipe file")
                             .font(.jakarta(.regular, size: 17))
                             .foregroundColor(Color(hex: "7FA2BD"))
                     }
                 }
+
+                if let error = parseError {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.red).font(.jakarta(.regular, size: 12))
+                        Text(error)
+                            .font(.jakarta(.regular, size: 11))
+                            .foregroundColor(.red)
+                    }
+                }
             } header: {
-                Text("Or import from file")
+                Text("Import from file")
             } footer: {
-                Text("Use the Share → Export button in Recipe Detail to get the JSON for any recipe.")
+                Text("Recipe files end in .stesura. Tap one in Messages, Mail, or Files and it opens straight into Stesura.")
                     .font(.jakarta(.regular, size: 11))
                     .tipText()
+            }
+            .listRowBackground(Color.clear)
+
+            // Advanced: paste raw JSON. Tucked away so the common path
+            // (tap a file) stays front-and-centre and non-technical.
+            Section {
+                DisclosureGroup(isExpanded: $showAdvanced) {
+                    TextEditor(text: $pastedText)
+                        .font(.jakarta(.regular, size: 12))
+                        .frame(minHeight: 120)
+                        .scrollContentBackground(.hidden)
+                        .background(Color(hex: "F0EDE4"))
+                        .cornerRadius(6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color(hex: "7FA2BD").opacity(0.4), lineWidth: 1)
+                        )
+
+                    Button("Preview Recipe →") {
+                        attemptParse(text: pastedText)
+                    }
+                    .foregroundColor(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                     ? .secondary : Color(hex: "7FA2BD"))
+                    .disabled(pastedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                } label: {
+                    Text("Advanced: paste recipe text")
+                        .font(.jakarta(.regular, size: 13))
+                        .foregroundColor(.secondary)
+                }
             }
             .listRowBackground(Color.clear)
         }
@@ -262,7 +278,13 @@ struct JSONDocumentPicker: UIViewControllerRepresentable {
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json], asCopy: true)
+        // Accept the custom .stesura type plus plain .json (so files
+        // exported by older builds, or saved as .json, still pick).
+        var types: [UTType] = [.json]
+        if let stesura = UTType(filenameExtension: StesuraExport.fileExtension) {
+            types.insert(stesura, at: 0)
+        }
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: true)
         picker.allowsMultipleSelection = false
         picker.delegate = context.coordinator
         return picker

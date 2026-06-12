@@ -19,6 +19,12 @@ enum StesuraExport {
     /// Bump when the envelope format itself changes (not the payload).
     static let formatVersion = "1.0"
 
+    /// Custom file extension. The app registers ownership of this in
+    /// Info.plist (exported UTI + document type) so a tapped .stesura
+    /// file opens directly in Stesura rather than being offered to every
+    /// JSON-capable app. The payload inside is still JSON.
+    static let fileExtension = "stesura"
+
     /// Type discriminator for the payload. Each content type round-trips
     /// only as itself — a flourBlend file never imports as a recipe.
     enum Schema: String {
@@ -86,7 +92,7 @@ enum StesuraExport {
             .components(separatedBy: CharacterSet.alphanumerics.union(.whitespaces).inverted)
             .joined()
             .trimmingCharacters(in: .whitespaces)
-        let name = (safe.isEmpty ? "Stesura Recipe" : safe) + ".stesura.json"
+        let name = (safe.isEmpty ? "Stesura Recipe" : safe) + ".\(fileExtension)"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(name)
         do {
             try data.write(to: url, options: .atomic)
@@ -97,6 +103,16 @@ enum StesuraExport {
     }
 
     // MARK: - Decode
+
+    /// Reads a recipe from a file URL (e.g. one opened via .onOpenURL
+    /// from Files / AirDrop / Messages). Handles security-scoped access
+    /// for files that live outside the app sandbox.
+    static func decodeRecipe(fromFile url: URL) throws -> Recipe {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        guard let data = try? Data(contentsOf: url) else { throw ImportError.corrupt }
+        return try decodeRecipe(from: data)
+    }
 
     /// Validates the envelope and decodes a recipe payload. Falls back to
     /// decoding a bare Recipe (no envelope) so files exported by older
