@@ -218,7 +218,12 @@ struct CameraPickerView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
-        picker.sourceType = .camera
+        // Guard against camera unavailability (e.g. Simulator). Setting
+        // sourceType = .camera when no camera exists raises an exception;
+        // fall back to the photo library so we never crash. On a real
+        // device with a camera this always uses .camera.
+        picker.sourceType = UIImagePickerController.isSourceTypeAvailable(.camera)
+            ? .camera : .photoLibrary
         picker.delegate = context.coordinator
         return picker
     }

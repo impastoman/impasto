@@ -516,6 +516,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Impasto-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Stesura uses the camera to take photos of your bakes.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Stesura saves your bake photos to your library when you tap Save.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -549,6 +550,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Impasto-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Stesura uses the camera to take photos of your bakes.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Stesura saves your bake photos to your library when you tap Save.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
