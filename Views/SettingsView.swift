@@ -11,10 +11,27 @@ struct SettingsView: View {
     @AppStorage("showTips")             private var showTips: Bool = true
     @AppStorage("prepDefaultUnits")     private var prepUnits: String = "metric"
     @AppStorage("prepDefaultTempUnit")  private var prepTempUnit: String = "celsius"
+    @AppStorage("stesura_author_name")  private var authorName: String = ""
 
     var body: some View {
         NavigationStack {
             List {
+                Section(header: Text("Sharing").font(.jakarta(.semibold, size: 13))) {
+                    TextField("Your name", text: $authorName)
+                        .font(.jakarta(.regular, size: 17))
+                        .textInputAutocapitalization(.words)
+                }
+                .listRowBackground(Color.clear)
+
+                if showTips {
+                    Section {
+                        Text("When you share a recipe, this name shows as “Shared by …” in the other person's import preview. Leave blank to share anonymously.")
+                            .font(.jakarta(.regular, size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                    .listRowBackground(Color.clear)
+                }
+
                 Section(header: Text("Display").font(.jakarta(.semibold, size: 13))) {
                     Toggle("Show tips", isOn: $showTips)
                         .tint(Color(hex: "7FA2BD"))
@@ -55,7 +72,7 @@ struct SettingsView: View {
                     .listRowBackground(Color.clear)
                 }
             }
-            .scrollContentBackground(.hidden)
+            .meadList()
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

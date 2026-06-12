@@ -3,10 +3,12 @@ import Combine
 
 class RecipeStore: ObservableObject {
     @Published var recipes: [Recipe] = []
-    /// A recipe parsed from a tapped .stesura file, awaiting the import
-    /// preview. Set by StesuraApp's .onOpenURL handler; presented as a
-    /// sheet and cleared on dismiss.
+    /// A recipe parsed from a tapped .stesura file / link, awaiting the
+    /// import preview. Set by StesuraApp's .onOpenURL handler; presented
+    /// as a sheet and cleared on dismiss.
     @Published var pendingImport: Recipe? = nil
+    /// Optional sender name carried with pendingImport ("Shared by …").
+    @Published var pendingImportAuthor: String? = nil
     @Published var prefermentRecipes: [PrefermentRecipe] = []
     @Published var savedBlends: [FlourBlend] = []
     @Published var savedProcesses: [SavedProcess] = []

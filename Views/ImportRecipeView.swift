@@ -9,16 +9,19 @@ struct ImportRecipeView: View {
 
     @State private var pastedText = ""
     @State private var parsedRecipe: Recipe? = nil
+    @State private var sharedBy: String? = nil
     @State private var parseError: String? = nil
     @State private var showDocPicker = false
     @State private var showAdvanced = false
     @State private var saved = false
 
-    /// When `initialRecipe` is supplied (a tapped .stesura file routed in
-    /// via StesuraApp's .onOpenURL), the view opens straight to the
+    /// When `initialRecipe` is supplied (a tapped .stesura file/link routed
+    /// in via StesuraApp's .onOpenURL), the view opens straight to the
     /// preview — the user never sees the source/paste step or any JSON.
-    init(initialRecipe: Recipe? = nil) {
+    /// `author` is the optional "Shared by …" sender name.
+    init(initialRecipe: Recipe? = nil, author: String? = nil) {
         _parsedRecipe = State(initialValue: initialRecipe)
+        _sharedBy = State(initialValue: author)
     }
 
     var body: some View {
@@ -125,6 +128,11 @@ struct ImportRecipeView: View {
         List {
             // Photo placeholder
             Section(header: Text("Overview").font(.jakarta(.semibold, size: 13))) {
+                if let sharedBy {
+                    LabeledContent("Shared by", value: sharedBy)
+                        .font(.jakarta(.regular, size: 17))
+                        .foregroundColor(Color(hex: "7FA2BD"))
+                }
                 LabeledContent("Name",        value: recipe.name)
                     .font(.jakarta(.regular, size: 17))
                 LabeledContent("Style",       value: recipe.style == .custom && !recipe.customStyleName.isEmpty ? recipe.customStyleName : recipe.style.rawValue)
@@ -215,6 +223,7 @@ struct ImportRecipeView: View {
             var recipe = try StesuraExport.decodeRecipe(from: data)
             recipe.id = UUID()       // fresh ID — never overwrite an existing recipe
             recipe.bakeLogs = []     // don't import historical bake logs
+            sharedBy = StesuraExport.author(from: data)
             parsedRecipe = recipe
             parseError = nil
         } catch let e as StesuraExport.ImportError {

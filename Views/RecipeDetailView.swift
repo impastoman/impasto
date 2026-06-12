@@ -200,7 +200,8 @@ struct RecipeDetailView: View {
     /// receiver gets the recipe plus its flour blend / process /
     /// preferment fanned out into their libraries. Bake logs are stripped.
     func exportRecipe() {
-        guard let url = StesuraExport.encodeRecipeLink(recipe) else { return }
+        let author = UserDefaults.standard.string(forKey: "stesura_author_name")
+        guard let url = StesuraExport.encodeRecipeLink(recipe, author: author) else { return }
         exportShare = ExportShareURL(url: url)
     }
 }

@@ -41,19 +41,24 @@ enum StesuraExport {
         case preferment = "preferment_v1"
     }
 
-    /// Generic envelope. `T` is the concrete payload model.
+    /// Generic envelope. `T` is the concrete payload model. `author` is
+    /// optional transport metadata (the sender's display name) — it never
+    /// touches the saved Recipe, only the import preview ("Shared by …").
     struct Envelope<T: Codable>: Codable {
         var stesura_version: String
         var schema: String
         var exported_at: String
+        var author: String?
         var data: T
     }
 
     /// Lightweight header decoded first, before we commit to a payload
-    /// type, so we can validate version + route on schema.
+    /// type, so we can validate version + route on schema, and surface
+    /// the optional author without decoding the whole payload.
     private struct Header: Codable {
         var stesura_version: String
         var schema: String
+        var author: String?
     }
 
     enum ImportError: LocalizedError {
@@ -79,11 +84,14 @@ enum StesuraExport {
     // MARK: - Encode
 
     /// Wraps a payload in the versioned envelope and returns pretty JSON.
-    static func encode<T: Codable>(_ payload: T, schema: Schema, at date: Date = Date()) -> Data? {
+    /// `author` (the sender's display name) is omitted when nil/blank.
+    static func encode<T: Codable>(_ payload: T, schema: Schema, author: String? = nil, at date: Date = Date()) -> Data? {
+        let cleanAuthor = author?.trimmingCharacters(in: .whitespacesAndNewlines)
         let env = Envelope(
             stesura_version: formatVersion,
             schema: schema.rawValue,
             exported_at: iso8601.string(from: date),
+            author: (cleanAuthor?.isEmpty == false) ? cleanAuthor : nil,
             data: payload
         )
         let encoder = JSONEncoder()
@@ -113,10 +121,10 @@ enum StesuraExport {
     /// The envelope JSON is zlib-compressed then base64url-encoded to
     /// keep the link as short as possible. Tapping this link in Messages
     /// (or anywhere) opens Stesura straight into the import preview.
-    static func encodeRecipeLink(_ recipe: Recipe, at date: Date = Date()) -> URL? {
+    static func encodeRecipeLink(_ recipe: Recipe, author: String? = nil, at date: Date = Date()) -> URL? {
         var r = recipe
         r.bakeLogs = []
-        guard let json = encode(r, schema: .recipe, at: date),
+        guard let json = encode(r, schema: .recipe, author: author, at: date),
               let compressed = try? (json as NSData).compressed(using: .zlib) as Data
         else { return nil }
         var comps = URLComponents()
@@ -131,12 +139,7 @@ enum StesuraExport {
     /// Decodes a recipe from a stesura://import?d=… deep link. Reverses
     /// encodeRecipeLink: base64url-decode → zlib-inflate → envelope decode.
     static func decodeRecipe(fromLink url: URL) throws -> Recipe {
-        guard url.scheme == urlScheme,
-              let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let encoded = comps.queryItems?.first(where: { $0.name == "d" })?.value,
-              let compressed = base64URLDecode(encoded),
-              let json = try? (compressed as NSData).decompressed(using: .zlib) as Data
-        else { throw ImportError.corrupt }
+        guard let json = linkPayload(url) else { throw ImportError.corrupt }
         return try decodeRecipe(from: json)
     }
 
@@ -144,10 +147,28 @@ enum StesuraExport {
     /// from Files / AirDrop / Messages). Handles security-scoped access
     /// for files that live outside the app sandbox.
     static func decodeRecipe(fromFile url: URL) throws -> Recipe {
-        let scoped = url.startAccessingSecurityScopedResource()
-        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-        guard let data = try? Data(contentsOf: url) else { throw ImportError.corrupt }
+        guard let data = fileData(url) else { throw ImportError.corrupt }
         return try decodeRecipe(from: data)
+    }
+
+    // MARK: - Author (optional "Shared by …" metadata)
+
+    /// Reads the sender's display name from an envelope, if present.
+    /// nil for legacy/bare exports or when the sender left it blank.
+    static func author(from data: Data) -> String? {
+        let name = (try? JSONDecoder().decode(Header.self, from: data))?.author?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return (name?.isEmpty == false) ? name : nil
+    }
+
+    static func author(fromLink url: URL) -> String? {
+        guard let json = linkPayload(url) else { return nil }
+        return author(from: json)
+    }
+
+    static func author(fromFile url: URL) -> String? {
+        guard let data = fileData(url) else { return nil }
+        return author(from: data)
     }
 
     /// Validates the envelope and decodes a recipe payload. Falls back to
@@ -172,6 +193,25 @@ enum StesuraExport {
     }
 
     // MARK: - Helpers
+
+    /// Extracts and inflates the JSON payload from a stesura://import?d=…
+    /// link. nil if the URL isn't a valid Stesura link.
+    private static func linkPayload(_ url: URL) -> Data? {
+        guard url.scheme == urlScheme,
+              let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let encoded = comps.queryItems?.first(where: { $0.name == "d" })?.value,
+              let compressed = base64URLDecode(encoded),
+              let json = try? (compressed as NSData).decompressed(using: .zlib) as Data
+        else { return nil }
+        return json
+    }
+
+    /// Reads raw bytes from a file URL with security-scoped access.
+    private static func fileData(_ url: URL) -> Data? {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        return try? Data(contentsOf: url)
+    }
 
     /// We accept any 1.x payload. A 2.x file is refused with a clear
     /// "update the app" message rather than decoded blindly.

@@ -65,18 +65,22 @@ struct StesuraApp: App {
                 // preview — the user never sees raw JSON.
                 .onOpenURL { url in
                     let decoded: Recipe?
+                    let author: String?
                     if url.scheme == StesuraExport.urlScheme {
                         decoded = try? StesuraExport.decodeRecipe(fromLink: url)
+                        author = StesuraExport.author(fromLink: url)
                     } else {
                         decoded = try? StesuraExport.decodeRecipe(fromFile: url)
+                        author = StesuraExport.author(fromFile: url)
                     }
                     guard var recipe = decoded else { return }
                     recipe.id = UUID()
                     recipe.bakeLogs = []
+                    store.pendingImportAuthor = author
                     store.pendingImport = recipe
                 }
                 .sheet(item: $store.pendingImport) { recipe in
-                    ImportRecipeView(initialRecipe: recipe)
+                    ImportRecipeView(initialRecipe: recipe, author: store.pendingImportAuthor)
                         .environmentObject(store)
                 }
         }
