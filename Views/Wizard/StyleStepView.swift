@@ -1,7 +1,13 @@
 import SwiftUI
 
+/// Wizard step 0 — name the recipe and its style. The app is
+/// dough-agnostic: rather than pick from prebuilt pizza styles, the
+/// baker names their own style ("Country loaf", "Focaccia", "NY pizza",
+/// whatever). The recipe always saves with style == .custom and these
+/// free-text values; balanced defaults flow from PizzaStyle.custom and
+/// are tuned in the following steps.
 struct StyleStepView: View {
-    @Binding var selected: PizzaStyle
+    @Binding var name: String
     @Binding var customStyleName: String
 
     var body: some View {
@@ -10,66 +16,33 @@ struct StyleStepView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(.init())
 
-            Section(header: Text("What style?").font(.jakarta(.semibold, size: 13))) {
-                ForEach(PizzaStyle.allCases, id: \.self) { style in
-                    if style == .custom {
-                        customRow
-                    } else {
-                        styleRow(style)
-                    }
-                }
-            }
-            .listRowBackground(Color.clear)
-        }
-        .scrollContentBackground(.hidden)
-    }
-
-    func styleRow(_ style: PizzaStyle) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(style.rawValue).font(.jakarta(.semibold, size: 17))
-                Text(style.description).font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
-            }
-            Spacer()
-            if selected == style {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(Color(hex: "7FA2BD"))
-            }
-        }
-        .padding(.vertical, 2)
-        .contentShape(Rectangle())
-        .onTapGesture { selected = style }
-    }
-
-    var customRow: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("My Style").font(.jakarta(.semibold, size: 17))
-                    Text("Your rules · your ratios").font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
-                }
-                Spacer()
-                if selected == .custom {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color(hex: "7FA2BD"))
-                }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture { selected = .custom }
-
-            if selected == .custom {
+            Section(header: Text("Name your dough").font(.jakarta(.semibold, size: 13))) {
                 VStack(alignment: .leading, spacing: 6) {
-                    TextField("My Style", text: $customStyleName)
+                    Text("Recipe name")
+                        .font(.jakarta(.regular, size: 12))
+                        .foregroundColor(.secondary)
+                    TextField("e.g. Saturday Sourdough", text: $name)
                         .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
+                }
+                .padding(.vertical, 4)
 
-                    Text("No style presets — balanced defaults are applied. Adjust hydration, ratios, and process after saving.")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Style")
+                        .font(.jakarta(.regular, size: 12))
+                        .foregroundColor(.secondary)
+                    TextField("e.g. Country loaf, Focaccia, NY pizza", text: $customStyleName)
+                        .font(.jakarta(.regular, size: 17))
+                        .textFieldBox()
+                    Text("Balanced defaults are applied — adjust hydration, ratios, and process in the next steps.")
                         .font(.jakarta(.regular, size: 11))
                         .foregroundColor(.secondary)
                         .tipText()
                 }
+                .padding(.vertical, 4)
             }
+            .listRowBackground(Color.clear)
         }
-        .padding(.vertical, 2)
+        .scrollContentBackground(.hidden)
     }
 }

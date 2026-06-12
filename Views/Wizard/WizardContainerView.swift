@@ -42,14 +42,23 @@ struct WizardContainerView: View {
             }
         }()
 
-        _style              = State(initialValue: r?.style ?? .neapolitan)
-        _customStyleName    = State(initialValue: r?.customStyleName ?? "")
+        // Dough-agnostic model: every recipe is now "custom" with a
+        // free-text style name. New recipes start blank. When editing a
+        // legacy recipe that used a prebuilt style (Neapolitan, etc.),
+        // surface that style's name as editable text so it isn't lost,
+        // and migrate it to .custom on save — display is unaffected
+        // because styleLabel already prefers customStyleName for .custom.
+        _style              = State(initialValue: .custom)
+        _customStyleName    = State(initialValue: {
+            guard let r else { return "" }
+            return r.style == .custom ? r.customStyleName : r.style.rawValue
+        }())
         _usePreferment      = State(initialValue: r.map { $0.method != .direct } ?? true)
         _prefermentHydration = State(initialValue: r?.prefermentHydration ?? 0.50)
         _method             = State(initialValue: r?.method ?? .biga)
         // Formula takes priority over recipe, recipe over defaults
         _flourBlend         = State(initialValue: convertedFormula?.flourBlend ?? r?.flourBlend ?? FlourBlend())
-        _finalHydration     = State(initialValue: convertedFormula?.finalHydration ?? r?.finalHydration ?? PizzaStyle.neapolitan.defaultFinalHydration)
+        _finalHydration     = State(initialValue: convertedFormula?.finalHydration ?? r?.finalHydration ?? PizzaStyle.custom.defaultFinalHydration)
         _saltPct            = State(initialValue: convertedFormula?.saltPct ?? r?.saltPct ?? 0.028)
         _yeastPct           = State(initialValue: convertedFormula?.yeastPct ?? r?.yeastPct ?? 0.001)
         _yeastType          = State(initialValue: convertedFormula?.yeastType ?? r?.yeastType ?? .instantDry)
@@ -85,7 +94,7 @@ struct WizardContainerView: View {
 
         let initRatio: Double = {
             if let r = r { return r.bigaRatio > 0 ? r.bigaRatio : r.style.defaultBigaRatio }
-            return PizzaStyle.neapolitan.defaultBigaRatio
+            return PizzaStyle.custom.defaultBigaRatio
         }()
         _prefermentRatio       = State(initialValue: initRatio)
         _prefermentFlourBlend  = State(initialValue: r?.prefermentFlourBlend ?? FlourBlend())
@@ -146,7 +155,7 @@ struct WizardContainerView: View {
         NavigationStack {
             Group {
                 switch step {
-                case 0: StyleStepView(selected: $style, customStyleName: $customStyleName)
+                case 0: StyleStepView(name: $name, customStyleName: $customStyleName)
                 case 1: TargetStepView(ballCount: $ballCount, ballWeight: $ballWeight,
                                        buffer: $buffer, style: style)
                 case 2: TimelineStepView(selected: $timeline)
@@ -252,7 +261,8 @@ struct WizardContainerView: View {
                     }
                 }
                 .buttonStyle(StesuraButtonStyle(filled: true))
-                .disabled(step == 3 && !flourBlend.isValid)
+                .disabled((step == 3 && !flourBlend.isValid)
+                          || (step == 0 && name.trimmingCharacters(in: .whitespaces).isEmpty))
             } else if isEditMode {
                 Button("Save as New →") { saveAsNew() }
                     .buttonStyle(StesuraButtonStyle(filled: false))
