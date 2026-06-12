@@ -202,16 +202,6 @@ struct PreFlightView: View {
                         .inputBox()
                     Text("h").foregroundColor(.secondary)
                 }
-                if data.hasPHMeter {
-                    HStack {
-                        Text("pH reading")
-                        Spacer()
-                        TextField("5.3", text: $data.prefermentPH)
-                            .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 80)
-                            .font(.jakarta(.regular, size: 17))
-                            .inputBox()
-                    }
-                }
             } else {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
@@ -257,7 +247,6 @@ struct PreFlightView: View {
                     .inputBox()
                 Text(useCelsius ? "°C" : "°F").foregroundColor(.secondary)
             }
-            Toggle("pH meter available", isOn: $data.hasPHMeter).tint(Color(hex: "7FA2BD"))
             Toggle("Dough thermometer", isOn: $data.hasDoughThermometer).tint(Color(hex: "7FA2BD"))
         }
     }
