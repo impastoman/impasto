@@ -87,7 +87,7 @@ extension View {
     /// section that breaks cleanly at section boundaries. `leading` is
     /// the strip's inset from the cell's leading edge — tune to sit in
     /// the gutter just left of row content.
-    func meadMarginRow(leading: CGFloat = 20) -> some View {
+    func meadMarginRow(leading: CGFloat = 8) -> some View {
         self.listRowBackground(
             HStack(spacing: 0) {
                 Rectangle().fill(Color.marginRed).frame(width: 2)

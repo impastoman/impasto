@@ -190,7 +190,7 @@ struct WaterSaltYeastStepView: View {
             }
             .listRowBackground(Color.clear)
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
         .onAppear {
             hydrationText = "\(Int(finalHydration * 100))"
             saltText      = String(format: "%.1f", saltPct * 100)

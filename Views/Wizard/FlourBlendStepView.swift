@@ -30,7 +30,7 @@ struct FlourBlendStepView: View {
                 saveToLibrarySection
             }
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
         .sheet(isPresented: $showLibraryPicker) {
             BlendLibraryPickerView { selected in
                 flourBlend = selected

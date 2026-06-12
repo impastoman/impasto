@@ -27,7 +27,7 @@ struct ProcessScriptStepView: View {
                 saveToLibrarySection
             }
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
         .environment(\.editMode, mode == .pick ? .constant(.inactive) : .constant(.active))
         .sheet(isPresented: $showLibraryPicker) {
             ProcessLibraryPickerView { selected in

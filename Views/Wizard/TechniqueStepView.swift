@@ -125,6 +125,6 @@ struct TechniqueStepView: View {
             }
             .listRowBackground(Color.clear)
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
     }
 }

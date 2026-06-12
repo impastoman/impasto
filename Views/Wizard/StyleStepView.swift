@@ -34,15 +34,11 @@ struct StyleStepView: View {
                     TextField("e.g. Country loaf, Focaccia, NY pizza", text: $customStyleName)
                         .font(.jakarta(.regular, size: 17))
                         .textFieldBox()
-                    Text("Balanced defaults are applied — adjust hydration, ratios, and process in the next steps.")
-                        .font(.jakarta(.regular, size: 11))
-                        .foregroundColor(.secondary)
-                        .tipText()
                 }
                 .padding(.vertical, 4)
             }
             .listRowBackground(Color.clear)
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
     }
 }

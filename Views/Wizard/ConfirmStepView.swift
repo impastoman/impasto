@@ -165,7 +165,7 @@ struct ConfirmStepView: View {
             }
             .listRowBackground(Color.clear)
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
     }
 
     func sectionHeader(_ title: String, step: Int) -> some View {

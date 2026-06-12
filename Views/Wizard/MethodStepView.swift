@@ -61,7 +61,7 @@ struct MethodStepView: View {
                 } header: { Text("Direct method") }
             }
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
         .onAppear {
             if hydrationText.isEmpty { hydrationText = "\(Int(prefermentHydration * 100))" }
             if ratioText.isEmpty { ratioText = "\(Int(prefermentRatio * 100))" }

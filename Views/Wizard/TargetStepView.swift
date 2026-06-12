@@ -139,7 +139,7 @@ struct TargetStepView: View {
             }
             .listRowBackground(Color.clear)
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
         .onAppear {
             weightText = formattedWeight(ballWeight)
             bufferGramsText = formattedBufferDisplay()

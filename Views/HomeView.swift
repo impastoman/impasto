@@ -317,6 +317,7 @@ struct StartDoughView: View {
                         .foregroundColor(Color(hex: "7FA2BD"))
                 }
             }
+            .meadList()
             .navigationTitle("Start Dough")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

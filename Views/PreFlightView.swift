@@ -247,7 +247,6 @@ struct PreFlightView: View {
                     .inputBox()
                 Text(useCelsius ? "°C" : "°F").foregroundColor(.secondary)
             }
-            Toggle("Dough thermometer", isOn: $data.hasDoughThermometer).tint(Color(hex: "7FA2BD"))
         }
     }
 

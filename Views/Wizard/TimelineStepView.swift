@@ -54,7 +54,7 @@ struct TimelineStepView: View {
             }
             .listRowBackground(Color.clear)
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
         .sheet(isPresented: $showTimingInfo) {
             TimingInfoSheet()
         }

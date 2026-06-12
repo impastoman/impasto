@@ -47,7 +47,7 @@ struct BakeMethodStepView: View {
                 BakeSetupDetailSection(setup: $setup)
             }
         }
-        .scrollContentBackground(.hidden)
+        .meadList()
     }
 }
 
