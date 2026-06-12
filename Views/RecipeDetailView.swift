@@ -1,4 +1,6 @@
 import SwiftUI
+import UIKit
+import LinkPresentation
 
 struct RecipeDetailView: View {
     @EnvironmentObject var store: RecipeStore
@@ -171,7 +173,12 @@ struct RecipeDetailView: View {
             .environmentObject(store)
         }
         .sheet(item: $exportShare) { payload in
-            ActivityShareSheet(items: [payload.url])
+            ActivityShareSheet(items: [
+                RecipeLinkActivityItemSource(
+                    url: payload.url,
+                    title: "Stesura Recipe: \(recipe.name)"
+                )
+            ])
         }
     }
 
@@ -195,5 +202,73 @@ struct RecipeDetailView: View {
     func exportRecipe() {
         guard let url = StesuraExport.encodeRecipeLink(recipe) else { return }
         exportShare = ExportShareURL(url: url)
+    }
+}
+
+// MARK: - Rich link share
+
+/// Wraps the stesura:// recipe link with LPLinkMetadata so the share
+/// sheet and Messages render a clean preview card (title + icon)
+/// instead of the raw deep-link string. Tapping the card opens Stesura.
+final class RecipeLinkActivityItemSource: NSObject, UIActivityItemSource {
+    let url: URL
+    let title: String
+
+    init(url: URL, title: String) {
+        self.url = url
+        self.title = title
+    }
+
+    func activityViewControllerPlaceholderItem(_ controller: UIActivityViewController) -> Any { url }
+
+    func activityViewController(_ controller: UIActivityViewController,
+                                itemForActivityType activityType: UIActivity.ActivityType?) -> Any? { url }
+
+    func activityViewControllerLinkMetadata(_ controller: UIActivityViewController) -> LPLinkMetadata? {
+        let md = LPLinkMetadata()
+        md.title = title
+        md.originalURL = url
+        md.url = url
+        let icon = StesuraShareIcon.image()
+        md.iconProvider = NSItemProvider(object: icon)
+        md.imageProvider = NSItemProvider(object: icon)
+        return md
+    }
+}
+
+/// Icon shown in the recipe-share preview card. Prefers the real app
+/// icon once one is set (#39); until then renders a Mead-paper
+/// placeholder so the card never looks like a bare link.
+enum StesuraShareIcon {
+    static func image() -> UIImage {
+        appIcon() ?? placeholder()
+    }
+
+    private static func appIcon() -> UIImage? {
+        guard let icons = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
+              let primary = icons["CFBundlePrimaryIcon"] as? [String: Any],
+              let files = primary["CFBundleIconFiles"] as? [String],
+              let name = files.last else { return nil }
+        return UIImage(named: name)
+    }
+
+    private static func placeholder() -> UIImage {
+        let size = CGSize(width: 320, height: 320)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            let rect = CGRect(origin: .zero, size: size)
+            UIColor(red: 0xFA/255, green: 0xFA/255, blue: 0xF5/255, alpha: 1).setFill()  // paperWhite
+            UIRectFill(rect)
+            UIColor(red: 0xD4/255, green: 0x75/255, blue: 0x6A/255, alpha: 1).setFill()  // marginRed
+            UIRectFill(CGRect(x: 86, y: 0, width: 3, height: size.height))
+            let para = NSMutableParagraphStyle(); para.alignment = .center
+            let attrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont(name: "Fraunces-SemiBold", size: 190)
+                    ?? UIFont.systemFont(ofSize: 190, weight: .semibold),
+                .foregroundColor: UIColor(red: 0x2C/255, green: 0x2A/255, blue: 0x24/255, alpha: 1),
+                .paragraphStyle: para
+            ]
+            ("S" as NSString).draw(in: CGRect(x: 0, y: 55, width: size.width, height: 230),
+                                   withAttributes: attrs)
+        }
     }
 }
