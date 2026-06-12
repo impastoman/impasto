@@ -10,6 +10,14 @@ struct RecipeDetailView: View {
     @State private var showForkWizard = false
     @State private var isRenamingTitle = false
     @State private var pendingName = ""
+    @State private var exportShare: ExportShareURL? = nil
+
+    /// Identifiable wrapper so .sheet(item:) presents the share sheet
+    /// atomically once the export file has been written.
+    struct ExportShareURL: Identifiable {
+        let id = UUID()
+        let url: URL
+    }
 
     var styleLabel: String {
         recipe.style == .custom && !recipe.customStyleName.isEmpty
@@ -107,7 +115,9 @@ struct RecipeDetailView: View {
             if !isReadOnly {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 4) {
-                        ShareLink(item: recipeExportString()) {
+                        Button {
+                            exportRecipe()
+                        } label: {
                             Image(systemName: "square.and.arrow.up")
                         }
                         Button {
@@ -160,6 +170,9 @@ struct RecipeDetailView: View {
             )
             .environmentObject(store)
         }
+        .sheet(item: $exportShare) { payload in
+            ActivityShareSheet(items: [payload.url])
+        }
     }
 
     /// Spec row — label on the left, value on the right. The red
@@ -174,11 +187,17 @@ struct RecipeDetailView: View {
             .meadRow()
     }
 
-    func recipeExportString() -> String {
+    /// Wraps the recipe (bake logs stripped) in the versioned Stesura
+    /// envelope, writes it to a temp .stesura.json file, and presents
+    /// the share sheet. The file is self-contained — on import the
+    /// receiver gets the recipe plus its flour blend / process /
+    /// preferment fanned out into their libraries.
+    func exportRecipe() {
         var exportRecipe = recipe
-        exportRecipe.bakeLogs = []   // strip bake history
-        guard let data = try? JSONEncoder().encode(exportRecipe),
-              let json = String(data: data, encoding: .utf8) else { return "{}" }
-        return json
+        exportRecipe.bakeLogs = []   // never share personal bake history
+        guard let data = StesuraExport.encode(exportRecipe, schema: .recipe),
+              let url = StesuraExport.tempFileURL(for: data, baseName: recipe.name)
+        else { return }
+        exportShare = ExportShareURL(url: url)
     }
 }

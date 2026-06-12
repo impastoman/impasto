@@ -111,7 +111,7 @@ struct ImportRecipeView: View {
             Section(header: Text("Overview").font(.jakarta(.semibold, size: 13))) {
                 LabeledContent("Name",        value: recipe.name)
                     .font(.jakarta(.regular, size: 17))
-                LabeledContent("Style",       value: recipe.style.rawValue)
+                LabeledContent("Style",       value: recipe.style == .custom && !recipe.customStyleName.isEmpty ? recipe.customStyleName : recipe.style.rawValue)
                     .font(.jakarta(.regular, size: 17))
                 LabeledContent("Method",      value: recipe.method.rawValue)
                     .font(.jakarta(.regular, size: 17))
@@ -167,6 +167,10 @@ struct ImportRecipeView: View {
                     .foregroundColor(Color(hex: "7FA2BD"))
                     .font(.jakarta(.regular, size: 14))
                 }
+            } footer: {
+                Text("Saving also adds this recipe's flour blend, process, and preferment to your libraries.")
+                    .font(.jakarta(.regular, size: 11))
+                    .tipText()
             }
             .listRowBackground(Color.clear)
         }
@@ -192,13 +196,15 @@ struct ImportRecipeView: View {
 
     func attemptParse(data: Data) {
         do {
-            var recipe = try JSONDecoder().decode(Recipe.self, from: data)
+            var recipe = try StesuraExport.decodeRecipe(from: data)
             recipe.id = UUID()       // fresh ID — never overwrite an existing recipe
             recipe.bakeLogs = []     // don't import historical bake logs
             parsedRecipe = recipe
             parseError = nil
+        } catch let e as StesuraExport.ImportError {
+            parseError = e.errorDescription
         } catch {
-            parseError = "Couldn't parse — check the JSON is a valid Stesura recipe export."
+            parseError = "Couldn't parse — check the file is a valid Stesura recipe export."
         }
     }
 
@@ -206,8 +212,40 @@ struct ImportRecipeView: View {
 
     func saveRecipe(_ recipe: Recipe) {
         store.add(recipe)
+        importComponents(from: recipe)
         saved = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { dismiss() }
+    }
+
+    /// Fan-out: a recipe import also materializes its embedded flour
+    /// blend, process, and preferment as standalone items in the
+    /// receiver's libraries, each named after the source recipe and
+    /// given a fresh id. Keeps the imported recipe fully reproducible
+    /// and lets the receiver reuse the pieces independently.
+    private func importComponents(from recipe: Recipe) {
+        var blend = recipe.flourBlend
+        blend.id = UUID()
+        blend.folderName = ""
+        blend.name = "\(recipe.name) — Blend"
+        store.addBlend(blend)
+
+        let process = SavedProcess(
+            name: "\(recipe.name) — Process",
+            cards: recipe.processCards
+        )
+        store.addProcess(process)
+
+        // Direct-method recipes have no preferment to extract.
+        if recipe.method != .direct {
+            let pref = SavedPreferment(
+                name: "\(recipe.name) — Preferment",
+                method: recipe.method,
+                hydration: recipe.prefermentHydration,
+                flourBlend: recipe.prefermentFlourBlend,
+                ratioPercent: recipe.bigaRatio
+            )
+            store.addSavedPreferment(pref)
+        }
     }
 
     func shortDuration(_ t: TimeInterval) -> String {
