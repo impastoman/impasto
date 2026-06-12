@@ -35,6 +35,24 @@ class RecipeStore: ObservableObject {
     /// completed. Bumped to v3 if we ever need to re-migrate.
     private let photosMigratedKey = "impasto_photos_migrated_v2"
 
+    /// Serial queue for persistence. JSON-encoding the full recipes array
+    /// (bake logs, process cards, stage durations, tags) is heavy enough
+    /// to hitch the UI when done on the main thread on every add/update/
+    /// move/save. We snapshot the value-type collection on the main thread
+    /// (cheap, copy-on-write) and encode + write on this background queue.
+    /// Serial so writes never land out of order; UserDefaults is
+    /// thread-safe.
+    private let persistQueue = DispatchQueue(label: "tech.stesura.persist", qos: .utility)
+
+    /// Snapshot-on-main, encode-and-write-off-main persistence helper.
+    private func persist<T: Encodable>(_ value: T, key: String) {
+        persistQueue.async {
+            if let d = try? JSONEncoder().encode(value) {
+                UserDefaults.standard.set(d, forKey: key)
+            }
+        }
+    }
+
     init() {
         load()
         migratePhotosToDiskIfNeeded()
@@ -240,28 +258,18 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Persistence
 
-    private func saveRecipes() {
-        if let d = try? JSONEncoder().encode(recipes) { UserDefaults.standard.set(d, forKey: recipeKey) }
-    }
-    private func savePreferments() {
-        if let d = try? JSONEncoder().encode(prefermentRecipes) { UserDefaults.standard.set(d, forKey: prefermentKey) }
-    }
-    private func saveBlends() {
-        if let d = try? JSONEncoder().encode(savedBlends) { UserDefaults.standard.set(d, forKey: blendsKey) }
-    }
-    private func saveProcesses() {
-        if let d = try? JSONEncoder().encode(savedProcesses) { UserDefaults.standard.set(d, forKey: processesKey) }
-    }
-    private func saveSavedPreferments() {
-        if let d = try? JSONEncoder().encode(savedPreferments) { UserDefaults.standard.set(d, forKey: sprefsKey) }
-    }
+    private func saveRecipes()    { persist(recipes,          key: recipeKey) }
+    private func savePreferments() { persist(prefermentRecipes, key: prefermentKey) }
+    private func saveBlends()     { persist(savedBlends,      key: blendsKey) }
+    private func saveProcesses()  { persist(savedProcesses,   key: processesKey) }
+    private func saveSavedPreferments() { persist(savedPreferments, key: sprefsKey) }
+
     func saveCustomTags() {
-        let data = ["crust": customCrustTags, "crumb": customCrumbTags]
-        if let d = try? JSONEncoder().encode(data) { UserDefaults.standard.set(d, forKey: customTagsKey) }
+        persist(["crust": customCrustTags, "crumb": customCrumbTags], key: customTagsKey)
     }
 
     func saveSectionOrder() {
-        if let d = try? JSONEncoder().encode(librarySectionOrder) { UserDefaults.standard.set(d, forKey: sectionOrderKey) }
+        persist(librarySectionOrder, key: sectionOrderKey)
     }
 
     func saveFolderRegistry() {
@@ -269,7 +277,7 @@ class RecipeStore: ObservableObject {
             "recipes": recipeFolders, "blends": blendFolders,
             "processes": processFolders, "preferments": prefermentFolders
         ]
-        if let d = try? JSONEncoder().encode(data) { UserDefaults.standard.set(d, forKey: folderRegistryKey) }
+        persist(data, key: folderRegistryKey)
     }
 
     private func load() {
