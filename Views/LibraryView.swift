@@ -377,7 +377,7 @@ struct LibraryView: View {
                 Text("Swipe a recipe → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
-                    .listRowBackground(Color.clear)
+                    .meadMarginRow()
                     .tipText()
             }
         }
@@ -432,7 +432,7 @@ struct LibraryView: View {
                 Text("Swipe a blend → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
-                    .listRowBackground(Color.clear)
+                    .meadMarginRow()
                     .tipText()
             }
         }
@@ -440,16 +440,11 @@ struct LibraryView: View {
 
     func blendRow(_ blend: FlourBlend) -> some View {
         Button { editingBlend = blend } label: {
-            HStack(spacing: 10) {
-                Rectangle()
-                    .fill(Color.marginRed)
-                    .frame(width: 2)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
-                        .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                    Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
-                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary).lineLimit(1)
-                }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(blend.name.isEmpty ? "Untitled Blend" : blend.name)
+                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
+                Text(blend.components.map { "\(Int($0.percentage))% \($0.type.rawValue)" }.joined(separator: " · "))
+                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary).lineLimit(1)
             }
             .padding(.vertical, 2)
         }
@@ -467,6 +462,7 @@ struct LibraryView: View {
             }
         }
         .listRowSeparatorTint(Color.ruleBlue)
+        .meadMarginRow()
     }
 
     // MARK: - Processes
@@ -526,7 +522,7 @@ struct LibraryView: View {
                 Text("Swipe a process → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
-                    .listRowBackground(Color.clear)
+                    .meadMarginRow()
                     .tipText()
             }
         }
@@ -569,6 +565,7 @@ struct LibraryView: View {
             handleProcessOnDrop(providers: providers, toFolder: folder)
         }
         .listRowSeparatorTint(Color.ruleBlue)
+        .meadMarginRow()
     }
 
     /// Custom expandable folder row for the Recipes section —
@@ -597,6 +594,7 @@ struct LibraryView: View {
             }
         }
         .listRowSeparatorTint(Color.ruleBlue)
+        .meadMarginRow()
     }
 
     /// Custom expandable folder row for the Flour Blends section.
@@ -623,6 +621,7 @@ struct LibraryView: View {
             }
         }
         .listRowSeparatorTint(Color.ruleBlue)
+        .meadMarginRow()
     }
 
     /// Custom expandable folder row for the Preferments section.
@@ -649,21 +648,16 @@ struct LibraryView: View {
             }
         }
         .listRowSeparatorTint(Color.ruleBlue)
+        .meadMarginRow()
     }
 
     func processRow(_ process: SavedProcess) -> some View {
         Button { editingProcess = process } label: {
-            HStack(spacing: 10) {
-                // Teacher's-red notebook margin strip, matching RecipeRowView.
-                Rectangle()
-                    .fill(Color.marginRed)
-                    .frame(width: 2)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(process.name.isEmpty ? "Untitled Process" : process.name)
-                        .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                    Text("\(process.cards.count) steps")
-                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
-                }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(process.name.isEmpty ? "Untitled Process" : process.name)
+                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
+                Text("\(process.cards.count) steps")
+                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
@@ -681,6 +675,7 @@ struct LibraryView: View {
             }
         }
         .listRowSeparatorTint(Color.ruleBlue)
+        .meadMarginRow()
     }
 
     // MARK: - Preferments
@@ -732,7 +727,7 @@ struct LibraryView: View {
                 Text("Swipe a preferment → to move it between folders.")
                     .font(.jakarta(.regular, size: 11))
                     .foregroundColor(.secondary)
-                    .listRowBackground(Color.clear)
+                    .meadMarginRow()
                     .tipText()
             }
         }
@@ -740,16 +735,11 @@ struct LibraryView: View {
 
     func prefermentRow(_ pref: SavedPreferment) -> some View {
         Button { editingPreferment = pref } label: {
-            HStack(spacing: 10) {
-                Rectangle()
-                    .fill(Color.marginRed)
-                    .frame(width: 2)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
-                        .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
-                    Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
-                        .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
-                }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(pref.name.isEmpty ? "Untitled Preferment" : pref.name)
+                    .font(.jakarta(.regular, size: 17)).foregroundColor(.primary)
+                Text("\(pref.label)  ·  \(Int(pref.hydration * 100))%")
+                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
@@ -767,6 +757,7 @@ struct LibraryView: View {
             }
         }
         .listRowSeparatorTint(Color.ruleBlue)
+        .meadMarginRow()
     }
 
     // MARK: - Shared folder move menu (used in context menus)
@@ -809,6 +800,7 @@ private extension View {
     ) -> some View {
         self
             .listRowSeparatorTint(Color.ruleBlue)
+            .meadMarginRow()
             // Leading swipe → opens the FolderPickerSheet (reliable on NavigationLink rows)
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
                 if !folders.isEmpty || !recipe.folderName.isEmpty {
@@ -868,30 +860,24 @@ struct RecipeRowView: View {
     }
 
     var body: some View {
-        HStack(spacing: 10) {
-            // Margin strip — the iconic notebook teacher's-red vertical
-            // rule. 2pt wide, fills the row's height.
-            Rectangle()
-                .fill(Color.marginRed)
-                .frame(width: 2)
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(recipe.name).font(.jakarta(.semibold, size: 16))
-                    Spacer()
-                    Text(styleLabel)
-                        .font(.jakarta(.regular, size: 11))
-                        .padding(.horizontal, 7).padding(.vertical, 2)
-                        .background(Color.ruleBlueFaint)
-                        .foregroundColor(Color.ruleBlue)
-                        .cornerRadius(4)
-                }
-                Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")
-                    .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
-                Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested ×\(recipe.bakeLogs.count)")
+        // Red margin strip now drawn via .meadMarginRow() on the row
+        // background (continuous through the section), not inline here.
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(recipe.name).font(.jakarta(.semibold, size: 16))
+                Spacer()
+                Text(styleLabel)
                     .font(.jakarta(.regular, size: 11))
-                    .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
+                    .padding(.horizontal, 7).padding(.vertical, 2)
+                    .background(Color.ruleBlueFaint)
+                    .foregroundColor(Color.ruleBlue)
+                    .cornerRadius(4)
             }
+            Text("\(Int(recipe.finalHydration * 100))% · \(recipe.ballCount) × \(Int(recipe.ballWeight))g · \(recipe.timeline.rawValue)")
+                .font(.jakarta(.regular, size: 12)).foregroundColor(.secondary)
+            Text(recipe.bakeLogs.isEmpty ? "Untested" : "Tested ×\(recipe.bakeLogs.count)")
+                .font(.jakarta(.regular, size: 11))
+                .foregroundColor(recipe.bakeLogs.isEmpty ? .orange : .green)
         }
         .padding(.vertical, 4)
     }

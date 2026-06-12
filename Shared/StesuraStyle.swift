@@ -79,6 +79,23 @@ extension View {
     func meadRow() -> some View {
         self.alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] - 12 }
     }
+
+    /// Draws the teacher's-red margin strip in a row's BACKGROUND rather
+    /// than its content. Because a List keeps row backgrounds contiguous
+    /// WITHIN a section but separated BETWEEN sections, applying this to
+    /// every row of a section yields one solid red line down that
+    /// section that breaks cleanly at section boundaries. `leading` is
+    /// the strip's inset from the cell's leading edge — tune to sit in
+    /// the gutter just left of row content.
+    func meadMarginRow(leading: CGFloat = 20) -> some View {
+        self.listRowBackground(
+            HStack(spacing: 0) {
+                Rectangle().fill(Color.marginRed).frame(width: 2)
+                Spacer(minLength: 0)
+            }
+            .padding(.leading, leading)
+        )
+    }
 }
 
 extension Color {
