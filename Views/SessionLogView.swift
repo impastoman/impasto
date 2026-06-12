@@ -91,6 +91,28 @@ struct SessionLogView: View {
                     }
                 )
             }
+            // "Share this session" sheet lives here at the body level — NOT
+            // on saveSection. A presentation modifier attached to a List
+            // Section is torn down when that row re-renders, which made the
+            // editor flash open then collapse and drop back to Bake Results.
+            .sheet(isPresented: $showShare) {
+                // Preview BakeLog from current in-session state — never saved.
+                let previewLog = vm.buildBakeLog(
+                    rating: rating,
+                    crustTags: [],
+                    crumbTags: [],
+                    customCrustTags: [],
+                    customCrumbTags: [],
+                    notes: notes,
+                    bakeTimeSeconds: bakeTimeSeconds,
+                    ovenTempAchieved: ovenTempAchieved,
+                    crustColor: crustColor,
+                    bottomResult: bottomResult,
+                    topResult: topResult,
+                    photoIDs: aggregatedPhotoIDs
+                )
+                PhotoShareView(log: previewLog, recipe: recipe, scope: .wholeSession)
+            }
         }
         .onChange(of: pendingPhoto) { _, data in
             if let d = data {
@@ -319,30 +341,11 @@ struct SessionLogView: View {
             Button("Leave without saving", role: .destructive) { goHome() }
             Button("Cancel", role: .cancel) { }
         }
-        // Presented as a .sheet (not .fullScreenCover): SessionLogView is
-        // itself shown inside a sheet from PostBakeView, and presenting a
-        // fullScreenCover from within a sheet flashes open then collapses,
-        // dragging the parent sheet down with it (landing back on Bake
-        // Results). Sheet-from-sheet stacks reliably. PhotoShareView is its
-        // own NavigationStack with Cancel/Share, so a sheet works fine.
-        .sheet(isPresented: $showShare) {
-            // Build a preview BakeLog from current in-session state — never saved.
-            let previewLog = vm.buildBakeLog(
-                rating: rating,
-                crustTags: [],
-                crumbTags: [],
-                customCrustTags: [],
-                customCrumbTags: [],
-                notes: notes,
-                bakeTimeSeconds: bakeTimeSeconds,
-                ovenTempAchieved: ovenTempAchieved,
-                crustColor: crustColor,
-                bottomResult: bottomResult,
-                topResult: topResult,
-                photoIDs: aggregatedPhotoIDs
-            )
-            PhotoShareView(log: previewLog, recipe: recipe, scope: .wholeSession)
-        }
+        // NOTE: the "Share this session" sheet is presented at the body
+        // level (see `var body`), NOT here. A .sheet/.fullScreenCover
+        // attached to a List Section gets torn down when the row
+        // re-renders, which flashed the editor open then collapsed it
+        // and dragged the parent sheet back to Bake Results.
     }
 
     func goHome() {
