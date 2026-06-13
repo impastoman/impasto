@@ -6,6 +6,21 @@
   <title>Open in Stesura</title>
 
   <!--
+    Open Graph tags: Messages / iMessage build the rich link-preview card
+    from these when an https link is shared. This is what makes the share
+    appear as a branded card ("A Stesura recipe" + image) instead of a raw
+    URL — independent of the subdomain name.
+    og:image should be a hosted ~1200x630 card image; reuse the app icon /
+    a branded card once artwork exists (#39). If it 404s, Messages falls
+    back to a clean text-only card, which is still fine.
+  -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="A Stesura recipe">
+  <meta property="og:description" content="Open this recipe in Stesura — the flour blend, process, and preferment come along with it.">
+  <meta property="og:image" content="https://share.perfectlyfinewares.com/share-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!--
     Smart App Banner: shows Apple's native "Get / Open" bar at the top of
     the page in Safari. If Stesura is installed it deep-links straight in;
     otherwise it offers the App Store.

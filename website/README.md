@@ -1,51 +1,69 @@
-# Stesura — recipe-sharing web files
+# Stesura — recipe-sharing web files (Universal Links, task #41)
 
-These two files make the **Universal Links** recipe-sharing flow work
-(task #41). Host them on **`stesura.perfectlyfinewares.com`** over HTTPS.
-They are NOT part of the iOS app build — they live in the repo so they're
-version-controlled and ready to deploy.
+These files power the clean tap-to-open recipe sharing. They are hosted
+**separately from the Squarespace marketing site** — Squarespace can't
+serve Apple's AASA file (no `/.well-known/`, no extensionless files, no
+`Content-Type` control). So they go on **Cloudflare Pages** at the
+subdomain **`share.perfectlyfinewares.com`**.
 
-## 1. `apple-app-site-association` (AASA)
+(The marketing/landing + privacy pages stay on Squarespace at
+`stesura.perfectlyfinewares.com` — untouched.)
 
-Tells iOS that the Stesura app owns links to this domain.
+## Files
 
-**Host at exactly:**
-```
-https://stesura.perfectlyfinewares.com/.well-known/apple-app-site-association
-```
+| File | Served at | Purpose |
+|------|-----------|---------|
+| `.well-known/apple-app-site-association` | `/.well-known/apple-app-site-association` | Tells iOS the app owns links on this domain |
+| `import.html` | `/import` | Fallback page for people without the app |
+| `_headers` | (config) | Forces the AASA to `Content-Type: application/json` |
+| `privacy.html` | (already on Squarespace) | Included for convenience; not required here |
 
-**Strict requirements (iOS will silently ignore the file otherwise):**
-- Served over **HTTPS** with a valid certificate.
-- **No file extension** (not `.json`).
-- `Content-Type: application/json`.
-- **No redirects** — must return 200 directly.
-- Reachable without authentication.
+The AASA's `appIDs` = `24FCMTYXR8.com.stesura.app` (Team ID + bundle ID).
 
-The `appIDs` value is `<TeamID>.<BundleID>` = `24FCMTYXR8.com.stesura.app`
-(already filled in). The `/import*` component matches the share links.
+## Cloudflare Pages setup (one-time)
 
-After deploying, verify with Apple's tool:
-```
-https://app-site-association.cdn-apple.com/a/v1/stesura.perfectlyfinewares.com
-```
+1. **Create the project**
+   - cloudflare.com → sign in → **Workers & Pages → Create → Pages**.
+   - Either **Connect to Git** (point it at the `impasto` repo, set the
+     build output / root directory to **`website`**, no build command),
+     or **Upload assets** and drag the `website/` folder in.
+   - Deploy. You'll get a `*.pages.dev` URL — confirm
+     `https://<project>.pages.dev/.well-known/apple-app-site-association`
+     returns the JSON.
 
-## 2. `import.html` — fallback page for `/import`
+2. **Add the custom subdomain**
+   - In the Pages project → **Custom domains → Set up a custom domain** →
+     enter `share.perfectlyfinewares.com`.
+   - Cloudflare gives you a **CNAME target** (the `*.pages.dev` host).
 
-Shown to people **without** the app when they tap a share link (Safari
-opens this page; if the app IS installed, iOS opens the app instead and
-this page never loads). Route your host so `https://stesura.perfectlyfinewares.com/import`
-serves this file.
+3. **Point DNS (at your domain's DNS provider)**
+   - Add a **CNAME** record: `share` → the `*.pages.dev` target Cloudflare
+     showed. (If your DNS is already on Cloudflare, it offers to do this
+     for you.)
+   - Wait for it to go live (usually minutes) — HTTPS is automatic.
 
-**Before going live, fill in the App Store ID** (two spots, marked
-`APP_STORE_ID`) — the numeric id from App Store Connect once Stesura is
-registered (e.g. `6480001234`). Until then the button falls back to an
-App Store search link and the Smart App Banner is inert.
+4. **Verify**
+   - `https://share.perfectlyfinewares.com/.well-known/apple-app-site-association`
+     → returns the JSON, and (in browser devtools) the response
+     `Content-Type` is `application/json`.
+   - `https://share.perfectlyfinewares.com/import` → shows the fallback page.
+   - Apple's cache view:
+     `https://app-site-association.cdn-apple.com/a/v1/share.perfectlyfinewares.com`
 
-## Still to do on the app side (Claude — task #41, once hosting is live)
+## App side (already wired by Claude — task #41)
 
-- Add the **Associated Domains** capability: `applinks:stesura.perfectlyfinewares.com`.
-- Switch recipe export from the `stesura://import?d=…` custom-scheme link
-  to `https://stesura.perfectlyfinewares.com/import?d=…` (+ optional
-  `&n=<recipe name>` so the fallback page can show the recipe name).
-- Handle the incoming universal link (`.onOpenURL` / `.onContinueUserActivity`)
-  and route it through the existing recipe-import decode.
+- `StesuraExport.universalHost = "share.perfectlyfinewares.com"`.
+- Export builds `https://share.perfectlyfinewares.com/import?d=…&n=…`.
+- `StesuraApp` handles the link via `.onContinueUserActivity` /
+  `.onOpenURL`.
+
+**Remaining app step (in Xcode):** add the **Associated Domains**
+capability → `applinks:share.perfectlyfinewares.com`
+(Signing & Capabilities → + Capability). Then delete + reinstall so the
+entitlement and domain association register.
+
+## To fill in later
+
+- `import.html` + `og:image`: set the real **App Store ID** (marked
+  `APP_STORE_ID`) once Stesura is registered, and host a `share-card.png`
+  (reuse the app icon, #39) for the Messages preview image.

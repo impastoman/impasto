@@ -37,7 +37,7 @@ enum StesuraExport {
     /// the app directly (a custom-scheme link shows the raw URL). Requires
     /// the Associated Domains entitlement (applinks:<universalHost>) and the
     /// AASA file hosted at https://<universalHost>/.well-known/apple-app-site-association.
-    static let universalHost = "stesura.perfectlyfinewares.com"
+    static let universalHost = "share.perfectlyfinewares.com"
     static let universalImportPath = "/import"
 
     /// Type discriminator for the payload. Each content type round-trips

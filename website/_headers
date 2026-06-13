@@ -1,0 +1,5 @@
+# Cloudflare Pages custom headers.
+# The Apple App Site Association file has no extension, so Pages would
+# otherwise serve it as octet-stream. Apple requires application/json.
+/.well-known/apple-app-site-association
+  Content-Type: application/json
