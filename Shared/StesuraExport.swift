@@ -32,6 +32,14 @@ enum StesuraExport {
     static let urlScheme = "stesura"
     static let importHost = "import"
 
+    /// Universal Link host. Recipe shares are now https://<universalHost>/import?d=…
+    /// links — these render as a clean tappable card in Messages AND open
+    /// the app directly (a custom-scheme link shows the raw URL). Requires
+    /// the Associated Domains entitlement (applinks:<universalHost>) and the
+    /// AASA file hosted at https://<universalHost>/.well-known/apple-app-site-association.
+    static let universalHost = "stesura.perfectlyfinewares.com"
+    static let universalImportPath = "/import"
+
     /// Type discriminator for the payload. Each content type round-trips
     /// only as itself — a flourBlend file never imports as a recipe.
     enum Schema: String {
@@ -134,6 +142,28 @@ enum StesuraExport {
         return comps.url
     }
 
+    /// Builds the https Universal Link for a recipe:
+    /// https://stesura.perfectlyfinewares.com/import?d=<payload>&n=<name>
+    /// Same compressed payload as the custom-scheme link; `n` is the plain
+    /// recipe name for the web fallback page's teaser (the app ignores it
+    /// and reads the real data from `d`). This is the preferred share form.
+    static func encodeRecipeUniversalLink(_ recipe: Recipe, author: String? = nil, at date: Date = Date()) -> URL? {
+        var r = recipe
+        r.bakeLogs = []
+        guard let json = encode(r, schema: .recipe, author: author, at: date),
+              let compressed = try? (json as NSData).compressed(using: .zlib) as Data
+        else { return nil }
+        var comps = URLComponents()
+        comps.scheme = "https"
+        comps.host = universalHost
+        comps.path = universalImportPath
+        var items = [URLQueryItem(name: "d", value: base64URLEncode(compressed))]
+        let name = recipe.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !name.isEmpty { items.append(URLQueryItem(name: "n", value: name)) }
+        comps.queryItems = items
+        return comps.url
+    }
+
     // MARK: - Decode
 
     /// Decodes a recipe from a stesura://import?d=… deep link. Reverses
@@ -194,10 +224,20 @@ enum StesuraExport {
 
     // MARK: - Helpers
 
-    /// Extracts and inflates the JSON payload from a stesura://import?d=…
-    /// link. nil if the URL isn't a valid Stesura link.
+    /// True if a URL is a Stesura recipe link — either the custom scheme
+    /// (stesura://import?d=…) or the https Universal Link
+    /// (https://stesura.perfectlyfinewares.com/import?d=…).
+    static func isRecipeLink(_ url: URL) -> Bool {
+        if url.scheme == urlScheme { return true }
+        if url.scheme == "https", url.host == universalHost,
+           url.path.hasPrefix(universalImportPath) { return true }
+        return false
+    }
+
+    /// Extracts and inflates the JSON payload from a recipe link (custom
+    /// scheme or Universal Link). nil if the URL isn't a valid Stesura link.
     private static func linkPayload(_ url: URL) -> Data? {
-        guard url.scheme == urlScheme,
+        guard isRecipeLink(url),
               let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let encoded = comps.queryItems?.first(where: { $0.name == "d" })?.value,
               let compressed = base64URLDecode(encoded),

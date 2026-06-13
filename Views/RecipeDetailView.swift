@@ -201,7 +201,12 @@ struct RecipeDetailView: View {
     /// preferment fanned out into their libraries. Bake logs are stripped.
     func exportRecipe() {
         let author = UserDefaults.standard.string(forKey: "stesura_author_name")
-        guard let url = StesuraExport.encodeRecipeLink(recipe, author: author) else { return }
+        // Universal Link (https) — renders a clean tappable card in Messages
+        // and opens the app directly. Falls back to the custom-scheme link
+        // only if building the https URL somehow fails.
+        let url = StesuraExport.encodeRecipeUniversalLink(recipe, author: author)
+            ?? StesuraExport.encodeRecipeLink(recipe, author: author)
+        guard let url else { return }
         exportShare = ExportShareURL(url: url)
     }
 }

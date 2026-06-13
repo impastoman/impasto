@@ -58,31 +58,38 @@ struct StesuraApp: App {
                     // Idempotent — safe to call repeatedly.
                     UIApplication.shared.installDismissKeyboardOnTap()
                 }
-                // Opened a shared recipe — either a stesura://import?d=…
-                // deep link (tapping a link in Messages opens the app
-                // directly) or a .stesura file (Files / AirDrop). Decode,
-                // give it a fresh identity, and route to the import
-                // preview — the user never sees raw JSON.
-                .onOpenURL { url in
-                    let decoded: Recipe?
-                    let author: String?
-                    if url.scheme == StesuraExport.urlScheme {
-                        decoded = try? StesuraExport.decodeRecipe(fromLink: url)
-                        author = StesuraExport.author(fromLink: url)
-                    } else {
-                        decoded = try? StesuraExport.decodeRecipe(fromFile: url)
-                        author = StesuraExport.author(fromFile: url)
-                    }
-                    guard var recipe = decoded else { return }
-                    recipe.id = UUID()
-                    recipe.bakeLogs = []
-                    store.pendingImportAuthor = author
-                    store.pendingImport = recipe
+                // Opened a shared recipe. Three delivery paths, one handler:
+                //  • stesura://import?d=…  custom-scheme link  → .onOpenURL
+                //  • .stesura file (Files / AirDrop)           → .onOpenURL
+                //  • https://…/import?d=…  Universal Link      → .onContinueUserActivity
+                .onOpenURL { handleIncoming($0) }
+                .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+                    if let url = activity.webpageURL { handleIncoming(url) }
                 }
                 .sheet(item: $store.pendingImport) { recipe in
                     ImportRecipeView(initialRecipe: recipe, author: store.pendingImportAuthor)
                         .environmentObject(store)
                 }
         }
+    }
+
+    /// Decode an incoming recipe URL (custom-scheme link, Universal Link,
+    /// or file), give it a fresh identity, and route it to the import
+    /// preview. The user never sees raw JSON.
+    private func handleIncoming(_ url: URL) {
+        let decoded: Recipe?
+        let author: String?
+        if StesuraExport.isRecipeLink(url) {
+            decoded = try? StesuraExport.decodeRecipe(fromLink: url)
+            author = StesuraExport.author(fromLink: url)
+        } else {
+            decoded = try? StesuraExport.decodeRecipe(fromFile: url)
+            author = StesuraExport.author(fromFile: url)
+        }
+        guard var recipe = decoded else { return }
+        recipe.id = UUID()
+        recipe.bakeLogs = []
+        store.pendingImportAuthor = author
+        store.pendingImport = recipe
     }
 }
