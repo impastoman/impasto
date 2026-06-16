@@ -11,7 +11,11 @@ import SwiftUI
 /// we never persist a "paid" flag ourselves (that would be trivially
 /// spoofable and could drift). `isPremium` is recomputed from StoreKit
 /// on launch, after a purchase, and on any external transaction update.
-@MainActor
+///
+/// Note: no explicit @MainActor — the project builds with
+/// -default-isolation=MainActor, so this class is already main-actor
+/// isolated like RecipeStore. An explicit @MainActor here clashes with
+/// InferIsolatedConformances and breaks the ObservableObject conformance.
 final class PremiumStore: ObservableObject {
     /// Must match the non-consumable product ID created in App Store
     /// Connect.
@@ -34,7 +38,9 @@ final class PremiumStore: ObservableObject {
         }
     }
 
-    deinit { updatesTask?.cancel() }
+    // No deinit: this store lives for the app's lifetime (@StateObject),
+    // so the transactions listener never needs cancelling — and a deinit
+    // touching a main-actor-isolated property trips strict-isolation.
 
     /// Localized price string from the store, with a sensible fallback
     /// before the product has loaded.
