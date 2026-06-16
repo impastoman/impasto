@@ -60,6 +60,7 @@
 		96BC23DE2FD2B744008088DC /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BC23DD2FD2B744008088DC /* ImageCache.swift */; };
 		96D012922FC01BF900C565A4 /* PhotoShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D012902FC01BF900C565A4 /* PhotoShareView.swift */; };
 		96DFAB612FE10E37002D0D35 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 96DFAB602FE10E37002D0D35 /* Assets.xcassets */; };
+		96DFAB662FE12FBF002D0D35 /* PremiumStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96DFAB652FE12FBF002D0D35 /* PremiumStore.swift */; };
 		96F1B24A2FBE3F6A0064ABDE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
@@ -120,6 +121,8 @@
 		96D012902FC01BF900C565A4 /* PhotoShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoShareView.swift; sourceTree = "<group>"; };
 		96DFAB602FE10E37002D0D35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		96DFAB622FE12678002D0D35 /* Stesura.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Stesura.entitlements; sourceTree = "<group>"; };
+		96DFAB652FE12FBF002D0D35 /* PremiumStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumStore.swift; sourceTree = "<group>"; };
+		96DFAB672FE13060002D0D35 /* Stesura.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Stesura.storekit; sourceTree = "<group>"; };
 		96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -137,6 +140,7 @@
 		9670CAEC2FBC2CCC009EE043 = {
 			isa = PBXGroup;
 			children = (
+				96DFAB672FE13060002D0D35 /* Stesura.storekit */,
 				96DFAB622FE12678002D0D35 /* Stesura.entitlements */,
 				96DFAB602FE10E37002D0D35 /* Assets.xcassets */,
 				96BC23DA2FD2A1E6008088DC /* Impasto-Info.plist */,
@@ -189,6 +193,7 @@
 		9670CB152FBC2D77009EE043 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				96DFAB652FE12FBF002D0D35 /* PremiumStore.swift */,
 				96BC23DB2FD2B710008088DC /* PhotoStore.swift */,
 				9670CB122FBC2D77009EE043 /* RecipeStore.swift */,
 				9670CB132FBC2D77009EE043 /* SessionManager.swift */,
@@ -370,6 +375,7 @@
 				9670CB502FBC2D77009EE043 /* PreFlightView.swift in Sources */,
 				9670CB512FBC2D77009EE043 /* LibraryView.swift in Sources */,
 				960250EE2FDC61E100D68F96 /* StesuraExport.swift in Sources */,
+				96DFAB662FE12FBF002D0D35 /* PremiumStore.swift in Sources */,
 				96F1B24A2FBE3F6A0064ABDE /* SettingsView.swift in Sources */,
 				9670CB522FBC2D77009EE043 /* TechniqueStepView.swift in Sources */,
 				9670CB532FBC2D77009EE043 /* PizzaLogView.swift in Sources */,
