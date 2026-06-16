@@ -5,6 +5,7 @@ import UIKit
 struct StesuraApp: App {
     @StateObject private var store = RecipeStore()
     @StateObject private var sessionManager = SessionManager()
+    @StateObject private var premium = PremiumStore()
 
     init() {
         // Apply global UIKit appearance overrides — these set the default
@@ -52,11 +53,22 @@ struct StesuraApp: App {
             HomeView()
                 .environmentObject(store)
                 .environmentObject(sessionManager)
+                .environmentObject(premium)
                 .preferredColorScheme(.light)
                 .onAppear {
                     // Install global tap-anywhere-to-dismiss-keyboard.
                     // Idempotent — safe to call repeatedly.
                     UIApplication.shared.installDismissKeyboardOnTap()
+                    store.isPremium = premium.isPremium
+                }
+                // Keep the recipe-cap gate in sync with the purchase state.
+                .onChange(of: premium.isPremium) { _, now in
+                    store.isPremium = now
+                }
+                // Global paywall — shown when a blocked recipe add flips
+                // store.showPaywall (covers wizard / fork / convert / etc.).
+                .sheet(isPresented: $store.showPaywall) {
+                    PaywallView().environmentObject(premium)
                 }
                 // Opened a shared recipe. Three delivery paths, one handler:
                 //  • stesura://import?d=…  custom-scheme link  → .onOpenURL
@@ -69,6 +81,7 @@ struct StesuraApp: App {
                 .sheet(item: $store.pendingImport) { recipe in
                     ImportRecipeView(initialRecipe: recipe, author: store.pendingImportAuthor)
                         .environmentObject(store)
+                        .environmentObject(premium)
                 }
         }
     }

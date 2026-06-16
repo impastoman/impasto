@@ -7,15 +7,36 @@ import SwiftUI
 ///   @AppStorage("prepDefaultTempUnit") var prepTempUnit: String = "celsius"
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var premium: PremiumStore
 
     @AppStorage("showTips")             private var showTips: Bool = true
     @AppStorage("prepDefaultUnits")     private var prepUnits: String = "metric"
     @AppStorage("prepDefaultTempUnit")  private var prepTempUnit: String = "celsius"
     @AppStorage("stesura_author_name")  private var authorName: String = ""
 
+    @State private var showPaywall = false
+
     var body: some View {
         NavigationStack {
             List {
+                Section(header: Text("Stesura Premium").font(.jakarta(.semibold, size: 13))) {
+                    if premium.isPremium {
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.seal.fill").foregroundColor(.ruleBlue)
+                            Text("Premium unlocked — unlimited recipes")
+                                .font(.jakarta(.regular, size: 15))
+                        }
+                    } else {
+                        Button("Unlock Premium — \(premium.displayPrice)") { showPaywall = true }
+                            .font(.jakarta(.semibold, size: 15))
+                            .foregroundColor(.ruleBlue)
+                        Button("Restore Purchase") { Task { await premium.restore() } }
+                            .font(.jakarta(.regular, size: 14))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .listRowBackground(Color.clear)
+
                 Section(header: Text("Sharing").font(.jakarta(.semibold, size: 13))) {
                     TextField("Your name", text: $authorName)
                         .font(.jakarta(.regular, size: 17))
@@ -73,6 +94,7 @@ struct SettingsView: View {
                 }
             }
             .meadList()
+            .sheet(isPresented: $showPaywall) { PaywallView().environmentObject(premium) }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

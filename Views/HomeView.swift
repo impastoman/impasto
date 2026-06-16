@@ -111,8 +111,12 @@ struct HomeView: View {
                 Button("+ New Recipe") { showNewMenu = true }
                     .buttonStyle(StesuraButtonStyle(filled: false))
                     .confirmationDialog("Create New", isPresented: $showNewMenu, titleVisibility: .visible) {
-                        Button("New Recipe") { showWizard = true }
-                        Button("Convert a Volume Recipe") { showVolumeConverter = true }
+                        Button("New Recipe") {
+                            if store.canAddRecipe { showWizard = true } else { store.showPaywall = true }
+                        }
+                        Button("Convert a Volume Recipe") {
+                            if store.canAddRecipe { showVolumeConverter = true } else { store.showPaywall = true }
+                        }
                         Button("New Flour Blend") { showBlendBuilder = true }
                         Button("New Process") { showProcessBuilder = true }
                         Button("New Preferment") { showPrefBuilder = true }
