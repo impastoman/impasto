@@ -43,7 +43,7 @@ enum StesuraExport {
     /// later by changing this one line + re-adding the Associated Domains
     /// entitlement for the new host. The Messages card stays branded via the
     /// /import page's Open Graph tags regardless of this domain.
-    static let universalHost = "stesura-share.wy-sayo.workers.dev"
+    static let universalHost = "recipes.stesura.workers.dev"
     static let universalImportPath = "/import"
 
     /// Type discriminator for the payload. Each content type round-trips

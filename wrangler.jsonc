@@ -7,7 +7,7 @@
   // NOTE: "name" must match the Cloudflare project/Worker name. If your
   // project is named something else, change this to match (or rename the
   // project in the dashboard).
-  "name": "stesura-share",
+  "name": "recipes",
   "compatibility_date": "2026-06-01",
   "assets": {
     "directory": "./website"
