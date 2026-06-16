@@ -428,7 +428,7 @@ class RecipeStore: ObservableObject {
         card(.stretchAndFold,   duration: 0,        note: "imagine 4 corners of the dough, pull on each outwards then fold onto center. Flip dough when four corners are done")
         card(.benchRest,        duration: 20 * 60,  note: "this dough will be stretched and folded 4 total times with rests in between")
         card(.stretchAndFold,   duration: 0,        note: "same method as before and the same again for the next two stretch and folds")
-        card(.benchRest,        duration: 20 * 60,  note: "drink a glass of water; it's good for you")
+        card(.benchRest,        duration: 20 * 60)
         card(.stretchAndFold,   duration: 0,        note: "one more rest and one more stretch and fold to go!")
         card(.benchRest,        duration: 20 * 60,  note: "good time to get a bowl ready to bulk ferment. Use a few drops of extra virgin olive oil and spread through bowl")
         card(.stretchAndFold,   duration: 0)
