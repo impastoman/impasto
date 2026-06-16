@@ -1,0 +1,15 @@
+{
+  // Cloudflare Workers static-assets config for the Stesura share site.
+  // Serves the website/ folder (AASA, /import, share-card, _headers) as a
+  // pure static site — no Worker script needed. Connected to Git via
+  // Workers Builds; deploy command: npx wrangler deploy
+  //
+  // NOTE: "name" must match the Cloudflare project/Worker name. If your
+  // project is named something else, change this to match (or rename the
+  // project in the dashboard).
+  "name": "stesura-share",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": "./website"
+  }
+}
