@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 
 struct ImportRecipeView: View {
     @EnvironmentObject var store: RecipeStore
+    @EnvironmentObject var premium: PremiumStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var pastedText = ""
@@ -14,6 +15,11 @@ struct ImportRecipeView: View {
     @State private var showDocPicker = false
     @State private var showAdvanced = false
     @State private var saved = false
+    /// Set when an import is blocked by the free recipe cap; shows an
+    /// inline upgrade prompt rather than the global paywall (avoids a
+    /// sheet-over-sheet conflict, since this view is itself a sheet).
+    @State private var blockedByLimit = false
+    @State private var showPaywall = false
 
     /// When `initialRecipe` is supplied (a tapped .stesura file/link routed
     /// in via StesuraApp's .onOpenURL), the view opens straight to the
@@ -183,6 +189,15 @@ struct ImportRecipeView: View {
                             .font(.jakarta(.regular, size: 17))
                             .foregroundColor(Color(hex: "7FA2BD"))
                     }
+                } else if blockedByLimit {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Your free library is full (2 recipes). Unlock Stesura Premium to import this one.")
+                            .font(.jakarta(.regular, size: 13))
+                            .foregroundColor(.primary)
+                        Button("Unlock Premium →") { showPaywall = true }
+                            .foregroundColor(Color(hex: "7FA2BD"))
+                            .font(.jakarta(.semibold, size: 14))
+                    }
                 } else {
                     Button("Save to Library →") {
                         saveRecipe(recipe)
@@ -205,6 +220,15 @@ struct ImportRecipeView: View {
             ToolbarItem(placement: .topBarLeading) {
                 Button("← Back") { parsedRecipe = nil }
             }
+        }
+        // Local paywall (sheet-from-sheet is reliable; the global one
+        // would conflict with this import sheet). On unlock, the blocked
+        // flag clears so the user can tap Save.
+        .sheet(isPresented: $showPaywall) {
+            PaywallView().environmentObject(premium)
+        }
+        .onChange(of: premium.isPremium) { _, now in
+            if now { blockedByLimit = false }
         }
     }
 
@@ -236,6 +260,13 @@ struct ImportRecipeView: View {
     // MARK: - Save
 
     func saveRecipe(_ recipe: Recipe) {
+        // Free tier: block the import if it would exceed the recipe cap.
+        // Check directly (not via store.add's global paywall) so we can
+        // show an inline prompt without a sheet-over-sheet conflict.
+        guard premium.isPremium || store.recipes.count < store.freeRecipeLimit else {
+            blockedByLimit = true
+            return
+        }
         store.add(recipe)
         importComponents(from: recipe)
         saved = true

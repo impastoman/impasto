@@ -3,6 +3,20 @@ import Combine
 
 class RecipeStore: ObservableObject {
     @Published var recipes: [Recipe] = []
+    /// Free-tier cap on saved dough recipes (incl. the seeded one).
+    /// Premium removes it. Only dough recipes are capped — blends,
+    /// processes, and preferments are unlimited on all tiers.
+    let freeRecipeLimit = 2
+    /// Mirrored from PremiumStore (set in StesuraApp). When true, the
+    /// recipe cap doesn't apply.
+    var isPremium = false
+    /// Flipped true by add() when a save is blocked by the free cap;
+    /// drives the global paywall sheet.
+    @Published var showPaywall = false
+
+    /// Whether another dough recipe can be saved right now. Use this to
+    /// gate "New Recipe" entry points before opening the wizard.
+    var canAddRecipe: Bool { isPremium || recipes.count < freeRecipeLimit }
     /// A recipe parsed from a tapped .stesura file / link, awaiting the
     /// import preview. Set by StesuraApp's .onOpenURL handler; presented
     /// as a sheet and cleared on dismiss.
@@ -117,7 +131,15 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Dough Recipes
 
-    func add(_ recipe: Recipe) { recipes.append(recipe); saveRecipes() }
+    /// Adds a dough recipe. On the free tier, refuses past freeRecipeLimit
+    /// and flips showPaywall (the global paywall sheet appears). Returns
+    /// whether the recipe was actually saved — callers that do follow-up
+    /// work (e.g. import fan-out) must check this and bail on false.
+    @discardableResult
+    func add(_ recipe: Recipe) -> Bool {
+        guard canAddRecipe else { showPaywall = true; return false }
+        recipes.append(recipe); saveRecipes(); return true
+    }
 
     func update(_ recipe: Recipe) {
         guard let i = recipes.firstIndex(where: { $0.id == recipe.id }) else { return }

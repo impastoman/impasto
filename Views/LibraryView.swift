@@ -89,8 +89,12 @@ struct LibraryView: View {
                 }
             }
             .confirmationDialog("", isPresented: $showAddMenu, titleVisibility: .hidden) {
-                Button("New Recipe") { showWizard = true }
-                Button("Convert a Volume Recipe") { showVolumeConverter = true }
+                Button("New Recipe") {
+                    if store.canAddRecipe { showWizard = true } else { store.showPaywall = true }
+                }
+                Button("Convert a Volume Recipe") {
+                    if store.canAddRecipe { showVolumeConverter = true } else { store.showPaywall = true }
+                }
                 Button("Reorder library sections") { showSectionReorder = true }
                 Button("New Flour Blend") { showBlendBuilder = true }
                 Button("New Process") { showProcessBuilder = true }
