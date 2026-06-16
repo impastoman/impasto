@@ -32,12 +32,18 @@ enum StesuraExport {
     static let urlScheme = "stesura"
     static let importHost = "import"
 
-    /// Universal Link host. Recipe shares are now https://<universalHost>/import?d=…
-    /// links — these render as a clean tappable card in Messages AND open
-    /// the app directly (a custom-scheme link shows the raw URL). Requires
-    /// the Associated Domains entitlement (applinks:<universalHost>) and the
-    /// AASA file hosted at https://<universalHost>/.well-known/apple-app-site-association.
-    static let universalHost = "share.perfectlyfinewares.com"
+    /// Universal Link host. Recipe shares are https://<universalHost>/import?d=…
+    /// links — they render as a clean tappable card in Messages AND open the
+    /// app directly. Requires the Associated Domains entitlement
+    /// (applinks:<universalHost>) and the AASA hosted at
+    /// https://<universalHost>/.well-known/apple-app-site-association.
+    ///
+    /// Currently the Cloudflare Workers default domain (zero DNS setup,
+    /// AASA verified serving application/json). Swap to a branded subdomain
+    /// later by changing this one line + re-adding the Associated Domains
+    /// entitlement for the new host. The Messages card stays branded via the
+    /// /import page's Open Graph tags regardless of this domain.
+    static let universalHost = "stesura-share.wy-sayo.workers.dev"
     static let universalImportPath = "/import"
 
     /// Type discriminator for the payload. Each content type round-trips
