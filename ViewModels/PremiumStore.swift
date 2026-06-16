@@ -4,9 +4,10 @@ import Combine   // @Published lives in Combine; required explicitly under the p
 
 /// StoreKit 2 manager for the one-time "Stesura Premium" unlock.
 ///
-/// Free tier caps saved dough recipes at `RecipeStore.freeRecipeLimit`
-/// (2, including the seeded recipe). A single non-consumable purchase
-/// removes the cap forever and restores across the user's devices.
+/// Free tier caps each library type (recipes, flour blends, processes,
+/// preferments) at `RecipeStore.freeItemLimit` (2 each, incl. seeded
+/// items). A single non-consumable purchase removes the caps forever and
+/// restores across the user's devices.
 ///
 /// Source of truth for entitlement is StoreKit's currentEntitlements —
 /// we never persist a "paid" flag ourselves (that would be trivially
@@ -145,14 +146,14 @@ struct PaywallView: View {
                     .font(.fraunces(.semibold, size: 30))
                     .foregroundColor(.stesuraInk)
 
-                Text("The free version keeps 2 recipes. Unlock unlimited recipes — keep every dough you dial in, and import recipes friends share with you.")
+                Text("The free version keeps 2 each of recipes, flour blends, processes, and preferments. Unlock to save as many as you like — and import recipes friends share with you.")
                     .font(.jakarta(.regular, size: 15))
                     .foregroundColor(.stesuraInkSoft)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    benefit("Unlimited saved recipes")
+                    benefit("Unlimited recipes, blends, processes & preferments")
                     benefit("Import shared recipes anytime")
                     benefit("One-time purchase — yours forever")
                 }

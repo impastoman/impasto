@@ -3,20 +3,30 @@ import Combine
 
 class RecipeStore: ObservableObject {
     @Published var recipes: [Recipe] = []
-    /// Free-tier cap on saved dough recipes (incl. the seeded one).
-    /// Premium removes it. Only dough recipes are capped — blends,
-    /// processes, and preferments are unlimited on all tiers.
-    let freeRecipeLimit = 2
-    /// Mirrored from PremiumStore (set in StesuraApp). When true, the
-    /// recipe cap doesn't apply.
+    /// Free-tier cap, applied independently to dough recipes, flour
+    /// blends, processes, and preferments (each capped at this count,
+    /// incl. any seeded item). Premium removes all caps.
+    let freeItemLimit = 2
+    /// Mirrored from PremiumStore (set in StesuraApp). When true, no cap.
     var isPremium = false
-    /// Flipped true by add() when a save is blocked by the free cap;
-    /// drives the global paywall sheet.
+    /// Flipped true (deferred to the next runloop tick) when a save is
+    /// blocked by a free cap; drives the global paywall sheet. Deferring
+    /// avoids a present-while-dismissing race with the sheet the blocked
+    /// action was triggered from (wizard / builder), which otherwise
+    /// swallowed the paywall.
     @Published var showPaywall = false
+    /// Show the paywall, deferred to the next runloop tick so it never
+    /// races a sheet/dialog dismissal. Use from add-method guards AND
+    /// from entry-point gates.
+    func requestPaywall() {
+        DispatchQueue.main.async { self.showPaywall = true }
+    }
 
-    /// Whether another dough recipe can be saved right now. Use this to
-    /// gate "New Recipe" entry points before opening the wizard.
-    var canAddRecipe: Bool { isPremium || recipes.count < freeRecipeLimit }
+    // Per-type "can add another?" checks — gate entry points with these.
+    var canAddRecipe: Bool     { isPremium || recipes.count          < freeItemLimit }
+    var canAddBlend: Bool      { isPremium || savedBlends.count       < freeItemLimit }
+    var canAddProcess: Bool    { isPremium || savedProcesses.count    < freeItemLimit }
+    var canAddPreferment: Bool { isPremium || savedPreferments.count  < freeItemLimit }
     /// A recipe parsed from a tapped .stesura file / link, awaiting the
     /// import preview. Set by StesuraApp's .onOpenURL handler; presented
     /// as a sheet and cleared on dismiss.
@@ -131,13 +141,13 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Dough Recipes
 
-    /// Adds a dough recipe. On the free tier, refuses past freeRecipeLimit
+    /// Adds a dough recipe. On the free tier, refuses past freeItemLimit
     /// and flips showPaywall (the global paywall sheet appears). Returns
     /// whether the recipe was actually saved — callers that do follow-up
     /// work (e.g. import fan-out) must check this and bail on false.
     @discardableResult
     func add(_ recipe: Recipe) -> Bool {
-        guard canAddRecipe else { showPaywall = true; return false }
+        guard canAddRecipe else { requestPaywall(); return false }
         recipes.append(recipe); saveRecipes(); return true
     }
 
@@ -202,7 +212,16 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Saved Flour Blends
 
-    func addBlend(_ blend: FlourBlend) { savedBlends.append(blend); saveBlends() }
+    /// User-initiated add — capped on the free tier (shows paywall when
+    /// blocked). Returns whether it saved.
+    @discardableResult
+    func addBlend(_ blend: FlourBlend) -> Bool {
+        guard canAddBlend else { requestPaywall(); return false }
+        savedBlends.append(blend); saveBlends(); return true
+    }
+    /// Uncapped add for seeding + recipe-import fan-out (a recipe's pieces
+    /// should always come through, regardless of the free cap).
+    func forceAddBlend(_ blend: FlourBlend) { savedBlends.append(blend); saveBlends() }
 
     func updateBlend(_ blend: FlourBlend) {
         guard let i = savedBlends.firstIndex(where: { $0.id == blend.id }) else { return }
@@ -228,7 +247,12 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Saved Processes
 
-    func addProcess(_ process: SavedProcess) { savedProcesses.append(process); saveProcesses() }
+    @discardableResult
+    func addProcess(_ process: SavedProcess) -> Bool {
+        guard canAddProcess else { requestPaywall(); return false }
+        savedProcesses.append(process); saveProcesses(); return true
+    }
+    func forceAddProcess(_ process: SavedProcess) { savedProcesses.append(process); saveProcesses() }
 
     func updateProcess(_ process: SavedProcess) {
         guard let i = savedProcesses.firstIndex(where: { $0.id == process.id }) else { return }
@@ -254,7 +278,12 @@ class RecipeStore: ObservableObject {
 
     // MARK: - Saved Preferments
 
-    func addSavedPreferment(_ p: SavedPreferment) { savedPreferments.append(p); saveSavedPreferments() }
+    @discardableResult
+    func addSavedPreferment(_ p: SavedPreferment) -> Bool {
+        guard canAddPreferment else { requestPaywall(); return false }
+        savedPreferments.append(p); saveSavedPreferments(); return true
+    }
+    func forceAddSavedPreferment(_ p: SavedPreferment) { savedPreferments.append(p); saveSavedPreferments() }
 
     func updateSavedPreferment(_ p: SavedPreferment) {
         guard let i = savedPreferments.firstIndex(where: { $0.id == p.id }) else { return }
@@ -347,11 +376,12 @@ class RecipeStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v4")
         UserDefaults.standard.removeObject(forKey: "impasto_seeded_v5")
 
+        // Uncapped adds — seeding must never be blocked by the free cap.
         let blend = makeSeedBlend()
-        addBlend(blend)
+        forceAddBlend(blend)
 
         let process = makeSeedProcess()
-        addProcess(process)
+        forceAddProcess(process)
 
         recipes.append(makeSeedRecipe(blend: blend, processCards: process.cards))
         saveRecipes()

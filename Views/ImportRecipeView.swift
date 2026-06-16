@@ -263,7 +263,7 @@ struct ImportRecipeView: View {
         // Free tier: block the import if it would exceed the recipe cap.
         // Check directly (not via store.add's global paywall) so we can
         // show an inline prompt without a sheet-over-sheet conflict.
-        guard premium.isPremium || store.recipes.count < store.freeRecipeLimit else {
+        guard premium.isPremium || store.recipes.count < store.freeItemLimit else {
             blockedByLimit = true
             return
         }
@@ -279,17 +279,20 @@ struct ImportRecipeView: View {
     /// given a fresh id. Keeps the imported recipe fully reproducible
     /// and lets the receiver reuse the pieces independently.
     private func importComponents(from recipe: Recipe) {
+        // forceAdd* — bypass the free caps; an imported recipe should
+        // always bring its full set of pieces (the recipe import itself
+        // was already cap-gated above).
         var blend = recipe.flourBlend
         blend.id = UUID()
         blend.folderName = ""
         blend.name = "\(recipe.name) — Blend"
-        store.addBlend(blend)
+        store.forceAddBlend(blend)
 
         let process = SavedProcess(
             name: "\(recipe.name) — Process",
             cards: recipe.processCards
         )
-        store.addProcess(process)
+        store.forceAddProcess(process)
 
         // Direct-method recipes have no preferment to extract.
         if recipe.method != .direct {
@@ -300,7 +303,7 @@ struct ImportRecipeView: View {
                 flourBlend: recipe.prefermentFlourBlend,
                 ratioPercent: recipe.bigaRatio
             )
-            store.addSavedPreferment(pref)
+            store.forceAddSavedPreferment(pref)
         }
     }
 

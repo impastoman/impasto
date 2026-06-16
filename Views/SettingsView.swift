@@ -23,7 +23,7 @@ struct SettingsView: View {
                     if premium.isPremium {
                         HStack(spacing: 8) {
                             Image(systemName: "checkmark.seal.fill").foregroundColor(.ruleBlue)
-                            Text("Premium unlocked — unlimited recipes")
+                            Text("Premium unlocked — unlimited library")
                                 .font(.jakarta(.regular, size: 15))
                         }
                     } else {

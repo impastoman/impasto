@@ -112,14 +112,20 @@ struct HomeView: View {
                     .buttonStyle(StesuraButtonStyle(filled: false))
                     .confirmationDialog("Create New", isPresented: $showNewMenu, titleVisibility: .visible) {
                         Button("New Recipe") {
-                            if store.canAddRecipe { showWizard = true } else { store.showPaywall = true }
+                            if store.canAddRecipe { showWizard = true } else { store.requestPaywall() }
                         }
                         Button("Convert a Volume Recipe") {
-                            if store.canAddRecipe { showVolumeConverter = true } else { store.showPaywall = true }
+                            if store.canAddRecipe { showVolumeConverter = true } else { store.requestPaywall() }
                         }
-                        Button("New Flour Blend") { showBlendBuilder = true }
-                        Button("New Process") { showProcessBuilder = true }
-                        Button("New Preferment") { showPrefBuilder = true }
+                        Button("New Flour Blend") {
+                            if store.canAddBlend { showBlendBuilder = true } else { store.requestPaywall() }
+                        }
+                        Button("New Process") {
+                            if store.canAddProcess { showProcessBuilder = true } else { store.requestPaywall() }
+                        }
+                        Button("New Preferment") {
+                            if store.canAddPreferment { showPrefBuilder = true } else { store.requestPaywall() }
+                        }
                         Button("Cancel", role: .cancel) {}
                     }
 

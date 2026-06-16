@@ -90,15 +90,21 @@ struct LibraryView: View {
             }
             .confirmationDialog("", isPresented: $showAddMenu, titleVisibility: .hidden) {
                 Button("New Recipe") {
-                    if store.canAddRecipe { showWizard = true } else { store.showPaywall = true }
+                    if store.canAddRecipe { showWizard = true } else { store.requestPaywall() }
                 }
                 Button("Convert a Volume Recipe") {
-                    if store.canAddRecipe { showVolumeConverter = true } else { store.showPaywall = true }
+                    if store.canAddRecipe { showVolumeConverter = true } else { store.requestPaywall() }
                 }
                 Button("Reorder library sections") { showSectionReorder = true }
-                Button("New Flour Blend") { showBlendBuilder = true }
-                Button("New Process") { showProcessBuilder = true }
-                Button("New Preferment") { showPrefBuilder = true }
+                Button("New Flour Blend") {
+                    if store.canAddBlend { showBlendBuilder = true } else { store.requestPaywall() }
+                }
+                Button("New Process") {
+                    if store.canAddProcess { showProcessBuilder = true } else { store.requestPaywall() }
+                }
+                Button("New Preferment") {
+                    if store.canAddPreferment { showPrefBuilder = true } else { store.requestPaywall() }
+                }
                 Button("Start New Session") { showStartDough = true }
                 Button("Cancel", role: .cancel) {}
             }
