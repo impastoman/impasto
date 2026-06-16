@@ -59,6 +59,7 @@
 		96BC23DC2FD2B710008088DC /* PhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BC23DB2FD2B710008088DC /* PhotoStore.swift */; };
 		96BC23DE2FD2B744008088DC /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BC23DD2FD2B744008088DC /* ImageCache.swift */; };
 		96D012922FC01BF900C565A4 /* PhotoShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D012902FC01BF900C565A4 /* PhotoShareView.swift */; };
+		96DFAB612FE10E37002D0D35 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 96DFAB602FE10E37002D0D35 /* Assets.xcassets */; };
 		96F1B24A2FBE3F6A0064ABDE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
@@ -117,6 +118,7 @@
 		96BC23DB2FD2B710008088DC /* PhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStore.swift; sourceTree = "<group>"; };
 		96BC23DD2FD2B744008088DC /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		96D012902FC01BF900C565A4 /* PhotoShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoShareView.swift; sourceTree = "<group>"; };
+		96DFAB602FE10E37002D0D35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -134,6 +136,7 @@
 		9670CAEC2FBC2CCC009EE043 = {
 			isa = PBXGroup;
 			children = (
+				96DFAB602FE10E37002D0D35 /* Assets.xcassets */,
 				96BC23DA2FD2A1E6008088DC /* Impasto-Info.plist */,
 				9670CB602FBC32E1009EE043 /* StesuraApp.swift */,
 				96BC23D12FD2A049008088DC /* Fonts */,
@@ -321,6 +324,7 @@
 				96BC23D92FD2A0B2008088DC /* PlusJakartaSans-VariableFont_wght.ttf in Resources */,
 				96BC23D42FD2A0A6008088DC /* Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf in Resources */,
 				96BC23D52FD2A0A6008088DC /* Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf in Resources */,
+				96DFAB612FE10E37002D0D35 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -547,6 +551,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 24FCMTYXR8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Impasto-Info.plist";
