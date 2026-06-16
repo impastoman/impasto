@@ -119,6 +119,7 @@
 		96BC23DD2FD2B744008088DC /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		96D012902FC01BF900C565A4 /* PhotoShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoShareView.swift; sourceTree = "<group>"; };
 		96DFAB602FE10E37002D0D35 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		96DFAB622FE12678002D0D35 /* Stesura.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Stesura.entitlements; sourceTree = "<group>"; };
 		96F1B2492FBE3F6A0064ABDE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -136,6 +137,7 @@
 		9670CAEC2FBC2CCC009EE043 = {
 			isa = PBXGroup;
 			children = (
+				96DFAB622FE12678002D0D35 /* Stesura.entitlements */,
 				96DFAB602FE10E37002D0D35 /* Assets.xcassets */,
 				96BC23DA2FD2A1E6008088DC /* Impasto-Info.plist */,
 				9670CB602FBC32E1009EE043 /* StesuraApp.swift */,
@@ -514,6 +516,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Stesura.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 24FCMTYXR8;
@@ -549,6 +552,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Stesura.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 24FCMTYXR8;
