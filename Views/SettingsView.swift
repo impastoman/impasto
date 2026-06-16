@@ -37,6 +37,18 @@ struct SettingsView: View {
                 }
                 .listRowBackground(Color.clear)
 
+                #if DEBUG
+                Section(header: Text("Developer").font(.jakarta(.semibold, size: 13))) {
+                    Toggle("Force Premium (debug builds only)", isOn: $premium.debugUnlock)
+                        .tint(.ruleBlue)
+                        .font(.jakarta(.regular, size: 15))
+                    Text("On = full app unlocked without buying. Off = exercise the free 2-item caps + paywall. Not present in release builds.")
+                        .font(.jakarta(.regular, size: 11))
+                        .foregroundColor(.secondary)
+                }
+                .listRowBackground(Color.clear)
+                #endif
+
                 Section(header: Text("Sharing").font(.jakarta(.semibold, size: 13))) {
                     TextField("Your name", text: $authorName)
                         .font(.jakarta(.regular, size: 17))

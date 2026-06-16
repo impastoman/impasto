@@ -23,21 +23,51 @@ final class PremiumStore: ObservableObject {
     /// Connect.
     static let productID = "com.stesura.app.premium"
 
+    /// Effective entitlement the app gates on. In release this equals the
+    /// real StoreKit purchase; in DEBUG it's OR'd with `debugUnlock`.
     @Published private(set) var isPremium = false
+    /// The real verified StoreKit entitlement (independent of the debug
+    /// override).
+    private var purchased = false
     @Published private(set) var product: Product?
     @Published var lastError: String?
     /// True while a purchase/restore network call is in flight (drives
     /// a spinner + disables buttons in the paywall).
     @Published var working = false
 
+    #if DEBUG
+    /// DEBUG-only dev override: when on, the app behaves as Premium without
+    /// a purchase, so you can use the full app while developing. Toggle it
+    /// off (Settings → Developer) to exercise the free-tier caps/paywall.
+    /// Persisted, defaults on. Compiled out of release builds entirely.
+    @Published var debugUnlock: Bool =
+        (UserDefaults.standard.object(forKey: "debug_force_premium") as? Bool) ?? true {
+        didSet {
+            UserDefaults.standard.set(debugUnlock, forKey: "debug_force_premium")
+            recomputePremium()
+        }
+    }
+    #endif
+
     private var updatesTask: Task<Void, Never>?
 
     init() {
         updatesTask = listenForTransactions()
+        recomputePremium()   // reflect the debug override immediately on launch
         Task {
             await loadProduct()
             await refreshEntitlement()
         }
+    }
+
+    /// Recompute the effective `isPremium` from the real purchase plus
+    /// (in DEBUG) the dev override.
+    private func recomputePremium() {
+        #if DEBUG
+        isPremium = purchased || debugUnlock
+        #else
+        isPremium = purchased
+        #endif
     }
 
     // No deinit: this store lives for the app's lifetime (@StateObject),
@@ -58,17 +88,20 @@ final class PremiumStore: ObservableObject {
         }
     }
 
-    /// Recompute `isPremium` from StoreKit's verified current entitlements.
+    /// Recompute the real purchase state from StoreKit's verified current
+    /// entitlements, then fold in the debug override.
     func refreshEntitlement() async {
+        var owned = false
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result,
                transaction.productID == Self.productID,
                transaction.revocationDate == nil {
-                isPremium = true
-                return
+                owned = true
+                break
             }
         }
-        isPremium = false
+        purchased = owned
+        recomputePremium()
     }
 
     /// Buy the unlock. No-op feedback on cancel; sets `isPremium` on a
