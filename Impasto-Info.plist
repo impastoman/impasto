@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Required because we declare CFBundleDocumentTypes (.stesura): NO =
+	     iOS copies the shared file into our Inbox to import from (we create
+	     a recipe from a copy; we never edit the user's original in place). -->
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
+	<!-- App uses only standard HTTPS (no non-exempt encryption) — declaring
+	     this skips the export-compliance prompt on every upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fraunces-Italic-VariableFont_SOFT,WONK,opsz,wght.ttf</string>
