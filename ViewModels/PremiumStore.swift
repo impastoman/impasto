@@ -1,5 +1,6 @@
 import StoreKit
 import SwiftUI
+import Combine   // @Published lives in Combine; required explicitly under the project's MemberImportVisibility feature
 
 /// StoreKit 2 manager for the one-time "Stesura Premium" unlock.
 ///
