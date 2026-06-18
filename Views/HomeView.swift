@@ -18,7 +18,7 @@ struct HomeView: View {
     @State private var showImportRecipe = false
     @State private var showSettings = false
 
-    private let appVersion = "0.9"
+    private let appVersion = "1.0"
 
     var body: some View {
         // ZStack wrapper is always in the hierarchy — the shouldReturnHome observer
