@@ -43,6 +43,7 @@ struct ImportRecipeView: View {
                 attemptParse(data: data)
             }
         }
+        .presentationBackground(Color.white)
         .preferredColorScheme(.light)
     }
 

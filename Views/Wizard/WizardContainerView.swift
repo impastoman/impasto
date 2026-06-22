@@ -241,6 +241,8 @@ struct WizardContainerView: View {
         } message: {
             Text(processWarnings.joined(separator: "\n"))
         }
+        .presentationBackground(Color.white)
+        .preferredColorScheme(.light)
     }
 
     var navBar: some View {

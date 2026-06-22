@@ -181,6 +181,8 @@ struct StandaloneBlendBuilderView: View {
                 }
             }
         }
+        .presentationBackground(Color.white)
+        .preferredColorScheme(.light)
     }
 }
 
@@ -309,6 +311,8 @@ struct StandaloneProcessBuilderView: View {
                 for i in processCards.indices { processCards[i].sortOrder = i }
             }
         }
+        .presentationBackground(Color.white)
+        .preferredColorScheme(.light)
     }
 }
 
@@ -519,5 +523,7 @@ struct StandalonePrefermentBuilderView: View {
                 }
             }
         }
+        .presentationBackground(Color.white)
+        .preferredColorScheme(.light)
     }
 }
