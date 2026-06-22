@@ -417,7 +417,7 @@ struct LiveSessionView: View {
                 }
             } else {
                 let isTimedAuto = vm.preFlight.sessionMode == .automatic && vm.currentCard?.type.isActionOnly == false
-                LongPressStepButton(label: isTimedAuto ? "Proceed →" : "Next Step →", filled: true) {
+                LongPressStepButton(label: isTimedAuto ? "Hold To Proceed" : "Hold For Next Step", filled: true) {
                     vm.completeCard()
                 }
             }

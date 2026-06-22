@@ -475,7 +475,7 @@ private struct LongPressBeginButton: View {
     @State private var progress: Double = 0
 
     var body: some View {
-        Text("Begin Session →")
+        Text("Hold To Begin Session")
             .font(.jakarta(.regular, size: 14))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)

@@ -29,6 +29,7 @@ struct SessionLogView: View {
     @State private var showPhotoOptions = false
     @State private var showCamera = false
     @State private var showLibraryPicker = false
+    @State private var durationEdits: [UUID: String] = [:]
     @State private var viewerItem: PhotoViewerItem? = nil
     @State private var showShare = false
 
@@ -203,8 +204,20 @@ struct SessionLogView: View {
                                     .font(.jakarta(.regular, size: 10))
                                     .foregroundColor(.secondary)
                                 if let actual {
-                                    Text(shortTime(actual))
-                                        .font(.jakarta(.regular, size: 13))
+                                    TextField(editableTime(actual), text: Binding(
+                                        get: { durationEdits[card.id] ?? editableTime(actual) },
+                                        set: { durationEdits[card.id] = $0 }
+                                    ))
+                                    .keyboardType(.numbersAndPunctuation)
+                                    .font(.jakarta(.regular, size: 13))
+                                    .multilineTextAlignment(.center)
+                                    .frame(width: 60)
+                                    .onSubmit {
+                                        if let str = durationEdits[card.id], let t = parseTime(str) {
+                                            vm.actualDurations[card.id] = t
+                                        }
+                                        durationEdits.removeValue(forKey: card.id)
+                                    }
                                 } else {
                                     Text("—")
                                         .font(.jakarta(.regular, size: 13))
@@ -226,9 +239,19 @@ struct SessionLogView: View {
                         }
                     } else {
                         if let actual {
-                            Text(shortTime(actual))
-                                .font(.jakarta(.regular, size: 12))
-                                .foregroundColor(.secondary)
+                            TextField(editableTime(actual), text: Binding(
+                                get: { durationEdits[card.id] ?? editableTime(actual) },
+                                set: { durationEdits[card.id] = $0 }
+                            ))
+                            .keyboardType(.numbersAndPunctuation)
+                            .font(.jakarta(.regular, size: 12))
+                            .foregroundColor(.secondary)
+                            .onSubmit {
+                                if let str = durationEdits[card.id], let t = parseTime(str) {
+                                    vm.actualDurations[card.id] = t
+                                }
+                                durationEdits.removeValue(forKey: card.id)
+                            }
                         } else {
                             Text("action step")
                                 .font(.jakarta(.regular, size: 11))
@@ -376,6 +399,21 @@ struct SessionLogView: View {
         let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60
         if h > 0 { return String(format: "%dh %02dm", h, m) }
         return String(format: "%dm %02ds", m, Int(t) % 60)
+    }
+
+    func editableTime(_ t: TimeInterval) -> String {
+        let h = Int(t) / 3600; let m = (Int(t) % 3600) / 60; let s = Int(t) % 60
+        if h > 0 { return String(format: "%d:%02d:%02d", h, m, s) }
+        return String(format: "%d:%02d", m, s)
+    }
+
+    func parseTime(_ s: String) -> TimeInterval? {
+        let parts = s.split(separator: ":").compactMap { Int($0) }
+        switch parts.count {
+        case 2: return TimeInterval(parts[0] * 60 + parts[1])
+        case 3: return TimeInterval(parts[0] * 3600 + parts[1] * 60 + parts[2])
+        default: return nil
+        }
     }
 
     func deltaString(_ delta: TimeInterval) -> String {
