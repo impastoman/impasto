@@ -30,7 +30,7 @@ struct LiveSessionView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: "FAFAF5").ignoresSafeArea()
+                Color.white.ignoresSafeArea()
 
                 if vm.isInBakeStep {
                     bakeStepView
@@ -127,7 +127,7 @@ struct LiveSessionView: View {
                         )
                         .padding(12)
                 }
-                .background(Color(hex: "FAFAF5").ignoresSafeArea())
+                .background(Color.white.ignoresSafeArea())
                 .navigationTitle("Session Notes")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -170,10 +170,10 @@ struct LiveSessionView: View {
                         }
                         .padding(28)
                     }
-                    .background(Color(hex: "FAFAF5").ignoresSafeArea())
+                    .background(Color.white.ignoresSafeArea())
                     .navigationTitle("Up Next")
                     .navigationBarTitleDisplayMode(.inline)
-                    .toolbarBackground(Color(hex: "FAFAF5"), for: .navigationBar)
+                    .toolbarBackground(Color.white, for: .navigationBar)
                     .toolbarBackground(.visible, for: .navigationBar)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {

@@ -49,7 +49,6 @@ extension View {
     func meadList() -> some View {
         self
             .scrollContentBackground(.hidden)
-            .background(Color.paperWhite.ignoresSafeArea())
             // Draw the margin line as an OVERLAY (on top of rows), not a
             // background. Most Lists use opaque default row backgrounds
             // that paint over a background strip, leaving the red showing
