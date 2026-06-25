@@ -105,6 +105,10 @@ struct SettingsView: View {
                     .listRowBackground(Color.clear)
                 }
                 Section(header: Text("What's New").font(.jakarta(.semibold, size: 13))) {
+                    changelogEntry(version: "1.1", date: "June 2026", notes: [
+                        "What's New changelog added to Settings",
+                        "Formatting corrections throughout the app",
+                    ])
                     changelogEntry(version: "1.0", date: "June 2026", notes: [
                         "Initial release",
                         "Recipe builder: flour blends, processes, preferments",
