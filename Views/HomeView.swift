@@ -18,8 +18,6 @@ struct HomeView: View {
     @State private var showImportRecipe = false
     @State private var showSettings = false
 
-    private let appVersion = "1.0"
-
     var body: some View {
         // ZStack wrapper is always in the hierarchy — the shouldReturnHome observer
         // must live here, not on `launch`, so it remains active when MainTabView
@@ -55,10 +53,6 @@ struct HomeView: View {
                     .font(.jakarta(.medium, size: 11))
                     .foregroundColor(Color(hex: "9A9688"))
                     .tracking(2)
-                Text("v\(appVersion)")
-                    .font(.jakarta(.regular, size: 10))
-                    .foregroundColor(Color(hex: "C4B89A"))
-
                 Spacer()
 
                 if splashDone {
