@@ -58,7 +58,7 @@ struct SettingsView: View {
 
                 if showTips {
                     Section {
-                        Text("When you share a recipe, this name shows as “Shared by …” in the other person's import preview. Leave blank to share anonymously.")
+                        Text("When you share a recipe, this name shows as "Shared by …" in the other person's import preview. Leave blank to share anonymously.")
                             .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                     }
@@ -104,19 +104,12 @@ struct SettingsView: View {
                     }
                     .listRowBackground(Color.clear)
                 }
-                Section(header: Text("What's New").font(.jakarta(.semibold, size: 13))) {
-                    changelogEntry(version: "1.1", date: "June 2026", notes: [
-                        "What's New changelog added to Settings",
-                        "Formatting corrections throughout the app",
-                    ])
-                    changelogEntry(version: "1.0", date: "June 2026", notes: [
-                        "Initial release",
-                        "Recipe builder: flour blends, processes, preferments",
-                        "Guided live sessions with stage timers",
-                        "Bake log with photos, ratings, and notes",
-                        "Share recipes baker-to-baker via .stesura files",
-                        "Stesura Premium: one-time unlock for unlimited library",
-                    ])
+
+                Section {
+                    NavigationLink("What's New") {
+                        ChangelogView()
+                    }
+                    .font(.jakarta(.regular, size: 17))
                 }
                 .listRowBackground(Color.clear)
             }
@@ -134,24 +127,51 @@ struct SettingsView: View {
         }
         .preferredColorScheme(.light)
     }
+}
+
+// MARK: - Changelog
+
+struct ChangelogView: View {
+    var body: some View {
+        List {
+            changelogEntry(version: "1.1", date: "June 2026", notes: [
+                "What's New changelog added to Settings",
+                "Formatting corrections throughout the app",
+            ])
+            changelogEntry(version: "1.0", date: "June 2026", notes: [
+                "Initial release",
+                "Recipe builder: flour blends, processes, preferments",
+                "Guided live sessions with stage timers",
+                "Bake log with photos, ratings, and notes",
+                "Share recipes baker-to-baker via .stesura files",
+                "Stesura Premium: one-time unlock for unlimited library",
+            ])
+        }
+        .meadList()
+        .navigationTitle("What's New")
+        .navigationBarTitleDisplayMode(.inline)
+    }
 
     private func changelogEntry(version: String, date: String, notes: [String]) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("v\(version)")
-                    .font(.jakarta(.semibold, size: 14))
-                    .foregroundColor(.stesuraInk)
-                Text(date)
-                    .font(.jakarta(.regular, size: 12))
-                    .foregroundColor(.secondary)
-            }
-            ForEach(notes, id: \.self) { note in
-                HStack(alignment: .top, spacing: 6) {
-                    Text("·").font(.jakarta(.regular, size: 13)).foregroundColor(.secondary)
-                    Text(note).font(.jakarta(.regular, size: 13)).foregroundColor(.stesuraInkSoft)
+        Section {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("v\(version)")
+                        .font(.jakarta(.semibold, size: 14))
+                        .foregroundColor(.stesuraInk)
+                    Text(date)
+                        .font(.jakarta(.regular, size: 12))
+                        .foregroundColor(.secondary)
+                }
+                ForEach(notes, id: \.self) { note in
+                    HStack(alignment: .top, spacing: 6) {
+                        Text("·").font(.jakarta(.regular, size: 13)).foregroundColor(.secondary)
+                        Text(note).font(.jakarta(.regular, size: 13)).foregroundColor(.stesuraInkSoft)
+                    }
                 }
             }
+            .padding(.vertical, 4)
         }
-        .padding(.vertical, 4)
+        .listRowBackground(Color.clear)
     }
 }
