@@ -104,6 +104,17 @@ struct SettingsView: View {
                     }
                     .listRowBackground(Color.clear)
                 }
+                Section(header: Text("What's New").font(.jakarta(.semibold, size: 13))) {
+                    changelogEntry(version: "1.0", date: "June 2026", notes: [
+                        "Initial release",
+                        "Recipe builder: flour blends, processes, preferments",
+                        "Guided live sessions with stage timers",
+                        "Bake log with photos, ratings, and notes",
+                        "Share recipes baker-to-baker via .stesura files",
+                        "Stesura Premium: one-time unlock for unlimited library",
+                    ])
+                }
+                .listRowBackground(Color.clear)
             }
             .meadList()
             .sheet(isPresented: $showPaywall) { PaywallView().environmentObject(premium) }
@@ -118,5 +129,25 @@ struct SettingsView: View {
             }
         }
         .preferredColorScheme(.light)
+    }
+
+    private func changelogEntry(version: String, date: String, notes: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("v\(version)")
+                    .font(.jakarta(.semibold, size: 14))
+                    .foregroundColor(.stesuraInk)
+                Text(date)
+                    .font(.jakarta(.regular, size: 12))
+                    .foregroundColor(.secondary)
+            }
+            ForEach(notes, id: \.self) { note in
+                HStack(alignment: .top, spacing: 6) {
+                    Text("·").font(.jakarta(.regular, size: 13)).foregroundColor(.secondary)
+                    Text(note).font(.jakarta(.regular, size: 13)).foregroundColor(.stesuraInkSoft)
+                }
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
