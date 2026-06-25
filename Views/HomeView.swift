@@ -49,7 +49,7 @@ struct HomeView: View {
                 Text("Stesura")
                     .font(.fraunces(.semibold, size: 56))
                     .foregroundColor(Color(hex: "2C2A24"))
-                Text("Dough Manager")
+                Text("Dough Notebook")
                     .font(.jakarta(.medium, size: 11))
                     .foregroundColor(Color(hex: "9A9688"))
                     .tracking(2)
