@@ -179,7 +179,7 @@ struct PaywallView: View {
                     .font(.fraunces(.semibold, size: 30))
                     .foregroundColor(.stesuraInk)
 
-                Text("The free version keeps 2 each of recipes, flour blends, processes, and preferments. Unlock to save as many as you like - and import recipes friends share with you.")
+                Text("The free version keeps 2 each of recipes, flour blends, processes, and preferments. Unlock to save as many as you like and import recipes friends share with you.")
                     .font(.jakarta(.regular, size: 15))
                     .foregroundColor(.stesuraInkSoft)
                     .multilineTextAlignment(.center)
@@ -188,7 +188,7 @@ struct PaywallView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     benefit("Unlimited recipes, blends, processes & preferments")
                     benefit("Import shared recipes anytime")
-                    benefit("One-time purchase - yours forever")
+                    benefit("One-time purchase. Yours forever.")
                 }
                 .padding(.vertical, 4)
 
