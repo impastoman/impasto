@@ -58,7 +58,7 @@ struct SettingsView: View {
 
                 if showTips {
                     Section {
-                        Text("When you share a recipe, this name shows as "Shared by …" in the other person's import preview. Leave blank to share anonymously.")
+                        Text("When you share a recipe, this name shows as \"Shared by …\" in the other person's import preview. Leave blank to share anonymously.")
                             .font(.jakarta(.regular, size: 11))
                             .foregroundColor(.secondary)
                     }
