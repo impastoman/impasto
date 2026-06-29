@@ -66,6 +66,7 @@ struct SessionLogView: View {
                 ratingSection
                 photoSection
                 stageReportSection
+                hydrationSummarySection
                 pauseSection
                 fermentSection
                 bakeResultsSection
@@ -168,6 +169,33 @@ struct SessionLogView: View {
             .padding(.vertical, 4)
         }
         .listRowBackground(Color.clear)
+    }
+
+    private var hydrationIsSeparate: Bool {
+        recipe.method != .direct && !recipe.prefermentCountInHydration
+    }
+
+    var hydrationSummarySection: some View {
+        Section(header: Text("Hydration").font(.jakarta(.semibold, size: 13))) {
+            HStack {
+                Text("True hydration").font(.jakarta(.regular, size: 15))
+                Spacer()
+                Text("\(Int((recipe.trueHydration * 100).rounded()))%")
+                    .font(.jakarta(.regular, size: 15))
+                    .foregroundColor(Color(hex: "7FA2BD"))
+            }
+            if hydrationIsSeparate {
+                HStack {
+                    Text("Stated (dough only)")
+                        .font(.jakarta(.regular, size: 13)).foregroundColor(.secondary)
+                    Spacer()
+                    Text("\(Int((recipe.finalHydration * 100).rounded()))%")
+                        .font(.jakarta(.regular, size: 13)).foregroundColor(.secondary)
+                }
+                Text("Counts the preferment's flour and water on top of the dough.")
+                    .font(.jakarta(.regular, size: 11)).foregroundColor(.secondary)
+            }
+        }
     }
 
     var stageReportSection: some View {

@@ -98,6 +98,13 @@ struct WizardContainerView: View {
         }()
         _prefermentRatio       = State(initialValue: initRatio)
         _prefermentFlourBlend  = State(initialValue: r?.prefermentFlourBlend ?? FlourBlend())
+        _prefermentCountInHydration = State(initialValue: r?.prefermentCountInHydration ?? true)
+        _prefermentIsSourdough = State(initialValue: r?.prefermentIsSourdough ?? false)
+        _starterFeedInterval   = State(initialValue: r?.starterFeedInterval ?? 0)
+        _starterFeedUnit       = State(initialValue: r?.starterFeedUnit ?? "hours")
+        _starterDiscardGrams   = State(initialValue: r?.starterDiscardGrams ?? 0)
+        _starterFeedFlourGrams = State(initialValue: r?.starterFeedFlourGrams ?? 0)
+        _starterFeedWaterGrams = State(initialValue: r?.starterFeedWaterGrams ?? 0)
     }
 
     @State private var step = 0
@@ -130,6 +137,13 @@ struct WizardContainerView: View {
     @State private var name: String
     @State private var prefermentRatio: Double
     @State private var prefermentFlourBlend: FlourBlend
+    @State private var prefermentCountInHydration: Bool
+    @State private var prefermentIsSourdough: Bool
+    @State private var starterFeedInterval: Double
+    @State private var starterFeedUnit: String
+    @State private var starterDiscardGrams: Double
+    @State private var starterFeedFlourGrams: Double
+    @State private var starterFeedWaterGrams: Double
 
     var isEditMode: Bool { if case .edit = mode { return true }; return false }
     var isForkMode: Bool { if case .fork = mode { return true }; return false }
@@ -159,7 +173,14 @@ struct WizardContainerView: View {
                                        prefEntryMode: $prefEntryMode,
                                        timeline: $timeline,
                                        prefermentRatio: $prefermentRatio,
-                                       prefermentFlourBlend: $prefermentFlourBlend)
+                                       prefermentFlourBlend: $prefermentFlourBlend,
+                                       countInHydration: $prefermentCountInHydration,
+                                       isSourdough: $prefermentIsSourdough,
+                                       feedInterval: $starterFeedInterval,
+                                       feedUnit: $starterFeedUnit,
+                                       discardGrams: $starterDiscardGrams,
+                                       feedFlourGrams: $starterFeedFlourGrams,
+                                       feedWaterGrams: $starterFeedWaterGrams)
                 case 6: TechniqueStepView(
                             mixerType: $mixerType,
                             autolyse: $autolyse,
@@ -292,6 +313,13 @@ struct WizardContainerView: View {
         recipe.bigaRatio             = usePreferment ? prefermentRatio : 0
         recipe.flourBlend            = flourBlend
         recipe.prefermentFlourBlend  = usePreferment ? prefermentFlourBlend : FlourBlend()
+        recipe.prefermentCountInHydration = usePreferment ? prefermentCountInHydration : true
+        recipe.prefermentIsSourdough = usePreferment ? prefermentIsSourdough : false
+        recipe.starterFeedInterval   = prefermentIsSourdough ? starterFeedInterval : 0
+        recipe.starterFeedUnit       = starterFeedUnit
+        recipe.starterDiscardGrams   = prefermentIsSourdough ? starterDiscardGrams : 0
+        recipe.starterFeedFlourGrams = prefermentIsSourdough ? starterFeedFlourGrams : 0
+        recipe.starterFeedWaterGrams = prefermentIsSourdough ? starterFeedWaterGrams : 0
         recipe.processCards          = processCards
         recipe.bakeSetups            = bakeSetups
         return recipe

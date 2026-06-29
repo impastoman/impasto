@@ -31,6 +31,15 @@ struct Recipe: Identifiable, Codable {
     var bakeLogs: [BakeLog]
     var folderName: String
 
+    // Preferment hydration accounting + sourdough starter maintenance (1.2)
+    var prefermentCountInHydration: Bool   // true = counted in recipe hydration (default), false = kept separate
+    var prefermentIsSourdough: Bool
+    var starterFeedInterval: Double        // feeding schedule value (paired with unit)
+    var starterFeedUnit: String            // "hours" or "days"
+    var starterDiscardGrams: Double
+    var starterFeedFlourGrams: Double      // prefilled from discard + starter hydration, editable
+    var starterFeedWaterGrams: Double
+
     init(
         name: String,
         style: PizzaStyle = .neapolitan,
@@ -68,6 +77,13 @@ struct Recipe: Identifiable, Codable {
         self.notes = ""
         self.bakeLogs = []
         self.folderName = ""
+        self.prefermentCountInHydration = true
+        self.prefermentIsSourdough = false
+        self.starterFeedInterval = 0
+        self.starterFeedUnit = "hours"
+        self.starterDiscardGrams = 0
+        self.starterFeedFlourGrams = 0
+        self.starterFeedWaterGrams = 0
         self.flourBlend = FlourBlend()
         self.prefermentFlourBlend = FlourBlend()
         self.bakeSetups = []
@@ -101,6 +117,13 @@ struct Recipe: Identifiable, Codable {
         notes               = try c.decode(String.self, forKey: .notes)
         bakeLogs            = (try? c.decode([BakeLog].self, forKey: .bakeLogs)) ?? []
         folderName          = (try? c.decode(String.self, forKey: .folderName)) ?? ""
+        prefermentCountInHydration = (try? c.decode(Bool.self, forKey: .prefermentCountInHydration)) ?? true
+        prefermentIsSourdough      = (try? c.decode(Bool.self, forKey: .prefermentIsSourdough)) ?? false
+        starterFeedInterval        = (try? c.decode(Double.self, forKey: .starterFeedInterval)) ?? 0
+        starterFeedUnit            = (try? c.decode(String.self, forKey: .starterFeedUnit)) ?? "hours"
+        starterDiscardGrams        = (try? c.decode(Double.self, forKey: .starterDiscardGrams)) ?? 0
+        starterFeedFlourGrams      = (try? c.decode(Double.self, forKey: .starterFeedFlourGrams)) ?? 0
+        starterFeedWaterGrams      = (try? c.decode(Double.self, forKey: .starterFeedWaterGrams)) ?? 0
         flourBlend          = (try? c.decode(FlourBlend.self, forKey: .flourBlend)) ?? FlourBlend()
         prefermentFlourBlend = (try? c.decode(FlourBlend.self, forKey: .prefermentFlourBlend)) ?? FlourBlend()
         bakeSetups          = (try? c.decode([BakeSetup].self, forKey: .bakeSetups)) ?? []
@@ -119,6 +142,17 @@ struct Recipe: Identifiable, Codable {
     var additionalFlour: Double   { totalFlour - bigaFlour }
     var additionalWater: Double   { totalWater - bigaWater }
     var bassinageReserveGrams: Double { totalWater * bassinageReservePct }
+
+    /// Overall hydration counting the preferment's own flour and water.
+    /// In count-in mode the preferment is already part of the totals, so this
+    /// equals finalHydration. In "keep separate" mode the preferment is treated
+    /// as added on top, so the true figure differs from the stated hydration.
+    var trueHydration: Double {
+        guard method != .direct, !prefermentCountInHydration else { return finalHydration }
+        let f = totalFlour + bigaFlour
+        let w = totalWater + bigaWater
+        return f > 0 ? w / f : finalHydration
+    }
 
     var bigaPercentage: Double {
         get { bigaRatio }

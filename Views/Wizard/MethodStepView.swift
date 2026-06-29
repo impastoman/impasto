@@ -8,6 +8,13 @@ struct MethodStepView: View {
     @Binding var timeline: Timeline
     @Binding var prefermentRatio: Double
     @Binding var prefermentFlourBlend: FlourBlend
+    @Binding var countInHydration: Bool
+    @Binding var isSourdough: Bool
+    @Binding var feedInterval: Double
+    @Binding var feedUnit: String
+    @Binding var discardGrams: Double
+    @Binding var feedFlourGrams: Double
+    @Binding var feedWaterGrams: Double
     @EnvironmentObject var store: RecipeStore
 
     @State private var showLibraryPicker = false
@@ -43,8 +50,10 @@ struct MethodStepView: View {
                 case .load, .create:
                     prefStatusRow
                     hydrationSection
+                    hydrationAccountingSection
                     ratioSection
                     prefBlendSection
+                    sourdoughSection
                     timelineWarningSection
                     saveToLibrarySection
                 }
@@ -319,6 +328,86 @@ struct MethodStepView: View {
                 }
             }
         } header: { Text("Preferment flour") }
+    }
+
+    var hydrationAccountingSection: some View {
+        Section {
+            Picker("Hydration", selection: $countInHydration) {
+                Text("Count in hydration").tag(true)
+                Text("Keep separate").tag(false)
+            }
+            .pickerStyle(.segmented)
+        } header: {
+            Text("Preferment hydration")
+        } footer: {
+            Text(countInHydration
+                 ? "The preferment's flour and water are included in the recipe's stated hydration (standard)."
+                 : "The preferment is treated separately, like a black box. Your true hydration — counting the preferment — is shown at session end.")
+                .font(.jakarta(.regular, size: 11))
+                .tipText()
+        }
+    }
+
+    var sourdoughSection: some View {
+        Section {
+            Toggle("Sourdough starter", isOn: $isSourdough)
+                .tint(Color(hex: "7FA2BD"))
+                .onChange(of: isSourdough) { _, on in if on { recomputeFeed() } }
+
+            if isSourdough {
+                HStack {
+                    Text("Feed every").font(.jakarta(.regular, size: 15))
+                    Spacer()
+                    TextField("0", value: $feedInterval, format: .number)
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.center)
+                        .frame(width: 56)
+                        .font(.jakarta(.regular, size: 15))
+                        .inputBox()
+                    Picker("", selection: $feedUnit) {
+                        Text("hours").tag("hours")
+                        Text("days").tag("days")
+                    }
+                    .pickerStyle(.menu)
+                    .font(.jakarta(.regular, size: 13))
+                }
+
+                feedRow(label: "Discard", value: $discardGrams)
+                    .onChange(of: discardGrams) { _, _ in recomputeFeed() }
+                feedRow(label: "New flour", value: $feedFlourGrams)
+                feedRow(label: "New water", value: $feedWaterGrams)
+            }
+        } header: {
+            Text("Sourdough maintenance")
+        } footer: {
+            Text("New flour and water are prefilled from your discard and the preferment hydration above (a \(Int(prefermentHydration * 100))% starter). Edit either if you feed differently.")
+                .font(.jakarta(.regular, size: 11))
+                .tipText()
+        }
+        .onChange(of: prefermentHydration) { _, _ in if isSourdough { recomputeFeed() } }
+    }
+
+    private func feedRow(label: String, value: Binding<Double>) -> some View {
+        HStack {
+            Text(label).font(.jakarta(.regular, size: 15))
+            Spacer()
+            TextField("0", value: value, format: .number)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.center)
+                .frame(width: 64)
+                .font(.jakarta(.regular, size: 15))
+                .inputBox()
+            Text("g").foregroundColor(.secondary)
+        }
+    }
+
+    /// Splits the discard back into flour and water at the starter's own hydration.
+    /// For hydration H (= water/flour): flour = D/(1+H), water = D·H/(1+H).
+    private func recomputeFeed() {
+        let h = prefermentHydration
+        guard discardGrams > 0, h > 0 else { return }
+        feedFlourGrams = (discardGrams / (1 + h) * 10).rounded() / 10
+        feedWaterGrams = (discardGrams * h / (1 + h) * 10).rounded() / 10
     }
 
     @ViewBuilder
