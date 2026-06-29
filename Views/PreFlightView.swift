@@ -192,17 +192,7 @@ struct PreFlightView: View {
             Toggle("Preferment is ready", isOn: $data.prefermentReady)
                 .tint(Color(hex: "7FA2BD"))
 
-            if data.prefermentReady {
-                HStack {
-                    Text("Age")
-                    Spacer()
-                    TextField("hours", value: $data.prefermentAgeHours, format: .number)
-                        .keyboardType(.decimalPad).multilineTextAlignment(.center).frame(width: 80)
-                        .font(.jakarta(.regular, size: 17))
-                        .inputBox()
-                    Text("h").foregroundColor(.secondary)
-                }
-            } else {
+            if !data.prefermentReady {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
                     Text("Preferment not started — timeline may shift")

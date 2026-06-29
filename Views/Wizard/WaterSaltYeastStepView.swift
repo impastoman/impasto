@@ -154,26 +154,31 @@ struct WaterSaltYeastStepView: View {
                     }
                 }
                 .font(.jakarta(.regular, size: 17))
+                .onChange(of: yeastType) { _, t in
+                    if t == .noYeast { yeastPct = 0; yeastText = "0" }
+                }
 
-                HStack {
-                    Text("Quantity")
-                        .font(.jakarta(.regular, size: 17))
-                    Spacer()
-                    TextField("0.1", text: $yeastText)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.center)
-                        .frame(width: 52)
-                        .font(.jakarta(.regular, size: 17))
-                        .padding(.vertical, 4).padding(.horizontal, 4)
-                        .background(Color(hex: "F0EDE4"))
-                        .cornerRadius(5)
-                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
-                        .onChange(of: yeastText) { _, val in
-                            let f = val.filter { $0.isNumber || $0 == "." }
-                            if f != val { yeastText = f; return }
-                            if let d = Double(val), d > 0 { yeastPct = d / 100 }
-                        }
-                    Text("%").foregroundColor(.secondary)
+                if yeastType != .noYeast {
+                    HStack {
+                        Text("Quantity")
+                            .font(.jakarta(.regular, size: 17))
+                        Spacer()
+                        TextField("0.1", text: $yeastText)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 52)
+                            .font(.jakarta(.regular, size: 17))
+                            .padding(.vertical, 4).padding(.horizontal, 4)
+                            .background(Color(hex: "F0EDE4"))
+                            .cornerRadius(5)
+                            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color(hex: "7FA2BD").opacity(0.5), lineWidth: 1))
+                            .onChange(of: yeastText) { _, val in
+                                let f = val.filter { $0.isNumber || $0 == "." }
+                                if f != val { yeastText = f; return }
+                                if let d = Double(val), d > 0 { yeastPct = d / 100 }
+                            }
+                        Text("%").foregroundColor(.secondary)
+                    }
                 }
             } header: {
                 Text("Yeast")

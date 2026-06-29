@@ -62,6 +62,7 @@ enum VolumeConversion {
         case .instantDry: return 3.0
         case .activeDry:  return 3.0
         case .fresh:      return 4.0
+        case .noYeast:    return 0
         case .other:      return 3.0
         }
     }

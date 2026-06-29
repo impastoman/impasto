@@ -147,6 +147,7 @@ enum YeastType: String, Codable, CaseIterable {
     case instantDry = "Instant dry"
     case activeDry  = "Active dry"
     case fresh      = "Fresh"
+    case noYeast    = "No yeast"
     case other      = "Other"
 
     var typicalRange: String {
@@ -154,6 +155,7 @@ enum YeastType: String, Codable, CaseIterable {
         case .instantDry: return "0.05–0.5% of flour · less for cold ferment"
         case .activeDry:  return "0.1–0.6% of flour · proof in warm water first"
         case .fresh:      return "0.15–1.5% of flour · ~3× the instant dry amount"
+        case .noYeast:    return "No commercial yeast — relying on sourdough or natural leavening"
         case .other:      return "refer to your yeast's packaging"
         }
     }
