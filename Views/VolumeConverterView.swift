@@ -69,6 +69,10 @@ struct VolumeConverterView: View {
     @State private var yeastEntry  = IngredientEntry(unit: .teaspoons)
     @State private var yeastType: YeastType = .instantDry
 
+    @State private var usesSourdough = false
+    @State private var starterFlour = FlourEntry(unit: .grams, flourType: .allPurpose)
+    @State private var starterWater = IngredientEntry(unit: .grams)
+
     private var canReview: Bool {
         flourEntries.allSatisfy { !$0.amountText.isEmpty && $0.grams > 0 }
             && !waterEntry.amountText.isEmpty
@@ -82,6 +86,7 @@ struct VolumeConverterView: View {
                 waterSection
                 saltSection
                 yeastSection
+                sourdoughSection
                 hintSection
             }
             .navigationTitle("Convert a Recipe")
@@ -101,6 +106,9 @@ struct VolumeConverterView: View {
                             saltKind: saltKind,
                             yeastEntry: yeastEntry,
                             yeastType: yeastType,
+                            starterFlourGrams: usesSourdough ? starterFlour.grams : 0,
+                            starterWaterGrams: usesSourdough ? VolumeConversion.waterToGrams(starterWater.amount, starterWater.unit) : 0,
+                            starterFlourType: starterFlour.flourType,
                             onConvert: onConvert
                         )
                     } label: {
@@ -181,6 +189,65 @@ struct VolumeConverterView: View {
         } header: { sectionHeader("Yeast (optional)") }
     }
 
+    private var sourdoughSection: some View {
+        Section {
+            Toggle("Uses sourdough starter", isOn: $usesSourdough)
+                .font(.jakarta(.regular, size: 14))
+                .tint(Color(hex: "7FA2BD"))
+
+            if usesSourdough {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Starter flour")
+                        .font(.jakarta(.regular, size: 11))
+                        .foregroundColor(.secondary)
+                    AmountUnitRow(
+                        amountText: $starterFlour.amountText,
+                        unit: $starterFlour.unit,
+                        units: [.grams, .cups, .tablespoons, .ounces],
+                        placeholder: "e.g. 50"
+                    )
+                    Picker("Flour type", selection: $starterFlour.flourType) {
+                        ForEach(FlourType.allCases, id: \.self) { type in
+                            Text(type.rawValue).tag(type)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .font(.jakarta(.regular, size: 13))
+                }
+                .padding(.vertical, 2)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Starter water")
+                        .font(.jakarta(.regular, size: 11))
+                        .foregroundColor(.secondary)
+                    AmountUnitRow(
+                        amountText: $starterWater.amountText,
+                        unit: $starterWater.unit,
+                        units: [.grams, .cups, .tablespoons, .milliliters, .ounces],
+                        placeholder: "e.g. 50"
+                    )
+                }
+                .padding(.vertical, 2)
+
+                if let h = starterHydration {
+                    Text("Starter hydration: \(Int(h * 100))%  ·  folded into total flour & water for true hydration")
+                        .font(.jakarta(.regular, size: 11))
+                        .foregroundColor(.secondary)
+                }
+            }
+        } header: {
+            sectionHeader("Sourdough (optional)")
+        }
+    }
+
+    /// Starter water ÷ starter flour, in grams. nil until both are entered.
+    private var starterHydration: Double? {
+        let flourG = starterFlour.grams
+        let waterG = VolumeConversion.waterToGrams(starterWater.amount, starterWater.unit)
+        guard flourG > 0, waterG > 0 else { return nil }
+        return waterG / flourG
+    }
+
     private var hintSection: some View {
         Section {
             Text("Fractions like \"1/4\", mixed numbers like \"1 1/4\", and decimals like \"0.25\" all work for amounts.")
@@ -257,16 +324,22 @@ struct ConversionReviewView: View {
     let saltKind: SaltKind
     let yeastEntry: IngredientEntry
     let yeastType: YeastType
+    var starterFlourGrams: Double = 0
+    var starterWaterGrams: Double = 0
+    var starterFlourType: FlourType = .allPurpose
     let onConvert: (ConvertedFormula) -> Void
+
+    private var usesStarter: Bool { starterFlourGrams > 0 || starterWaterGrams > 0 }
 
     // MARK: Computed weights
 
+    /// Flour from the entered flours plus the sourdough starter's flour portion.
     private var totalFlourGrams: Double {
-        flourEntries.reduce(0) { $0 + $1.grams }
+        flourEntries.reduce(0) { $0 + $1.grams } + starterFlourGrams
     }
 
     private var waterGrams: Double {
-        VolumeConversion.waterToGrams(waterEntry.amount, waterEntry.unit)
+        VolumeConversion.waterToGrams(waterEntry.amount, waterEntry.unit) + starterWaterGrams
     }
 
     private var saltGrams: Double {
@@ -283,16 +356,37 @@ struct ConversionReviewView: View {
     private var saltPct:   Double { totalFlourGrams > 0 ? saltGrams   / totalFlourGrams : 0 }
     private var yeastPct:  Double { totalFlourGrams > 0 ? yeastGrams  / totalFlourGrams : 0 }
 
+    /// Combined flour weights by type — entered flours plus the starter's flour.
+    private var flourGramsByType: [(type: FlourType, grams: Double)] {
+        var totals: [FlourType: Double] = [:]
+        for entry in flourEntries where entry.grams > 0 {
+            totals[entry.flourType, default: 0] += entry.grams
+        }
+        if starterFlourGrams > 0 {
+            totals[starterFlourType, default: 0] += starterFlourGrams
+        }
+        // Preserve a stable order: entered flours first, starter type last if new.
+        var ordered: [FlourType] = []
+        for entry in flourEntries where entry.grams > 0 && !ordered.contains(entry.flourType) {
+            ordered.append(entry.flourType)
+        }
+        if starterFlourGrams > 0 && !ordered.contains(starterFlourType) {
+            ordered.append(starterFlourType)
+        }
+        return ordered.map { ($0, totals[$0] ?? 0) }
+    }
+
     private var builtFlourBlend: FlourBlend {
         var blend = FlourBlend()
-        if flourEntries.count == 1 {
-            blend.components = [FlourComponent(type: flourEntries[0].flourType, percentage: 100)]
+        let combined = flourGramsByType
+        if combined.count == 1 {
+            blend.components = [FlourComponent(type: combined[0].type, percentage: 100)]
         } else {
-            blend.components = flourEntries.map { entry in
+            blend.components = combined.map { item in
                 let pct = totalFlourGrams > 0
-                    ? (entry.grams / totalFlourGrams * 1000).rounded() / 10   // 1 decimal place
+                    ? (item.grams / totalFlourGrams * 1000).rounded() / 10   // 1 decimal place
                     : 0
-                return FlourComponent(type: entry.flourType, percentage: pct)
+                return FlourComponent(type: item.type, percentage: pct)
             }
         }
         return blend
@@ -385,6 +479,27 @@ struct ConversionReviewView: View {
                     grams: yeastGrams,
                     annotation: String(format: "%.3f%% baker's", yeastPct * 100)
                 )
+            }
+
+            if usesStarter {
+                if starterFlourGrams > 0 {
+                    Divider().padding(.leading, 16)
+                    tableRow(
+                        label: "Starter flour (\(starterFlourType.rawValue))",
+                        amount: "",
+                        grams: starterFlourGrams,
+                        annotation: "counted in total flour"
+                    )
+                }
+                if starterWaterGrams > 0 {
+                    Divider().padding(.leading, 16)
+                    tableRow(
+                        label: "Starter water",
+                        amount: "",
+                        grams: starterWaterGrams,
+                        annotation: "counted in hydration"
+                    )
+                }
             }
         }
         .background(Color.white)
