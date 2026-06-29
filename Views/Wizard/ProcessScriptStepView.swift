@@ -129,6 +129,12 @@ struct ProcessScriptStepView: View {
                 processCards.move(fromOffsets: from, toOffset: safeTo)
                 for i in processCards.indices { processCards[i].sortOrder = i }
             }
+            .onDelete { offsets in
+                let locked = IndexSet(processCards.indices.filter { processCards[$0].type == .combine })
+                let safe = offsets.subtracting(locked)
+                processCards.remove(atOffsets: safe)
+                for i in processCards.indices { processCards[i].sortOrder = i }
+            }
 
             Button {
                 showAddSheet = true

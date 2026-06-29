@@ -15,6 +15,7 @@ struct HomeView: View {
     @State private var initialTab: Int = 0
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
+    @State private var showFormulaWizard = false
     @State private var showImportRecipe = false
     @State private var showSettings = false
 
@@ -162,18 +163,23 @@ struct HomeView: View {
                 showMainApp = true
             }
         }
-        .sheet(isPresented: $showVolumeConverter) {
+        .sheet(isPresented: $showVolumeConverter, onDismiss: {
+            if pendingFormula != nil { showFormulaWizard = true }
+        }) {
             VolumeConverterView { formula in
                 pendingFormula = formula
                 showVolumeConverter = false
             }
         }
-        .sheet(item: $pendingFormula) { formula in
-            WizardContainerView(convertedFormula: formula) { recipe in
-                store.add(recipe)
-                store.activeRecipeId = recipe.id
-                pendingFormula = nil
-                showMainApp = true
+        .sheet(isPresented: $showFormulaWizard) {
+            if let formula = pendingFormula {
+                WizardContainerView(convertedFormula: formula) { recipe in
+                    store.add(recipe)
+                    store.activeRecipeId = recipe.id
+                    pendingFormula = nil
+                    showFormulaWizard = false
+                    showMainApp = true
+                }
             }
         }
         .sheet(isPresented: $showBlendBuilder) {

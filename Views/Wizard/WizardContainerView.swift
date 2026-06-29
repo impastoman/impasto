@@ -102,7 +102,6 @@ struct WizardContainerView: View {
 
     @State private var step = 0
     @State private var reviewMode = false
-    @State private var showProcessWarningAlert = false
     @State private var flourBlendMode: FlourBlendStepView.EntryMode
     @State private var prefEntryMode: MethodStepView.PrefEntryMode
     @State private var processMode: ProcessScriptStepView.EntryMode
@@ -137,19 +136,6 @@ struct WizardContainerView: View {
 
     let totalSteps = 10
 
-    var processWarnings: [String] {
-        let enabled = processCards.sorted { $0.sortOrder < $1.sortOrder }
-        var warnings: [String] = []
-        for (i, card) in enabled.enumerated() {
-            let preceding = Set(enabled.prefix(i).map { $0.type })
-            for needed in card.type.warningIfPlacedAfter {
-                if !preceding.contains(needed) && enabled.contains(where: { $0.type == needed }) {
-                    warnings.append("\"\(card.title)\" should come after \"\(needed.title)\"")
-                }
-            }
-        }
-        return warnings
-    }
 
     var body: some View {
         NavigationStack {
@@ -235,12 +221,6 @@ struct WizardContainerView: View {
             }
         }
         .interactiveDismissDisabled(step > 0)
-        .alert("Process Order Issues", isPresented: $showProcessWarningAlert) {
-            Button("Fix manually", role: .cancel) { }
-            Button("Proceed anyway") { step += 1 }
-        } message: {
-            Text(processWarnings.joined(separator: "\n"))
-        }
         .presentationBackground(Color.white)
         .preferredColorScheme(.light)
     }
@@ -256,11 +236,7 @@ struct WizardContainerView: View {
                     .buttonStyle(StesuraButtonStyle(filled: true))
             } else if step < totalSteps - 1 {
                 Button("Next →") {
-                    if step == 7 && !processWarnings.isEmpty {
-                        showProcessWarningAlert = true
-                    } else {
-                        step += 1
-                    }
+                    step += 1
                 }
                 .buttonStyle(StesuraButtonStyle(filled: true))
                 .disabled((step == 3 && !flourBlend.isValid)
