@@ -33,7 +33,7 @@ struct LibraryView: View {
     @State private var showNewFolderAlert = false
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
-    @State private var showFormulaWizard  = false
+    @State private var stagedFormula: ConvertedFormula? = nil
     @State private var showSettings       = false
     // Folder-move sheets
     @State private var recipeToMove: Recipe? = nil
@@ -160,20 +160,20 @@ struct LibraryView: View {
             }
         }
         .sheet(isPresented: $showVolumeConverter, onDismiss: {
-            if pendingFormula != nil { showFormulaWizard = true }
+            if let f = stagedFormula {
+                stagedFormula = nil
+                DispatchQueue.main.async { pendingFormula = f }
+            }
         }) {
             VolumeConverterView { formula in
-                pendingFormula = formula
+                stagedFormula = formula
                 showVolumeConverter = false
             }
         }
-        .sheet(isPresented: $showFormulaWizard) {
-            if let formula = pendingFormula {
-                WizardContainerView(convertedFormula: formula) { recipe in
-                    store.add(recipe)
-                    pendingFormula = nil
-                    showFormulaWizard = false
-                }
+        .sheet(item: $pendingFormula) { formula in
+            WizardContainerView(convertedFormula: formula) { recipe in
+                store.add(recipe)
+                pendingFormula = nil
             }
         }
         .sheet(isPresented: $showBlendBuilder) {

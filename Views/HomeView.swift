@@ -15,7 +15,7 @@ struct HomeView: View {
     @State private var initialTab: Int = 0
     @State private var showVolumeConverter = false
     @State private var pendingFormula: ConvertedFormula? = nil
-    @State private var showFormulaWizard = false
+    @State private var stagedFormula: ConvertedFormula? = nil
     @State private var showImportRecipe = false
     @State private var showSettings = false
 
@@ -164,22 +164,25 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $showVolumeConverter, onDismiss: {
-            if pendingFormula != nil { showFormulaWizard = true }
+            // Present the wizard only after the converter sheet has fully torn
+            // down — presenting a second sheet from the same view mid-dismiss
+            // gives a blank sheet. The async hop guarantees clean sequencing.
+            if let f = stagedFormula {
+                stagedFormula = nil
+                DispatchQueue.main.async { pendingFormula = f }
+            }
         }) {
             VolumeConverterView { formula in
-                pendingFormula = formula
+                stagedFormula = formula
                 showVolumeConverter = false
             }
         }
-        .sheet(isPresented: $showFormulaWizard) {
-            if let formula = pendingFormula {
-                WizardContainerView(convertedFormula: formula) { recipe in
-                    store.add(recipe)
-                    store.activeRecipeId = recipe.id
-                    pendingFormula = nil
-                    showFormulaWizard = false
-                    showMainApp = true
-                }
+        .sheet(item: $pendingFormula) { formula in
+            WizardContainerView(convertedFormula: formula) { recipe in
+                store.add(recipe)
+                store.activeRecipeId = recipe.id
+                pendingFormula = nil
+                showMainApp = true
             }
         }
         .sheet(isPresented: $showBlendBuilder) {
