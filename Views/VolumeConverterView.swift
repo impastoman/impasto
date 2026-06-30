@@ -72,6 +72,7 @@ struct VolumeConverterView: View {
     @State private var usesSourdough = false
     @State private var starterFlour = FlourEntry(unit: .grams, flourType: .allPurpose)
     @State private var starterWater = IngredientEntry(unit: .grams)
+    @State private var showReview = false
 
     private var canReview: Bool {
         flourEntries.allSatisfy { !$0.amountText.isEmpty && $0.grams > 0 }
@@ -92,25 +93,28 @@ struct VolumeConverterView: View {
             .navigationTitle("Convert a Recipe")
             .tint(Color(hex: "7FA2BD"))
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $showReview) {
+                ConversionReviewView(
+                    flourEntries: flourEntries,
+                    waterEntry: waterEntry,
+                    saltEntry: saltEntry,
+                    saltKind: saltKind,
+                    yeastEntry: yeastEntry,
+                    yeastType: yeastType,
+                    starterFlourGrams: usesSourdough ? starterFlour.grams : 0,
+                    starterWaterGrams: usesSourdough ? VolumeConversion.waterToGrams(starterWater.amount, starterWater.unit) : 0,
+                    starterFlourType: starterFlour.flourType,
+                    onConvert: onConvert
+                )
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
                         .font(.jakarta(.regular, size: 13))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        ConversionReviewView(
-                            flourEntries: flourEntries,
-                            waterEntry: waterEntry,
-                            saltEntry: saltEntry,
-                            saltKind: saltKind,
-                            yeastEntry: yeastEntry,
-                            yeastType: yeastType,
-                            starterFlourGrams: usesSourdough ? starterFlour.grams : 0,
-                            starterWaterGrams: usesSourdough ? VolumeConversion.waterToGrams(starterWater.amount, starterWater.unit) : 0,
-                            starterFlourType: starterFlour.flourType,
-                            onConvert: onConvert
-                        )
+                    Button {
+                        showReview = true
                     } label: {
                         Text("Review →")
                             .font(.jakarta(.regular, size: 13))
