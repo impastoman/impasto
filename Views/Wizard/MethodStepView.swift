@@ -89,6 +89,13 @@ struct MethodStepView: View {
                     prefermentFlourBlend = selected.flourBlend
                     useCustomPrefBlend = true
                 }
+                countInHydration = selected.countInHydration
+                isSourdough = selected.isSourdough
+                feedInterval = selected.feedInterval
+                feedUnit = selected.feedUnit
+                discardGrams = selected.discardGrams
+                feedFlourGrams = selected.feedFlourGrams
+                feedWaterGrams = selected.feedWaterGrams
                 savePrefName = selected.name
                 prefSaved = true
                 prefEntryMode = .load
@@ -445,6 +452,13 @@ struct MethodStepView: View {
                     )
                     pref.ratioPercent = prefermentRatio
                     if useCustomPrefBlend { pref.flourBlend = prefermentFlourBlend }
+                    pref.countInHydration = countInHydration
+                    pref.isSourdough = isSourdough
+                    pref.feedInterval = isSourdough ? feedInterval : 0
+                    pref.feedUnit = feedUnit
+                    pref.discardGrams = isSourdough ? discardGrams : 0
+                    pref.feedFlourGrams = isSourdough ? feedFlourGrams : 0
+                    pref.feedWaterGrams = isSourdough ? feedWaterGrams : 0
                     store.addSavedPreferment(pref)
                     prefSaved = true
                 }
