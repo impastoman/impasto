@@ -155,8 +155,11 @@ struct HomeView: View {
                 .transition(.opacity)
             }
         }
-        .sheet(isPresented: $showWizard) {
-            WizardContainerView { recipe in
+        .sheet(isPresented: $showWizard, onDismiss: { pendingFormula = nil }) {
+            // One wizard sheet for both "+ New Recipe" (pendingFormula nil) and the
+            // volume-converter handoff (pendingFormula set). Reusing the proven
+            // sheet avoids a second wizard sheet that presented blank.
+            WizardContainerView(convertedFormula: pendingFormula) { recipe in
                 store.add(recipe)
                 store.activeRecipeId = recipe.id
                 showWizard = false
@@ -164,25 +167,20 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $showVolumeConverter, onDismiss: {
-            // Present the wizard only after the converter sheet has fully torn
-            // down — presenting a second sheet from the same view mid-dismiss
-            // gives a blank sheet. The async hop guarantees clean sequencing.
+            // Open the wizard only after the converter sheet has fully torn down —
+            // presenting a second sheet from the same view mid-dismiss gives a
+            // blank sheet. The delay clears the dismiss animation first.
             if let f = stagedFormula {
                 stagedFormula = nil
-                DispatchQueue.main.async { pendingFormula = f }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    pendingFormula = f
+                    showWizard = true
+                }
             }
         }) {
             VolumeConverterView { formula in
                 stagedFormula = formula
                 showVolumeConverter = false
-            }
-        }
-        .sheet(item: $pendingFormula) { formula in
-            WizardContainerView(convertedFormula: formula) { recipe in
-                store.add(recipe)
-                store.activeRecipeId = recipe.id
-                pendingFormula = nil
-                showMainApp = true
             }
         }
         .sheet(isPresented: $showBlendBuilder) {
